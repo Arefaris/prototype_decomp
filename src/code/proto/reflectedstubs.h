@@ -14,6 +14,7 @@
 #include "code/engine/reflectedclasses2.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
+#include "code/proto/behaviours/aimbehaviour.h"
 
 namespace proto
 {
@@ -1205,36 +1206,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
-	};
-
-	class AimBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
-	};
-
-	class TankAimBehaviour : public proto::AimBehaviour
-	{
-	public:
-		explicit TankAimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(proto::AimBehaviour)];
-	};
-
-	class HelicopterAimBehaviour : public proto::AimBehaviour
-	{
-	public:
-		explicit HelicopterAimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(proto::AimBehaviour)];
 	};
 
 	class MusicTreeBehaviour : public engine::FightTreeBehaviour
