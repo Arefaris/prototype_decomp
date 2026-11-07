@@ -104599,3 +104599,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ??1?$Command1@XD@om@@UAE@XZ = 0x10AA0B40 ; function size:0x7 | public: virtual __thiscall om::Command1<void,char>::~Command1<void,char>(void) (name guess)
 ??1?$Command1@XF@om@@UAE@XZ = 0x10AA1160 ; function size:0x7 | public: virtual __thiscall om::Command1<void,short>::~Command1<void,short>(void) (name guess)
 ??1?$Command1@XH@om@@UAE@XZ = 0x10AA1780 ; function size:0x7 | public: virtual __thiscall om::Command1<void,int>::~Command1<void,int>(void) (name guess)
+??_R0?AV?$MetaSimpleType@V?$Name@UCaseSensitive64BitKey@om@@@om@@@om@@@8 = 0x111F3000 ; data size:0x8 | RTTI type descriptor
