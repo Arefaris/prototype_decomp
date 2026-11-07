@@ -24,8 +24,10 @@ namespace fight
 	// GLOBAL: ENGINE 0x11275ECC
 	int gActionPeak;
 
-#define ENGINE_OFFSET(type, member) \n	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
-#define ENGINE_NAME_OFFSET(type, member) \n	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
+#define ENGINE_OFFSET(type, member) \
+	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+#define ENGINE_NAME_OFFSET(type, member) \
+	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
 	// FUNCTION: ENGINE 0x105A46C0
 	// NONMATCHING: the engine subtracts the position from the end address of the buffer, ours folds the buffer away (85.1 %)
