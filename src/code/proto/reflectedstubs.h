@@ -20,6 +20,7 @@
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
+#include "code/proto/worldboundary.h"
 
 namespace proto
 {
@@ -151,16 +152,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
-	};
-
-	class WorldBoundary : public content::MetaLoadObject
-	{
-	public:
-		WorldBoundary();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
 	class WorldTriggers : public content::MetaLoadObject
