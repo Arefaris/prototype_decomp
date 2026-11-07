@@ -98937,3 +98937,4 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?RemoveDeadEntries@SoldierBudgets@proto@@QAEXXZ = 0x10388EC0 ; function size:0x61 | proto::SoldierBudgets::RemoveDeadEntries (name guess)
 ?ReturnSpawnedObjects@SoldierBudgets@proto@@QAE_NH@Z = 0x10388F40 ; function size:0x100 | proto::SoldierBudgets::ReturnSpawnedObjects (name guess)
 ?MakeRoom@SoldierBudgets@proto@@QAE_N_N@Z = 0x103892E0 ; function size:0x66 | proto::SoldierBudgets::MakeRoom (name guess)
+?EraseSwap@?$ArrayDynamic@VCharacterBudgetEntry@proto@@UAllocatorNew@container@@@container@@QAEPAVCharacterBudgetEntry@proto@@PAV34@@Z = 0x10388B10 ; function size:0x1B | public: class proto::CharacterBudgetEntry * __thiscall container::ArrayDynamic<class proto::Characte (kept copy)

@@ -281,21 +281,21 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10388D50
-	// NONMATCHING: the engine keeps the iterator in eax and ends in a tail call of the entry's assignment (29.8 %)
-#ifdef NONMATCHING
 	CharacterBudgetEntry* SoldierBudgets::RemoveEntry(engine::GameObjectHandle handle)
 	{
 		CharacterBudgetEntry* entry = entries.begin;
-		CharacterBudgetEntry* last = entries.end;
-		while (entry != last)
+		if (entry == entries.end)
+		{
+			return entry;
+		}
+		while (entry != entries.end)
 		{
 			if (entry->handle == handle)
 			{
-				last = last - 1;
-				entries.end = last;
-				if (entry < last)
+				entries.end--;
+				if (entry < entries.end)
 				{
-					*entry = *last;
+					return &(*entry = *entries.end);
 				}
 				return entry;
 			}
@@ -304,7 +304,6 @@ namespace proto
 		return entry;
 	}
 
-#endif
 
 	// FUNCTION: ENGINE 0x10388EC0
 	void SoldierBudgets::RemoveDeadEntries()
@@ -428,5 +427,6 @@ template proto::CharacterBudgetEntry* EntryArray::Insert(proto::CharacterBudgetE
 // FUNCTION: ENGINE 0x10388640
 // FUNCTION: ENGINE 0x103886F0
 // FUNCTION: ENGINE 0x10388AE0
+// FUNCTION: ENGINE 0x10388B10
 // FUNCTION: ENGINE 0x10388B40
 // FUNCTION: ENGINE 0x103890A0

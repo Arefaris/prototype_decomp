@@ -268,8 +268,7 @@ namespace container
 			end--;
 			if (position < end)
 			{
-				*position = *end;
-				return position;
+				return &(*position = *end);
 			}
 			return end;
 		}
