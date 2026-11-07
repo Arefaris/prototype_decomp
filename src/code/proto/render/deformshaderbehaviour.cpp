@@ -1,4 +1,6 @@
 // proto::DeformShaderBehaviour: see the header. The file name and the names are guesses.
+#include "code/container/arraydynamicstatic.h"
+#include "code/container/constructcopies.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/core/heap.h"
 #include "code/math/mathutils.h"
@@ -102,8 +104,8 @@ namespace proto
 			if (drawable.IsValid())
 			{
 				DeformShaderModifier* modifier = new DeformShaderModifier();
-				modifier->dents = dents;
-				modifier->bias = bias;
+				modifier->dents = current.dents;
+				modifier->bias = current.bias;
 				drawable.ApplyModifierAgain(modifier);
 			}
 		}
@@ -113,15 +115,15 @@ namespace proto
 			if (drawable.IsValid())
 			{
 				DeformShaderModifier* modifier = new DeformShaderModifier();
-				modifier->dents = dents;
-				modifier->bias = bias;
+				modifier->dents = current.dents;
+				modifier->bias = current.bias;
 				drawable.ApplyModifierAgain(modifier);
 			}
 		}
 		bool faded = false;
 		for (int i = 0; i < count; i++)
 		{
-			Dent& dent = dents.dents[i];
+			Dent& dent = current.dents.dents[i];
 			if (dent.unknown14 > 0.0f)
 			{
 				float step = dt / dent.unknown14;
@@ -146,12 +148,102 @@ namespace proto
 			if (drawable.IsValid())
 			{
 				DeformShaderModifier* modifier = new DeformShaderModifier();
-				modifier->dents = dents;
-				modifier->bias = bias;
+				modifier->dents = current.dents;
+				modifier->bias = current.bias;
 				drawable.ApplyModifierAgain(modifier);
 			}
 		}
 		Listen2(0x100, changed);
+	}
+
+	// FUNCTION: ENGINE 0x102D43F0
+	// NONMATCHING: the copies and the branches are the engine's; the engine forms the middle of the source in another
+	// register (about 70 %)
+#ifdef NONMATCHING
+	DentBuffer& DentBuffer::operator=(const DentBuffer& other)
+	{
+		unsigned int otherSize = other.end - other.dents;
+		unsigned int size = end - dents;
+		if (otherSize <= size)
+		{
+			end = container::AssignRange(other.dents, other.end, dents);
+			return *this;
+		}
+		const Dent* middle = other.dents + size;
+		container::AssignRange(other.dents, middle, dents);
+		end = container::ConstructCopiesN(middle, otherSize - size, end);
+		return *this;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x102D3FA0
+	engine::render::Drawable DeformShaderBehaviour::GetDrawable()
+	{
+		engine::render::Drawable result;
+		GetHighLODMessage message;
+		owner->SendMessage(&message);
+		if (message.drawable.IsValid())
+		{
+			result = message.drawable;
+		}
+		else
+		{
+			engine::GetCurrentDrawable current;
+			owner->SendMessage(&current);
+			result = current.drawable;
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x102D4880
+	DeformShaderBehaviour::DeformShaderBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner)
+	{
+		count = 0;
+		dirty = false;
+		biasSent = false;
+		Listen(0x14, true);
+		Listen(0x3D, true);
+		Listen(2, true);
+		Listen2(0x100, true);
+	}
+
+	// FUNCTION: ENGINE 0x102D4C10
+	void DeformShaderBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+			ClearDents();
+			break;
+		case 0x3D:
+			switch ((unsigned short)message->id)
+			{
+			case 7:
+				ClearDents();
+				break;
+			case 0xB:
+				AddCollisionDent(message);
+				break;
+			}
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102D4900
+	DeformShaderBehaviour::~DeformShaderBehaviour()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x102D42C0
+	void DeformShaderBehaviour::ClearDents()
+	{
+		current.dents.Clear();
+		count = 0;
+		dirty = true;
+		biasSent = false;
+		Listen2(0x100, true);
+		SetLODBiasMessage message(1.0f);
+		owner->SendMessage(&message);
 	}
 
 	// FUNCTION: ENGINE 0x102D4810
@@ -255,3 +347,10 @@ namespace proto
 // FUNCTION: ENGINE 0x102D3F70
 // FUNCTION: ENGINE 0x102D4240
 // FUNCTION: ENGINE 0x102D4850
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102CC9A0
+// FUNCTION: ENGINE 0x102D3C50
+// FUNCTION: ENGINE 0x102D3EE0
+// FUNCTION: ENGINE 0x102D43E0
+// FUNCTION: ENGINE 0x102D51C0
