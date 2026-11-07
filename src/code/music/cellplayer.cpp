@@ -1,6 +1,9 @@
 // The cell player's enumeration of states, reflected as an om meta enumeration (a template instance of the om library).
 #include "code/music/cellplayer.h"
 #include "code/music/cue.h"
+#include "code/om/dynamicarray.h"
+#include "code/om/dynamicobjectentity.h"
+#include "code/om/dynamicproperty.h"
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 
@@ -218,4 +221,24 @@ namespace om
 	template const char* MetaClass<music::MGraphCellPlayer>::AllocationTag();
 	// FUNCTION: ENGINE 0x105E2FE0
 	template void* MetaClass<music::MGraphCellPlayer>::operator new(size_t);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E2CF0
+	template String DynamicProperty<String>::GetValue() const;
+
+	// FUNCTION: ENGINE 0x105E2D30
+	template DynamicProperty<bool>* DynamicObject::FindTypedProperty<bool>(ClassName);
+	// FUNCTION: ENGINE 0x105E2DB0
+	template DynamicProperty<String>* DynamicObject::FindTypedProperty<String>(ClassName);
+	// FUNCTION: ENGINE 0x105E2E30
+	template DynamicProperty<DynamicArray<String, unsigned short> >* DynamicObject::FindTypedProperty<DynamicArray<String, unsigned short> >(ClassName);
+
+	// FUNCTION: ENGINE 0x105E3040
+	template DynamicProperty<bool>* DynamicObjectEntity::FindTypedProperty<bool>(ClassName);
+	// FUNCTION: ENGINE 0x105E3060
+	template DynamicProperty<String>* DynamicObjectEntity::FindTypedProperty<String>(ClassName);
+	// FUNCTION: ENGINE 0x105E3080
+	template DynamicProperty<DynamicArray<String, unsigned short> >* DynamicObjectEntity::FindTypedProperty<DynamicArray<String, unsigned short> >(ClassName);
 }
