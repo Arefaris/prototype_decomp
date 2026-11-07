@@ -4,7 +4,9 @@
 #define PROTO_FIGHTITEMS_AI_AIACTIONMESSAGES_H
 
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/messages/airequestmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/gameobjectparams.h"
 
 namespace fight
 {
@@ -26,6 +28,22 @@ namespace engine
 	extern core::Name<core::CaseSensitiveKey> gDriverAITakingOff;
 	// 0x11255360: the listeners of the scenario messages ("scenario"; aifightitemnames.cpp)
 	extern MessageListeners gScenario38;
+}
+
+namespace engine
+{
+	// RTTI: engine::FightGetGameObjectParamsMessage: the object answers the parameters its fight is created with (null when it has none)
+	struct FightGetGameObjectParamsMessage : public NonintrusiveMessage
+	{
+		FightGetGameObjectParamsMessage() : NonintrusiveMessage(0xb, 0x10), params(0)
+		{
+		}
+		virtual ~FightGetGameObjectParamsMessage()
+		{
+		}
+
+		GameObjectParams* params;  // +0xC
+	};
 }
 
 namespace proto
@@ -99,6 +117,63 @@ namespace proto
 
 		int unknownC;
 		core::Name<core::CaseSensitiveKey> name;  // +0x10
+	};
+
+	// What the perception of an object knows about one other object (the part the conditions read; 0x30 bytes)
+	struct PerceptionStatusEntry
+	{
+		engine::HandleBase object;  // +0x0
+		unsigned char unknown4[0x10];
+		float time;  // +0x14: how long ago the object was seen
+		unsigned char unknown18[0x18];
+	};
+
+	// The entries of a perception (begin and end of an array)
+	struct PerceptionStatusList
+	{
+		PerceptionStatusEntry* begin;  // +0x0
+		PerceptionStatusEntry* end;  // +0x4
+	};
+
+	// RTTI: proto::GetStatusPerceptionMsg: the object answers what its perception knows about other objects
+	struct GetStatusPerceptionMsg : public PerceptionMessage
+	{
+		GetStatusPerceptionMsg() : PerceptionMessage(0), list(0)
+		{
+		}
+		virtual ~GetStatusPerceptionMsg()
+		{
+		}
+
+		PerceptionStatusList* list;  // +0xC
+	};
+
+	// RTTI: proto::ThreatInMemoryMessage: the object answers whether a threat is in its memory
+	struct ThreatInMemoryMessage : public ThreatMessage
+	{
+		ThreatInMemoryMessage(int newThreat, int newValue) : ThreatMessage(2), threat(newThreat), value(newValue), found(false)
+		{
+		}
+		virtual ~ThreatInMemoryMessage()
+		{
+		}
+
+		int threat;  // +0xC
+		int value;  // +0x10
+		bool found;  // +0x14
+	};
+
+	// RTTI: proto::GetLastThreatMessage: the object answers the last threat that hit it
+	struct GetLastThreatMessage : public engine::IntrusiveMessage
+	{
+		GetLastThreatMessage() : engine::IntrusiveMessage(0x28, 7), threat()
+		{
+		}
+		virtual ~GetLastThreatMessage()
+		{
+		}
+
+		engine::GameObjectHandle threat;  // +0xC
 	};
 
 	// What an object follows (the part the follow target action reads)

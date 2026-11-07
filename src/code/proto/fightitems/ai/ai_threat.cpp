@@ -1,13 +1,21 @@
 // Fight items of the ai group: ThreatCondition, ThreatInMemoryCondition, ThreatCanSeeCondition, LastThreatConditionGroupCondition, ThreatCanGrabCondition, ThreatStoreCondition, ThreatBallTrack, ThreatDodgeTrack, ThreatMemoryResetTrack, ThreatSendToTargetTrack (unit 0x10253340 - 0x10255E00; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_threat.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/engine/fight/effecttrack.h"
 
 namespace proto
 {
 	namespace fightitems
 	{
+		namespace motion
+		{
+			// 0x10127B10 (another unit; name guess): the index of the part of an object's drawable that a joint name stands for, or -1
+			int FindDrawablePart(engine::GameObject* object, const core::Name<core::CaseSensitiveKey>* name);
+		}
+
 		namespace ai
 		{
 			fight::Property** gThreatConditionProperties;  // 0x11255C20
@@ -874,6 +882,63 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10219230
+			math::Vector* ThreatBallAction::GetOrigin(math::Vector* origin)
+			{
+				engine::GameObject* object = target.Get();
+				math::Matrix world = object->transform->value;
+				engine::Attribute<proto::PartLookup*>* attribute = (engine::Attribute<proto::PartLookup*>*)object->FindAttribute(proto::gDrawableAttributeName);
+				if (attribute != 0 && &attribute->value != 0)
+				{
+					proto::PartLookup* lookup = attribute->value;
+					if (lookup != 0)
+					{
+						int part = motion::FindDrawablePart(object, &link.object->joint);
+						if (part != 0xffff)
+						{
+							world.Multiply(lookup->matrices[part], world);
+						}
+					}
+				}
+				math::Vector offset;
+				const math::Vector* source = &link.object->offset;
+				offset.x = source->x;
+				offset.y = source->y;
+				offset.z = source->z;
+				world.Transform(offset, *origin);
+				return origin;
+			}
+
+			// FUNCTION: ENGINE 0x102191E0
+			void ThreatBallAction::Slot6()
+			{
+				if (link.object != 0 && link.object->timeToLive < 0.0f)
+				{
+					engine::GameObject* ball = unknown38.Get();
+					if (ball != 0)
+					{
+						ball->SetActive(false);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10219A60
+			bool ThreatBallAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* ball = unknown38.Get();
+				if (ball != 0)
+				{
+					math::Vector origin;
+					GetOrigin(&origin);
+					ball->SetPosition(origin);
+				}
+				return ball != 0;
+			}
+
 			// FUNCTION: ENGINE 0x10219930
 			fight::Action* ThreatBallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -945,6 +1010,63 @@ namespace proto
 					}
 				}
 				return false;
+			}
+
+			// FUNCTION: ENGINE 0x102181E0
+			// NONMATCHING: shrink-wrap; the engine saves ebp, edi and esi where the code needs them and sets ebx before the first call, best 70.8 %
+#ifdef NONMATCHING
+			bool ThreatInMemoryCondition::Evaluate(int a, int b, int c, int d)
+			{
+				int index = 0;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ThreatBallsGetMessage message;
+					object->SendMessage(&message);
+					for (index = 0; index < message.count; index++)
+					{
+						engine::GameObject* ball = message.balls[index].Get();
+						if (ball != 0)
+						{
+							ThreatGetInfoMessage info;
+							ball->SendMessage(&info);
+							if (info.unknown20 != 0)
+							{
+								ThreatInMemoryMessage memory(info.unknown20, info.unknown24);
+								object->SendMessage(&memory);
+								if (memory.found)
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10218E30
+			bool LastThreatConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetLastThreatMessage message;
+				object->SendMessage(&message);
+				engine::GameObjectHandle threat = message.threat;
+				if (!threat.IsValid())
+				{
+					return false;
+				}
+				engine::GameObjectParams* params = new engine::GameObjectParams(0x10001);
+				params->handle = threat;
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
 			}
 
 			// ---- actions end
@@ -1166,3 +1288,9 @@ namespace proto
 // FUNCTION: ENGINE 0x10218FE0
 // FUNCTION: ENGINE 0x10218FF0
 // FUNCTION: ENGINE 0x10217970
+// FUNCTION: ENGINE 0x102177A0
+// FUNCTION: ENGINE 0x102177E0
+// FUNCTION: ENGINE 0x102177F0
+// FUNCTION: ENGINE 0x10217820
+// FUNCTION: ENGINE 0x10217870
+// FUNCTION: ENGINE 0x102178A0

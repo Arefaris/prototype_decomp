@@ -383,10 +383,13 @@ namespace proto
 				// vftable slot 7 (0x10219A60)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x10219230 (name guess): where the ball starts, the offset of the track in the frame of its joint
+				math::Vector* GetOrigin(math::Vector* origin);
+
 				core::Link<ThreatBallTrack> link;  // +0x1C
 				engine::TrackWatch listener;  // +0x28
 				engine::GameObjectHandle target;  // +0x34
-				engine::HandleBase unknown38;  // +0x38
+				engine::GameObjectHandle unknown38;  // +0x38
 			};
 			// RTTI: proto::fightitems::ai::ThreatSendToTargetAction (9 vftable slots, 0x38 bytes)
 			class ThreatSendToTargetAction : public fight::Action

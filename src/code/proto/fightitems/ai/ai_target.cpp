@@ -3,6 +3,15 @@
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
+	}
+}
 
 namespace proto
 {
@@ -989,8 +998,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x102158F0
-			// NONMATCHING: the engine repeats the comparison with the flag at the end of both the valid and the invalid target path, ours shares one tail, best 90.4 %
-#ifdef NONMATCHING
 			bool TargetingCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
@@ -1011,7 +1018,148 @@ namespace proto
 					}
 				}
 				engine::GameObject* targetObject = target.Get();
-				return (targetObject != 0) == isTargeting;
+				bool targeting = targetObject != 0;
+				return isTargeting == targeting;
+			}
+
+			// FUNCTION: ENGINE 0x10215A90
+			bool TargetConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObjectHandle target = message.target;
+				engine::GameObject* targetObject = target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				engine::FightGetGameObjectParamsMessage paramsMessage;
+				targetObject->PostMessage(&paramsMessage);
+				engine::GameObjectParams* params = paramsMessage.params;
+				if (params == 0)
+				{
+					params = new engine::GameObjectParams(0x10001);
+					params->handle = target;
+				}
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10215D40
+			bool AutoTargetConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetAutoTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObjectHandle target = message.target;
+				engine::GameObject* targetObject = target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				engine::FightGetGameObjectParamsMessage paramsMessage;
+				targetObject->PostMessage(&paramsMessage);
+				engine::GameObjectParams* params = paramsMessage.params;
+				if (params == 0)
+				{
+					params = new engine::GameObjectParams(0x10001);
+					params->handle = target;
+				}
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10216290
+			bool TargetCanSeeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage targetMessage;
+				object->SendMessage(&targetMessage);
+				GetStatusPerceptionMsg statusMessage;
+				object->SendMessage(&statusMessage);
+				bool result = false;
+				if (targetMessage.target.IsValid() && statusMessage.list != 0)
+				{
+					for (PerceptionStatusEntry* entry = statusMessage.list->begin; entry != statusMessage.list->end; entry++)
+					{
+						if (entry->object == targetMessage.target)
+						{
+							float limit = since;
+							float seenTime = entry->time;
+							if (limit == engine::driving::gZero)
+							{
+								limit = 0.5f;
+							}
+							bool visible = seenTime <= limit;
+							result = visible == seen;
+							break;
+						}
+					}
+				}
+				return result;
+			}
+
+			// 0x10DCF0A0: the message value of each alert state (name guess)
+			extern const int gTargetAlertStateValues[];
+
+			// The answer given to the object asked last, kept for the frame (0x112556B0 / 0x112556B4 / 0x112556B8)
+			static unsigned int sAlertStateObject;
+			static int sAlertStateValue;
+			static int sAlertStateFrame;
+
+			// FUNCTION: ENGINE 0x10215FF0
+			// NONMATCHING: the engine keeps the condition in edi and the cache key in esi, ours the other way round, best 96.3 %
+#ifdef NONMATCHING
+			bool TargetAlertStateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				unsigned int key = (unsigned int)handle.index << 16;
+				key |= handle.serial;
+				if (sAlertStateObject == key && engine::GetGameObjectFrame() == sAlertStateFrame)
+				{
+					if (sAlertStateValue != -1)
+					{
+						return sAlertStateValue == gTargetAlertStateValues[state];
+					}
+					return false;
+				}
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool result = false;
+				GetTargetSuspicionStateTargetMessage message;
+				object->SendMessage(&message);
+				if (message.target.IsValid())
+				{
+					result = message.state == gTargetAlertStateValues[state];
+					sAlertStateValue = message.state;
+				}
+				else
+				{
+					sAlertStateValue = -1;
+				}
+				sAlertStateObject = key;
+				sAlertStateFrame = engine::GetGameObjectFrame();
+				return result;
 			}
 #endif
 
@@ -1035,8 +1183,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10215EE0
-			// NONMATCHING: the engine tests the target handle through a stored boolean (inline Get, setne, test), best 72 %
-#ifdef NONMATCHING
 			bool TargetHostileCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
@@ -1046,14 +1192,13 @@ namespace proto
 				}
 				GetTargetMessage message;
 				object->SendMessage(&message);
-				bool hostile = false;
-				if (message.target.IsValid())
+				bool hostile = message.target.Get() != 0;
+				if (hostile)
 				{
 					hostile = Unknown103BA7F0(object, message.target);
 				}
 				return isHostile == hostile;
 			}
-#endif
 
 			// ---- actions end
 						// FUNCTION: ENGINE 0x10216B00
@@ -1104,8 +1249,7 @@ namespace proto
 			}
 
 
-						// FUNCTION: ENGINE 0x10215C30
-			// EQUIVALENT: scheduling and block layout; the engine repeats the comparison with the flag at the end of both the valid and the invalid branch and loads the flag late, ours shares one comparison; the same message, the same table reads, best 85%
+			// FUNCTION: ENGINE 0x10215C30
 			bool AutoTargetingCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle((core::IRefCount*)c).Get();
@@ -1116,7 +1260,8 @@ namespace proto
 				GetAutoTargetMessage message;
 				object->SendMessage(&message);
 				engine::GameObject* target = message.target.Get();
-				return isAutoTargeting == (target != 0);
+				bool targeting = target != 0;
+				return isAutoTargeting == targeting;
 			}
 
 
@@ -1370,3 +1515,12 @@ namespace proto
 // FUNCTION: ENGINE 0x10252720
 // FUNCTION: ENGINE 0x10252750
 // FUNCTION: ENGINE 0x10252770
+// FUNCTION: ENGINE 0x1020A120
+// FUNCTION: ENGINE 0x1020B550
+// FUNCTION: ENGINE 0x1020B590
+// FUNCTION: ENGINE 0x10215660
+// FUNCTION: ENGINE 0x102156A0
+// FUNCTION: ENGINE 0x102156B0
+// FUNCTION: ENGINE 0x102156E0
+// FUNCTION: ENGINE 0x10216DC0
+// FUNCTION: ENGINE 0x10217790
