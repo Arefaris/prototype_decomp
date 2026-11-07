@@ -20,6 +20,7 @@
 #include "code/proto/webofintrigue/webnodelocator.h"
 #include "code/proto/ai/ambientmanager/intersectionbehaviour.h"
 #include "code/proto/ai/ambientmanager/intersectiondata.h"
+#include "code/proto/ai/ambientmanager/behaviours/pedalertreaction.h"
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
 #include "code/proto/behaviours/randomdeadpedbehaviour.h"
 #include "code/proto/behaviours/alertbehaviour.h"
@@ -45,8 +46,16 @@
 #include "code/proto/worldboundary.h"
 #include "code/proto/tunnelvolume.h"
 
+namespace ravenphysics
+{
+	class AbstractPhysicsObjectFactory;
+	class PhysicsObjectFactory;
+}
+
 namespace proto
 {
+	struct TargetSelectionWeights;
+
 	class TransformationDescription : public content::MetaLoadObject
 	{
 	public:
@@ -267,8 +276,24 @@ namespace proto
 		~PedBehaviourTunables();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x548 - sizeof(content::MetaLoadObject)];
+
+		// 0x1108BC2C: the object that was made last (its constructor stores itself there)
+		static PedBehaviourTunables* sInstance;
+
+		PedAlertReactionTable pedAlertReactionTable;  // +8
+		content::MetaObjectTemplate* pedestrianAlertTemplate;  // +0x488
+		unsigned char unknown48C[0x518 - 0x48C];
+		float unknown518;  // +0x518
+		float characterFadeTime;  // +0x51C
+		unsigned char unknown520[8];
+		TargetSelectionWeights* weights;  // +0x528
+		ravenphysics::AbstractPhysicsObjectFactory* alivePedestrianPhysicsObjectFactory;  // +0x52C
+		ravenphysics::AbstractPhysicsObjectFactory* deadPedestrianPhysicsObjectFactory;  // +0x530
+		ravenphysics::AbstractPhysicsObjectFactory* targetingPhysicsObjectFactory;  // +0x534
+		float impulseScale;  // +0x538
+		ravenphysics::PhysicsObjectFactory* maleRagdollFactory;  // +0x53C
+		ravenphysics::PhysicsObjectFactory* femaleRagdollFactory;  // +0x540
+		content::MetaObjectTemplate* pedestrianTemplate;  // +0x544
 	};
 
 	struct ConsumableProperties : public content::MetaLoadObject
@@ -632,8 +657,39 @@ namespace proto
 		explicit PedBehaviour(engine::GameObject* newOwner);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xE4 - sizeof(engine::Behaviour)];
+
+		// vftable slot 1 (0x10433280): nothing to do
+		virtual void Slot1();
+		// vftable slot 3 (0x10433290): also listens to message type 4 while active
+		virtual void OnActiveChanged(bool active);
+		// vftable slots 8 .. 20 (the pedestrian's own; the arguments of the ones not reconstructed are unknown)
+		// 0x1042FC10: how fast the pedestrian moves
+		virtual float GetSpeed();
+		// 0x1042FC20
+		virtual bool Slot9();
+		virtual void Slot10();
+		// 0x1043B700 / 0x1043C570
+		virtual bool Slot11();
+		virtual void Slot12();
+		virtual void Slot13();
+		virtual void Slot14();
+		virtual void Slot15();
+		// 0x10435360
+		virtual void Slot16();
+		// 0x1043BD30: takes the new state
+		virtual void SetState(int newState);
+		// 0x10433370: which kind of pedestrian this is (0 pedestrian, 1 cop, 2 infected, 3 soldier)
+		virtual int GetPedType();
+		virtual void Slot19();
+		virtual void Slot20();
+
+		unsigned char unknownC[0x18 - sizeof(engine::Behaviour)];
+		int unknown18;  // +0x18
+		unsigned char unknown1C[0x5C - 0x1C];
+		float speed;  // +0x5C
+		int unknown60;  // +0x60
+		int state;  // +0x64
+		unsigned char unknown68[0xE4 - 0x68];
 	};
 
 	class CharacterPedBehaviour : public engine::Behaviour
@@ -652,6 +708,10 @@ namespace proto
 		explicit InfectedPedBehaviour(engine::GameObject* newOwner);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x1042FC40 / 0x1042FC80
+		virtual int GetPedType();
+		virtual void SetState(int newState);
 	
 		unsigned char unknownTail[0xE4 - sizeof(proto::PedBehaviour)];
 	};
@@ -662,8 +722,19 @@ namespace proto
 		explicit CopPedBehaviour(engine::GameObject* newOwner);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xEC - sizeof(proto::PedBehaviour)];
+
+		// the overrides: 0x1042F040, 0x1042F070, 0x1042F090, 0x1042EFE0, 0x1042F0D0, 0x1042EFF0, 0x1042EFD0
+		virtual float GetSpeed();
+		virtual bool Slot9();
+		virtual bool Slot11();
+		virtual void Slot12();
+		virtual void Slot16();
+		virtual void SetState(int newState);
+		virtual int GetPedType();
+
+		bool unknownE4;  // +0xE4
+		unsigned char unknownE5[3];
+		int unknownE8;
 	};
 
 	class SoldierPedBehaviour : public proto::CopPedBehaviour
@@ -672,6 +743,9 @@ namespace proto
 		explicit SoldierPedBehaviour(engine::GameObject* newOwner);
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x1042EF60
+		virtual int GetPedType();
 	
 		unsigned char unknownTail[0xEC - sizeof(proto::CopPedBehaviour)];
 	};

@@ -10,6 +10,8 @@
 
 namespace proto
 {
+	struct ActivateVehicleMovementBehaviourMessage;
+
 	class AIFlyingPatrolBehaviour : public engine::Behaviour
 	{
 	public:
@@ -27,7 +29,18 @@ namespace proto
 		// vftable slot 6 (0x1042E250)
 		virtual void OnMessage(engine::Message* message);
 
-		int unknownC;  // +0xC
+		// 0x1042D670 / 0x1042DC30: the two forms of the update (steering with and without a goal; names guessed)
+		void UpdateWithGoal(float dt);
+		void UpdateWithoutGoal(float dt);
+		// 0x1042E0D0: lets the patrol stop where it is
+		void Stop();
+		// 0x1042D480: whether the object has reached its destination (the form depends on the level of detail)
+		bool HasArrived();
+		// 0x1042E210: starts or stops the patrol on the message that activates the movement
+		void OnActivate(ActivateVehicleMovementBehaviourMessage* message);
+
+		bool active;  // +0xC
+		unsigned char unknownD[3];
 		float unknown10;  // +0x10
 		bool unknown14;  // +0x14
 		float radius;  // +0x18

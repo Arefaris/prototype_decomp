@@ -115,6 +115,110 @@ namespace proto
 		sList.baseCaster = &sCaster;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x10433280
+	void PedBehaviour::Slot1()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10433290
+	void PedBehaviour::OnActiveChanged(bool active)
+	{
+		Behaviour::OnActiveChanged(active);
+		Listen2(4, active);
+	}
+
+	// FUNCTION: ENGINE 0x1042FC10
+	float PedBehaviour::GetSpeed()
+	{
+		return speed;
+	}
+
+	// FUNCTION: ENGINE 0x1042FC20
+	bool PedBehaviour::Slot9()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10433370
+	int PedBehaviour::GetPedType()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1042F040
+	float CopPedBehaviour::GetSpeed()
+	{
+		if (!unknownE4 && unknown18 != 0)
+		{
+			return speed * 0.2f;
+		}
+		return speed;
+	}
+
+	// FUNCTION: ENGINE 0x1042F070
+	bool CopPedBehaviour::Slot9()
+	{
+		if (!unknownE4 && unknown18 != 0)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1042EFE0
+	void CopPedBehaviour::Slot12()
+	{
+		unknownE4 = false;
+		PedBehaviour::Slot12();
+	}
+
+	// FUNCTION: ENGINE 0x1042F0D0
+	void CopPedBehaviour::Slot16()
+	{
+		PedBehaviour::Slot16();
+		if (state == 0xF)
+		{
+			speed = speed * 0.25f;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1042EFF0
+	void CopPedBehaviour::SetState(int newState)
+	{
+		if (((!unknownE4 && unknown18 != 0) || state == 0xF) && newState != 0xC && newState != 0xB && newState != 0xD)
+		{
+			return;
+		}
+		PedBehaviour::SetState(newState);
+	}
+
+	// FUNCTION: ENGINE 0x1042EFD0
+	int CopPedBehaviour::GetPedType()
+	{
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1042EF60
+	int SoldierPedBehaviour::GetPedType()
+	{
+		return 3;
+	}
+
+	// FUNCTION: ENGINE 0x1042FC40
+	int InfectedPedBehaviour::GetPedType()
+	{
+		return 2;
+	}
+
+	// FUNCTION: ENGINE 0x1042FC80
+	void InfectedPedBehaviour::SetState(int newState)
+	{
+		if (newState != 5)
+		{
+			PedBehaviour::SetState(newState);
+		}
+	}
 }
 
 

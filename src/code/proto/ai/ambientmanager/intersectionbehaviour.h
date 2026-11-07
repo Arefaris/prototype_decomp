@@ -30,6 +30,9 @@ namespace proto
 		// 0x10430AA0 / 0x104307C0: the answers to the two messages
 		void AnswerState(GetIntersectionStateMessage* message);
 		void AnswerBehaviour(GetIntersectionBehaviourMessage* message);
+		// 0x10430B60: how long the light for a direction stays green from now on (the time is answered in the second
+		// argument, less a margin); false when the light is not green
+		bool GetGreenTimeLeft(int direction, float* time);
 		// 0x10430B40: the state of the light for a direction in the current phase
 		int GetLightState(int direction);
 
