@@ -69,6 +69,56 @@ namespace container
 		{
 			return Data()[index];
 		}
+		// Removes item by moving the last element into its place (0x105573D0 for handles)
+		void EraseFast(T* item)
+		{
+			--end;
+			if (item < end)
+			{
+				*item = *end;
+			}
+		}
+		// Removes item by moving the elements behind it down (0x10557390 for handles)
+		T* Erase(T* item)
+		{
+			Copy(item + 1, end, item);
+			end--;
+			return item;
+		}
+		// Removes [first, last) (0x105574D0 for handles)
+		void Erase(T* first, T* last)
+		{
+			end = Copy(last, end, first);
+		}
+		// Moves [position, end) up by count elements (0x10557540 for handles)
+		void ShiftUp(T* position, int count)
+		{
+			T* source = end;
+			end += count;
+			T* dest = end;
+			while (source != position)
+			{
+				--source;
+				--dest;
+				Construct(dest, *source);
+			}
+		}
+		// Puts count copies of value in front of position (0x10558950 for handles)
+		T* Insert(T* position, int count, const T& value)
+		{
+			if ((unsigned int)(Size() + count) <= (unsigned int)N)
+			{
+				ShiftUp(position, count);
+				T* to = position;
+				while (count != 0)
+				{
+					count--;
+					Construct(to, value);
+					to++;
+				}
+			}
+			return position;
+		}
 		bool PushBack(const T& value)
 		{
 			if (Size() != N)

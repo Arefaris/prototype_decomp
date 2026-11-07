@@ -5,6 +5,7 @@
 
 #include "code/core/name.h"
 #include "code/engine/message.h"
+#include "code/engine/gameobject/setproplogicstatemessage.h"
 #include "code/engine/fight/branch.h"
 #include "code/math/vector.h"
 
@@ -317,33 +318,6 @@ namespace engine
 		bool enabled;
 	};
 
-	// Asks the logic tree of a prop to go to a state (type 0xb); the constructor is in another unit (0x10259040)
-	struct SetPropLogicStateMessage : public IntrusiveMessage
-	{
-		SetPropLogicStateMessage(core::Name<core::CaseSensitiveKey> newPrefix, const char* newState, bool newFlag,
-			bool newOther, float newTime);
-		// A state of the prop's tree by its prefix and name (inline: the prop spawner sends one per initial state)
-		SetPropLogicStateMessage(core::Name<core::CaseSensitiveKey> newPrefix, core::Name<core::CaseSensitiveKey> newName)
-			: IntrusiveMessage(0xb, 5), prefix(newPrefix), stateName(newName)
-		{
-			state = 0;
-			flag = false;
-			other = true;
-			time = 0.0f;
-			unknown2C = 0;
-			succeeded = false;
-		}
-
-		int unknownC;
-		core::Name<core::CaseSensitiveKey> prefix;
-		core::Name<core::CaseSensitiveKey> stateName;
-		const char* state;
-		bool flag;
-		bool other;
-		float time;
-		int unknown2C;
-		bool succeeded;
-	};
 }
 
 #endif

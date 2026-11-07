@@ -405,31 +405,6 @@ namespace proto
 		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
 	};
 
-	class SpawnerBehaviour : public engine::Behaviour
-	{
-	public:
-	};
-
-	class EncounterSpawnerBehaviour : public proto::SpawnerBehaviour
-	{
-	public:
-		explicit EncounterSpawnerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x480 - sizeof(proto::SpawnerBehaviour)];
-	};
-
-	class CloudEncounterSpawnerBehaviour : public proto::EncounterSpawnerBehaviour
-	{
-	public:
-		explicit CloudEncounterSpawnerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x528 - sizeof(proto::EncounterSpawnerBehaviour)];
-	};
-
 	class ConsumableBehaviour : public engine::Behaviour
 	{
 	public:
@@ -458,16 +433,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
-	};
-
-	class DoorTriggerBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DoorTriggerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xE0 - sizeof(engine::Behaviour)];
 	};
 
 	class MovementBehaviour : public engine::Behaviour
@@ -528,16 +493,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(engine::Behaviour)];
-	};
-
-	class MobileSpawnerBehaviour : public proto::EncounterSpawnerBehaviour
-	{
-	public:
-		explicit MobileSpawnerBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x488 - sizeof(proto::EncounterSpawnerBehaviour)];
 	};
 
 	class LightDecalBehaviour : public engine::Behaviour
