@@ -188,3 +188,12 @@ namespace engine
 		return new CharacterJumpAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x109309B0
+// FUNCTION: ENGINE 0x10930A00
+// FUNCTION: ENGINE 0x10930A20
+// FUNCTION: ENGINE 0x10930EC0
+// FUNCTION: ENGINE 0x10931220
+// FUNCTION: ENGINE 0x10931490
+// FUNCTION: ENGINE 0x109316B0

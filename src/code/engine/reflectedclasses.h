@@ -10,6 +10,8 @@
 #include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/engine/tagbehaviour.h"
+#include "code/engine/touchbehaviour.h"
 #include "code/ravenphysics/constraints/sharedproperties.h"
 #include "code/ravenphysics/material.h"
 #include "code/ravenphysics/constraintlistfactory.h"
@@ -194,28 +196,6 @@ namespace engine
 		unsigned char unknownC[0x34];
 	};
 
-	// TagBehaviour: constructor 0x10929EE0, reflection 0x109296D0 / 0x10929BB0
-	class TagBehaviour : public engine::Behaviour
-	{
-	public:
-		TagBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x10];
-	};
-
-	// TouchBehaviour: constructor 0x1092A030, reflection 0x10929FF0 / 0x1092A370
-	class TouchBehaviour : public engine::Behaviour
-	{
-	public:
-		TouchBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x4];
-	};
-
 	// TrackedMotionToExpressionBehaviour: constructor 0x1092AF30, reflection 0x1092A440 / 0x1092AA40
 	class TrackedMotionToExpressionBehaviour : public engine::Behaviour
 	{
@@ -293,35 +273,5 @@ namespace driving
 {
 }
 }
-
-namespace engine
-{
-namespace trigger
-{
-	// OBBVolume: constructor 0x10841D90, reflection 0x108415D0 / 0x10841EE0
-	class OBBVolume
-	{
-	public:
-		OBBVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x50];
-	};
-
-	// SphereVolume: constructor 0x10841CD0, reflection 0x10841590 / 0x10841E40
-	class SphereVolume
-	{
-	public:
-		SphereVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown0[0x24];
-	};
-
-}
-}
-
 
 #endif

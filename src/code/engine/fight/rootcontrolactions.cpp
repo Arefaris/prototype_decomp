@@ -246,3 +246,15 @@ namespace engine
 		return new ChoreoTestsAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x109314B0
+// FUNCTION: ENGINE 0x10931D90
+// FUNCTION: ENGINE 0x10931DE0
+// FUNCTION: ENGINE 0x10931E30
+// FUNCTION: ENGINE 0x10931E50
+// FUNCTION: ENGINE 0x10931E70
+// FUNCTION: ENGINE 0x10932570
+// FUNCTION: ENGINE 0x10932D00
+// FUNCTION: ENGINE 0x109330F0
+// FUNCTION: ENGINE 0x10933380

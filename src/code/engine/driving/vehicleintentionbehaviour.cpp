@@ -90,3 +90,12 @@ namespace engine
 		}
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10937AB0
+// FUNCTION: ENGINE 0x10937AC0
+// FUNCTION: ENGINE 0x10937AF0
+// FUNCTION: ENGINE 0x10937B10
+// FUNCTION: ENGINE 0x10937B30
+// FUNCTION: ENGINE 0x10937B40
+// FUNCTION: ENGINE 0x10937B60

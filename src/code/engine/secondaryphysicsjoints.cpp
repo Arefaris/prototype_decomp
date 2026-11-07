@@ -16,6 +16,56 @@ namespace engine
 #define ENGINE_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 
+	// The interface (another unit of the engine's image: 0x10937750 - 0x10937810)
+	// FUNCTION: ENGINE 0x10937750
+	content::ClassInfo* SecondaryPhysicsJointDriver::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "engine::SecondaryPhysicsJointDriver";
+		sInfo.code = "pn";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x10937790
+	content::MemberList* SecondaryPhysicsJointDriver::GetMembers()
+	{
+		static content::MemberList sList;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x109377C0
+	SecondaryPhysicsJointDriver::~SecondaryPhysicsJointDriver()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x109377D0
+	int SecondaryPhysicsJointDriver::GetHandleCount()
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x109377E0
+	void SecondaryPhysicsJointDriver::Slot2(SecondaryPhysicsHandleRange* range)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x109377F0
+	void SecondaryPhysicsJointDriver::Slot3(const SecondaryPhysicsHandleRange* range)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10937800
+	void SecondaryPhysicsJointDriver::Slot4(const SecondaryPhysicsHandleRange* range, const void* a, int b,
+		const void* c, const void* d, bool* e)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10937810
+	void SecondaryPhysicsJointDriver::Slot5(ravenphysics::CollisionShape* shape, const math::Matrix* matrix)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10915FD0
 	content::ClassInfo* SecondaryPhysicsAmbientWind::GetClassInfo()
 	{
