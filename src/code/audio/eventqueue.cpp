@@ -46,6 +46,18 @@ namespace audio
 		return (long)newValue;
 	}
 
+	// FUNCTION: ENGINE 0x105BA770
+	void ProcessEvents()
+	{
+		Event* event = reinterpret_cast<Event*>(gEventQueue->Peek());
+		while (event != 0)
+		{
+			event->Execute();
+			delete event;
+			event = reinterpret_cast<Event*>(gEventQueue->Peek());
+		}
+	}
+
 	// FUNCTION: ENGINE 0x105BA5B0
 	EventQueue::EventQueue(unsigned int newCapacity)
 	{

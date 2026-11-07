@@ -16,6 +16,9 @@ namespace audio
 		MIXBIN_FIRST = 0
 	};
 
+	// 0x105BA770: runs the events of the queue one after the other and deletes them (name guessed)
+	void ProcessEvents();
+
 	// The ring buffer the events live in (0x1127636C holds its address; 0x105BA7B0 / 0x105BA730)
 	class EventQueue
 	{
@@ -68,6 +71,10 @@ namespace audio
 		void SetBinVolume(MixBin bin, float value);
 		void SetChannelVolume(unsigned int channel, float value);
 
+		// 0x105BE180 is the destructor's body and 0x105BC710 the operator delete (0x560 bytes; the unit is not reconstructed)
+		~RemotePlayer();
+		static void operator delete(void* block);
+
 		unsigned char unknown0[0xb0];
 		float channelVolumes[18];  // +0xB0
 		float binVolumes[(0x444 - 0xf8) / 4];  // +0xF8
@@ -83,7 +90,9 @@ namespace audio
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
-		unsigned char unknown4[0x28 - 4];
+		unsigned int unknown4;
+		unsigned int nextFree;  // +8: the handle of the entry after this one in the list of the free entries
+		unsigned char unknownC[0x28 - 0xC];
 		bool unknown28;
 		unsigned int unknown2C;
 		float amplitude;  // +0x30
@@ -96,7 +105,11 @@ namespace audio
 		// 0x105BAF90: lets the player of the handle go
 		void Destroy(RemotePlayerHandle handle);
 
-		RemotePlayerEntry* entries;
+		RemotePlayerEntry* entries;  // 0
+		unsigned short count;  // 4
+		unsigned short capacity;  // 6
+		unsigned int firstFree;  // 8: the handle of the first free entry (-1 when there is none)
+		void* lock;  // 0xC: a critical section
 	};
 	extern RemotePlayerTable* gRemotePlayers;
 
@@ -128,6 +141,22 @@ namespace audio
 		}
 
 		RemotePlayerHandle player;
+	};
+
+	// Lets a remote player go (0x105BA960 is the constructor, 0x105BB0A0 the slot that runs in the audio thread)
+	class RemotePlayerEvent_FreePlayer : public RemotePlayerEvent
+	{
+	public:
+		explicit RemotePlayerEvent_FreePlayer(const RemotePlayerHandle& newPlayer);
+		virtual void Execute();
+		static void* operator new(unsigned int size)
+		{
+			return gEventQueue->Allocate(size);
+		}
+		static void operator delete(void* block)
+		{
+			gEventQueue->Free(block, 8);
+		}
 	};
 
 	// The part every event of a template instance shares: the queue's memory and the player the handle names
