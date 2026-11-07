@@ -339,6 +339,8 @@ namespace pure3d
 	public:
 		// 0x10732120 (0x168 bytes)
 		PoseAnimationController();
+		// 0x10732F60; the scalar deleting destructor is 0x107343B0
+		virtual ~PoseAnimationController();
 
 		// Slots 3 (0x10734490), 4 (0x10733040), 10 (0x10733080), 22 (0x10732FD0), 24 (0x10732180: a pose animation), 26
 		// (0x10733270), 27 (0x107332D0), 29 (0x10732170) and the clone (0x10734460) are the controller's own
@@ -361,6 +363,17 @@ namespace pure3d
 		Pose* GetPose();
 		void SetPose(Pose* pose);
 
+		// 0x107321C0: the number at +0x114, kept between 0 and 1 (name guess)
+		void SetUnknown114(float value);
+		// 0x10732200 / 0x10732210: the partition of the skeleton the controller drives, and the one of that name (the
+		// skeleton's own lookup when the pose has no such partition)
+		void SetPartition(Skeleton::Partition* partition);
+		void SetPartition(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x10732DB0: finds the channels of every joint of the pose in each animation, when an animation or the pose
+		// changed (name guess)
+		void FindChannels();
+		// 0x10732250: sets the time of every joint of the partition of that name in the times of an animation
+		void SetPartitionFrameTime(const core::Name<core::CaseSensitiveKey>& name, float time, int animation);
 		// 0x10734460's clone runs the copy constructor 0x107343D0
 		PoseAnimationController(const PoseAnimationController& other);
 		// 0x10732D40: takes the frame times of the animations for the pose's joints (when mUseFrameTimes)

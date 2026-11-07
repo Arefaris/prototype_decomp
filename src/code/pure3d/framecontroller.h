@@ -183,6 +183,8 @@ namespace pure3d
 		virtual void Unknown27() = 0;
 		// Slot 28 (0x10778320): drops the oldest animation
 		virtual void RemoveFirst();
+		// 0x10777AE0: the byte at +0x108 (name guess)
+		bool GetUnknown108();
 
 		int mCycleMode;           // +0x20
 		unsigned int mNumCycles;  // +0x24
