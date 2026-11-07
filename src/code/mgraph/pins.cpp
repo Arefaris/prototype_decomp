@@ -598,7 +598,7 @@ namespace mgraph
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<float> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B19B50
 	template char const* mgraph::InputPin<mgraph::Packet<float> >::AllocationTag();
-	// FUNCTION: ENGINE 0x10B19CE0
+	// FUNCTION: ENGINE 0x10AB2FC0
 	template MetaTypeBase* mgraph::InputPin<mgraph::Packet<float> >::GetPacketType();
 	// FUNCTION: ENGINE 0x10B1A050
 	template mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::AbstractInputPin(Name<CaseSensitive64BitKey> const*, void*, int);
