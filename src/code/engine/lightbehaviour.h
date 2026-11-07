@@ -168,6 +168,9 @@ namespace engine
 		void SetAttenConstant(float value);
 		void SetAttenLinear(float value);
 		void SetAttenQuadratic(float value);
+		// 0x1089B6F0 / 0x1089B780 (names guessed)
+		void SetNumShadowCascades(unsigned int count);
+		math::Colour128* GetSphericalHarmonicColour(int index);
 		// 0x1089C400: one spherical harmonics value (the indices fall back to 0 out of range)
 		float GetSphericalHarmonic(int channel, int coefficient);
 		// 0x1089C9F0 / 0x1089CA20: the target's transform times the matrix, and the other way
