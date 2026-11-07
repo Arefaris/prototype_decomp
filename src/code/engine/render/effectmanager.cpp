@@ -10,6 +10,7 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/render/drawablearchetype.h"
 #include "code/core/heap.h"
+#include "code/core/refptr.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
 #include "code/math/noise.h"
@@ -510,6 +511,12 @@ namespace engine
 		void EffectManager::ReleaseAttachedDrawable(AttachedDrawable attached)
 		{
 			Drawable::Destroy(&attached.drawable, 0);
+		}
+
+		// FUNCTION: ENGINE 0x10819560
+		void EffectManager::ReleaseDrawable(Drawable* drawable)
+		{
+			Drawable::Destroy(drawable, 0);
 		}
 
 		// FUNCTION: ENGINE 0x1081EAC0
@@ -1208,6 +1215,94 @@ namespace engine
 		bool EffectManager::IsFeatureEnabled(int features)
 		{
 			return true;
+		}
+
+		// FUNCTION: ENGINE 0x10819A80
+		bool DrawableRing::Allocate(unsigned int count)
+		{
+			if (count != 0)
+			{
+				head = (DrawableLink*)operator new[](count * sizeof(DrawableLink));
+				if (head != 0)
+				{
+					end = head + count;
+					tail = head;
+					begin = head;
+					return true;
+				}
+			}
+			else
+			{
+				head = 0;
+			}
+			tail = 0;
+			begin = 0;
+			end = 0;
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x10819F60
+		void EffectManager::SetInventory(content::LoadInventory* newInventory)
+		{
+			core::RefAssign(inventory, newInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819F40
+		void EffectManager::SetSecondInventory(content::LoadInventory* newInventory)
+		{
+			core::RefAssign(secondInventory, newInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819F80
+		void EffectManager::ReleaseInventories()
+		{
+			core::SafeRelease(inventory);
+			core::SafeRelease(secondInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819FD0
+		bool EffectManager::CanAddLight()
+		{
+			if (lightsEnd == lightsCapacity)
+			{
+				return false;
+			}
+			if (IsFeatureEnabled(0x20000))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081CF90
+		bool EffectManager::IsListFull(unsigned int key)
+		{
+			unsigned int copy = key;
+			return !GetList(&copy)->HasRoom();
+		}
+
+		// FUNCTION: ENGINE 0x1081C410
+		void EffectManager::SetEffectEmitting(const unsigned int* effect, bool emitting, float fadeTime)
+		{
+			EffectInstance* instance = FindInstance(*effect, 0);
+			if (instance != 0)
+			{
+				instance->SetEmitting(emitting, fadeTime);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081E520
+		void CreateEffectManager(const EffectManagerConfig* config)
+		{
+			core::HeapScope scope(10);
+			gEffectManager = new EffectManager(config);
+		}
+
+		// FUNCTION: ENGINE 0x1081E570
+		void DestroyEffectManager()
+		{
+			delete gEffectManager;
+			gEffectManager = 0;
 		}
 
 		// FUNCTION: ENGINE 0x1081E5A0

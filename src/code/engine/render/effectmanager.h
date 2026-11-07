@@ -184,6 +184,8 @@ namespace engine
 			{
 				return (int)Size() == end - begin;
 			}
+			// 0x10819A80: takes a block of that many places; false (and an empty ring) when there is none to take
+			bool Allocate(unsigned int count);
 			// Takes the first link out of the ring and answers its drawable
 			Drawable PopFront()
 			{
@@ -499,9 +501,28 @@ namespace engine
 			int unknown10;
 		};
 
+		// The record the engine fills at start-up for the manager (its members are not recovered yet)
+		struct EffectManagerConfig;
+
 		class EffectManager
 		{
 		public:
+			// 0x1081DE50: makes the manager from the record the engine's start-up fills (the inventories, the limits of the
+			// containers it keeps and the start callbacks)
+			explicit EffectManager(const EffectManagerConfig* config);
+			// 0x1081D1E0: destroys the containers of the manager
+			~EffectManager();
+			// 0x10819F60 / 0x10819F40: take a reference to the inventory the manager finds shaders and archetypes in
+			void SetInventory(content::LoadInventory* newInventory);
+			void SetSecondInventory(content::LoadInventory* newInventory);
+			// 0x10819F80: lets go of both inventories
+			void ReleaseInventories();
+			// 0x10819FD0: whether another light fits and the manager makes lights
+			bool CanAddLight();
+			// 0x1081CF90: whether the list of playing effects of a key has no room for another
+			bool IsListFull(unsigned int key);
+			// 0x1081C410: switches the particles of the effect of a drawable on or off (nothing without the effect)
+			void SetEffectEmitting(const unsigned int* effect, bool emitting, float fadeTime);
 			// 0x10819560: releases a drawable the manager made
 			void ReleaseDrawable(Drawable* drawable);
 			// 0x10819520: releases an attached drawable (given by value)
@@ -695,6 +716,12 @@ namespace engine
 
 		// 0x108193A0: the global manager
 		EffectManager* GetEffectManager();
+
+		// 0x1081E520: makes the global manager (in the heap of the effects)
+		void CreateEffectManager(const EffectManagerConfig* config);
+
+		// 0x1081E570: destroys the global manager
+		void DestroyEffectManager();
 	}
 }
 
