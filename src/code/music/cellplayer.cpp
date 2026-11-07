@@ -6,6 +6,7 @@
 #include "code/om/dynamicproperty.h"
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
+#include "code/om/reflection.h"
 
 namespace music
 {
@@ -213,6 +214,8 @@ namespace om
 		delete static_cast<music::MGraphCellPlayer*>(object);
 	}
 
+	// FUNCTION: ENGINE 0x105E3660
+	template void MetaClass<music::MGraphCellPlayer>::Create(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105E2C30
 	template MetaClass<music::MGraphCellPlayer>::MetaClass(const ClassName&, MetaClassBase*);
 	// FUNCTION: ENGINE 0x105E2C80
@@ -241,4 +244,14 @@ namespace om
 	template DynamicProperty<String>* DynamicObjectEntity::FindTypedProperty<String>(ClassName);
 	// FUNCTION: ENGINE 0x105E3080
 	template DynamicProperty<DynamicArray<String, unsigned short> >* DynamicObjectEntity::FindTypedProperty<DynamicArray<String, unsigned short> >(ClassName);
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E3790
+	void RegisterMGraphCellPlayerMeta()
+	{
+		om::String text("MusicMGraphCellPlayer", false);
+		om::MetaClass<MGraphCellPlayer>::Create(om::MakeClassName(text), 0);
+	}
 }

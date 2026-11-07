@@ -78,6 +78,9 @@ namespace music
 		int unknown14;
 	};
 
+	// 0x105E3790 (name guessed): makes the reflection of the player
+	void RegisterMGraphCellPlayerMeta();
+
 	// The player of a cell that plays a graph of the music graph library (0x88 bytes)
 	class MGraphCellPlayer : public CellPlayer
 	{
