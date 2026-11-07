@@ -960,6 +960,16 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x10819670
+		unsigned int AttachedRing::Size() const
+		{
+			if (head <= tail)
+			{
+				return tail - head;
+			}
+			return (tail - begin) + (end - head);
+		}
+
 		// FUNCTION: ENGINE 0x1081A560
 		bool AttachedRing::PushBack(const AttachedDrawable* item)
 		{

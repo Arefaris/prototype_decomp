@@ -3170,6 +3170,22 @@ namespace engine
 
 namespace container
 {
+	// The engine's copy of the shift is out of line (the identical body is inlined everywhere else)
+	// FUNCTION: ENGINE 0x10800D70
+	template<> void ArrayDynamic<engine::ScheduledCall, AllocatorCoreStatic<0x7a, 16> >::ShiftUp(
+		engine::ScheduledCall* position, int count)
+	{
+		engine::ScheduledCall* from = end;
+		end += count;
+		engine::ScheduledCall* to = end;
+		while (from != position)
+		{
+			from--;
+			to--;
+			ConstructCopyAt(to, *from);
+		}
+	}
+
 	template class ArrayDynamic<engine::ScheduledCall, AllocatorCoreStatic<0x7a, 16> >;
 	template class ArrayDynamicNew<engine::LuaEnumValue>;
 	template class ArrayDynamicNew<const char*>;
@@ -3240,6 +3256,7 @@ namespace engine
 // FUNCTION: ENGINE 0x108026A0
 // FUNCTION: ENGINE 0x108026B0
 // FUNCTION: ENGINE 0x10802700
+// FUNCTION: ENGINE 0x10802730
 // FUNCTION: ENGINE 0x10802770
 // FUNCTION: ENGINE 0x108027A0
 // FUNCTION: ENGINE 0x108027F0
