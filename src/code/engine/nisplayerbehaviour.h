@@ -9,6 +9,7 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/fight/sequencer.h"
+#include "code/engine/gameobject/gameobjectparams.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/message.h"
 #include "code/engine/scenariomessage.h"
@@ -31,6 +32,24 @@ namespace engine
 		float length;  // +0x8C
 	};
 
+	// RTTI: engine::NISParams (3 vftable slots, 0x28 bytes, base engine::GameObjectParams, vftable 0x10E791D4; the
+	// constructor is expanded where the behaviour makes it): what the sequence's actions are given. The members are
+	// guesses.
+	class NISParams : public GameObjectParams
+	{
+	public:
+		NISParams() : GameObjectParams(0x10006)
+		{
+			unknown18 = 0;
+			action = 0;
+		}
+
+		int unknown18;  // +0x18: the load inventory of the sequence's stream package
+		int unknown1C;
+		fight::Action* action;  // +0x20: the action that plays the sequence
+		int unknown24;
+	};
+
 	class NISPlayerBehaviour : public Behaviour
 	{
 	public:
@@ -43,9 +62,9 @@ namespace engine
 		// 0x1091FF70 (deleting destructor 0x10920490; not reconstructed)
 		virtual ~NISPlayerBehaviour();
 
-		// vftable slot 0 (0x1091FAD0, not reconstructed): makes the parameters
+		// vftable slot 0 (0x1091FAD0): makes the parameters
 		virtual void Slot0();
-		// vftable slot 1 (0x1091F8D0, not reconstructed)
+		// vftable slot 1 (0x1091F8D0): the parameters learn the owner's handle and the object leaves the listener lists
 		virtual void Slot1();
 		// vftable slot 4 (0x109201C0, not reconstructed)
 		virtual void Update(float dt, unsigned short mask);
@@ -60,6 +79,12 @@ namespace engine
 		void SendLoadCompleteMessage();
 		// 0x1091FFD0: the sequence has loaded
 		void OnLoaded();
+		// 0x1091F910 (names guessed): advances the sequencer once per frame by dt (and what was held back)
+		void Advance(float dt);
+		// 0x1091FCD0: stops the effects of the sequence and, while it plays, ends it or tells its action
+		void StopEffects();
+		// 0x1091FE40: finds the track of the sequence in the NIS fight context
+		bool FindTrack();
 
 		fight::Sequencer sequencer;  // +0x10
 		core::Name<core::CaseSensitiveKey> nisName;  // +0x58
