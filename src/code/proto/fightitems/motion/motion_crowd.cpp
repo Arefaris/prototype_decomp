@@ -2,6 +2,33 @@
 #include "code/proto/fightitems/motion/motion_crowd.h"
 #include "code/proto/fightitems/motion/motioncommon.h"
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x100ADA70
+	void ReleaseDriverCopy3(choreo::Driver*& driver)
+	{
+		if (driver != 0)
+		{
+			driver->Release();
+			driver = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100ADA90
+	void AssignDriverCopy3(choreo::Driver*& driver, choreo::Driver* newDriver)
+	{
+		if (newDriver != 0)
+		{
+			newDriver->AddRef();
+		}
+		if (driver != 0)
+		{
+			driver->Release();
+		}
+		driver = newDriver;
+	}
+}
+
 namespace proto
 {
 	namespace fightitems

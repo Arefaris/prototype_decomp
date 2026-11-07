@@ -104494,3 +104494,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?GetBranch@CrowdTestTrack@motion@fightitems@proto@@QBEABVBranchHolder@fight@@XZ = 0x100AD800 ; function size:0x4 | proto::fightitems::motion::CrowdTestTrack::GetBranch (kept template or inline copy of this unit)
 ?GetPriority@CrowdTestTrack@motion@fightitems@proto@@QBEHXZ = 0x100AD810 ; function size:0x4 | proto::fightitems::motion::CrowdTestTrack::GetPriority (kept template or inline copy of this unit)
 ??0ConsumeByParentAction@motion@fightitems@proto@@QAE@PAVConsumeByParentTrack@123@V?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x100AC9E0 ; function size:0x88 | proto::fightitems::motion::ConsumeByParentAction::ConsumeByParentAction (NIS form: names the object; name guess)
+?AssignDriverCopy3@engine@@YAXAAPAVDriver@choreo@@PAV23@@Z = 0x100ADA90 ; function size:0x25 | engine::AssignDriverCopy3: the crowd unit's copy of the helper that replaces a driver (name guess)

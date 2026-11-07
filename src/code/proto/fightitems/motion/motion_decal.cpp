@@ -1,5 +1,7 @@
 // Fight items of the motion group: DecalTrack (unit 0x10153160 - 0x10153950; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_decal.h"
+#include "code/proto/hiteffects/hiteffectparams.h"
+#include "code/core/refptr.h"
 
 namespace proto
 {
@@ -216,6 +218,10 @@ namespace proto
 		}
 	}
 }
+
+// The hit effects' parameters are assigned as reference counted objects (the engine keeps this unit's copy)
+// FUNCTION: ENGINE 0x100B0950
+template void core::RefAssign<proto::HitEffectManager::HitEffectParams>(proto::HitEffectManager::HitEffectParams*&, proto::HitEffectManager::HitEffectParams*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101533A0
