@@ -9,12 +9,33 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/core/strings.h"
+#include <math.h>
 
 namespace engine
 {
 	namespace driving
 	{
 		extern const float gZero;
+	}
+}
+
+namespace engine
+{
+	extern core::Name<core::CaseSensitiveKey> gDriverPlayer;
+	extern core::Name<core::CaseSensitiveKey> gNoDriver;
+}
+
+namespace choreo
+{
+	// 0x10D94FF8: -1.0f in the pooled constants
+	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
 	}
 }
 
@@ -240,6 +261,151 @@ namespace proto
 		return 1.0f;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x103BB2F0
+	bool Unknown103BB2F0(engine::GameObject* object)
+	{
+		GetStateStateChangeMessage message;
+		object->SendMessage(&message);
+		return message.state == engine::gDriverPlayer;
+	}
+
+	// FUNCTION: ENGINE 0x103BB350
+	bool Unknown103BB350(engine::GameObject* object)
+	{
+		GetStateStateChangeMessage message;
+		object->SendMessage(&message);
+		return message.state == engine::gDriverPlayer;
+	}
+
+	// FUNCTION: ENGINE 0x103BB3B0
+	bool Unknown103BB3B0(engine::GameObject* object)
+	{
+		GetStateStateChangeMessage message;
+		object->SendMessage(&message);
+		return message.state == engine::gNoDriver;
+	}
+
+	// FUNCTION: ENGINE 0x103BBC10
+	float Unknown103BBC10(const float* first, const float* second)
+	{
+		float deltaX = second[0] - first[0];
+		float deltaZ = second[2] - first[2];
+		return sqrtf(deltaZ * deltaZ + deltaX * deltaX);
+	}
+
+	// FUNCTION: ENGINE 0x103BBC40
+	float Unknown103BBC40(const float* first, const float* second)
+	{
+		float deltaX = second[0] - first[0];
+		float deltaZ = second[2] - first[2];
+		return deltaZ * deltaZ + deltaX * deltaX;
+	}
+
+	// FUNCTION: ENGINE 0x103BAFC0
+	// NONMATCHING: the engine returns the negated clamp from two copies of the tail (68.4 %)
+#ifdef NONMATCHING
+	float Unknown103BAFC0(float value, float limit)
+	{
+		if (fabsf(value) > limit)
+		{
+			float result;
+			if (value < 0.0f)
+			{
+				result = choreo::gMinusOne;
+			}
+			else
+			{
+				result = 0.0f;
+				if (0.0f < value)
+				{
+					result = engine::driving::gOne;
+				}
+			}
+			return -result;
+		}
+		return choreo::gMinusOne / limit * value;
+	}
+#else
+	float Unknown103BAFC0(float value, float limit);
+#endif
+
+	// FUNCTION: ENGINE 0x103BB040
+	float Unknown103BB040(float value, float limit)
+	{
+		return Unknown103BAFC0(value, limit);
+	}
+
+	// FUNCTION: ENGINE 0x103BA7F0
+	bool Unknown103BA7F0(engine::GameObject* object, engine::GameObjectHandle target)
+	{
+		GetStatusPerceptionMsg message;
+		object->SendMessage(&message);
+		bool result = false;
+		if (message.list != 0)
+		{
+			for (PerceptionStatusEntry* entry = message.list->begin; entry != message.list->end; entry++)
+			{
+				if (entry->target == target)
+				{
+					result = entry->status == 'n';
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x103BA880
+	// NONMATCHING: the engine keeps the status in the return register and starts from the cleared result (71.4 %)
+#ifdef NONMATCHING
+	bool Unknown103BA880(engine::GameObject* object, engine::GameObjectHandle target)
+	{
+		GetStatusPerceptionMsg message;
+		object->SendMessage(&message);
+		if (message.list == 0)
+		{
+			return false;
+		}
+		for (PerceptionStatusEntry* entry = message.list->begin; entry != message.list->end; entry++)
+		{
+			if (entry->target == target)
+			{
+				unsigned char status = entry->status;
+				if (status == 'n' || status == 'l' || ((status == 'e' || status == 'f') && entry->unknown14 <= engine::driving::gOne))
+				{
+					return true;
+				}
+				return false;
+			}
+		}
+		return false;
+	}
+#else
+	bool Unknown103BA880(engine::GameObject* object, engine::GameObjectHandle target);
+#endif
+
+	// FUNCTION: ENGINE 0x103BA940
+	void Unknown103BA940(engine::GameObject* object, engine::GameObjectHandle target, int* status, int* unknown5)
+	{
+		GetStatusPerceptionMsg message;
+		object->SendMessage(&message);
+		*status = 0;
+		*unknown5 = 0;
+		if (message.list == 0)
+		{
+			return;
+		}
+		for (PerceptionStatusEntry* entry = message.list->begin; entry != message.list->end; entry++)
+		{
+			if (entry->target == target || entry->secondTarget == target)
+			{
+				*status = entry->status;
+				*unknown5 = entry->unknown5;
+				return;
+			}
+		}
+	}
 
 	// FUNCTION: ENGINE 0x103B87F0
 	void Unknown103B87F0(engine::GameObject* object, const math::Vector* direction)

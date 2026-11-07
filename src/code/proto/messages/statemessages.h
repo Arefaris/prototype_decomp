@@ -56,6 +56,38 @@ namespace proto
 		int suspicion;
 	};
 
+	// One entry of the status list a perception answers with (0x30 bytes; member names are guesses)
+	struct PerceptionStatusEntry
+	{
+		engine::GameObjectHandle target;  // +0
+		unsigned char status;  // +4 ('n', 'l', 'e', 'f' ...)
+		unsigned char unknown5;
+		unsigned char unknown6[0xE];
+		float unknown14;
+		unsigned char unknown18[0x10];
+		engine::GameObjectHandle secondTarget;  // +0x28
+		unsigned char unknown2C[4];
+	};
+
+	struct PerceptionStatusList
+	{
+		PerceptionStatusEntry* begin;
+		PerceptionStatusEntry* end;
+	};
+
+	// Perception (type 0x25, id 0): the status of everything the perception knows
+	struct GetStatusPerceptionMsg : public PerceptionMessage
+	{
+		GetStatusPerceptionMsg() : PerceptionMessage(0), list(0)
+		{
+		}
+		virtual ~GetStatusPerceptionMsg()
+		{
+		}
+
+		PerceptionStatusList* list;  // +0xC
+	};
+
 	// The level of detail messages (LODAIMessage, type 0x3A)
 	struct GetLODStateAIMsg : public LODAIMessage
 	{
