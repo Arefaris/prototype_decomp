@@ -72,7 +72,7 @@ namespace content
 		virtual ~LoadStream();
 
 		// 0x1060B260: reads count items of size bytes into destination (the last word is unknown)
-		void Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
+		bool Read(void* destination, unsigned int count, unsigned int size, unsigned int unknown);
 		// 0x1060B2C0: steps over `bytes` bytes of the stream without reading them (name guess)
 		void Skip(unsigned int bytes);
 		// 0x1060A530 / 0x1060A520: the position in the stream and its size (names guessed)

@@ -20,6 +20,15 @@ namespace om
 	// Where a thread may run (the second word is the processor, -1 for any)
 	struct ThreadSettings
 	{
+		ThreadSettings()
+		{
+		}
+		// Leaves the first word as it is (the engine's threads do)
+		explicit ThreadSettings(int newProcessor) :
+			processor(newProcessor)
+		{
+		}
+
 		int unknown0;
 		int processor;
 	};

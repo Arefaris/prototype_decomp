@@ -118,10 +118,10 @@ namespace audio
 	}
 
 	// 0x113276EC
-	int XAudio2RendererDriver::unknownStatic;
+	char XAudio2RendererDriver::unknownStatic;
 
 	// FUNCTION: ENGINE 0x10AC2270
-	void* XAudio2RendererDriver::Slot1()
+	const char* XAudio2RendererDriver::Slot1()
 	{
 		return &unknownStatic;
 	}

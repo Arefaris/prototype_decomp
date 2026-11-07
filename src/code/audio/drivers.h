@@ -5,6 +5,7 @@
 #define AUDIO_DRIVERS_H
 
 #include "code/audio/rendererdriver.h"
+#include "code/audio/rendererdrivermodel.h"
 #include "code/om/entity.h"
 #include "code/core/criticalsection.h"
 #include "code/om/thread.h"
@@ -160,16 +161,39 @@ namespace audio
 		AudioFileTypeUnknown
 	};
 
+	// A handle on what the content keeps of a file (a pointer that starts empty)
+	struct FileHandle
+	{
+		FileHandle() :
+			pointer(0)
+		{
+		}
+
+		void* pointer;
+	};
+
 	// An audio file of the content (RTTI: audio::AudioFile, an entity)
 	class AudioFile : public om::Entity
 	{
 	public:
 		// 0x10AB67F0
 		explicit AudioFile(const om::ClassName& newName);
+		// Slot 0 (0x10AB6860 is the body, the deleting destructor 0x10AB6C70)
+		virtual ~AudioFile();
+		// Slots 3, 4, 5 and 7 (0x10AB64C0 / 0x10AB64D0 / 0x10AB64E0 / 0x10AB64F0): nothing is done and nothing answered
+		virtual bool Slot3(void* argument);
+		virtual void Slot4(void* argument);
+		virtual bool Slot5(void* argument);
+		// Slot 6 (0x10AB7000): reads the file's description from a stream
+		virtual bool Slot6(void* argument);
+		virtual bool Slot7(void* argument);
+		// Slot 9 (0x10AB6850)
+		virtual om::EntityTypeBase* GetEntityType();
 		OM_ENTITY_ALLOCATION(AudioFile);
 
 		AudioFileType fileType;  // 0x20
-		char unknown24[0x10];
+		FileHandle file;  // 0x24: what the content keeps of the file (a counted handle; meaning not recovered)
+		om::String unknown28;  // 0x28
 		om::String path;  // 0x34
 	};
 
@@ -214,17 +238,6 @@ namespace audio
 
 	// The base of the models of the platform's drivers (RTTI: audio::RendererDriverModel): finds the devices of a platform and
 	// makes a driver of each, and lets go of the platform again
-	class RendererDriverModel
-	{
-	public:
-		// 0x105E4E30
-		explicit RendererDriverModel(const om::String& newName);
-		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
-
-		om::String name;  // 4
-	};
-
 	// The XAudio2 platform (RTTI: audio::XAudio2RendererDriverModel)
 	class XAudio2RendererDriverModel : public RendererDriverModel
 	{
@@ -232,7 +245,7 @@ namespace audio
 		// 0x10AC2140
 		XAudio2RendererDriverModel();
 		// Slot 0 (0x10AC2F70): opens the XAudio2 engine and makes a driver of every device (not reconstructed)
-		virtual void Slot0();
+		virtual void CreateDriver(RenderDriverModelHarness* harness);
 		// Slot 1 (0x10AC31B0): lets go of the reflection of the driver and of the engine
 		virtual void Slot1();
 	};
@@ -276,7 +289,7 @@ namespace audio
 		XAudio2RendererDriver(unsigned int newDeviceIndex, const XAudioDeviceDetails* newDeviceDetails, const char* deviceName);
 		// 0x10AC21A0 (the deleting destructor is 0x10AC2C00)
 		virtual ~XAudio2RendererDriver();
-		virtual void* Slot1();
+		virtual const char* Slot1();
 		// Slot 2 (0x10AC2E90): the description of the class
 		virtual om::MetaTypeBase* GetMetaType();
 		// Slots 3 and 4: the device is opened with the user data and closed again (the base class keeps the data)
@@ -301,7 +314,7 @@ namespace audio
 		OM_ALLOCATION(XAudio2RendererDriver);
 
 		// 0x113276EC (name guessed)
-		static int unknownStatic;
+		static char unknownStatic;
 
 		float** mixBins;  // 0x80
 		unsigned int deviceIndex;  // 0x84
