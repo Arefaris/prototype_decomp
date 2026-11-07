@@ -34,6 +34,8 @@ namespace engine
 	void AssignDriverCopy2(choreo::Driver*& driver, choreo::Driver* newDriver);
 	// 0x10095410: the same unit's copy for the second driver of the vertical aim strafe action
 	void ReleaseDriverCopy5(choreo::Driver*& driver);
+	// 0x100E0190: the same helper's other copy, which the stop of the reaction hit animation calls
+	void ReleaseDriverCopy(choreo::Driver*& driver);
 	// 0x10098FD0: another copy of AssignRefCounted (name guess)
 	void AssignRefCountedCopy3(core::IRefCount** slot, core::IRefCount* value);
 	// 0x1011AAF0: the supporting limb unit's copy of AssignRefCounted
