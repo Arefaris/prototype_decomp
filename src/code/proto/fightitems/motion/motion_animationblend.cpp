@@ -1688,6 +1688,20 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gAnimationBlendDirectionalTrackInputTable[1] =
+				{
+					{ fight::Name("Movement Axis", 0) }
+				};
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4D5A0
 // FUNCTION: ENGINE 0x10D4D610
@@ -1701,6 +1715,8 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81A30
 // FUNCTION: ENGINE 0x10D81A40
 // FUNCTION: ENGINE 0x10D81A60
+// FUNCTION: ENGINE 0x10D4FB70
+// FUNCTION: ENGINE 0x10D81A50
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):

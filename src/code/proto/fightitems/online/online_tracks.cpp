@@ -367,6 +367,24 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace online
+		{
+			fight::EnumEntry gOnlineSetPairingVolumeStateTrackVolumeTypeTable[1] =
+				{
+					{ fight::Name("Inner", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D5FF00
+// FUNCTION: ENGINE 0x10D85540
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10265940
 // FUNCTION: ENGINE 0x102659B0

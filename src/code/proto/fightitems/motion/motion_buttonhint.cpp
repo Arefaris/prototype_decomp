@@ -402,9 +402,22 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			extern const core::Name<core::CaseSensitiveKey> gNoButtonHint("INVALID_HINT", 0);
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4D840
 // FUNCTION: ENGINE 0x10D81320
+// FUNCTION: ENGINE 0x10D4C7B0
+// FUNCTION: ENGINE 0x10D80FE0
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
