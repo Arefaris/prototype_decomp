@@ -11,6 +11,8 @@
 namespace mgraph
 {
 	class GraphConnectionBase;
+	class AbstractOutputPinBase;
+	class AbstractInputPinBase;
 	// 0x10AD2F00: the reflection of a type found in the registry of the graph library (name guessed)
 	om::MetaTypeBase* FindGraphMetaType(const type_info& type);
 
@@ -71,8 +73,11 @@ namespace mgraph
 	class AbstractInputPinBase : public InputPinBase
 	{
 	public:
-		AbstractInputPinBase(void* newNode, int newKind, const om::ClassName* newName, int newIndex);
+		AbstractInputPinBase(const om::ClassName* newName, int newKind, void* newNode, int newIndex);
 		virtual ~AbstractInputPinBase();
+
+		// 0x10B69A80: adds an output pin to the list of the pins it takes packets from (name guessed)
+		void AddSource(AbstractOutputPinBase* source);
 
 		unsigned int unknown28;
 		unsigned int unknown2C;
@@ -82,9 +87,11 @@ namespace mgraph
 	class AbstractOutputPinBase : public OutputPinBase
 	{
 	public:
-		AbstractOutputPinBase(void* newNode, const om::ClassName* newName, int newIndex);
+		AbstractOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex);
 		virtual ~AbstractOutputPinBase();
 		virtual void Slot3();
+		// 0x10B69E50: adds an input pin to the list of the pins it hands packets to (name guessed)
+		void AddTarget(AbstractInputPinBase* target);
 
 		unsigned int unknown20;
 		unsigned int unknown24;
@@ -379,8 +386,8 @@ namespace mgraph
 	template<class P> class AbstractInputPin : public AbstractInputPinBase
 	{
 	public:
-		AbstractInputPin(const om::ClassName* newName, void* newNode, int newIndex) :
-			AbstractInputPinBase(newNode, 1, newName, newIndex)
+		AbstractInputPin(void* newNode, const om::ClassName* newName, int newIndex) :
+			AbstractInputPinBase(newName, 1, newNode, newIndex)
 		{
 		}
 		virtual om::MetaTypeBase* GetPacketType()
@@ -426,8 +433,9 @@ namespace mgraph
 	template<class P> class AbstractOutputPin : public AbstractOutputPinBase
 	{
 	public:
-		AbstractOutputPin(const om::ClassName* newName, void* newNode, int newIndex) :
-			AbstractOutputPinBase(newNode, newName, newIndex)
+		// Never expanded in line by the engine
+		__declspec(noinline) AbstractOutputPin(void* newNode, const om::ClassName* newName, int newIndex) :
+			AbstractOutputPinBase(newName, newNode, newIndex)
 		{
 		}
 		virtual om::MetaTypeBase* GetPacketType()

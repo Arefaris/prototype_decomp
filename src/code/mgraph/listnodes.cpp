@@ -9,17 +9,14 @@ namespace mgraph
 	using namespace om;
 
 	// FUNCTION: ENGINE 0x10B2AB00
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<bool>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2ACA0
 	template void mgraph::ListCount<bool>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2AFF0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<unsigned int>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2B190
 	template void mgraph::ListCount<unsigned int>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2B210
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.8 %)
 	template mgraph::ListEntry<unsigned int>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2B430
 	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<unsigned int> >(mgraph::FrameEntry<unsigned int> const*);
@@ -30,12 +27,10 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B2B480
 	template void mgraph::ListEntry<unsigned int>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2B690
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<unsigned __int64>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2B830
 	template void mgraph::ListCount<unsigned __int64>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2B8B0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.8 %)
 	template mgraph::ListEntry<unsigned __int64>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2BAD0
 	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<class om::DynamicArray<unsigned __int64,unsigned short> > >(mgraph::FrameEntry<DynamicArray<unsigned __int64,unsigned short> > const*);
@@ -44,12 +39,10 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B2BB10
 	template void mgraph::ListEntry<unsigned __int64>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2BD70
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<String>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2BF10
 	template void mgraph::ListCount<String>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2BF90
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.8 %)
 	template mgraph::ListEntry<String>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2C1F0
 	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<class om::DynamicArray<class om::String,unsigned short> > >(mgraph::FrameEntry<DynamicArray<String,unsigned short> > const*);
@@ -58,17 +51,14 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B2C230
 	template void mgraph::ListEntry<String>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2C450
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<Vector>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2C5F0
 	template void mgraph::ListCount<Vector>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2C6A0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<mgraph::TriggerData>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2C840
 	template void mgraph::ListCount<mgraph::TriggerData>::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2CC30
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.7 %)
 	template mgraph::ListCount<Complex>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B2CDD0
 	template void mgraph::ListCount<Complex>::operator delete(void*);
@@ -128,7 +118,6 @@ namespace mgraph
 		return new mgraph::ListCount<Complex>(static_cast<Graph*>(graph), *nodeName);
 	}
 	// FUNCTION: ENGINE 0x10B44B00
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.8 %)
 	template mgraph::ListEntry<bool>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B44D30
 	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<class om::DynamicArray<bool,unsigned short> > >(mgraph::FrameEntry<DynamicArray<bool,unsigned short> > const*);
@@ -156,24 +145,27 @@ namespace mgraph
 		return new mgraph::ListCount<mgraph::EnvelopeData>(static_cast<Graph*>(graph), *nodeName);
 	}
 	// FUNCTION: ENGINE 0x10B2ACC0
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<bool>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2B1B0
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<unsigned int>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2B850
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<unsigned __int64>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2BF30
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<String>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2C610
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<Vector>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2C860
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<mgraph::TriggerData>::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B2CDF0
-	// EQUIVALENT: register allocation (the engine loads the first entry through eax twice, ours through edx and eax) (94.7 %)
 	template void mgraph::ListCount<Complex>::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B2AF60
+	template void mgraph::ListCount<float>::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B2CB30
+	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > >(mgraph::FrameEntry<DynamicArray<mgraph::TriggerData,unsigned short> > const*);
+	// FUNCTION: ENGINE 0x10B2CB70
+	template void mgraph::ListEntry<mgraph::TriggerData>::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B2ADA0
+	template mgraph::ListCount<float>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B45080
+	template mgraph::ListEntry<float>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 }
