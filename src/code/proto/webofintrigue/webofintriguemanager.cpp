@@ -1,5 +1,6 @@
 #include "code/proto/webofintrigue/webofintriguemanager.h"
 #include "code/engine/camera/director.h"
+#include "code/engine/luascriptmanager.h"
 #include "code/engine/nis/nis.h"
 #include "code/engine/gameobject/messagerouter.h"
 #include "code/content/enummetatype.h"
@@ -366,6 +367,33 @@ namespace proto
 		sList.members = sMembers;
 		sList.count = 12;
 		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x1055B860
+	void AddWebOfIntrigueSubject()
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		engine::DBSubjectInfo info(true, 0xff, -1);
+		database->AddIntSubject(engine::gWoi, 0, 0x81, info);
+	}
+
+	// FUNCTION: ENGINE 0x1055B8C0
+	void ReleaseWebOfIntrigueSubject()
+	{
+		engine::gGameDatabase->ReleaseSubject(engine::gWoi);
+	}
+
+	// FUNCTION: ENGINE 0x1055B8F0
+	void WebOfIntrigueManager::ClearSubject(int unused, int unused2)
+	{
+		subject = 0;
+	}
+
+	// FUNCTION: ENGINE 0x1055B9C0
+	void WebOfIntrigueManager::UnregisterNatives()
+	{
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		manager->Unregister(this);
 	}
 
 	// FUNCTION: ENGINE 0x1055B520

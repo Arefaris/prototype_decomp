@@ -70,6 +70,10 @@ namespace proto
 		void AddVisible(WOIEpisode* episode);
 		// 0x1055BB70: selects a node
 		void SelectNode(Node* node);
+		// 0x1055B8F0: forgets the database subject (the body of the observer's slot 0, which the engine's vftable holds)
+		void ClearSubject(int unused, int unused2);
+		// 0x1055B9C0: takes the script natives of the manager back
+		void UnregisterNatives();
 		// 0x1055B550 / 0x1055B560 / 0x1055B570 / 0x1055B590 / 0x1055B5A0 (names guessed)
 		int GetUnknown420();
 		float GetUnknown454();
@@ -141,6 +145,10 @@ namespace proto
 		int unknown468;
 		bool unknown46C;
 	};
+
+	// 0x1055B860 / 0x1055B8C0: makes / releases the database subject of the web (names guessed)
+	void AddWebOfIntrigueSubject();
+	void ReleaseWebOfIntrigueSubject();
 
 	// 0x11272D48: the one manager (null: none)
 	extern WebOfIntrigueManager* gWebOfIntrigueManager;
