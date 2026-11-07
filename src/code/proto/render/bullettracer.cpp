@@ -1,5 +1,6 @@
 // proto::BulletTracer, BulletTracerState and the helpers of their unit (code/proto/render/bullettracer.cpp, 0x102CC000 -
 // 0x102D2500; the path is a guess from the class names). Names are guesses.
+#include "code/content/colourmetatype.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
 #include "code/math/pddicolour.h"
@@ -91,6 +92,88 @@ namespace math
 
 namespace proto
 {
+#define PROTO_OFFSET(type, member) 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+#define PROTO_NAME_OFFSET(type, member) 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x102CCC70
+	content::ClassInfo* BulletTracerParams::Data::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::BulletTracerParams::Data";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102CCCB0
+	content::ClassInfo* BulletTracerProfile::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::BulletTracerProfile";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102CE670
+	content::MemberList* BulletTracerParams::Data::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<Data, float, 0>("p"), PROTO_OFFSET(Data, fadeInTime), "fadeInTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 1>("p"), PROTO_OFFSET(Data, fadeOutTime),
+				"fadeOutTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 2>("p"), PROTO_OFFSET(Data, startFadeDistance),
+				"startFadeDistance" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 3>("p"), PROTO_OFFSET(Data, endFadeDistance),
+				"endFadeDistance" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 4>("p"), PROTO_OFFSET(Data, generateTime),
+				"generateTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 5>("p"), PROTO_OFFSET(Data, fadeInTrailTime),
+				"fadeInTrailTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 6>("p"), PROTO_OFFSET(Data, fadeOutTrailTime),
+				"fadeOutTrailTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 7>("p"), PROTO_OFFSET(Data, shrinkInTime),
+				"shrinkInTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 8>("p"), PROTO_OFFSET(Data, shrinkOutTime),
+				"shrinkOutTime" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 9>("p"), PROTO_OFFSET(Data, thickness), "thickness" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 10>("p"), PROTO_OFFSET(Data, textureLength),
+				"textureLength" },
+			{ content::GetMemberPrimitiveMetaType<Data, float, 11>("p"), PROTO_OFFSET(Data, textureScrollRate),
+				"textureScrollRate" },
+			{ content::GetMemberColourMetaType<Data, 0>("p"), content::MemberOffset((math::Colour128*)0x38, 0x38),
+				"startColour" },
+			{ content::GetMemberColourMetaType<Data, 1>("p"), content::MemberOffset((math::Colour128*)0x48, 0x48),
+				"endColour" }
+		};
+		sList.members = sMembers;
+		sList.count = 14;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x102CF0F0
+	content::MemberList* BulletTracerProfile::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetClassMetaType<BulletTracerParams::Data>(), PROTO_OFFSET(BulletTracerProfile, head), "head" },
+			{ content::GetClassMetaType<BulletTracerParams::Data>(), PROTO_OFFSET(BulletTracerProfile, tail), "tail" },
+			{ content::GetMemberPrimitiveMetaType<BulletTracerProfile, float, 0>("p"),
+				PROTO_OFFSET(BulletTracerProfile, wait), "wait" },
+			{ content::GetMemberVectorMetaType<BulletTracerProfile, 0>("p"), 0xCC, "offset" },
+			{ content::GetNameMetaType<BulletTracerProfile>(true, true, "p"),
+				PROTO_NAME_OFFSET(BulletTracerProfile, headShaderName), "headShaderName" },
+			{ content::GetMemberNameMetaType<BulletTracerProfile, 1>(true, true, "p"),
+				PROTO_NAME_OFFSET(BulletTracerProfile, tailShaderName), "tailShaderName" }
+		};
+		sList.members = sMembers;
+		sList.count = 6;
+		return &sList;
+	}
+
 	// FUNCTION: ENGINE 0x102CCCF0
 	// EQUIVALENT: the same operations in the same order; the engine loads the constant before the pointers and multiplies the
 	// first channel's factor in the other register

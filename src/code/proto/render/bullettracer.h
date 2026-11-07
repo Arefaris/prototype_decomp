@@ -5,6 +5,7 @@
 #ifndef PROTO_RENDER_BULLETTRACER_H
 #define PROTO_RENDER_BULLETTRACER_H
 
+#include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/math/vector.h"
 #include "code/math/vector4.h"
@@ -22,6 +23,10 @@ namespace proto
 		// The parameters of one ribbon (0x58 bytes)
 		struct Data
 		{
+			// 0x102CCC70 / 0x102CE670
+			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
+
 			float fadeInTime;
 			float fadeOutTime;
 			float startFadeDistance;
@@ -38,6 +43,23 @@ namespace proto
 			math::Vector4 startColour;
 			math::Vector4 endColour;
 		};
+	};
+
+	// The profile of a tracer (RTTI proto::BulletTracerProfile; reflected: head, tail, wait, offset, headShaderName,
+	// tailShaderName): the parameters of the two ribbons and their shaders
+	struct BulletTracerProfile
+	{
+		// 0x102CCCB0 / 0x102CF0F0
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		unsigned char unknown0[8];
+		BulletTracerParams::Data head;  // +8
+		BulletTracerParams::Data tail;  // +0x60
+		core::Name<core::CaseSensitiveKey> headShaderName;  // +0xB8
+		core::Name<core::CaseSensitiveKey> tailShaderName;  // +0xC0
+		float wait;  // +0xC8
+		math::Vector offset;  // +0xCC
 	};
 
 	// The state of a tracer in flight: a copy of the profile (the ribbons and the delay), the head's position and

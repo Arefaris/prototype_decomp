@@ -6889,3 +6889,22 @@ No assert path names any unit; the file names are guesses.
   offset (thunks followed) and fixes the symbols.txt lines. The code string of a member is `"p"` or `"pn"` (0x10D94FF4 / 0x10D94E7C), read from the push in front of the getter call.
 - Not started: `TargetableBehaviour` / `PropTargetableByAIBehaviour` (read: the targeters list, the filter accessors of `TargetPoint`, the enumeration getter 0x102B1770 is mapped through `AutoTargetPriorityList`), `AutoTargetingBehaviour`, `LockOnTargetingBehaviour`,
   `BaseHealthBehaviour` / `HunterHealthBehaviour` / `MotherHealthBehaviour` / `PrototypeHealthBehaviour` (their tables are 7 and 34 floats), the fog channel, `EffectsPropSpawner`, the time bubble manager and the large update functions.
+
+## proto health, grab and render units: the range 0x102C0000 - 0x102E0000 (sn-bv)
+
+The range holds, in this order: the mother health behaviour (from 0x102BFF80) and the poison reaction behaviour (`PoisonInformation`, 0x102C0B50 on), `PrototypeHealthBehaviour` with its unlockable table (0x102C2830), `ShieldHitReactionBehaviour`
+(0x102C4890), `GrabbableBehaviour` / `GrabbableStaticBehaviour` (0x102C4F30), the grab family (`GrabBehaviour`, `GrabSlot`, `GrabAutoSpawnBehaviour`, `GrabSpawnListEntry`, `GrabSelectionBehaviour`, 0x102C6800 - 0x102CBF50), `BloodSplatter`
+(0x102CBF50), the bullet tracer (to 0x102D2000), the decay render manager, `DeformShaderBehaviour`, `HUD`, `LaserSight` (0x102D7B00), `LODRenderBehaviour`, the midground manager and `ProtoColourVariationBehaviour` (0x102DE4C0). No assert path
+names a unit; the file names are guesses.
+- `proto/behaviours/poisonreactionbehaviour.cpp` (constructor, destructor, both ClassInfos, both GetMembers, `PoisonInformation` destructor, `ClearPoisons`; `GetNextHitTime` NONMATCHING, the engine keeps the generator's second state in a register of its own),
+  `prototypehealthbehaviour.cpp`, `motherhealthbehaviour.cpp` (member reflection only: the classes' constructors and virtual slots need the unrecovered virtuals of `proto::HealthBehaviour`, slots 10 - 12),
+  `shieldhitreactionbehaviour.cpp` (constructor, destructor, reflection; the message handlers need the two bool messages of type 0x1E, ids 0x20 / 0x21), `grabbablebehaviour.cpp` (reflection, the string accessors of the transitions with the unit's own
+  `RefAssign` copy `TransitionStateRef::Assign` 0x102C5250 and `CreateTransitionState` 0x102C50A0, which takes the inventory it does not use as an argument), `grabbehaviour.cpp` (the five ClassInfos and GetMembers, `GrabSlot`,
+  `GrabSpawnListEntry`), `render/bloodsplatter.cpp`, `render/hud.cpp` (the states and primitives of the blood splatter, the HUD and the laser sight: copy constructors, clones, bounding boxes, the small virtual slots),
+  `render/protocolourvariationbehaviour.cpp`; the reflection of `BulletTracerParams::Data` / `BulletTracerProfile`, `DeformShaderBehaviour` and the ClassInfos of the LOD classes were added to the existing units.
+- Findings: the stubs `PoisonReactionBehaviour`, `ShieldHitReactionBehaviour`, the five grab classes and `ProtoColourVariationBehaviour` were removed from `proto/reflectedstubs.h` and their headers included by `protometafactories.cpp`
+  (a header that includes `healthbehaviour.h` cannot be included there: `engine::HealthBehaviour` is declared twice). A struct that has a pointer in front of a `core::Name` keeps a word of padding (`GrabSpawnListEntry`, 0x60 bytes,
+  `__declspec(align(8))`). Further `core::Name` members of a class are `GetMemberNameMetaType<C, N>` instances. The `PrimitiveState` derived classes start their members at +0x1C (`unknown10[0xC]`). The constructors of the primitive states
+  that copy a `Vector2` / `Vector` leave the last coordinate on the x87 stack until after `mov eax, esi`: not reproduced (`BloodSplatterState`, `HUDState`, `LaserSightState`, `BloodSplatter` constructors NONMATCHING).
+- Not done: the update and message functions (Poison `Update` 0x102C14B0 / `OnMessage` 0x102C1800, the grab messages, the HUD update), the drawing of the primitives, the LOD reflection (accessor based members), the fog drawable (0x102D5500),
+  the decay render manager and the midground manager, and the message classes of the range (their constructors are inline; no header declares them).
