@@ -29,6 +29,38 @@ namespace proto
 #define PROTO_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+	// FUNCTION: ENGINE 0x103077C0
+	content::ClassInfo* VehicleConstraintsBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::VehicleConstraintsBehaviour";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x1030CB80
+	VehicleWheelList::LateralWheelGroup::LateralWheelGroup() : suspensionProperties(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1030CBA0
+	VehicleWheelList::LateralWheelGroup::~LateralWheelGroup()
+	{
+		core::SafeRelease(suspensionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1030CBD0
+	VehicleDoorList::DoorGroup::DoorGroup() : doorProperties(0), doorSide(VehicleDoorProperties::DoorSideLeft)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1030CBF0
+	VehicleDoorList::DoorGroup::~DoorGroup()
+	{
+		core::SafeRelease(doorProperties);
+	}
+
 	// FUNCTION: ENGINE 0x10307580
 	content::ClassInfo* VehicleWheelSuspensionProperties::GetClassInfo()
 	{

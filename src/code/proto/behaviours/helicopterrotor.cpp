@@ -177,6 +177,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10310280
 // FUNCTION: ENGINE 0x10310CA0
 
+// The engine's copies of the reflection's casters
+template class content::BaseClassCasterImpl<engine::Behaviour, proto::HelicopterRotorAnimationBehaviour>;
+template class content::LoadInventory::DynamicCaster<proto::HelicopterSolverGenericProperties>;
+
 // The engine's copies of every member of the array of rotors
 template class container::ArrayDynamic<proto::Rotor, container::AllocatorNew>;
 // FUNCTION: ENGINE 0x10310040
@@ -208,3 +212,5 @@ template class container::ArrayDynamic<proto::Rotor, container::AllocatorNew>;
 // FUNCTION: ENGINE 0x103114E0
 // FUNCTION: ENGINE 0x103117A0
 // FUNCTION: ENGINE 0x10310170
+// FUNCTION: ENGINE 0x103101B0
+// FUNCTION: ENGINE 0x10310410

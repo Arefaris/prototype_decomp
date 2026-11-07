@@ -30,6 +30,9 @@ namespace proto
 	// 0x10DA3664 / 0x10D977EC (symbols.txt): fifty and ten in the pooled constants (names guessed)
 	extern const float gFifty;
 	extern const float gTen;
+	// 0x10DB8218 / 0x10D95D54 (symbols.txt): pi / 3 and pi / 2 in the pooled constants (names guessed)
+	extern const float gPiOverThree;
+	extern const float gPiOverTwo;
 
 	// 0x1031F720: this unit's copy of the release helper for a mass properties reference (name guess)
 	void ReleaseMassProperties(ravenphysics::MassProperties*& object);
@@ -483,6 +486,7 @@ namespace proto
 		};
 
 		HelicopterSolverProperties(); //@0x1031FC80
+		virtual ~HelicopterSolverProperties(); //@0x1031F4B0 (deleting destructor 0x1031FD00)
 		static content::ClassInfo* GetClassInfo(); //@0x1031E3A0
 		static content::MemberList* GetMembers(); //@0x10324850
 

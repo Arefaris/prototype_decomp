@@ -1133,13 +1133,12 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x1031F350
-	// NONMATCHING: the engine loads the first constant before the shared one of the last member, 85 %
-#ifdef NONMATCHING
 	Solver::YawAxisParams::YawAxisParams()
 	{
-		maxYawAcceleration = 1.0471976f;
+		float yaw = gPiOverThree;
 		float one = engine::driving::gOne;
-		maxVelocity = 1.5707964f;
+		maxYawAcceleration = yaw;
+		maxVelocity = gPiOverTwo;
 		yawAmountAtMaxForwardAndSidewayVelocity = 0.0f;
 		lowspeedDragMaxVelocity = 0.0f;
 		lowSpeedDragTimeToStopFromMaxVelocity = one;
@@ -1147,7 +1146,6 @@ namespace proto
 		lowspeedDrag = 0.0f;
 		dragCoefficient = 0.0f;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1031F3B0
 	float Solver::YawAxisParams::GetMaxYawAccelerationDegrees() const
@@ -1297,6 +1295,19 @@ namespace proto
 		ReleaseMassProperties(restingMassProperties);
 	}
 
+	// FUNCTION: ENGINE 0x1031F4B0
+	Solver::~HelicopterSolverProperties()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1031FC80
+	// NONMATCHING: the engine's address computation for the first member sits behind the reference count store, ours before it, 91 %
+#ifdef NONMATCHING
+	Solver::HelicopterSolverProperties()
+	{
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1031FAE0
 	void Solver::LateralAxisLinearParams::UpdateDerivedValues()
 	{
@@ -1381,6 +1392,9 @@ namespace content
 	template PrimitiveMetaType<float>* GetMemberPrimitiveMetaType<Generic::HealthParams, float, 1>(const char* code);
 }
 
+// The engine's copy of the reflection's caster of the properties
+template class content::LoadInventory::DynamicCaster<proto::HelicopterSolverProperties>;
+
 // Kept copies (compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x103215F0
 // FUNCTION: ENGINE 0x1031F640
@@ -1413,3 +1427,4 @@ namespace content
 // FUNCTION: ENGINE 0x1031FF50
 // FUNCTION: ENGINE 0x1031FF90
 // FUNCTION: ENGINE 0x1031FFD0
+// FUNCTION: ENGINE 0x10316B30
