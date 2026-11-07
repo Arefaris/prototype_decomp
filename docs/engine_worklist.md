@@ -7354,3 +7354,19 @@ classes the units do not name; those stay open.
 - `pass/src/pass.cpp`: `PassDesc` constructor (the flag is a byte, stored as it comes), `Pass` constructor NONMATCHING (50.7 %: the engine constructs the part filter after the flag words). `pass/src/postprocesspasses.cpp`: `ProtoRadialBlurPass::Render` (the inline `GetSource` reads the singleton again for each use), `DepthOfFieldPass::Begin`; `pass/src/protopasses.cpp`: `SlowZPass::Render`. `PassContext` got its size members (+0x1C, +0x20).
 - Shared header changes: `primitive.h` (the generators), `lighting.h` (the settings of the shadow, `math/vector.h` included), `light.h`, `pass.h`, `renderscheme.h` (`PassDesc` / `Pass` name and flag members), `postprocesspass.h` (`Blur`), `effects/particledata.h`, `effects/particlecontroller.h`.
 - Not done and why: the generator base constructor and destructor (a 0x110 byte inline-storage index list at +0x2F0 that no container header has, an uninitialised stack copy the engine makes into it), `Advance` / constructor of the controller, the dead COMDAT copies of container templates (`ArrayFixed<T, N>` for N = 64 and 5000, the vertex animation arrays; no caller or vftable names the element type, so the class is unknown), the setters at 0x10740180 - 0x10740440 (members at +0x410 - +0x448 of a class no vftable or caller names), the render passes' `Render` bodies beyond 100 bytes (each needs the pass's draw helpers; `FastZPass::Render` is 97 bytes long but functions.tsv has 90), the font draw functions and the `RenderScheme` tree (the `Map` instances).
+
+## mgraph 0x10B00000 - 0x10B20000, second pass (sn-cx)
+- `mgraph/nodetypes.cpp`: `NodeType<N>::Destroy()` for 79 node classes (the property node base, the math nodes, `Rand`, `Throw` / `Catch`,
+  `ListCount` / `ListEntry` / `Switch`): the engine's static that finds the node type through `NodeTypeCache<N>` and deletes it.
+- `mgraph/pins.h`: the engine's connections and abstract pins have implicit destructors (no vftable store: the scalar deleting destructor calls the
+  base destructor straight), so the explicit `{}` destructors of `ConcreteToConcrete` / `AbstractToConcrete` / `AbstractToAbstract` / `ConcreteToAbstract`
+  `GraphConnection<P>`, their `...Base` classes, `ContextConnection<P>`, `AbstractInputPin<P>` and `AbstractOutputPin<P>` are gone; with them the
+  scalar deleting destructors and the destructors (a `jmp` to the base destructor, one per class and type) of these classes are 100 % and mapped in
+  symbols.txt (115 mapped functions). `ContextConnection<P>::Create` (name guessed; 11 types: allocates "Event" from the connection owner's allocator
+  when the input pin may take a connection) is new, `PinAllocator::Slot1` is `Allocate`, `ConcreteInputPinBase::unknown28` is two words.
+- The scalar deleting destructors of `Packet<DynamicArray<E>>` (0x10B05520 ...) are 73 - 81 % (the engine inlines the array release with other registers): left to the engine.
+- Not done: the `Inlet<P>` / `Outlet<P>` nodes (constructors, destructors, slots 12, 13, 23, 24 of 97 - 130 bytes: they need the graph's node
+  iteration functions of 0x10AC6B90 - 0x10ACCDA0), the 2nd copies of template instances that the engine keeps once per translation unit
+  (`DynamicArray<E>` constructors, `ReleaseElements`, `Packet<T>` constructors at 0x10B00530 / 0x10B00560 are second copies of 0x10B33... / 0x10B356F0:
+  one name cannot be mapped to two addresses), the 3 - 30 byte kept copies without a class (accessors, `ret` stubs), `OutputPin<P>` constructors,
+  `PropertyPropertyDelegate::CreateDelegate`.
