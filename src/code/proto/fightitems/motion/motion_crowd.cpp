@@ -766,6 +766,20 @@ namespace proto
 				engine::ReleaseDriverCopy3(driver);
 			}
 
+			// FUNCTION: ENGINE 0x100AE650
+			void LocoCrowdAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(target.Get());
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy3(driver);
+					}
+				}
+			}
+
 			// FUNCTION: ENGINE 0x100AFB90
 			fight::Action* LocoCrowdTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
