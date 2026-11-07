@@ -328,6 +328,8 @@ namespace proto
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x100D89E0)
 				virtual void Slot6();
+				// 0x100D8920: makes the supporting limb the track names the active one (name guess)
+				void ActivateNewSupportingLimb(engine::GameObject* object);
 				// vftable slot 7 (0x100DA240)
 				virtual bool Slot7(int arg, float value);
 

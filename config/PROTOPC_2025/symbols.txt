@@ -98926,3 +98926,7 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??1SetGrabIntersectionPropertiesMessage@proto@@UAE@XZ = 0x100C5100 ; function size:0x7 | kept template or inline copy of this unit
 ??_GSetGrabIntersectionPropertiesMessage@proto@@UAEPAXI@Z = 0x100C5F60 ; function size:0x1F | kept template or inline copy of this unit
 ??1ChargeSetMessage@proto@@UAE@XZ = 0x100C51B0 ; function size:0x7 | kept template or inline copy of this unit
+?ActivateNewSupportingLimb@HunterShortRangeHopCornerAction@motion@fightitems@proto@@QAEXPAVGameObject@engine@@@Z = 0x100D8920 ; function size:0x92 | proto::fightitems::motion::HunterShortRangeHopCornerAction::ActivateNewSupportingLimb (name guess)
+??1SupportingLimbSetActiveMessage@engine@@UAE@XZ = 0x100D6B90 ; function size:0x7 | kept template or inline copy of this unit
+??0FindSupportingLimbMessage@engine@@QAE@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x100D6DD0 ; function size:0x36 | kept template or inline copy of this unit
+??1FindSupportingLimbMessage@engine@@UAE@XZ = 0x100D6E20 ; function size:0x7 | kept template or inline copy of this unit

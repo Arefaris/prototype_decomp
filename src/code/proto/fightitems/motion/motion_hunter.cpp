@@ -1,6 +1,7 @@
 // Fight items of the motion group: HunterOnWallCondition, HunterCanHopAroundCornerCondition, HunterShortRangeLocoTrack, HunterShortRangeHopCornerTrack, HunterShortRangeCorner2Track, HunterLandedTrack (unit 0x1017D680 - 0x10180090; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_hunter.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/engine/physics/supportinglimbmessages.h"
 #include "code/engine/gameobject/gameobject.h"
 
 namespace proto
@@ -947,7 +948,44 @@ namespace proto
 				}
 				return result;
 			}
-// ---- actions end
+			// FUNCTION: ENGINE 0x100D8920
+			void HunterShortRangeHopCornerAction::ActivateNewSupportingLimb(engine::GameObject* object)
+			{
+				if (!link.Get()->newSupportingLimb.IsEmpty())
+				{
+					engine::FindSupportingLimbMessage find(link.Get()->newSupportingLimb);
+					object->SendMessage(&find);
+					if (find.limb != 0)
+					{
+						engine::SupportingLimbSetActiveMessage setActive(find.limb);
+						object->SendMessage(&setActive);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100D89E0
+			void HunterShortRangeHopCornerAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ActivateNewSupportingLimb(object);
+				}
+				if (driver != 0)
+				{
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+						}
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<HunterOnWallCondition>;
 			template class fight::ConditionFactoryTemplate<HunterOnWallCondition>;
 			template class fight::ConditionFactoryCasterTemplate<HunterOnWallCondition>;
@@ -985,6 +1023,9 @@ template proto::fightitems::motion::HunterShortRangeHopCornerTrack* core::Link<p
 template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Get() const;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D6B90
+// FUNCTION: ENGINE 0x100D6DD0
+// FUNCTION: ENGINE 0x100D6E20
 // FUNCTION: ENGINE 0x100D7540
 // FUNCTION: ENGINE 0x100D7560
 // FUNCTION: ENGINE 0x100D7580
