@@ -53,6 +53,8 @@ namespace proto
 		// the engine)
 		virtual void Slot1();
 		virtual void OnActiveChanged(bool active);
+		// vftable slot 5 (0x103C79F0): the base's
+		virtual void OnPostedMessage(engine::Message* message);
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
 

@@ -29,6 +29,8 @@ namespace proto
 
 		// vftable slots 1 (0x103C9940), 4 (0x103C99F0) and 6 (0x103C9CA0)
 		virtual void Slot1();
+		// vftable slot 3 (0x103C9300): the base's
+		virtual void OnActiveChanged(bool active);
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
 

@@ -48,6 +48,12 @@ namespace proto
 	{
 	}
 
+	// FUNCTION: ENGINE 0x103C9300
+	void BloodtoxBehaviour::OnActiveChanged(bool active)
+	{
+		engine::TriggerBehaviour::OnActiveChanged(active);
+	}
+
 	// FUNCTION: ENGINE 0x103C9760
 	content::MemberList* BloodtoxBehaviour::GetMembers()
 	{

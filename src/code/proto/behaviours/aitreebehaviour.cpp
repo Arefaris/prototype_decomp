@@ -59,6 +59,12 @@ namespace proto
 		}
 	}
 
+	// FUNCTION: ENGINE 0x103C79F0
+	void AiTreeBehaviour::OnPostedMessage(engine::Message* message)
+	{
+		FightTreeBehaviour::OnPostedMessage(message);
+	}
+
 	// FUNCTION: ENGINE 0x103C8750
 	void AiTreeBehaviour::Reset()
 	{
