@@ -74,7 +74,8 @@ namespace proto
 				{
 					return 0;
 				}
-				return (trackOwner->kind - 0x10000 <= 0x1ffff) ? trackOwner : 0;
+				int ownerKind = (int)trackOwner->kind;
+				return (ownerKind >= 0x10000 && ownerKind < 0x30000) ? trackOwner : 0;
 			}
 
 			// The owner the sequencer hands a condition in its third argument

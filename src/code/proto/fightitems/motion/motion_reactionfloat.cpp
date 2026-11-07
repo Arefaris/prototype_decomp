@@ -1,5 +1,6 @@
 // Fight items of the motion group: ReactionFloatTrack, TokenSetFloatDelayTrack (unit 0x101A69E0 - 0x101A73A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactionfloat.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
 {
@@ -214,6 +215,37 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x101082A0
+			TokenSetFloatDelayAction::TokenSetFloatDelayAction(TokenSetFloatDelayTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), target(owner->handle), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10107BE0
+			TokenSetFloatDelayAction::~TokenSetFloatDelayAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10108340
+			bool TokenSetFloatDelayAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetFloatDelayTokenMsg message(link.object->floatDelay);
+						object->SendMessage(&message);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x10108430
+			fight::Action* TokenSetFloatDelayTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new TokenSetFloatDelayAction(this, actionOwner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionFloatTrack>;

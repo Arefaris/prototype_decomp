@@ -91,7 +91,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1017DC50
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void HunterCanHopAroundCornerCondition::RegisterProperties()
 			{
 				if (gHunterCanHopAroundCornerConditionProperties == 0)
@@ -881,7 +880,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100DA6E0
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* HunterLandedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -903,7 +901,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100DA1D0
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* HunterShortRangeHopCornerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -925,7 +922,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100DA670
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* HunterShortRangeCorner2Track::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;

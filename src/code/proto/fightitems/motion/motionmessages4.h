@@ -8,6 +8,7 @@
 #include "code/core/name.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/proto/messages/airequestmessages.h"
 
 namespace proto
 {
@@ -61,6 +62,19 @@ namespace proto
 		}
 
 		engine::GameObjectHandle patsy;  // +0xC
+	};
+
+	// RTTI: proto::SetFloatDelayTokenMsg: sets the delay of the object's token
+	struct SetFloatDelayTokenMsg : public TokenMessage
+	{
+		explicit SetFloatDelayTokenMsg(float newDelay) : TokenMessage(2), delay(newDelay)
+		{
+		}
+		virtual ~SetFloatDelayTokenMsg()
+		{
+		}
+
+		float delay;  // +0xC
 	};
 }
 

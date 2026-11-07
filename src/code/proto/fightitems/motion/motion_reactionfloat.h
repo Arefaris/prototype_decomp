@@ -90,6 +90,21 @@ namespace proto
 			void RegisterTokenSetFloatDelayTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::TokenSetFloatDelayAction (9 vftable slots, 0x2C bytes)
+			class TokenSetFloatDelayAction : public fight::Action
+			{
+			public:
+				// 0x101082A0
+				TokenSetFloatDelayAction(TokenSetFloatDelayTrack* newTrack, TrackOwner* owner);
+				// 0x10108310 is the scalar deleting destructor
+				virtual ~TokenSetFloatDelayAction();
+
+				// vftable slot 5 (0x10108340)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<TokenSetFloatDelayTrack> link;  // +0x20
+			};
 
 			// ---- actions end
 		}

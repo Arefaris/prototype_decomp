@@ -1356,7 +1356,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011DFB0
-			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
 			fight::Action* SupportingLimbSetDirectionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
@@ -1374,7 +1373,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011DF50
-			// EQUIVALENT: add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value) (96.0 %)
 			fight::Action* SupportingLimbSetActiveRangeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;

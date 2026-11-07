@@ -159,7 +159,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101ABAA0
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void ShieldProtectingCondition::RegisterProperties()
 			{
 				if (gShieldProtectingConditionProperties == 0)
@@ -462,7 +461,7 @@ namespace proto
 			fight::Action* ShieldSetStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				TrackOwner* actionOwner = AsActionOwner(owner);
-				return new ShieldSetStateAction(this, actionOwner->handle);
+				return new ShieldSetStateAction(this, engine::GameObjectHandle(actionOwner->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1010FA00

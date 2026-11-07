@@ -1721,7 +1721,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100F4C60
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* MagneticBootsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				engine::GameObjectHandle handle = AsActionOwner(owner)->handle;
