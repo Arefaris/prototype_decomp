@@ -713,7 +713,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101A1920
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void ReactionHitOriginatorIsPlayerCondition::RegisterProperties()
 			{
 				if (gReactionHitOriginatorIsPlayerConditionProperties == 0)

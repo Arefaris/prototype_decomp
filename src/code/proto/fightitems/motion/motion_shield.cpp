@@ -498,7 +498,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010FBE0
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
 			fight::Action* ShieldSetStateTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				TrackOwner* actionOwner = AsActionOwner(owner);
@@ -516,11 +515,10 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010FC40
-			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (93.4 %)
 			fight::Action* ShieldReflectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
 				TrackOwner* actionOwner = AsActionOwner(owner);
-				return new ShieldReflectAction(this, actionOwner->handle);
+				return new ShieldReflectAction(this, engine::GameObjectHandle(actionOwner->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1010F970

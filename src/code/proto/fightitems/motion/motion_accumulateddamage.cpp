@@ -102,7 +102,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101780F0
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void IsUndamageableCondition::RegisterProperties()
 			{
 				if (gIsUndamageableConditionProperties == 0)

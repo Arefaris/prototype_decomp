@@ -203,7 +203,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WallExitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WallExitAction(this, AsActionOwner(owner)->handle);
+				return new WallExitAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1012C090

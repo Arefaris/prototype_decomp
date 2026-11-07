@@ -1763,7 +1763,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistRetractTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistRetractAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistRetractAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1013B790
@@ -1780,7 +1780,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistFreezeSegmentsTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistFreezeSegmentsAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistFreezeSegmentsAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x10139E70
@@ -1797,7 +1797,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistExtendTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistExtendAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistExtendAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1013AA80
@@ -1815,7 +1815,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistPullParentToTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistPullParentToTargetAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistPullParentToTargetAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1013A660
@@ -1832,7 +1832,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistAnimatedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistAnimatedAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistAnimatedAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1013A460
@@ -1849,7 +1849,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistMakeTautTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistMakeTautAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistMakeTautAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x1013A7A0
@@ -1866,7 +1866,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), and the engine loads the handle into esi where ours uses ecx
 			fight::Action* WhipFistSegmentFixToJointTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistSegmentFixToJointAction(this, AsActionOwner(owner)->handle);
+				return new WhipFistSegmentFixToJointAction(this, engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x10137410
@@ -1944,7 +1944,7 @@ namespace proto
 			// EQUIVALENT: the range test of the owner kind is add ecx, 0xFFFF0000 where ours has sub ecx, 0x10000 (the same value), the engine loads the handle into esi where ours uses ecx (14.6 %)
 			fight::Action* WhipFistResetTargetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
-				return new WhipFistResetTargetAction(AsActionOwner(owner)->handle);
+				return new WhipFistResetTargetAction(engine::GameObjectHandle(AsActionOwner(owner)->handle));
 			}
 
 			// FUNCTION: ENGINE 0x10137880
