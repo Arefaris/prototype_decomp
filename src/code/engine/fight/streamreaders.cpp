@@ -1,6 +1,7 @@
 // The sources a fight reader takes its text and its bytes from (part of the unit 0x105A2440 - 0x105B3680; the
 // declarations are in streamreaders.h).
 #include "code/engine/fight/streamreaders.h"
+#include "code/core/strings.h"
 #include <string.h>
 
 namespace fight
@@ -11,6 +12,13 @@ namespace fight
 	BufferStringReader::BufferStringReader(const char* newBuffer, unsigned int newSize, const char* newName)
 		: buffer(newBuffer), name(newName), size(newSize), position(0)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x105AB780
+	BufferStringReader::BufferStringReader(const char* text, const char* newName)
+		: buffer(text), name(newName), position(0)
+	{
+		size = core::StrLen(text);
 	}
 
 	// FUNCTION: ENGINE 0x105AB080

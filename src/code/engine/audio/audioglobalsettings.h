@@ -50,6 +50,9 @@ namespace engine
 	public:
 		// 0x105BCDF0: keeps the factor within its limits
 		void SetDistanceFactor(float factor);
+
+		char unknown0[0x40];
+		float distanceFactor;  // 0x40
 	};
 	extern ReverbSettings* gReverbSettings;
 

@@ -1,6 +1,8 @@
 // The set-up of the fight system (see fightsystem.h).
 #include "code/core/heap.h"
 #include "code/engine/fight/characterik.h"
+#include "code/engine/fight/coreconditions.h"
+#include "code/engine/fight/coretracks.h"
 #include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/inputconditions.h"
 #include "code/engine/fight/physicsblend.h"
@@ -423,5 +425,45 @@ namespace engine
 		RegisterLocoInputConditionFactory(registry, "locoInput");
 		RegisterTurnInputConditionFactory(registry, "turnInput");
 		RegisterSupportingSurfaceConditionFactories(registry);
+	}
+}
+
+namespace fight
+{
+	// FUNCTION: ENGINE 0x105A65A0
+	void RegisterCoreFactories(TrackRegistry* registry)
+	{
+		RegisterCommentConditionFactory(registry, "comment");
+		RegisterDebugConditionFactory(registry, "debug");
+		RegisterFalseConditionFactory(registry, "false");
+		RegisterOrConditionFactory(registry, "or");
+		RegisterNotConditionFactory(registry, "not");
+		RegisterConditionGroupConditionFactory(registry, "conditionGroup");
+		RegisterPlatformConditionFactory(registry, "platform");
+		RegisterPrintConditionFactory(registry, "print");
+		RegisterRandomConditionFactory(registry, "random");
+		RegisterMaybeConditionFactory(registry, "maybe");
+		RegisterSequencerBranchConditionFactory(registry, "sequencerBranch");
+		RegisterSequencerTimeConditionFactory(registry, "sequencerTime");
+		RegisterSequencerIsBusyConditionFactory(registry, "sequencerIsBusy");
+	}
+
+	// FUNCTION: ENGINE 0x105A6640
+	void RegisterCoreTrackFactories(TrackRegistry* registry)
+	{
+		RegisterCommentTrackFactory(registry, "comment");
+		RegisterPrintTrackFactory(registry, "print");
+		RegisterTrackGroupTrackFactory(registry, "trackGroup");
+	}
+
+	// FUNCTION: ENGINE 0x105A6670
+	void RegisterFlowTrackFactories(TrackRegistry* registry)
+	{
+		RegisterExecuteTrackFactory(registry, "execute");
+		RegisterOpportunityTrackFactory(registry, "opportunity");
+		RegisterSequenceTrackFactory(registry, "sequence");
+		RegisterSpawnTrackFactory(registry, "spawn");
+		RegisterStopTrackFactory(registry, "stop");
+		RegisterWaitTrackFactory(registry, "wait");
 	}
 }

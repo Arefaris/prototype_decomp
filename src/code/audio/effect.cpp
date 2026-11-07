@@ -4,6 +4,40 @@
 
 namespace audio
 {
+	// FUNCTION: ENGINE 0x105BB740
+	// NONMATCHING: the operand order of two of the unrolled additions (97.9 %)
+#ifdef NONMATCHING
+	void Effect::Process(const void* input, void* output, int mode)
+	{
+		const ChannelBuffer* source = (const ChannelBuffer*)input;
+		ChannelBuffer* target = (ChannelBuffer*)output;
+		if (mode == 0)
+		{
+			for (int channel = 0; channel < 8; channel++)
+			{
+				const float* in = source[channel].aligned;
+				float* out = target[channel].aligned;
+				for (int i = 0; i < 0x100; i++)
+				{
+					out[i] = in[i];
+				}
+			}
+		}
+		else
+		{
+			for (int channel = 0; channel < 8; channel++)
+			{
+				float* out = target[channel].aligned;
+				const float* in = source[channel].aligned;
+				for (int i = 0; i < 0x100; i++)
+				{
+					out[i] += in[i];
+				}
+			}
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105C3980
 	float Cosine(float angle)
 	{

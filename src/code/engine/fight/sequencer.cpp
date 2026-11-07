@@ -1,10 +1,13 @@
 // The fight sequencer: the list of actions a node runs, advanced against its clock. See sequencer.h for the model.
 // Names are guesses (no assert path names this unit).
 #include "code/core/heap.h"
+#include "code/core/strings.h"
+#include "code/content/metatype.h"
 #include "code/engine/fight/branch.h"
 #include "code/engine/fight/chunk.h"
 #include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/sequencer.h"
+#include <string.h>
 
 namespace engine
 {
@@ -20,6 +23,82 @@ namespace fight
 	int gActionCount;
 	// GLOBAL: ENGINE 0x11275ECC
 	int gActionPeak;
+
+#define ENGINE_OFFSET(type, member) \
+	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+#define ENGINE_NAME_OFFSET(type, member) \
+	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x105A46C0
+	// NONMATCHING: the engine subtracts the position from the end address of the buffer, ours folds the buffer away (85.1 %)
+#ifdef NONMATCHING
+	// 0x11275F30: the text GetTrackPath builds
+	static char sPathBuffer[0x200];
+
+	// 0x105A3EF0: the text of a name: the string when it has one, else the hash in hexadecimal (nothing for no hash)
+	static void NameToText(char* buffer, int size, const char* text, unsigned __int64 hash)
+	{
+		if (text != 0 && *text != 0)
+		{
+			core::SNPrintf(buffer, size, "%s", text);
+			return;
+		}
+		if (hash == 0)
+		{
+			*buffer = 0;
+			return;
+		}
+		core::SNPrintf(buffer, size, "0x%08x%08x", (unsigned int)(hash >> 32), (unsigned int)hash);
+	}
+
+	const char* Sequencer::GetTrackPath()
+	{
+		if (track == 0)
+		{
+			core::StrCpy(sPathBuffer, "<empty>");
+			return sPathBuffer;
+		}
+		if (!track->GetPath(sPathBuffer, 0x200, 0))
+		{
+			Branch* above = track->parent;
+			if (above != 0)
+			{
+				NameToText(sPathBuffer, 0x200, 0, above->name.GetHash());
+			}
+			char* end = sPathBuffer + strlen(sPathBuffer);
+			*end = '/';
+			end++;
+			int remaining = sPathBuffer + 0x200 - end;
+			NameToText(end, remaining, 0, track->name.GetHash());
+		}
+		return sPathBuffer;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105A3E80
+	content::ClassInfo* Sequencer::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "fight::Sequencer";
+		sInfo.code = "d";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x105A43F0
+	content::MemberList* Sequencer::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetNameMetaTypeCopy<Sequencer>(true, true, "p"), ENGINE_NAME_OFFSET(Sequencer, contextName), "Name" },
+			{ content::GetMemberPrimitiveMetaType<Sequencer, float, 0>("p"), ENGINE_OFFSET(Sequencer, timeScale),
+				"TimeScale" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
 
 	// ---- the reference count -----------------------------------------------------------------------------------
 
@@ -656,6 +735,8 @@ namespace fight
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x105A3F30
+// FUNCTION: ENGINE 0x105A4380
 // FUNCTION: ENGINE 0x105A2520
 // FUNCTION: ENGINE 0x105A3FC0
 // FUNCTION: ENGINE 0x105A3FD0

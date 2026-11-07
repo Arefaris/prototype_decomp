@@ -7251,3 +7251,24 @@ reflection (0x103453C0 - 0x10346A70), the framer camera (0x10347xxx - 0x10351000
   AirGunnerCamera / ChaseCamera / VehicleCamera (constructors, destructors, `Update`, the settings), BridgeCamera and its behaviour (an array of 20-byte requests, `OnMessage`), the smoothing
   data / state / wrapper reflection (an enum meta type, 22 float members, 11 of them through degree / radian accessors, `ArrayCDynamicHelper<Labelled, 12>`), FramerCam and its sequencer, the remaining
   camera manager natives (the framer natives, `RequestShake`, `CreateCinematographer`) and the registration function 0x10331D80.
+## proto/om/audio: the range 0x105A0000 - 0x105C0000, second pass (sn-ck)
+- Done: the om plain values' text and binary forms (`om/valueio.cpp`: bool, char, unsigned char, int, short, unsigned short,
+  unsigned int, float; `WriteText` of the numbers is `Format` + `new TextNode`), the text node and tree constructor, the node and
+  string comparisons (inline `strcmp`), the allocators (`om/allocator.cpp`: `Allocator`, `DefaultAllocator`, `GetAllocator`, the
+  tracked forms; `Max` / `Min` are in `om/minmax.cpp` because the engine's `Max` is in another unit and the caller saves `this`
+  in ebx), the event ring buffer of the audio thread (`audio/eventqueue.cpp`), the sequencer's class info and members,
+  the factory maps of the fight context (`FactoryMap` = the shared hash map code at 0x102DD6F0 / 0x102DDAD0), the core
+  factory registrations, the context's branch lookup by path, `String::ToLower`, `ReverbSettings::SetDistanceFactor`.
+- Findings: `StreamBuffer* buffer = stream->buffer; return buffer->Read(...)` gives the engine's argument order; reading the
+  digits of a text through `GetTextOutOfLine()` into a local first matches the `sscanf_s` calls; `strlen` (the intrinsic, not
+  `core::StrLen`) is the inline loop; a `while (a <= n && b <= n)` loop followed by `if (a <= n)` gives the wait-or-wrap
+  layout of the ring buffer; `_InterlockedAnd(p, -1)` is the atomic read (cmpxchg loop), the exchange is inline assembler.
+- NONMATCHING: `ReadText(short*)` 0x105B7EF0 (the zero of the failure path stays in esi), `ReadText(unsigned short*)` 0x105B7F70,
+  `WriteText(bool)` 0x105B8110 (scheduling of the two string temporaries), `TrackRegistry::AddFactory` x3 (0x105A5C90 /
+  0x105A5CD0 / 0x105A5D10: the engine loads both halves of the key before it stores the first), `Effect::Process` 0x105BB740
+  (97.9 %, operand order of two unrolled additions), `Sequencer::GetTrackPath` 0x105A46C0 (85.1 %, the end address of the
+  buffer is subtracted unfolded), `MetaClassBase::ReadBinary` / `WriteBinary` 0x105B6E10 / 0x105B6EE0 (24.5 %, the engine does not
+  thread the jump over the null case of a tree node's owner).
+- Not done: the movie player (Bink callbacks), the hash map iterator and destructor instances of the three factory maps,
+  `TrackRegistry` constructor / destructor, the text tree's insert / erase, the red-black inserts of the om registries
+  (earlier attempts reach 15 %), the `mgraph::Patch` and `PagedMemoryStream` units, the mixer voice.

@@ -11,7 +11,7 @@ namespace om
 		buffer = 0;
 		capacity = 0;
 		unknown10 = 0;
-		SetAllocationHeap(0);
+		ReleaseTracked(0);
 		capacity = newCapacity;
 		unknown10 = 4;
 		buffer = Allocate("Buffered Stream", newCapacity, 4);

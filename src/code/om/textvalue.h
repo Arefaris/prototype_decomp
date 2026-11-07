@@ -17,11 +17,19 @@ namespace om
 	// How a node's name is compared with the key that is looked for (0x105B8BF0: the key against the node's name)
 	int CompareNodeName(const String* key, const TextValue* node);
 	typedef int (*NodeCompare)(const String* key, const TextValue* node);
+	// 0x105B8B50 / 0x105B8BA0: two strings against each other, two nodes' names against each other (names guessed)
+	int CompareStrings(const String* first, const String* second);
+	int CompareNodes(const TextValue* first, const TextValue* second);
+	typedef int (*NodesCompare)(const TextValue* first, const TextValue* second);
 
 	// The ordered children of a text value (the root and the head's own node: 0x14 bytes)
 	class TextNodeTree
 	{
 	public:
+		// 0x105B78F0
+		TextNodeTree();
+		// 0x105B89F0: enters a child under its name (the mode is 1 for a node that may stand beside another of the same name)
+		TextValue* Insert(TextValue* node, NodesCompare compare, int mode);
 		// 0x105B7A80: the first child, null when there is none
 		TextValue* First() const;
 		// 0x105B7AA0: the child after another, null at the end
@@ -36,6 +44,11 @@ namespace om
 	class TextValue
 	{
 	public:
+		TextValue(TextValue* newParent, const String& name) :
+			text(name),
+			parent(newParent)
+		{
+		}
 		// The first child with the name
 		TextValue* FindChild(const char* name) const
 		{

@@ -41,6 +41,14 @@ namespace om
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x105B8730
+	String Stream::GetName()
+	{
+		String empty("", 0);
+		String result(empty);
+		return result;
+	}
+
 	// FUNCTION: ENGINE 0x105B8770
 	bool Stream::HasFailed()
 	{

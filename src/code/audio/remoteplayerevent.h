@@ -14,9 +14,32 @@ namespace audio
 	class EventQueue
 	{
 	public:
+		// 0x105BA5B0: a ring of that many bytes (a power of two); the queue becomes the one in force
+		explicit EventQueue(unsigned int newCapacity);
+		// 0x105BA5F0
+		~EventQueue();
+		// 0x105BA7B0: room for an event of that size; waits for the audio thread to free some when the ring is full
 		void* Allocate(unsigned int size);
+		// 0x105BA730: the audio thread gives an event's room back
 		void Free(void* block, unsigned int size);
+		// 0x105BA680: how much room there is in front of the write position and how much behind the read position
+		void GetSpace(unsigned int* space, unsigned int* limit);
+		// 0x105BA6D0: the next event the audio thread has not seen, null when there is none
+		unsigned char* Peek();
+		// 0x105BA710: lets the audio thread see everything written so far
+		void Publish();
+
+		unsigned char* buffer;  // 0
+		unsigned int capacity;  // 4
+		unsigned int write;  // 8: where the next event goes
+		unsigned int visible;  // 0xC: how far the audio thread may read
+		unsigned int free;  // 0x10: how far the audio thread has read (set with an atomic exchange)
+		unsigned int unknown14;
 	};
+	// 0x105BA610 (om): the value rounded up to a multiple of the alignment
+	// 0x105BA640 / 0x105BA660: an atomic read and an atomic exchange (names guessed)
+	long AtomicRead(volatile long* value);
+	long AtomicExchange(volatile long* value, const long* newValue);
 	extern EventQueue* gEventQueue;
 
 	// A remote player of the audio library (the entry's first word, a pointer, is the player)
