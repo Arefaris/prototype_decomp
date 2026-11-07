@@ -6,9 +6,134 @@
 
 #include "code/audio/rendererdriver.h"
 #include "code/om/entity.h"
+#include "code/core/criticalsection.h"
+#include "code/om/thread.h"
+#include "code/audio/remoteplayerevent.h"
+
+// The callback interface of the XAudio2 library (RTTI: IXAudio2VoiceCallback, stdcall methods)
+struct IXAudio2VoiceCallback
+{
+	virtual void __stdcall OnVoiceProcessingPassStart(unsigned int bytesRequired) = 0;
+	virtual void __stdcall OnVoiceProcessingPassEnd() = 0;
+	virtual void __stdcall OnStreamEnd() = 0;
+	virtual void __stdcall OnBufferStart(void* bufferContext) = 0;
+	virtual void __stdcall OnBufferEnd(void* bufferContext) = 0;
+	virtual void __stdcall OnLoopEnd(void* bufferContext) = 0;
+	virtual void __stdcall OnVoiceError(void* bufferContext, long error) = 0;
+};
+
+// A buffer submitted to a source voice (XAUDIO2_BUFFER)
+struct XAudioBuffer
+{
+	XAudioBuffer() :
+		flags(0),
+		audioBytes(0),
+		audioData(0),
+		playBegin(0),
+		playLength(0),
+		loopBegin(0),
+		loopLength(0),
+		loopCount(0),
+		context(0)
+	{
+	}
+
+	unsigned int flags;
+	unsigned int audioBytes;
+	void* audioData;
+	unsigned int playBegin;
+	unsigned int playLength;
+	unsigned int loopBegin;
+	unsigned int loopLength;
+	unsigned int loopCount;
+	void* context;
+};
+
+// The format of the samples a voice plays (WAVEFORMATEXTENSIBLE)
+struct XAudioWaveFormat
+{
+	unsigned short formatTag;
+	unsigned short channels;
+	unsigned int samplesPerSec;
+	unsigned int avgBytesPerSec;
+	unsigned short blockAlign;
+	unsigned short bitsPerSample;
+	unsigned short extraSize;
+	unsigned short validBitsPerSample;
+	unsigned int channelMask;
+	char subFormat[16];
+};
+
+// What the library tells about a device (XAUDIO2_DEVICE_DETAILS)
+struct XAudioDeviceDetails
+{
+	wchar_t deviceId[256];
+	wchar_t displayName[256];
+	unsigned int role;
+	XAudioWaveFormat outputFormat;
+};
+
+// The voices and the engine of the XAudio2 library, in the library's C form (only the slots the driver calls)
+struct IXAudio2Voice;
+struct IXAudio2SourceVoice;
+struct IXAudio2;
+
+struct IXAudio2VoiceVtbl
+{
+	void* slots[16];
+	void (__stdcall *DestroyVoice)(IXAudio2Voice* voice);
+};
+
+struct IXAudio2Voice
+{
+	const IXAudio2VoiceVtbl* lpVtbl;
+};
+
+struct IXAudio2SourceVoiceVtbl
+{
+	void* slots[16];
+	void (__stdcall *DestroyVoice)(IXAudio2SourceVoice* voice);
+	long (__stdcall *Start)(IXAudio2SourceVoice* voice, unsigned int flags, unsigned int operationSet);
+	long (__stdcall *Stop)(IXAudio2SourceVoice* voice, unsigned int flags, unsigned int operationSet);
+	long (__stdcall *SubmitSourceBuffer)(IXAudio2SourceVoice* voice, const XAudioBuffer* buffer, const void* bufferWma);
+};
+
+struct IXAudio2SourceVoice
+{
+	const IXAudio2SourceVoiceVtbl* lpVtbl;
+};
+
+struct IXAudio2Vtbl
+{
+	void* slots[3];
+	long (__stdcall *GetDeviceCount)(IXAudio2* engine, unsigned int* count);
+	long (__stdcall *GetDeviceDetails)(IXAudio2* engine, unsigned int index, XAudioDeviceDetails* details);
+	long (__stdcall *Initialize)(IXAudio2* engine, unsigned int flags, unsigned int processor);
+	void* slots6[2];
+	long (__stdcall *CreateSourceVoice)(IXAudio2* engine, IXAudio2SourceVoice** voice, const XAudioWaveFormat* format,
+		unsigned int flags, float maxFrequencyRatio, IXAudio2VoiceCallback* callback, const void* sendList, const void* effectChain);
+	void* slot9;
+	long (__stdcall *CreateMasteringVoice)(IXAudio2* engine, IXAudio2Voice** voice, unsigned int inputChannels,
+		unsigned int inputSampleRate, unsigned int flags, unsigned int deviceIndex, const void* effectChain);
+};
+
+struct IXAudio2
+{
+	const IXAudio2Vtbl* lpVtbl;
+};
 
 namespace audio
 {
+	// 0x113276E8: the XAudio2 engine
+	extern IXAudio2* gXAudio2;
+
+	// What the renderer gives the driver as its user data: it mixes a block of samples into the bins (name guessed)
+	class RenderCallback
+	{
+	public:
+		virtual void Render(float** bins, unsigned int channels, unsigned int samples) = 0;
+	};
+
 	// Where the device's buffer lives (names of the values not recovered)
 	enum BufferLocation
 	{
@@ -85,11 +210,86 @@ namespace audio
 		WAVEFORMAT GetWaveFormat() const;
 	};
 
-	// The driver of the XAudio2 device (RTTI: audio::XAudio2RendererDriver, also a voice callback of the device library;
-	// described by its name so far)
-	class XAudio2RendererDriver : public RendererDriver
+	// 0x105C6E60 (name guessed): whether two counters hold the same value
+	bool Equal(const int* first, const int* second);
+
+	// A counting semaphore of the core module, created with the object and destroyed with it
+	class DriverSemaphore
 	{
 	public:
+		DriverSemaphore()
+		{
+			core::SemaphoreCreate(&handle, 0);
+		}
+		~DriverSemaphore()
+		{
+			core::SemaphoreDestroy(&handle);
+		}
+
+		void* handle;
+	};
+
+	// The driver of the XAudio2 device (RTTI: audio::XAudio2RendererDriver, also a voice callback of the device library)
+	class XAudio2RendererDriver : public RendererDriver, public IXAudio2VoiceCallback
+	{
+	public:
+		// The thread that converts the mixed floats to 16 bit samples and submits them to the source voice
+		class Thread : public om::Thread
+		{
+		public:
+			// 0x10AC2810
+			explicit Thread(XAudio2RendererDriver* newDriver);
+			// 0x10AC2C90
+			virtual void Run();
+
+			XAudio2RendererDriver* driver;  // 0xCC
+		};
+
+		// 0x10AC2940
+		XAudio2RendererDriver(unsigned int newDeviceIndex, const XAudioDeviceDetails* newDeviceDetails, const char* deviceName);
+		// 0x10AC21A0 (the deleting destructor is 0x10AC2C00)
+		virtual ~XAudio2RendererDriver();
+		virtual void* Slot1();
+		// Slot 2 (0x10AC2E90): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slots 3 and 4: the device is opened with the user data and closed again (the base class keeps the data)
+		virtual void SetUserData(unsigned int newUserData);
+		virtual void ClearUserData();
+		// Slot 5 (0x10AC2700): true on the driver's own thread
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
+		// Slot 17 (0x10AC2C30)
+		virtual int Slot17();
+		// The callbacks of the voice
+		virtual void __stdcall OnVoiceProcessingPassStart(unsigned int bytesRequired);
+		virtual void __stdcall OnVoiceProcessingPassEnd();
+		virtual void __stdcall OnStreamEnd();
+		virtual void __stdcall OnBufferStart(void* bufferContext);
+		virtual void __stdcall OnBufferEnd(void* bufferContext);
+		virtual void __stdcall OnLoopEnd(void* bufferContext);
+		virtual void __stdcall OnVoiceError(void* bufferContext, long error);
+		OM_ALLOCATION(XAudio2RendererDriver);
+
+		// 0x113276EC (name guessed)
+		static int unknownStatic;
+
+		float** mixBins;  // 0x80
+		unsigned int deviceIndex;  // 0x84
+		XAudioDeviceDetails deviceDetails;  // 0x88: the description of the device, copied
+		XAudioBuffer* buffers;  // 0x4B4
+		IXAudio2Voice* masteringVoice;  // 0x4B8
+		IXAudio2SourceVoice* sourceVoice;  // 0x4BC
+		unsigned int deviceSampleRate;  // 0x4C0
+		unsigned int deviceChannels;  // 0x4C4
+		unsigned int numberOfBuffers;  // 0x4C8
+		DriverSemaphore semaphore;  // 0x4CC
+		int queuedBuffers;  // 0x4D0
+		long playedBuffers;  // 0x4D4
+		Thread thread;  // 0x4D8
+		bool open;  // 0x5A8
 	};
 }
 

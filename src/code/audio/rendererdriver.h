@@ -54,13 +54,13 @@ namespace audio
 		virtual ~RendererDriver()
 		{
 		}
-		virtual void Slot1() = 0;
+		virtual void* Slot1() = 0;
 		// Slot 2 (0x105E66D0): the description of the class
 		virtual om::MetaTypeBase* GetMetaType();
 		// Slots 3 and 4 (0x105E66F0 / 0x105E6700)
 		virtual void SetUserData(unsigned int newUserData);
 		virtual void ClearUserData();
-		virtual void Slot5() = 0;
+		virtual bool Slot5() = 0;
 		// Slots 6 to 11 (0x105E57F0 / 0x105E4F30, 0x105E5820 / 0x105E4F40, 0x105E5860 / 0x105E4F50): the value in use is
 		// kept inside the supported range
 		virtual void SetSampleRate(unsigned int newSampleRate);
@@ -111,6 +111,7 @@ namespace audio
 		bool available;  // 0x58
 		om::String description;  // 0x5C
 		FoldDownType foldDownType;  // 0x68
+		char unknown6C[0x10];  // the derived drivers' second base starts at 0x7C
 	};
 }
 
