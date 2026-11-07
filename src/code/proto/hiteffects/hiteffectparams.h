@@ -44,6 +44,22 @@ namespace proto
 			void SetDamageGiven(float newValue);
 			void SetDamageTaken(float newValue);
 			void SetAttackType(int newValue);
+			// The getters (0x104F5300 - 0x104F53B0)
+			int GetDamageType() const;
+			unsigned char GetMaterialType() const;
+			float GetDamageGiven() const;
+			float GetDamageTaken() const;
+			int GetAttackType() const;
+			const fight::Name& GetHitType() const;
+			const fight::Name& GetEffectType() const;
+			const math::Vector& GetSurfaceNormal() const;
+			float GetChargeValue() const;
+			float GetObjectVolume() const;
+			float GetObjectSpeed() const;
+			bool GetFromMuscleMass() const;
+			// 0x104FB870 / 0x104FB890
+			const math::Vector2& GetUnknown7C() const;
+			const math::Vector& GetUnknown70() const;
 			void SetUnknown7C(const math::Vector2& newValue);
 			void SetUnknown84(const HitEffectUnknown84* newValue);
 			void SetUnknown40(const math::Vector& newValue);
@@ -77,8 +93,7 @@ namespace proto
 			math::Vector surfaceNormal;  // +0x58
 			math::Vector unknown64;  // +0x64
 			math::Vector unknown70;  // +0x70
-			float unknown7C;  // +0x7C
-			float unknown80;  // +0x80
+			math::Vector2 unknown7C;  // +0x7C
 			HitEffectUnknown84 unknown84;  // +0x84
 			int physicsObject;  // +0x98
 			unsigned short physicsObjectSerial;  // +0x9C

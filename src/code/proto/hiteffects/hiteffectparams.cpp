@@ -55,8 +55,8 @@ namespace proto
 		// FUNCTION: ENGINE 0x104F3690
 		void HitEffectParams::SetUnknown7C(const math::Vector2& newValue)
 		{
-			unknown7C = newValue.x;
-			unknown80 = newValue.y;
+			unknown7C.x = newValue.x;
+			unknown7C.y = newValue.y;
 		}
 
 		// FUNCTION: ENGINE 0x104F36B0
@@ -165,6 +165,88 @@ namespace proto
 		void HitEffectParams::SetEffectType(const fight::Name& newValue)
 		{
 			effectType = newValue;
+		}
+		// FUNCTION: ENGINE 0x104F5300
+		int HitEffectParams::GetDamageType() const
+		{
+			return damageType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5310
+		unsigned char HitEffectParams::GetMaterialType() const
+		{
+			return materialType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5320
+		float HitEffectParams::GetDamageGiven() const
+		{
+			return damageGiven;
+		}
+
+		// FUNCTION: ENGINE 0x104F5330
+		float HitEffectParams::GetDamageTaken() const
+		{
+			return damageTaken;
+		}
+
+		// FUNCTION: ENGINE 0x104F5340
+		int HitEffectParams::GetAttackType() const
+		{
+			return attackType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5350
+		const fight::Name& HitEffectParams::GetHitType() const
+		{
+			return hitType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5360
+		const fight::Name& HitEffectParams::GetEffectType() const
+		{
+			return effectType;
+		}
+
+		// FUNCTION: ENGINE 0x104F5370
+		const math::Vector& HitEffectParams::GetSurfaceNormal() const
+		{
+			return surfaceNormal;
+		}
+
+		// FUNCTION: ENGINE 0x104F5380
+		float HitEffectParams::GetChargeValue() const
+		{
+			return chargeValue;
+		}
+
+		// FUNCTION: ENGINE 0x104F5390
+		float HitEffectParams::GetObjectVolume() const
+		{
+			return objectVolume;
+		}
+
+		// FUNCTION: ENGINE 0x104F53A0
+		float HitEffectParams::GetObjectSpeed() const
+		{
+			return objectSpeed;
+		}
+
+		// FUNCTION: ENGINE 0x104F53B0
+		bool HitEffectParams::GetFromMuscleMass() const
+		{
+			return fromMuscleMass;
+		}
+		// FUNCTION: ENGINE 0x104FB870
+		const math::Vector2& HitEffectParams::GetUnknown7C() const
+		{
+			return unknown7C;
+		}
+
+		// FUNCTION: ENGINE 0x104FB890
+		const math::Vector& HitEffectParams::GetUnknown70() const
+		{
+			return unknown70;
 		}
 	}
 }

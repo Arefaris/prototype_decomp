@@ -17,5 +17,58 @@ namespace proto
 		{
 			core::SafeRelease(params);
 		}
+		// FUNCTION: ENGINE 0x104FB7E0
+		const fight::Name& DecalTrack::GetShaderName() const
+		{
+			return shaderName;
+		}
+
+		// FUNCTION: ENGINE 0x104FB7F0
+		int DecalTrack::GetRandomSelect() const
+		{
+			return randomSelect;
+		}
+
+		// FUNCTION: ENGINE 0x104FB800
+		float DecalTrack::GetRandomOrientation() const
+		{
+			return randomOrientation;
+		}
+
+		// FUNCTION: ENGINE 0x104FB810
+		bool DecalTrack::GetScaleByDamage() const
+		{
+			return scaleByDamage;
+		}
+
+		// FUNCTION: ENGINE 0x104FB820
+		float DecalTrack::GetScaleX() const
+		{
+			return scaleX;
+		}
+
+		// FUNCTION: ENGINE 0x104FB830
+		float DecalTrack::GetScaleY() const
+		{
+			return scaleY;
+		}
+
+		// FUNCTION: ENGINE 0x104FB840
+		const char* DecalTrack::GetPatch() const
+		{
+			return patch;
+		}
+
+		// FUNCTION: ENGINE 0x104FB850
+		int DecalTrack::GetDecalStore() const
+		{
+			return decalStore;
+		}
+
+		// FUNCTION: ENGINE 0x104FB860
+		bool DecalTrack::GetCullOffscreen() const
+		{
+			return cullOffscreen;
+		}
 	}
 }

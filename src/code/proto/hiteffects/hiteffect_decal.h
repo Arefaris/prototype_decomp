@@ -29,6 +29,17 @@ namespace proto
 			// vftable slot 15 (0x104FBEA0, another unit)
 			virtual fight::Action* CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner);
 
+			// The getters of the action half (0x104FB7E0 - 0x104FB860)
+			const fight::Name& GetShaderName() const;
+			int GetRandomSelect() const;
+			float GetRandomOrientation() const;
+			bool GetScaleByDamage() const;
+			float GetScaleX() const;
+			float GetScaleY() const;
+			const char* GetPatch() const;
+			int GetDecalStore() const;
+			bool GetCullOffscreen() const;
+
 			// The members the properties write
 			bool SetShaderName(const fight::Name& newValue);
 			bool SetRandomSelect(int newValue);
