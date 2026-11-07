@@ -102722,3 +102722,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?gEngineFlags@engine@@3IA = 0x1130DC64 ; data size:0x4 | engine::gEngineFlags: the flag word of HasEngineFlags / SetEngineFlags / ClearEngineFlags (name guess)
 ?gTutorialMode@engine@@3_NA = 0x1130D43C ; data size:0x1 | engine::gTutorialMode: the scenario's tutorial flag (name guess)
 ?sCurrentId@ScriptOwner@engine@@2HA = 0x1130D3A8 ; data size:0x4 | engine::ScriptOwner::sCurrentId: the id of the node the scripts run for now (name guess)
+?SetShadowRange@engine@@YAXM@Z = 0x1074ED00 ; function size:0xF | engine::SetShadowRange: stores the range shadows are drawn to (another unit; name guess)
+?gViewTable@engine@@3PAUViewTable@1@A = 0x1130D344 ; data size:0x4 | engine::gViewTable: the renderer's table of views (name guess)
