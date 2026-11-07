@@ -5,6 +5,7 @@
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
 #include "code/proto/messages/airequestmessages.h"
+#include "code/proto/messages/targetselectionmessages.h"
 
 namespace choreo
 {
@@ -48,13 +49,6 @@ namespace proto
 	{
 		int count;  // +0xC
 		float time;  // +0x10
-	};
-
-	struct GetTokenScoreMsg : public TokenMessage
-	{
-		engine::GameObjectHandle handle;  // +0xC
-		float normalized;  // +0x10
-		float score;  // +0x14
 	};
 
 	struct SetTokenWeightsBody : public TokenMessage
