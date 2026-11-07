@@ -1,6 +1,7 @@
 // pure3d::VertexRegionAnimController (unit around 0x1072EBD0 - 0x10730570; file name guessed from the class). Names are
 // guesses.
 #include "code/engine/driving/carattributes.h"
+#include "code/engine/nis/nis.h"
 #include <new>
 
 #include "code/core/refptr.h"
@@ -88,6 +89,41 @@ namespace pure3d
 	VertexRegionAnimController* VertexRegionAnimController::Clone()
 	{
 		return new VertexRegionAnimController(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1072EB70
+	void VertexDeformRegion::SetUnknown1C(const math::Vector* value)
+	{
+		unknown1C.x = value->x;
+		unknown1C.y = value->y;
+		unknown1C.z = value->z;
+		_ReadWriteBarrier();
+		mChanged = true;
+	}
+
+	// FUNCTION: ENGINE 0x1072EB90
+	// NONMATCHING: the engine loads the three components into SSE registers before it stores them, ours copies the first
+	// through the x87 unit (26.5 %)
+#ifdef NONMATCHING
+	void VertexDeformRegion::SetTransform(const math::Matrix& transform)
+	{
+		float x = transform.m[3][0];
+		float y = transform.m[3][1];
+		float z = transform.m[3][2];
+		mPosition.x = x;
+		mPosition.y = y;
+		mPosition.z = z;
+		mChanged = true;
+		*(engine::NISTransform*)mInverse = *(const engine::NISTransform*)&transform;
+		((math::Matrix*)mInverse)->Invert4x4();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1072ED10
+	void VertexRegionAnimController::SetTransform(const math::Matrix& transform)
+	{
+		*(engine::NISTransform*)unknown98 = *(const engine::NISTransform*)&transform;
+		((math::Matrix*)unknown98)->Invert4x4();
 	}
 
 	// FUNCTION: ENGINE 0x1072ED30

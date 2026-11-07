@@ -155,6 +155,18 @@ namespace pure3d
 		void BlendNormal(int vertex, const math::Vector* target, float weight);
 		void BlendUnknown18(int vertex, const math::Vector* target, float weight);
 		void BlendTangent(int vertex, const math::Vector* target, float weight);
+		// 0x1072EAA0 / 0x1072EAD0 / 0x1072EB00: set the offset of a vertex
+		void SetPosition(int vertex, const math::Vector* offset);
+		void SetNormal(int vertex, const math::Vector* offset);
+		void SetTexCoords(int vertex, const math::Vector2* offset, int set);
+		// 0x10730590 / 0x107305D0 / 0x10730610 / 0x10730650: add to the offset of a vertex
+		void AddPosition(int vertex, const math::Vector* offset);
+		void AddNormal(int vertex, const math::Vector* offset);
+		void AddUnknown18(int vertex, const math::Vector* offset);
+		void AddTangent(int vertex, const math::Vector* offset);
+		// 0x1072EA80 / 0x1072EA90: the offsets of a texture coordinate set and of a colour set
+		math::Vector2* GetTexCoordOffsets(int set);
+		ColourOffset* GetColourOffsets(int set);
 		// 0x1073F100 / 0x1073F150
 		void BlendTexCoords(int vertex, const math::Vector2* target, int set, float weight);
 		void BlendColour(int vertex, const ColourOffset* target, int set, float weight);
@@ -183,6 +195,12 @@ namespace pure3d
 		virtual ~VertexOffsetExpressionMixer();
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
+		// 0x10730AF0 / 0x10730B00 / 0x10730B20 / 0x10730C50: the number of weights, one weight (setting it marks the mix as
+		// changed), the weight of an expression and all of them set to zero
+		int GetWeightCount();
+		void SetWeight(int index, float weight);
+		float GetWeight(int index);
+		void ClearWeights();
 		// 0x10731700: prepares the expression and mixes the state into it
 		void Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 		// 0x10731630
@@ -269,6 +287,9 @@ namespace pure3d
 		void Unknown10730C10(void* target);
 		// 0x10730BA0: all weights zero and unchanged
 		void Clear();
+		// 0x10730BC0 / 0x10730BF0: the number of weights and the weight of an expression
+		int GetWeightCount();
+		float GetWeight(int index);
 		// 0x10730BD0
 		void SetWeight(int index, float newWeight);
 		// 0x10730C00
@@ -291,8 +312,23 @@ namespace pure3d
 		} mArray;
 	};
 
+	// RTTI: pure3d::VertexDeformRegion (base RefCounted, 4 slots; 0x68 bytes with the part the deformations that derive from it
+	// add): the region of a mesh a deformation moves vertices in
 	class VertexDeformRegion : public RefCounted
 	{
+	public:
+		// 0x1072EB70: sets the vector at +0x1C (name guess)
+		void SetUnknown1C(const math::Vector* value);
+		// 0x1072EB90: takes the position of a matrix and keeps its inverse
+		void SetTransform(const math::Matrix& transform);
+
+		void* unknown8;
+		bool mChanged;
+		unsigned char unknownD[3];
+		// The position the region is at, the vector at +0x1C and the inverse of the region's matrix
+		math::Vector mPosition;
+		math::Vector unknown1C;
+		unsigned char mInverse[0x40];
 	};
 
 	struct JointChannels;
@@ -574,6 +610,18 @@ namespace pure3d
 			{
 				return begin[index];
 			}
+			void Clear()
+			{
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+				begin = 0;
+				end = 0;
+			}
+			// Makes room for count elements, all set to the value; false when there is none (a copy for each element
+			// type: 0x106E1950 for the segment numbers, 0x107349C0 for the channels)
+			bool Allocate(unsigned int count, const T* value);
 
 			T* begin;
 			T* end;
