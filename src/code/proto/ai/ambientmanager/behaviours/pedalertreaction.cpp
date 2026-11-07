@@ -48,21 +48,21 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10433180
-	// NONMATCHING: the engine loads the constants for the first and last statements ahead of the stores (best 67 %)
+	// NONMATCHING: the engine loads the first and the last constant ahead of the stores (best 75.8 %)
 #ifdef NONMATCHING
 	PedAlertReaction::PedAlertReaction()
 	{
-		alertLength = engine::camera::gThree;
+		rubberneckDistance = choreo::gMinusOne;
+		rubberneckTime = 0.0f;
 		alertRadius = gTen;
+		overridesEqualPriority = false;
 		createPedestrianAlert = false;
 		chanceToIgnore = 0.0f;
 		panic = false;
 		target = true;
 		targetChoice = ALERT_TARGET_CHOICE_CLOSEST;
 		priority = 0;
-		overridesEqualPriority = false;
-		rubberneckDistance = choreo::gMinusOne;
-		rubberneckTime = 0.0f;
+		alertLength = engine::camera::gThree;
 		rubberneckPanicChance = 0.0f;
 		maxAngleCosine = (float)cos(1.5708);
 	}
