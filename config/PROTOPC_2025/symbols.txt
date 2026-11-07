@@ -104189,3 +104189,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?CopyPart@Cue@music@@QAEXII@Z = 0x105DF880 ; function size:0x2F | music::Cue::CopyPart (name guess)
 ?MoveCell@Cue@music@@QAEXIIII@Z = 0x105DDF90 ; function size:0x68 | music::Cue::MoveCell (name guess)
 ?InsertPart@Cue@music@@QAEXI@Z = 0x105DD5B0 ; function size:0x100 | music::Cue::InsertPart (name guess)
+??_R0?AVLayer@music@@@8 = 0x110B8090 ; data size:0x8 | class music::Layer `RTTI Type Descriptor'
