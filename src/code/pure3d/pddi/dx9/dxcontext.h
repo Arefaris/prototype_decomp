@@ -462,6 +462,8 @@ namespace pure3d
 		// 0x1061B600 / 0x1061B660: a buffer from the pool (the creator's result is dropped)
 		dxVertexBuffer* NewVertexBuffer(const VertexBufferDescription* description);
 		dxIndexBuffer* NewIndexBuffer(const IndexBufferDescription* description);
+		// 0x1061B650: gives no buffer (the device does not make this kind; name guess)
+		dxVertexBuffer* NewUnsupportedVertexBuffer(const VertexBufferDescription* description);
 		// 0x1061BC00: the byte at +0x2E4 of the shader template of that name (false when there is none)
 		bool Unknown1061BC00(const char* name);
 

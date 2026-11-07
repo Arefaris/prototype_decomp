@@ -5,7 +5,12 @@
 #include <new>
 
 #include "code/core/refptr.h"
+#include "code/pure3d/context.h"
+#include "code/pure3d/pddi.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
+#include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/math/matrix.h"
+#include "code/pure3d/effects/particlecontroller.h"
 #include "code/pure3d/effects/particlesystem.h"
 #include "code/pure3d/primitive.h"
 
@@ -15,6 +20,52 @@ template void core::RefAssign<pure3d::ParticleRenderer>(pure3d::ParticleRenderer
 
 // FUNCTION: ENGINE 0x1070A4C0
 template void core::SafeRelease<pure3d::ParticleRenderer>(pure3d::ParticleRenderer*& object);
+
+// The copies the states' constructors and destructors use for what a state holds
+// FUNCTION: ENGINE 0x1070A4E0
+template void core::RefAssign<pure3d::ParticleSystemState::SharedDetails>(pure3d::ParticleSystemState::SharedDetails*& pointer,
+	pure3d::ParticleSystemState::SharedDetails* object);
+
+// FUNCTION: ENGINE 0x1070A540
+template void core::RefAssign<pure3d::RefCountedBoolChannel>(pure3d::RefCountedBoolChannel*& pointer,
+	pure3d::RefCountedBoolChannel* object);
+
+// FUNCTION: ENGINE 0x1070A570
+template void core::RefAssign<pure3d::RefCountedFloat1Channel>(pure3d::RefCountedFloat1Channel*& pointer,
+	pure3d::RefCountedFloat1Channel* object);
+
+// FUNCTION: ENGINE 0x1070A5A0
+template void core::RefAssign<pure3d::RefCountedVectorChannel>(pure3d::RefCountedVectorChannel*& pointer,
+	pure3d::RefCountedVectorChannel* object);
+
+// FUNCTION: ENGINE 0x1070A710
+template void core::SafeRelease<pure3d::RefCountedBoolChannel>(pure3d::RefCountedBoolChannel*& object);
+
+// FUNCTION: ENGINE 0x1070A730
+template void core::SafeRelease<pure3d::ParticleController>(pure3d::ParticleController*& object);
+
+// FUNCTION: ENGINE 0x1070A750
+template void core::SafeRelease<pure3d::ParticleGenerator>(pure3d::ParticleGenerator*& object);
+
+// FUNCTION: ENGINE 0x1070A790
+template void core::SafeRelease<pure3d::ParticleSystemState::SharedDetails>(pure3d::ParticleSystemState::SharedDetails*& object);
+
+// FUNCTION: ENGINE 0x1070A7B0
+template void core::SafeRelease<pure3d::RefCountedFloat1Channel>(pure3d::RefCountedFloat1Channel*& object);
+
+// FUNCTION: ENGINE 0x1070A7D0
+template void core::SafeRelease<pure3d::RefCountedVectorChannel>(pure3d::RefCountedVectorChannel*& object);
+
+// FUNCTION: ENGINE 0x1070A7F0
+template void core::SafeRelease<pure3d::ParticleSystemState>(pure3d::ParticleSystemState*& object);
+
+// FUNCTION: ENGINE 0x1070A8B0
+template void core::RefAssign<pure3d::ParticleSystemState>(pure3d::ParticleSystemState*& pointer,
+	pure3d::ParticleSystemState* object);
+
+// FUNCTION: ENGINE 0x1070A8E0
+template void core::RefAssign<pure3d::ParticleGenerator>(pure3d::ParticleGenerator*& pointer,
+	pure3d::ParticleGenerator* object);
 
 namespace pure3d
 {
@@ -241,5 +292,107 @@ namespace pure3d
 		centre.y = newCentre.y;
 		centre.z = newCentre.z;
 		centre.w = newCentre.w;
+	}
+
+	// FUNCTION: ENGINE 0x10709C00
+	void ParticleSystemState::StartUpdate(float x, float y, float z, bool flag)
+	{
+		if (!inheritUnknown4BC)
+		{
+			BeginUpdate(x, y, z, flag);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10709D90
+	void ParticleSystemState::SetGeneratorUnknown254(float value)
+	{
+		if (generator != 0)
+		{
+			generator->SetUnknown254(value);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10709E90
+	float ParticleSystemState::GetUnknown494()
+	{
+		return unknown494;
+	}
+
+	// FUNCTION: ENGINE 0x10709EA0
+	float ParticleSystemState::GetUnknown498()
+	{
+		return unknown498;
+	}
+
+	// FUNCTION: ENGINE 0x10709EB0
+	bool ParticleSystemState::GetUnknown491()
+	{
+		return unknown491;
+	}
+
+	// FUNCTION: ENGINE 0x10709F10
+	void ParticleSystemState::SetUnknown4BA(bool value)
+	{
+		unknown4BA = value;
+	}
+
+	// FUNCTION: ENGINE 0x10709EE0
+	float ParticleSystemState::ScaleByFrameRate(float value)
+	{
+		return unknown3FC->Unknown8() * value;
+	}
+
+	// FUNCTION: ENGINE 0x1070AEB0
+	float ParticleSystemState::GetValue(int index)
+	{
+		return inheritUnknown4BC ? parent->GetValue(index) : (&unknown2E0)[index];
+	}
+
+	// FUNCTION: ENGINE 0x1070AEE0
+	float* ParticleSystemState::GetPair(int index)
+	{
+		return inheritUnknown4BC ? parent->GetPair(index) : (float*)&unknown2F8[index * 8];
+	}
+
+	// FUNCTION: ENGINE 0x1070AF10
+	math::Vector* ParticleSystemState::GetVector(int index)
+	{
+		return inheritUnknown4BC ? parent->GetVector(index) : &(&unknown308)[index];
+	}
+
+	// FUNCTION: ENGINE 0x1070AF40
+	math::Matrix* ParticleSystemState::GetMatrix(int index)
+	{
+		return inheritUnknown4BC ? parent->GetMatrix(index) : &(&unknown32C)[index];
+	}
+
+	// FUNCTION: ENGINE 0x1070AF70
+	void ParticleSystemState::SetGenerator(ParticleGenerator* newGenerator)
+	{
+		core::SafeRelease(generator);
+		core::RefAssign(generator, newGenerator);
+		if (generator != 0)
+		{
+			newGenerator->unknown27C = unknown4B4;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1070AB60
+	void ParticleSystemState::SetParent(ParticleSystemState* newParent, const int* values)
+	{
+		core::RefAssign(parent, newParent);
+		unknown4C4 = values[0];
+		unknown4C8 = values[1];
+		unknown4CC = values[2];
+		unknown4D0 = values[3];
+		GetParticleManager()->RegisterState(this);
+		unsigned int count = newParent->inheritUnknown4BC ? newParent->parent->GetParticleCount() : newParent->particleCount;
+		VertexBufferDescription description(count * 4, 0x18002022, 3, false);
+		if (context->unknown6C)
+		{
+			core::RefAssign(vertexBuffers[0], gPddiDx ? gPddiDx->NewUnsupportedVertexBuffer(&description) : 0);
+			core::RefAssign(vertexBuffers[1], gPddiDx ? gPddiDx->NewUnsupportedVertexBuffer(&description) : 0);
+		}
+		unknown4BB = true;
 	}
 }
