@@ -38,8 +38,8 @@ namespace engine
 	};
 	// 0x10864330
 	FrontEnd* Unknown10864330();
-	// 0x10872840: calls a function of the front end's movie with one text argument (name unknown)
-	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* argument);
+	// 0x10872840: calls a function of the front end's movie with a format and the arguments it names (name unknown)
+	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* format, ...);
 	// 0x1088A9D0 / 0x1088A690 / 0x108644B0 / 0x1085FC10 / 0x10864440 (names unknown)
 	void Unknown1088A9D0(int value);
 	void Unknown1088A690();

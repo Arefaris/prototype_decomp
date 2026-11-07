@@ -102676,3 +102676,37 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?UnpackAll@ControllerPacker@controller@engine@@UAEXPAVPlayerInput@23@PAEH@Z = 0x108A2690 ; function size:0x60 | engine::controller::ControllerPacker::UnpackAll vftable slot 4 (name guess)
 ?VerifyAll@ControllerPacker@controller@engine@@UAE_NPAVPlayerInput@23@PAEH@Z = 0x108A2700 ; function size:0x86 | engine::controller::ControllerPacker::VerifyAll vftable slot 5 (name guess)
 ?PackAll@ControllerPacker@controller@engine@@UAEHPAVPlayerInput@23@PAEH_NI@Z = 0x108A3180 ; function size:0xBC | engine::controller::ControllerPacker::PackAll vftable slot 3 (name guess)
+??9FlashValue@proto@@QBE_NABU01@@Z = 0x104C2570 ; function size:0x14 | proto::FlashValue::operator!= (name guess)
+??4FlashValue@proto@@QAEAAU01@ABU01@@Z = 0x104C2300 ; function size:0x62 | proto::FlashValue::operator= (name guess)
+??0FEHudElement@proto@@QAE@XZ = 0x104C0390 ; function size:0x14 | proto::FEHudElement::FEHudElement (name guess)
+?Show@FEHudElement@proto@@QAE_N_N@Z = 0x104C03B0 ; function size:0x6B | proto::FEHudElement::Show (name guess)
+?GetHideCount@FEHudElement@proto@@QBEHXZ = 0x104C04A0 ; function size:0x4 | proto::FEHudElement::GetHideCount (name guess)
+??0FEHudVariable@proto@@QAE@XZ = 0x104C23B0 ; function size:0x14 | proto::FEHudVariable::FEHudVariable (name guess)
+?Flush@FEHudVariable@proto@@QAEX_N@Z = 0x104C23D0 ; function size:0x49 | proto::FEHudVariable::Flush (name guess)
+?Get@FEHudVariable@proto@@QAE?AUFlashVariant@2@XZ = 0x104C2430 ; function size:0x43 | proto::FEHudVariable::Get (name guess)
+?Set@FEHudVariable@proto@@QAEXUFlashValue@2@@Z = 0x104C2590 ; function size:0x2D | proto::FEHudVariable::Set (name guess)
+??0FEHudKeyCard@proto@@QAE@XZ = 0x104D0DF0 ; function size:0xD9 | proto::FEHudKeyCard::FEHudKeyCard (name guess)
+??1FEHudKeyCard@proto@@QAE@XZ = 0x104D0C70 ; function size:0x37 | proto::FEHudKeyCard::~FEHudKeyCard (name guess)
+?Update@FEHudKeyCard@proto@@UAEX_N@Z = 0x104D0B10 ; function size:0x22 | proto::FEHudKeyCard::Update (name guess)
+?OnShow@FEHudKeyCard@proto@@UAEX_N@Z = 0x104D0CC0 ; function size:0x5 | proto::FEHudKeyCard::OnShow (name guess)
+?SetShown@FEHudKeyCard@proto@@QAEX_N@Z = 0x104D0BD0 ; function size:0x33 | proto::FEHudKeyCard::SetShown (name guess)
+?ShowIcon@FEHudKeyCard@proto@@QAEXXZ = 0x104D0B40 ; function size:0x47 | proto::FEHudKeyCard::ShowIcon (name guess)
+?HideIcon@FEHudKeyCard@proto@@QAEXXZ = 0x104D0BA0 ; function size:0x24 | proto::FEHudKeyCard::HideIcon (name guess)
+??8FlashValue@proto@@QBE_NABU01@@Z = 0x104C24B0 ; function size:0x7D | proto::FlashValue::operator== (name guess)
+?StringCompare@?$ChTraitsOS@D@ATL@@SAHPBD0@Z = 0x104C21A0 ; function size:0x2D | ATL::ChTraitsOS<char>::StringCompare (name guess)
+?StringCompare@?$ChTraitsOS@_W@ATL@@SAHPB_W0@Z = 0x1095CA60 ; function size:0x33 | ATL::ChTraitsOS<wchar_t>::StringCompare (name guess)
+?SetHideCount@FEHudElement@proto@@QAEXABH@Z = 0x104C0450 ; function size:0x40 | proto::FEHudElement::SetHideCount (name guess)
+??_R0?AVFEHudKeyCard@proto@@@8 = 0x1109A114 ; data size:0x8 | proto::FEHudKeyCard RTTI type descriptor
+??_7FEHudKeyCard@proto@@6B@ = 0x10E155A4 ; data size:0x8 | proto::FEHudKeyCard::vftable
+??_R0?AVFEHudElement@proto@@@8 = 0x11096748 ; data size:0x8 | proto::FEHudElement RTTI type descriptor
+??_7FEHudElement@proto@@6B@ = 0x10E1115C ; data size:0x8 | proto::FEHudElement::vftable
+??_R0?AVFEHudVariable@proto@@@8 = 0x11093358 ; data size:0x8 | proto::FEHudVariable RTTI type descriptor
+??_7FEHudVariable@proto@@6B@ = 0x10E0D390 ; data size:0x8 | proto::FEHudVariable::vftable
+??_7StringLiteral@container@@6B@ = 0x10E0D5FC ; data size:0x10 | container::StringLiteral::vftable
+??_R0?AV?$FEHudVariableTemplate@VSymbolPathStoragePolicy_Literal@proto@@$0A@@proto@@@8 = 0x11093508 ; data size:0x8 | proto::FEHudVariableTemplate<class proto::SymbolPathStoragePolicy_Literal,0> RTTI type descriptor
+??_7?$FEHudVariableTemplate@VSymbolPathStoragePolicy_Literal@proto@@$0A@@proto@@6B@ = 0x10E0D6D8 ; data size:0x8 | proto::FEHudVariableTemplate<class proto::SymbolPathStoragePolicy_Literal,0>::vftable
+_sKeyCardClip = 0x1109A0D0 ; data size:0x4 | proto::FEHudKeyCard clip name (file static)
+?GetPath@?$FEHudVariableTemplate@VSymbolPathStoragePolicy_Literal@proto@@$0A@@proto@@UAEPBDXZ = 0x104AAB50 ; function size:0x11 | proto::FEHudVariableTemplate<Literal, 0>::GetPath (name guess; template instance of another unit)
+??_G?$FEHudVariableTemplate@VSymbolPathStoragePolicy_Literal@proto@@$0A@@proto@@UAEPAXI@Z = 0x104AAB70 ; function size:0x29 | proto::FEHudVariableTemplate<Literal, 0> scalar deleting destructor (template instance of another unit)
+??_GFEHudVariable@proto@@UAEPAXI@Z = 0x104A9CB0 ; function size:0x1F | proto::FEHudVariable scalar deleting destructor (another unit)
+??1FEHudVariable@proto@@UAE@XZ = 0x104A9CA0 ; function size:0x7 | proto::FEHudVariable::~FEHudVariable (another unit)
