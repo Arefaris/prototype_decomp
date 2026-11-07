@@ -794,6 +794,8 @@ namespace mgraph
 	template void mgraph::PropertyNodeOutputEvent<mgraph::Packet<mgraph::EnvelopeData> >::Execute(mgraph::Context*);
 	// FUNCTION: ENGINE 0x10B50470
 	template void mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >::SetChannelValue(mgraph::EnvelopeData const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B3DB00
+	template void mgraph::PropertyNode<mgraph::Packet<Vector> >::SetPropertyValue(unsigned int, DynamicPropertyBase const*, int);
 	// FUNCTION: ENGINE 0x10B3C2E0
 	template void mgraph::PropertyNode<mgraph::Packet<String> >::SetPropertyValue(unsigned int, DynamicPropertyBase const*, int);
 	// FUNCTION: ENGINE 0x10B3C690

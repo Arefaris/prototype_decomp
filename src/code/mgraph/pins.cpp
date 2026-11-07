@@ -10,7 +10,7 @@ namespace mgraph
 
 	// FUNCTION: ENGINE 0x10B02460
 	template void mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
-	// FUNCTION: ENGINE 0x10B024E0
+	// FUNCTION: ENGINE 0x10B01220
 	template char const* mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B024F0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::GetPacketType();
@@ -102,7 +102,7 @@ namespace mgraph
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<unsigned int> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10B0C510
 	template void mgraph::OutputPin<mgraph::Packet<unsigned int> >::operator delete(void*);
-	// FUNCTION: ENGINE 0x10B0C570
+	// FUNCTION: ENGINE 0x10B04A10
 	template char const* mgraph::OutputPin<mgraph::Packet<unsigned int> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B0C580
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<unsigned int> >::GetPacketType();
@@ -184,7 +184,7 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<unsigned __int64> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B0D1E0
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<unsigned __int64> >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B0D3A0
+	// FUNCTION: ENGINE 0x10B06F60
 	template char const* mgraph::OutputPin<mgraph::Packet<unsigned __int64> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B0D3B0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<unsigned __int64> >::GetPacketType();
@@ -264,7 +264,7 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<String> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B0E090
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<String> >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B0E250
+	// FUNCTION: ENGINE 0x10B07C70
 	template char const* mgraph::OutputPin<mgraph::Packet<String> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B0E260
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<String> >::GetPacketType();
@@ -304,7 +304,7 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B0E7A0
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B0E990
+	// FUNCTION: ENGINE 0x10B083B0
 	template char const* mgraph::OutputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B0E9A0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<DynamicArray<String,unsigned short> > >::GetPacketType();
@@ -424,7 +424,7 @@ namespace mgraph
 	template void* mgraph::AbstractToConcreteGraphConnection<mgraph::Packet<Complex> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B0FDC0
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<Complex> >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B0FF80
+	// FUNCTION: ENGINE 0x10B0A240
 	template char const* mgraph::OutputPin<mgraph::Packet<Complex> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B0FF90
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<Complex> >::GetPacketType();
@@ -596,7 +596,7 @@ namespace mgraph
 	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<float> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B199B0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<float> >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B19B50
+	// FUNCTION: ENGINE 0x10AB0920
 	template char const* mgraph::InputPin<mgraph::Packet<float> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10AB2FC0
 	template MetaTypeBase* mgraph::InputPin<mgraph::Packet<float> >::GetPacketType();
@@ -1312,7 +1312,7 @@ namespace mgraph
 	template void mgraph::ContextConnection<mgraph::Packet<Vector> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2EDE0
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<Vector> >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B2EFD0
+	// FUNCTION: ENGINE 0x10AD4BE0
 	template char const* mgraph::OutputPin<mgraph::Packet<Vector> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B2EFE0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<Vector> >::GetPacketType();
@@ -1320,7 +1320,7 @@ namespace mgraph
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<Vector> >::GetPacketTypeCached();
 	// FUNCTION: ENGINE 0x10B30330
 	template void mgraph::OutputPin<mgraph::Packet<bool> >::operator delete(void*);
-	// FUNCTION: ENGINE 0x10B30390
+	// FUNCTION: ENGINE 0x10B00DD0
 	template char const* mgraph::OutputPin<mgraph::Packet<bool> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B303A0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<bool> >::GetPacketType();

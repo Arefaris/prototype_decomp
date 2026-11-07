@@ -278,6 +278,10 @@ namespace mgraph
 	class __declspec(align(8)) PropertyNodeBase : public Node
 	{
 	public:
+		PropertyNodeBase(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName, unsigned int numInputs, unsigned int numOutputs) :
+			Node(newType, newGraph, newName, numInputs, numOutputs)
+		{
+		}
 		virtual ~PropertyNodeBase()
 		{
 		}
@@ -417,6 +421,10 @@ namespace mgraph
 	{
 		typedef ValueInTemporary Kind;
 	};
+	template<> struct PropertyValueAccess<om::Vector>
+	{
+		typedef ValueInTemporary Kind;
+	};
 	template<> struct PropertyValueAccess<om::DynamicArray<om::String, unsigned short> >
 	{
 		typedef ValueInTemporary Kind;
@@ -432,6 +440,8 @@ namespace mgraph
 		typedef typename PacketValue<P>::Type Value;
 		typedef PropertyChannel<Value> Channel;
 
+		// The description of the node class is found by the caller (the node type that makes the node)
+		PropertyNode(Graph* newGraph, const om::ClassName& newName, NodeTypeBase* newType);
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot15(unsigned int channel);
 		virtual void Slot16(EvaluationFrame* frame);
