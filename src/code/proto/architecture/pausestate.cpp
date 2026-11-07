@@ -19,6 +19,8 @@ namespace engine
 	void YieldFiber();
 	// 0x10837B40: names the screen a game state (the number) goes to (name guess)
 	void SetGameStateScreen(int number, int kind, const char* name);
+	// 0x108391A0: asks for the game state with that index in that mode (name guess)
+	void RequestGameStateByIndex(int index, int mode);
 }
 
 namespace proto
@@ -29,6 +31,50 @@ namespace proto
 	static inline core::Name<core::CaseSensitiveKey> MakeName(const char* text)
 	{
 		return core::Name<core::CaseSensitiveKey>(text, 1);
+	}
+
+	// FUNCTION: ENGINE 0x104E7100
+	void GamePauseState::Slot3()
+	{
+		unknown8F = false;
+		engine::PauseState::Slot3();
+	}
+
+	// FUNCTION: ENGINE 0x104E7110
+	void GamePauseState::Slot4()
+	{
+		unknown8F = true;
+		engine::RequestGameStateByIndex(5, 2);
+	}
+
+	// FUNCTION: ENGINE 0x104E7130
+	void GamePauseState::SetUnknown88()
+	{
+		unknown88 = true;
+	}
+
+	// FUNCTION: ENGINE 0x104E7140
+	void GamePauseState::SetUnknown89()
+	{
+		unknown89 = true;
+	}
+
+	// FUNCTION: ENGINE 0x104E7150
+	void GamePauseState::SetUnknown8B()
+	{
+		unknown8B = true;
+	}
+
+	// FUNCTION: ENGINE 0x104E7160
+	void GamePauseState::SetUnknown8C()
+	{
+		unknown8C = true;
+	}
+
+	// FUNCTION: ENGINE 0x104E7170
+	void GamePauseState::SetUnknown8D()
+	{
+		unknown8D = true;
 	}
 
 	// FUNCTION: ENGINE 0x104E7180

@@ -96676,3 +96676,8 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?InterpolateClamped@proto@@YAMMMMMM@Z = 0x104E7900 ; function size:0x58 | proto::InterpolateClamped: a linear interpolation clamped to the end values (name guess)
 ?PlayMovieDefault@proto@@YAXPBD@Z = 0x104E7C00 ; function size:0x24 | proto::PlayMovieDefault: queues a movie with the default arguments (name guess)
 
+?SetUnknown88@GamePauseState@proto@@QAEXXZ = 0x104E7130 ; function size:0x8 | proto::GamePauseState::SetUnknown88 (name guess)
+?SetUnknown89@GamePauseState@proto@@QAEXXZ = 0x104E7140 ; function size:0x8 | proto::GamePauseState::SetUnknown89 (name guess)
+?SetUnknown8B@GamePauseState@proto@@QAEXXZ = 0x104E7150 ; function size:0x8 | proto::GamePauseState::SetUnknown8B (name guess)
+?SetUnknown8C@GamePauseState@proto@@QAEXXZ = 0x104E7160 ; function size:0x8 | proto::GamePauseState::SetUnknown8C (name guess)
+?SetUnknown8D@GamePauseState@proto@@QAEXXZ = 0x104E7170 ; function size:0x8 | proto::GamePauseState::SetUnknown8D (name guess)
