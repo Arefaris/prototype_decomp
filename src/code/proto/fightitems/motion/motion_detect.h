@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motion_collision.h"
 
 namespace proto
 {
@@ -250,6 +251,32 @@ namespace proto
 			void RegisterDetectTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::DetectAction (31 vftable slots, 0xAC bytes)
+			class DetectAction : public CollisionAction
+			{
+			public:
+				// 0x100B2440
+				DetectAction(fight::Track* listener, DetectTrack* newTrack, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				// 0x100B22E0
+				virtual ~DetectAction();
+
+				// vftable slot 7 (0x100B2730)
+				virtual bool Slot7(int arg, float value);
+				virtual bool Slot9();
+				virtual int GetCollideWith();
+				virtual float GetArcOffset();
+				virtual float GetArcRange();
+				virtual int Slot14();
+				virtual int GetJointIndex();
+				virtual math::Vector* GetOffset(math::Vector* offset);
+				virtual float GetRadius();
+				virtual bool Slot22();
+				virtual void Slot24(engine::GameObject* object);
+
+				core::Link<DetectTrack> link;  // +0x9C
+				core::IRefCount* effect;  // +0xA8
+			};
+
 
 			// ---- actions end
 		}
