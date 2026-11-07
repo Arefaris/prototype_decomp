@@ -6674,3 +6674,18 @@ namespace om
 		WriteBinary(&output2.stream, value.values[0]) && WriteBinary(&output2.stream, value.values[1]) && WriteBinary(&output2.stream, value.values[2]);
 	}
 }
+
+namespace om
+{
+	using namespace mgraph;
+	// FUNCTION: ENGINE 0x10AE7F70
+	template bool& DynamicArray<bool,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AE8610
+	template Vector& DynamicArray<Vector,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AE8810
+	template mgraph::TriggerData& DynamicArray<mgraph::TriggerData,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AE8A10
+	template Complex& DynamicArray<Complex,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AE8BC0
+	template mgraph::EnvelopeData& DynamicArray<mgraph::EnvelopeData,unsigned short>::operator[](unsigned short);
+}
