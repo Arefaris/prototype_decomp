@@ -913,6 +913,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10100B80
+			bool HasFailedPatsyCondition::GetHas() const
+			{
+				return has;
+			}
+
+			// FUNCTION: ENGINE 0x10100B90
+			bool IsPatsyCondition::GetIs() const
+			{
+				return is;
+			}
+
+			// FUNCTION: ENGINE 0x10100BA0
+			bool PatsyDeadCondition::GetDead() const
+			{
+				return dead;
+			}
+
+			// FUNCTION: ENGINE 0x10100BB0
+			bool HasPatsyCondition::GetHas() const
+			{
+				return has;
+			}
+
+			// FUNCTION: ENGINE 0x10100BD0
+			bool IsFailedPatsyCondition::GetIs() const
+			{
+				return is;
+			}
+
+			// FUNCTION: ENGINE 0x10100BE0
+			int PatsyCreateTrack::GetWho() const
+			{
+				return who;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4E5F0
 // FUNCTION: ENGINE 0x10D81650

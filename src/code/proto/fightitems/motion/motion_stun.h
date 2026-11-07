@@ -33,6 +33,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetStunned() const;
+
 					bool stunned;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -67,6 +70,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetOnBegin() const;
+				int GetOnEnd() const;
 
 					float timeBegin;  // +0x10
 					float timeEnd;  // +0x14

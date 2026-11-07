@@ -402,6 +402,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101084A0
+			int ReactionPushbackOrientTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101084B0
+			float ReactionPushbackOrientTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101084C0
+			float ReactionPushbackOrientTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A76D0
 // FUNCTION: ENGINE 0x101A7700

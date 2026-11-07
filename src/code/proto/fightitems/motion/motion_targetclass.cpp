@@ -450,6 +450,39 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011EE00
+			int TargetClassTrack::GetTargetClass() const
+			{
+				return targetClass;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE10
+			bool TargetableTrack::GetTargetable() const
+			{
+				return targetable;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE20
+			int TemporaryTargetableTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE30
+			int TemporaryTargetableTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4F240
 // FUNCTION: ENGINE 0x10D818D0

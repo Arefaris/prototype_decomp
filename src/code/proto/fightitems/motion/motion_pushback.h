@@ -33,6 +33,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetVelocity() const;
+
 					float velocity;  // +0xC
 					int compare;  // +0x10
 			};
@@ -94,6 +98,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetScale() const;
 
 					float scale;  // +0x10
 					float timeBegin;  // +0x14

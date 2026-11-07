@@ -299,6 +299,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10119FB0
+			bool StunnedCondition::GetStunned() const
+			{
+				return stunned;
+			}
+
+			// FUNCTION: ENGINE 0x10119FC0
+			int StunTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x10119FD0
+			int StunTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4F0E0
 // FUNCTION: ENGINE 0x10D4F130

@@ -667,6 +667,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010EEE0
+			int ShieldHealthCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1010EEF0
+			float ShieldHealthCondition::GetHealthPercentage() const
+			{
+				return healthPercentage;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF00
+			int ShieldStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF10
+			int ShieldSetStateTrack::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF20
+			bool ShieldReflectTrack::GetReflectBullets() const
+			{
+				return reflectBullets;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF30
+			bool ShieldReflectTrack::GetReflectMissiles() const
+			{
+				return reflectMissiles;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4EB00
 // FUNCTION: ENGINE 0x10D81790
