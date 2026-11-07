@@ -1,5 +1,6 @@
 #include "code/proto/behaviours/tanksolver.h"
 #include "code/core/refptr.h"
+#include "code/om/dynamicproperty.h"
 #include <math.h>
 #include "code/engine/driving/carattributes.h"
 #include "code/math/sincos.h"
@@ -1424,3 +1425,79 @@ namespace proto
 // FUNCTION: ENGINE 0x102FAF50
 // FUNCTION: ENGINE 0x102FAF70
 // FUNCTION: ENGINE 0x102FB120
+
+// The engine's copies of the property classes of the float properties (the solver's sound parameters): explicit
+// instantiations, most members have no caller of their own
+// (the reader of the text form is left to the engine: 95 % )
+template<> bool om::DynamicProperty<float>::ReadText(const om::TextValue* parent);
+template class om::DynamicProperty<float>;
+template class om::CommandMember0Const<om::DynamicProperty<float>, om::DynamicProperty<float>, float>;
+template class om::CommandMember1<om::DynamicProperty<float>, om::DynamicProperty<float>, void, float>;
+template class om::DelegateProperty<float>;
+template class om::Command0<float>;
+template class om::Command1<void, float>;
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102F4E30
+// FUNCTION: ENGINE 0x102F6240
+// FUNCTION: ENGINE 0x102F6250
+// FUNCTION: ENGINE 0x102F62C0
+// FUNCTION: ENGINE 0x102F6360
+// FUNCTION: ENGINE 0x102F63E0
+// FUNCTION: ENGINE 0x102F6500
+// FUNCTION: ENGINE 0x102F6510
+// FUNCTION: ENGINE 0x102FB230
+// FUNCTION: ENGINE 0x102FB250
+// FUNCTION: ENGINE 0x102FB3F0
+// FUNCTION: ENGINE 0x102FB420
+// FUNCTION: ENGINE 0x102FB530
+// FUNCTION: ENGINE 0x102FB540
+// FUNCTION: ENGINE 0x102FB550
+// FUNCTION: ENGINE 0x102FB570
+// FUNCTION: ENGINE 0x102FB580
+// FUNCTION: ENGINE 0x102FB590
+// FUNCTION: ENGINE 0x102FB5A0
+// FUNCTION: ENGINE 0x102FB5B0
+// FUNCTION: ENGINE 0x102FB5F0
+// FUNCTION: ENGINE 0x102FB610
+// FUNCTION: ENGINE 0x102FB620
+// FUNCTION: ENGINE 0x102FB630
+// FUNCTION: ENGINE 0x102FB660
+// FUNCTION: ENGINE 0x102FB690
+// FUNCTION: ENGINE 0x102FB6A0
+// FUNCTION: ENGINE 0x102FB6C0
+// FUNCTION: ENGINE 0x102FB6D0
+// FUNCTION: ENGINE 0x102FB6F0
+// FUNCTION: ENGINE 0x102FB780
+// FUNCTION: ENGINE 0x102FB790
+// FUNCTION: ENGINE 0x102FB7B0
+// FUNCTION: ENGINE 0x102FB7C0
+// FUNCTION: ENGINE 0x102FB7D0
+// FUNCTION: ENGINE 0x102FB860
+// FUNCTION: ENGINE 0x102FB870
+// FUNCTION: ENGINE 0x102FB890
+// FUNCTION: ENGINE 0x102FB8C0
+// FUNCTION: ENGINE 0x102FB8F0
+// FUNCTION: ENGINE 0x102FB920
+// FUNCTION: ENGINE 0x102FB940
+// FUNCTION: ENGINE 0x102FB970
+// FUNCTION: ENGINE 0x102FB990
+// FUNCTION: ENGINE 0x102FBB60
+// FUNCTION: ENGINE 0x102FBB80
+// FUNCTION: ENGINE 0x102FBBA0
+// FUNCTION: ENGINE 0x102FBBC0
+// FUNCTION: ENGINE 0x102FBBD0
+// FUNCTION: ENGINE 0x102FBC00
+// FUNCTION: ENGINE 0x102FBC20
+// FUNCTION: ENGINE 0x102FBC40
+// FUNCTION: ENGINE 0x102FBC50
+// FUNCTION: ENGINE 0x102FBC60
+// FUNCTION: ENGINE 0x102FBC80
+// FUNCTION: ENGINE 0x102FBCB0
+// FUNCTION: ENGINE 0x102FBCD0
+// FUNCTION: ENGINE 0x102FBD10
+// FUNCTION: ENGINE 0x102FBD30
+// FUNCTION: ENGINE 0x102FBD50
+// FUNCTION: ENGINE 0x102FBD70
+// FUNCTION: ENGINE 0x102FBD80
+// FUNCTION: ENGINE 0x102FBDA0
