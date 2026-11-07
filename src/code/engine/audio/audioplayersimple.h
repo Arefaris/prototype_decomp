@@ -7,14 +7,23 @@
 
 #include "code/audio/remoteplayerevent.h"
 #include "code/engine/audio/audioplayer.h"
+#include "code/om/allocation.h"
 
 namespace engine
 {
 	class AudioPlayerSimple : public AudioPlayer
 	{
 	public:
+		// 0x1087F660 is the body (the audio library's player of the handle goes away); the deleting destructor is
+		// 0x1087F8F0 and the class's operator delete 0x1087F640
+		virtual ~AudioPlayerSimple();
+		static void operator delete(void* memory)
+		{
+			om::Release(memory, 0x18, 8);
+		}
 		// vftable slot 1 (0x1087F680): "play" and "stop" are the events it answers
 		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
+		// 0x1087F230: hands every item of the update to slot 9
 		virtual void Slot2(AudioPlayerUpdate* update);
 		// 0x1087FF80
 		virtual bool Slot3();
@@ -27,14 +36,14 @@ namespace engine
 		// 0x1087F920: only "amplitude" is known
 		virtual bool Slot8(const core::Name<core::CaseSensitiveKey>& name, float* value);
 		// 0x1087F9C0 (not reconstructed)
-		virtual void Slot9(void* unknown);
+		virtual void Slot9(void* item);
 		// 0x1087F700: posts the play event
 		virtual void Slot10();
 
 		int unknown4;
 		int unknown8;
 		audio::RemotePlayerHandle player;  // +0xC
-		core::Name<core::CaseSensitiveKey> name;  // +0x10
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;  // +0x10
 	};
 }
 

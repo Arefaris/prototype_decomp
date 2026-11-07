@@ -90,8 +90,12 @@ namespace audio
 		int unknown34;
 		float unknown38;
 	};
+	struct RemotePlayerHandle;
 	struct RemotePlayerTable
 	{
+		// 0x105BAF90: lets the player of the handle go
+		void Destroy(RemotePlayerHandle handle);
+
 		RemotePlayerEntry* entries;
 	};
 	extern RemotePlayerTable* gRemotePlayers;

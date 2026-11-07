@@ -10,7 +10,18 @@
 namespace engine
 {
 	class AudioPlayerMessage;
-	class AudioPlayerUpdate;
+	// What the audio system hands the players every frame: a list of items they walk (the first five slots are unknown)
+	class AudioPlayerUpdate
+	{
+	public:
+		virtual void Slot0() = 0;
+		virtual void Slot1() = 0;
+		virtual void Slot2() = 0;
+		virtual void Slot3() = 0;
+		virtual void Slot4() = 0;
+		virtual void* First() = 0;
+		virtual void* Next(void* item) = 0;
+	};
 
 	class AudioPlayer
 	{

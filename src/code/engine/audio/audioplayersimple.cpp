@@ -5,6 +5,15 @@
 namespace engine
 {
 
+	// FUNCTION: ENGINE 0x1087F660
+	AudioPlayerSimple::~AudioPlayerSimple()
+	{
+		audio::gRemotePlayers->Destroy(player);
+	}
+
+	// FUNCTION: ENGINE 0x1087F640
+	// The class's operator delete (inline in the header)
+
 	// FUNCTION: ENGINE 0x1087F680
 	bool AudioPlayerSimple::Slot1(core::Name<core::CaseSensitiveKey>* name)
 	{
@@ -19,6 +28,15 @@ namespace engine
 			return true;
 		}
 		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1087F230
+	void AudioPlayerSimple::Slot2(AudioPlayerUpdate* update)
+	{
+		for (void* item = update->First(); item != 0; item = update->Next(item))
+		{
+			Slot9(item);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x1087FF80
