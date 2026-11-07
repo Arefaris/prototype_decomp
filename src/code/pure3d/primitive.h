@@ -618,6 +618,8 @@ namespace pure3d
 	public:
 		// 0x106F2F20: the type is what the primitive is drawn as (0x4000 for the gpu skin)
 		explicit Primitive(unsigned int newType);
+		// 0x106F2F60: a primitive of the same kind (the shader and the flags are taken over)
+		Primitive(const Primitive& other);
 		virtual ~Primitive();
 		// Draws the primitive in the state of a part with the shader of that name
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
