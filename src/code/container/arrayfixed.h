@@ -78,6 +78,15 @@ namespace container
 			}
 			return false;
 		}
+		// Takes the element out by moving the last one into its place
+		void Erase(T* element)
+		{
+			end--;
+			if (element < end)
+			{
+				*element = *end;
+			}
+		}
 		void Clear()
 		{
 			Destroy(Data(), end);

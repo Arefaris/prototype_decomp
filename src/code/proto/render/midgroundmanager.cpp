@@ -18,13 +18,13 @@ namespace proto
 namespace engine
 {
 	// 0x1130EFE0 and 0x1125E2C0: a list the midground drawables are added to and the value that is added (name guesses)
-	class DrawableRegistry
+	class RenderTask
 	{
 	public:
 		// 0x10849540
 		void Add(void* entry);
 	};
-	DrawableRegistry* GetDrawableRegistry();
+	RenderTask* GetDrawableRegistry();
 	extern void* gMidgroundRegistryEntry;
 }
 
