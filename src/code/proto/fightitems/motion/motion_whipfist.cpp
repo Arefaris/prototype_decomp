@@ -2169,6 +2169,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gWhipFistExtendTrackTargetTable[2] =
+				{
+					{ fight::Name("Target", 0) },
+					{ fight::Name("Grab Target", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FA40
+// FUNCTION: ENGINE 0x10D81A10
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101341C0
 // FUNCTION: ENGINE 0x101343C0

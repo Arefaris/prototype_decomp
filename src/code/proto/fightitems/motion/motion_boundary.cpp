@@ -782,6 +782,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gHeliBoundaryStatusConditionHeliBoundaryStatusTable[3] =
+				{
+					{ fight::Name("Heli_OK", 0) },
+					{ fight::Name("Heli_Warn", 0) },
+					{ fight::Name("Heli_Kill", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4D7F0
+// FUNCTION: ENGINE 0x10D81310
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10145100
 // FUNCTION: ENGINE 0x10145130

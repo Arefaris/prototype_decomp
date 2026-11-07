@@ -1143,6 +1143,62 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gTargetAlertStateConditionStateTable[23] =
+				{
+					{ fight::Name("Idle", 0) },
+					{ fight::Name("Suspicious", 0) },
+					{ fight::Name("Confused", 0) },
+					{ fight::Name("Commanding", 0) },
+					{ fight::Name("Recognition", 0) },
+					{ fight::Name("Angry", 0) },
+					{ fight::Name("BeginCombat", 0) },
+					{ fight::Name("Alert", 0) },
+					{ fight::Name("Pursuit", 0) },
+					{ fight::Name("LostHim", 0) },
+					{ fight::Name("Diversion", 0) },
+					{ fight::Name("Startled", 0) },
+					{ fight::Name("ReactingToPatsy", 0) },
+					{ fight::Name("AttackingPatsy", 0) },
+					{ fight::Name("BodyCheck", 0) },
+					{ fight::Name("Curious", 0) },
+					{ fight::Name("Admiring", 0) },
+					{ fight::Name("Saluting", 0) },
+					{ fight::Name("Apologizing", 0) },
+					{ fight::Name("DenyPatsy", 0) },
+					{ fight::Name("PlayerDiversion", 0) },
+					{ fight::Name("FriendlyFire", 0) },
+					{ fight::Name("CivilianFire", 0) }
+				};
+			fight::EnumEntry gTargetAlertSubStateConditionSubStateTable[3] =
+				{
+					{ fight::Name("Default", 0) },
+					{ fight::Name("Disoriented", 0) },
+					{ fight::Name("Not Fooled", 0) }
+				};
+			fight::EnumEntry gTargetDefenseConditionDefenseTable[2] =
+				{
+					{ fight::Name("Armor", 0) },
+					{ fight::Name("Block", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51B40
+// FUNCTION: ENGINE 0x10D51D40
+// FUNCTION: ENGINE 0x10D51D90
+// FUNCTION: ENGINE 0x10D821C0
+// FUNCTION: ENGINE 0x10D821D0
+// FUNCTION: ENGINE 0x10D821E0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102500B0
 // FUNCTION: ENGINE 0x102500E0

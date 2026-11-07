@@ -92,6 +92,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gAxisDirectionConditionAxisTable[4] =
+				{
+					{ fight::Name("Movement", 0) },
+					{ fight::Name("Movement Raw", 0) },
+					{ fight::Name("Target", 0) },
+					{ fight::Name("Movement relative to velocity", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4E190
+// FUNCTION: ENGINE 0x10D81560
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10180F90
 // FUNCTION: ENGINE 0x10180FC0

@@ -620,6 +620,29 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gPatsyCreateTrackWhoTable[5] =
+				{
+					{ fight::Name("Target", 0) },
+					{ fight::Name("AutoTarget", 0) },
+					{ fight::Name("Holding", 0) },
+					{ fight::Name("Hit", 0) },
+					{ fight::Name("Clear", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4E5F0
+// FUNCTION: ENGINE 0x10D81650
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1019AD90
 // FUNCTION: ENGINE 0x1019ADC0

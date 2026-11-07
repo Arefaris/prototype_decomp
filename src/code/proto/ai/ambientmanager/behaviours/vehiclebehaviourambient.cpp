@@ -511,7 +511,7 @@ namespace proto
 	};
 	extern TargetRegistry* gTargetRegistry;
 	// The name of the cars that are parked for good (0x112691D0)
-	extern core::Name<core::CaseSensitiveKey> gParkedCarName;
+	core::Name<core::CaseSensitiveKey> gParkedCarName("nypd_police_car", 0);
 
 	// FUNCTION: ENGINE 0x1044C220
 	void VehicleBehaviourAmbient::OnCollision(CollisionMessage* message)
@@ -1732,3 +1732,14 @@ namespace proto
 		return true;
 	}
 }
+
+namespace proto
+{
+	core::Name<core::CaseSensitiveKey> gPedBehaviour("pedBehaviour", 0);
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52AB0
+// FUNCTION: ENGINE 0x10D59840
+// FUNCTION: ENGINE 0x10D82560
+// FUNCTION: ENGINE 0x10D845F0

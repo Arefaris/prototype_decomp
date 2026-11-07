@@ -1286,6 +1286,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gSecondaryWeaponTypeConditionTypeTable[4] =
+				{
+					{ fight::Name("50mmGun", 0) },
+					{ fight::Name("Rocket", 0) },
+					{ fight::Name("Missile", 0) },
+					{ fight::Name("Bloodtox", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4F850
+// FUNCTION: ENGINE 0x10D81980
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101298C0
 // FUNCTION: ENGINE 0x101298D0

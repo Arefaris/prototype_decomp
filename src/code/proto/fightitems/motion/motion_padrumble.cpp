@@ -411,6 +411,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gPadRumbleSetTrackMotorTable[2] =
+				{
+					{ fight::Name("Primary", 0) },
+					{ fight::Name("Secondary", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4E5B0
+// FUNCTION: ENGINE 0x10D81640
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10100210
 // FUNCTION: ENGINE 0x10100230

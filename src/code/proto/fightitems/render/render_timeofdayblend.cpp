@@ -244,6 +244,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace render
+		{
+			fight::EnumEntry gTimeOfDayBlendTrackLevelTable[3] =
+				{
+					{ fight::Name("Powers Level", 0) },
+					{ fight::Name("FX Level", 0) },
+					{ fight::Name("Atmosphere Level", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52180
+// FUNCTION: ENGINE 0x10D82360
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10264640
 // FUNCTION: ENGINE 0x10264650

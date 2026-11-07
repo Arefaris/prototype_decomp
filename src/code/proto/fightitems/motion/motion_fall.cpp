@@ -289,6 +289,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gFallTrackPreserveMomentumTable[3] =
+				{
+					{ fight::Name("PreserveMomentum", 0) },
+					{ fight::Name("UseSprintVelocity", 0) },
+					{ fight::Name("SnapToFaceMotion", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DD50
+// FUNCTION: ENGINE 0x10D81490
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1015E800
 // FUNCTION: ENGINE 0x1015E830

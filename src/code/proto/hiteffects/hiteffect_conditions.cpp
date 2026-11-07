@@ -1393,7 +1393,7 @@ namespace proto
 		}
 
 		// 0x112562B8: the name of the attribute that holds an object's class name (name guess)
-		extern core::Name<core::CaseSensitiveKey> gClassNameAttributeName;
+		core::Name<core::CaseSensitiveKey> gClassNameAttributeName("className", 0);
 
 		// FUNCTION: ENGINE 0x104F61E0
 		bool ReceiverClassNameCondition::Evaluate(int a, int b, int c, int d)
@@ -1634,6 +1634,11 @@ namespace proto
 		template class fight::ConditionFactoryCasterTemplate<HitTypeCondition>;
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52BD0
+// FUNCTION: ENGINE 0x10D825C0
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x104F6EF0

@@ -327,6 +327,21 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace scenario
+		{
+			extern const content::ObjectName gPackageLoadSlotGroup("Undefined_SlotGroup", 0);
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FF20
+// FUNCTION: ENGINE 0x10D81C40
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101D60C0
 // FUNCTION: ENGINE 0x101D60E0

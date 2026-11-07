@@ -543,6 +543,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gCollisionHitTrackTravelTowardTargetTable[3] =
+				{
+					{ fight::Name("None", 0) },
+					{ fight::Name("As Sphere", 0) },
+					{ fight::Name("As Extending Capsule", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DAD0
+// FUNCTION: ENGINE 0x10D813E0
+
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D61400
 // FUNCTION: ENGINE 0x10D85A40

@@ -658,6 +658,28 @@ template core::Link<proto::fightitems::ai::SetPoisonCloudParametersTrack>::Link(
 template proto::fightitems::ai::PoisonTrack* core::Link<proto::fightitems::ai::PoisonTrack>::Get() const;
 template core::Link<proto::fightitems::ai::PoisonTrack>::Link(proto::fightitems::ai::PoisonTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gPoisonTrackWhoTable[4] =
+				{
+					{ fight::Name("Self", 0) },
+					{ fight::Name("Target", 0) },
+					{ fight::Name("Grab Slot", 0) },
+					{ fight::Name("Grab Target", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51840
+// FUNCTION: ENGINE 0x10D82100
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10206D60
 // FUNCTION: ENGINE 0x10206DD0

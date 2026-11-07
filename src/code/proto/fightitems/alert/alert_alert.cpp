@@ -3106,6 +3106,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace alert
+		{
+			fight::EnumEntry gAlertVariableConditionVariableTable[18] =
+				{
+					{ fight::Name("Attack", 0) },
+					{ fight::Name("Faction", 0) },
+					{ fight::Name("Consume", 0) },
+					{ fight::Name("ShoveSoldier", 0) },
+					{ fight::Name("SmallJump", 0) },
+					{ fight::Name("Landing", 0) },
+					{ fight::Name("Shapeshift", 0) },
+					{ fight::Name("Holding", 0) },
+					{ fight::Name("Sprinting", 0) },
+					{ fight::Name("Wallrunning", 0) },
+					{ fight::Name("Climbing", 0) },
+					{ fight::Name("InsideBase", 0) },
+					{ fight::Name("InsidePerimeter", 0) },
+					{ fight::Name("FriendlyFire", 0) },
+					{ fight::Name("FriendlyFireDamage", 0) },
+					{ fight::Name("CivilianFire", 0) },
+					{ fight::Name("InfectedAlly", 0) },
+					{ fight::Name("MilitaryAlly", 0) }
+				};
+			fight::EnumEntry gScenarioMessageTrackEventTable[4] =
+				{
+					{ fight::Name("EnterAlert", 0) },
+					{ fight::Name("LeaveAlert", 0) },
+					{ fight::Name("CallStrikeTeam", 0) },
+					{ fight::Name("PlayerEngaged", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D522F0
+// FUNCTION: ENGINE 0x10D52480
+// FUNCTION: ENGINE 0x10D82410
+// FUNCTION: ENGINE 0x10D82420
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10268BB0
 // FUNCTION: ENGINE 0x10268CD0

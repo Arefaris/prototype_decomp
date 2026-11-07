@@ -1120,6 +1120,51 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gCharacterCloudStateConditionStateTable[5] =
+				{
+					{ fight::Name("Downgradable", 0) },
+					{ fight::Name("Reacting", 0) },
+					{ fight::Name("Ragdolling", 0) },
+					{ fight::Name("NotDowngradable", 0) },
+					{ fight::Name("BeingHeld", 0) }
+				};
+			fight::EnumEntry gPedestrianStateConditionStateTable[17] =
+				{
+					{ fight::Name("PedestrianState_Walking", 0) },
+					{ fight::Name("PedestrianState_Running", 0) },
+					{ fight::Name("PedestrianState_Crosswalk_Walking", 0) },
+					{ fight::Name("PedestrianState_Crosswalk_Running", 0) },
+					{ fight::Name("PedestrianState_Panicked", 0) },
+					{ fight::Name("PedestrianState_InfectedAreaPanicked", 0) },
+					{ fight::Name("PedestrianState_Cowering", 0) },
+					{ fight::Name("PedestrianState_InfectedAreaCowering", 0) },
+					{ fight::Name("PedestrianState_Standing", 0) },
+					{ fight::Name("PedestrianState_AtRedLight", 0) },
+					{ fight::Name("PedestrianState_Blocked", 0) },
+					{ fight::Name("PedestrianState_Dead", 0) },
+					{ fight::Name("PedestrianState_SpawnDead", 0) },
+					{ fight::Name("PedestrianState_PhysicsSimulated", 0) },
+					{ fight::Name("PedestrianState_Rubbernecking1", 0) },
+					{ fight::Name("PedestrianState_Rubbernecking2", 0) },
+					{ fight::Name("PedestrianState_JogAvoid", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4E6D0
+// FUNCTION: ENGINE 0x10D59340
+// FUNCTION: ENGINE 0x10D81680
+// FUNCTION: ENGINE 0x10D844C0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101024E0
 // FUNCTION: ENGINE 0x10102500

@@ -3764,6 +3764,57 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gGrabPlayerTrackActionOnEndTable[2] =
+				{
+					{ fight::Name("Nothing", 0) },
+					{ fight::Name("Detach", 0) }
+				};
+			fight::EnumEntry gAllowGrabbingTrackOnBeginTable[3] =
+				{
+					{ fight::Name("Do Nothing", 0) },
+					{ fight::Name("Allow", 0) },
+					{ fight::Name("Forbid", 0) }
+				};
+			fight::EnumEntry gAllowGrabbingTrackOnEndTable[3] =
+				{
+					{ fight::Name("Restore To Previous", 0) },
+					{ fight::Name("Allow", 0) },
+					{ fight::Name("Forbid", 0) }
+				};
+			fight::EnumEntry gGrabSlotDetachThrowTrackLinearVelocityReferenceTable[3] =
+				{
+					{ fight::Name("Static", 0) },
+					{ fight::Name("Character Root", 0) },
+					{ fight::Name("Attachment Point", 0) }
+				};
+			fight::EnumEntry gGrabSlotReverseAttachmentTrackPhysicsModeTable[2] =
+				{
+					{ fight::Name("Disabled", 0) },
+					{ fight::Name("Keyframed", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DE50
+// FUNCTION: ENGINE 0x10D4DE90
+// FUNCTION: ENGINE 0x10D4DEE0
+// FUNCTION: ENGINE 0x10D4DF30
+// FUNCTION: ENGINE 0x10D4FD60
+// FUNCTION: ENGINE 0x10D814D0
+// FUNCTION: ENGINE 0x10D814E0
+// FUNCTION: ENGINE 0x10D814F0
+// FUNCTION: ENGINE 0x10D81500
+// FUNCTION: ENGINE 0x10D81B60
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100C4140
 // FUNCTION: ENGINE 0x100C5220

@@ -1007,6 +1007,27 @@ template core::Link<proto::fightitems::ai::ThreatSendToTargetTrack>::Link(proto:
 template proto::fightitems::ai::ThreatDodgeTrack* core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Get() const;
 template core::Link<proto::fightitems::ai::ThreatDodgeTrack>::Link(proto::fightitems::ai::ThreatDodgeTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gThreatStoreConditionThreatObjectTable[3] =
+				{
+					{ fight::Name("none", 0) },
+					{ fight::Name("thrown", 0) },
+					{ fight::Name("giver", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51DD0
+// FUNCTION: ENGINE 0x10D821F0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10217900
 // FUNCTION: ENGINE 0x10217930

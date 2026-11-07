@@ -1061,6 +1061,40 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gAutoTargetTrackTargetOverridesTable[5] =
+				{
+					{ fight::Name("ExistingAutoTarget", 0) },
+					{ fight::Name("DetectedObject", 0) },
+					{ fight::Name("ReactionGiver", 0) },
+					{ fight::Name("PowerTarget", 0) },
+					{ fight::Name("ForceExistingTarget", 0) }
+				};
+			fight::EnumEntry gAutoTargetTrackTargetFilterTable[6] =
+				{
+					{ fight::Name("LockOn", 0) },
+					{ fight::Name("AttackMelee", 0) },
+					{ fight::Name("AttackRanged", 0) },
+					{ fight::Name("Grab", 0) },
+					{ fight::Name("Feet", 0) },
+					{ fight::Name("AlertObject", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4D710
+// FUNCTION: ENGINE 0x10D539E0
+// FUNCTION: ENGINE 0x10D812E0
+// FUNCTION: ENGINE 0x10D82870
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10141B30
 // FUNCTION: ENGINE 0x10141B60

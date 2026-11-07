@@ -1881,6 +1881,52 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gReactionEventConditionReactionTypeTable[5] =
+				{
+					{ fight::Name("Any", 0) },
+					{ fight::Name("Hit", 0) },
+					{ fight::Name("Grab", 0) },
+					{ fight::Name("Throw", 0) },
+					{ fight::Name("Scripted", 0) }
+				};
+			fight::EnumEntry gReactionHitDamageConditionTypeTable[2] =
+				{
+					{ fight::Name("Damage Given", 0) },
+					{ fight::Name("Damage Taken", 0) }
+				};
+			fight::EnumEntry gReactionGiverIsBeingGrabbedConditionGrabTypeTable[3] =
+				{
+					{ fight::Name("Any", 0) },
+					{ fight::Name("Grab", 0) },
+					{ fight::Name("GrabAttack", 0) }
+				};
+			fight::EnumEntry gReactionHitCollisionPositionConditionComponentTable[3] =
+				{
+					{ fight::Name("X", 0) },
+					{ fight::Name("Y", 0) },
+					{ fight::Name("Z", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4E830
+// FUNCTION: ENGINE 0x10D4E8F0
+// FUNCTION: ENGINE 0x10D4E930
+// FUNCTION: ENGINE 0x10D4FE20
+// FUNCTION: ENGINE 0x10D816D0
+// FUNCTION: ENGINE 0x10D816F0
+// FUNCTION: ENGINE 0x10D81700
+// FUNCTION: ENGINE 0x10D81C00
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A1F50
 // FUNCTION: ENGINE 0x101A1F80

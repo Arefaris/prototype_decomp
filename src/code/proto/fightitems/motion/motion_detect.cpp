@@ -649,6 +649,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gDetectedObjectAngleConditionTypeTable[2] =
+				{
+					{ fight::Name("Facing", 0) },
+					{ fight::Name("Input", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FBF0
+// FUNCTION: ENGINE 0x10D81AD0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101545F0
 // FUNCTION: ENGINE 0x10154620

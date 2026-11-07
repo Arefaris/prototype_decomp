@@ -473,6 +473,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gUndergroundStateConditionStateTable[4] =
+				{
+					{ fight::Name("Outside", 0) },
+					{ fight::Name("Underground", 0) },
+					{ fight::Name("Coming Out", 0) },
+					{ fight::Name("Going Under", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4F340
+// FUNCTION: ENGINE 0x10D81910
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10123E20
 // FUNCTION: ENGINE 0x10123E30

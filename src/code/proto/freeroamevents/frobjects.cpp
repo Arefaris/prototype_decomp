@@ -346,3 +346,10 @@ namespace proto
 // FUNCTION: ENGINE 0x105918F0
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+namespace proto
+{
+	engine::GameObjectHandle gPlayerHandles[2];
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D5FF30

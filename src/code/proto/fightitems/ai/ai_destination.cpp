@@ -3111,6 +3111,26 @@ template core::Link<proto::fightitems::ai::TargetGoToTrack>::Link(proto::fightit
 template proto::fightitems::ai::DestinationSetDeadBodyTrack* core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Get() const;
 template core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Link(proto::fightitems::ai::DestinationSetDeadBodyTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gTargetGoToTrackWhereTable[2] =
+				{
+					{ fight::Name("Target", 0) },
+					{ fight::Name("Grab Target", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51710
+// FUNCTION: ENGINE 0x10D820A0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10202370
 // FUNCTION: ENGINE 0x10202570

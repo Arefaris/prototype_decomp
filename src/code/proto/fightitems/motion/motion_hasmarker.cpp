@@ -234,6 +234,40 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gHideHUDTrackHideIndividualElementsHideElementsTable[16] =
+				{
+					{ fight::Name("MINIMAP", 0) },
+					{ fight::Name("HEALTH", 0) },
+					{ fight::Name("POWERS", 0) },
+					{ fight::Name("POPUP", 0) },
+					{ fight::Name("DISGUISE_PERCEPTION", 0) },
+					{ fight::Name("BUTTON_HINT", 0) },
+					{ fight::Name("TARGETING", 0) },
+					{ fight::Name("EVOLUTION_POINTS", 0) },
+					{ fight::Name("METER", 0) },
+					{ fight::Name("TEXTLOG", 0) },
+					{ fight::Name("VEHICLE_HEALTH", 0) },
+					{ fight::Name("MARKERS", 0) },
+					{ fight::Name("KEYCARD", 0) },
+					{ fight::Name("DISGUISE_ACTIONS", 0) },
+					{ fight::Name("AWARENESS", 0) },
+					{ fight::Name("CCR", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D5F710
+// FUNCTION: ENGINE 0x10D85430
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100C0B90
 // FUNCTION: ENGINE 0x100C0BC0

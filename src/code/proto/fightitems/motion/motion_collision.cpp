@@ -206,6 +206,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gHitSurfaceConditionSurfaceTable[3] =
+				{
+					{ fight::Name("Ground", 0) },
+					{ fight::Name("Roof", 0) },
+					{ fight::Name("Wall", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4D990
+// FUNCTION: ENGINE 0x10D81370
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10149FD0
 // FUNCTION: ENGINE 0x1014A000

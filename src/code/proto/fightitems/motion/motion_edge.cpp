@@ -453,6 +453,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gEdgePositionConditionComponentTable[3] =
+				{
+					{ fight::Name("X", 0) },
+					{ fight::Name("Y", 0) },
+					{ fight::Name("Z", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FC30
+// FUNCTION: ENGINE 0x10D81AF0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1015B1B0
 // FUNCTION: ENGINE 0x1015B1E0

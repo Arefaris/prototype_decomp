@@ -1127,6 +1127,32 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gVariableIntSetTrackOperatorTable[8] =
+				{
+					{ fight::Name("=", 0) },
+					{ fight::Name("+=", 0) },
+					{ fight::Name("-=", 0) },
+					{ fight::Name("*=", 0) },
+					{ fight::Name("/=", 0) },
+					{ fight::Name("%=", 0) },
+					{ fight::Name("Wrap Inc", 0) },
+					{ fight::Name("Wrap Dec", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4F790
+// FUNCTION: ENGINE 0x10D81970
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10127EC0
 // FUNCTION: ENGINE 0x10127F30

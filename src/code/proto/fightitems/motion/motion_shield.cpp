@@ -602,6 +602,30 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gShieldStateConditionStateTable[6] =
+				{
+					{ fight::Name("Retracting", 0) },
+					{ fight::Name("Retracted", 0) },
+					{ fight::Name("Deploying", 0) },
+					{ fight::Name("Deployed", 0) },
+					{ fight::Name("Broken", 0) },
+					{ fight::Name("Healing", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4EB00
+// FUNCTION: ENGINE 0x10D81790
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1010EF80
 // FUNCTION: ENGINE 0x1010EFC0

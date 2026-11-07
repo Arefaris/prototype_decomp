@@ -143,6 +143,34 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gSetVisibilityTrackActionOnBeginTable[2] =
+				{
+					{ fight::Name("Show", 0) },
+					{ fight::Name("Hide", 0) }
+				};
+			fight::EnumEntry gSetVisibilityTrackActionOnEndTable[3] =
+				{
+					{ fight::Name("Do nothing on end", 0) },
+					{ fight::Name("Show", 0) },
+					{ fight::Name("Hide", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4EA40
+// FUNCTION: ENGINE 0x10D4EA80
+// FUNCTION: ENGINE 0x10D81760
+// FUNCTION: ENGINE 0x10D81770
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1010E9E0
 // FUNCTION: ENGINE 0x1010EA10

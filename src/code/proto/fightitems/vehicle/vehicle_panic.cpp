@@ -773,6 +773,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace vehicle
+		{
+			fight::EnumEntry gSetPanicStateTrackPanicTypeTable[3] =
+				{
+					{ fight::Name("normal", 0) },
+					{ fight::Name("panic", 0) },
+					{ fight::Name("e_brake", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52890
+// FUNCTION: ENGINE 0x10D824C0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10276410
 // FUNCTION: ENGINE 0x10277570

@@ -196,6 +196,37 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gSpatialQueryConditionWhatTable[6] =
+				{
+					{ fight::Name("Faction", 0) },
+					{ fight::Name("Faction-Military", 0) },
+					{ fight::Name("Faction-Infected", 0) },
+					{ fight::Name("Allies", 0) },
+					{ fight::Name("Enemies", 0) },
+					{ fight::Name("Classname (slow)", 0) }
+				};
+			fight::EnumEntry gSpatialQueryConditionWhereTable[2] =
+				{
+					{ fight::Name("My Position", 0) },
+					{ fight::Name("Target's Position", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51970
+// FUNCTION: ENGINE 0x10D51A00
+// FUNCTION: ENGINE 0x10D82150
+// FUNCTION: ENGINE 0x10D82160
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102493C0
 // FUNCTION: ENGINE 0x102493F0
