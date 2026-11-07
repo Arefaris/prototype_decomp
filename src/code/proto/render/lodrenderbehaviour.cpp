@@ -4,6 +4,7 @@
 #include "code/engine/camera/director.h"
 #include "code/pure3d/camera.h"
 #include "code/core/heap.h"
+#include "code/core/refptr.h"
 #include "code/engine/attributemessage.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/random.h"
@@ -195,6 +196,76 @@ namespace proto
 		{
 			const_cast<LODLevel*>(last)->Release(false, true);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x102D9AB0
+	void LODRenderBehaviour::ApplyPaletteToLevels(ShaderPaletteData* data)
+	{
+		if (data != 0)
+		{
+			for (unsigned int i = 0; i < levels.Size(); i++)
+			{
+				levels.begin[i].ApplyPalette(data);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102D9B10
+	void LODRenderBehaviour::ApplyAvailablePalette()
+	{
+		if (available != 0 && availableIndex >= 0 && availableIndex < (int)available->data.Size())
+		{
+			ApplyPaletteToLevels(&available->data.begin[availableIndex]);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DA7E0
+	void LODRenderBehaviour::DestroyLevels()
+	{
+		if (poseSource != 0)
+		{
+			core::IRefCount*& pose = reinterpret_cast<core::IRefCount*&>(poseSource->pose);
+			if (pose != 0)
+			{
+				pure3d::ReleaseCoreRef(pose);
+			}
+		}
+		for (unsigned int i = 0; i < levels.Size(); i++)
+		{
+			levels.begin[i].Destroy();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DA850
+	void LODRenderBehaviour::ResetLevels()
+	{
+		int count = levels.Size();
+		for (int i = 0; i < count; i++)
+		{
+			if (levels.begin[i].drawable.IsValid())
+			{
+				levels.begin[i].Hide();
+				levels.begin[i].drawable.SetUnknownBC(1.0f);
+			}
+		}
+		fade = engine::driving::gOne;
+		flags &= 0xFB;
+		forcedFirst = 0;
+		forcedLast = 0;
+		shownFirst = 0;
+		shownLast = 0;
+		level = 0xFFFFFFFF;
+		forcedFade = 0.0f;
+		if (count > 0)
+		{
+			UpdateLevel();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DA910
+	void LODRenderBehaviour::SetAnimation(pure3d::Animation* newAnimation)
+	{
+		core::RefAssign(animation, newAnimation);
 	}
 
 	// FUNCTION: ENGINE 0x102DB9F0

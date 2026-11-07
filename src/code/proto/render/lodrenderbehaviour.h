@@ -138,6 +138,15 @@ namespace proto
 		void UpdateForced(float dt);
 		// 0x102DB9F0: makes the level of a ready drawable and adds it to the table
 		void AddLevel(const LODReady* ready);
+		// 0x102D9AB0: gives every level the shader inputs of one entry of the palette; 0x102D9B10: the entry that was picked
+		void ApplyPaletteToLevels(ShaderPaletteData* data);
+		void ApplyAvailablePalette();
+		// 0x102DA7E0: lets the pose and the drawables of the levels go; 0x102DA850: puts every level off the screen and
+		// forgets the range that is shown
+		void DestroyLevels();
+		void ResetLevels();
+		// 0x102DA910
+		void SetAnimation(pure3d::Animation* newAnimation);
 		// 0x102D9500 / 0x102D9540: the levels from the first to the last begin / stop being used (the behaviour is not read)
 		void ShowLevels(const LODLevel* first, const LODLevel* last);
 		void HideLevels(const LODLevel* first, const LODLevel* last);

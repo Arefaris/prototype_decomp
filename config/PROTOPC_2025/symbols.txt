@@ -98870,3 +98870,7 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??0DeformShaderBehaviour@proto@@QAE@PAVGameObject@engine@@@Z = 0x102D4880 ; function size:0x64 | public: __thiscall proto::DeformShaderBehaviour::DeformShaderBehaviour(class engine::GameObject *) (name guess)
 ?Clear@DentBuffer@proto@@QAEXXZ = 0x102D43E0 ; function size:0x7 | public: void __thiscall proto::DentBuffer::Clear(void) (kept copy)
 ?ClearDents@DeformShaderBehaviour@proto@@QAEXXZ = 0x102D42C0 ; function size:0x71 | public: void __thiscall proto::DeformShaderBehaviour::ClearDents(void) (name guess)
+?ApplyPaletteToLevels@LODRenderBehaviour@proto@@QAEXPAUShaderPaletteData@2@@Z = 0x102D9AB0 ; function size:0x42 | public: void __thiscall proto::LODRenderBehaviour::ApplyPaletteToLevels(struct proto::ShaderPaletteD (name guess)
+?ApplyAvailablePalette@LODRenderBehaviour@proto@@QAEXXZ = 0x102D9B10 ; function size:0x2A | public: void __thiscall proto::LODRenderBehaviour::ApplyAvailablePalette(void) (name guess)
+?DestroyLevels@LODRenderBehaviour@proto@@QAEXXZ = 0x102DA7E0 ; function size:0x4E | public: void __thiscall proto::LODRenderBehaviour::DestroyLevels(void) (name guess)
+?SetAnimation@LODRenderBehaviour@proto@@QAEXPAVAnimation@pure3d@@@Z = 0x102DA910 ; function size:0x14 | public: void __thiscall proto::LODRenderBehaviour::SetAnimation(class pure3d::Animation *) (name guess)
