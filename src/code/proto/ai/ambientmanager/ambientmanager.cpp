@@ -162,6 +162,74 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	// FUNCTION: ENGINE 0x10409CF0
+	void AmbientManager::SetMaxVehicles(unsigned int count)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10409D00
+	void AmbientManager::SetMaxCharacters(unsigned int count)
+	{
+		config.unknown5C = count;
+	}
+
+	// FUNCTION: ENGINE 0x10409D10
+	void AmbientManager::SetFarSpawnDistance(float distance)
+	{
+		config.unknown44 = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10409D30
+	void AmbientManager::SetNearSpawnDistance(float distance)
+	{
+		config.unknown40 = distance;
+	}
+
+	// FUNCTION: ENGINE 0x10409D50
+	void AmbientManager::SetSpawnAreaSize(float size)
+	{
+		config.unknown38 = size;
+	}
+
+	// FUNCTION: ENGINE 0x10409D70
+	void AmbientManager::SetPedestrianDensityScale(float scale)
+	{
+		unknown280 = scale;
+	}
+
+	// FUNCTION: ENGINE 0x10409D90
+	void AmbientManager::SetPercentInfectedLevelZero(float percent)
+	{
+		unknown504 = percent;
+	}
+
+	// FUNCTION: ENGINE 0x10409DB0
+	void AmbientManager::SetVehicleDensityScale(float scale)
+	{
+		unknown284 = scale;
+	}
+
+	// FUNCTION: ENGINE 0x10409E70
+	void AmbientManager::SetInMissionBriefing(bool briefing)
+	{
+		unknown515 = briefing;
+	}
+
+	// FUNCTION: ENGINE 0x10409F60
+	void AmbientManager::SetPercentageLowMorale(float percent)
+	{
+		unknown5FC = percent;
+	}
+
+	// FUNCTION: ENGINE 0x1040A100
+	void AmbientManager::SetIgnoreDeadSphereLocaters(bool ignore)
+	{
+		unknown603 = ignore;
+	}
+}
+
 // The containers of the manager's members: the engine keeps its out-of-line copies of their members
 template class container::ArrayDynamicHeap<proto::AmbientElement8A>;
 template class container::ArrayDynamicHeap<proto::AmbientElement8B>;

@@ -32,7 +32,10 @@ namespace proto
 		unsigned int vehicleBase;
 		unsigned int unknown28;
 		unsigned int unknown2C;
-		unsigned char unknown30[0x44 - 0x30];
+		unsigned char unknown30[8];
+		float unknown38;
+		unsigned char unknown3C[4];
+		float unknown40;
 		float unknown44;
 		unsigned char unknown48[0x50 - 0x48];
 		unsigned int unknown50;
@@ -197,6 +200,21 @@ namespace proto
 		void ReleaseName(const core::Name<core::CaseSensitiveKey>& name, bool flag);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
+		// The script natives amb_SetMaxVehicles (0x10409CF0: nothing to set), amb_SetMaxCharacters, amb_SetSpawnAreaSize,
+		// amb_SetNearSpawnDist, amb_SetFarSpawnDist, amb_SetPedsGlobalDensityScale, amb_SetVehiclesGlobalDensityScale,
+		// amb_SetPercentInfectedLevelZero, amb_SetInMissionBriefing, amb_SetPercentageLowMorale and
+		// amb_SetIgnoreDeadSphereLocaters (names of the members they set are guesses)
+		void SetMaxVehicles(unsigned int count);
+		void SetMaxCharacters(unsigned int count);
+		void SetFarSpawnDistance(float distance);
+		void SetNearSpawnDistance(float distance);
+		void SetSpawnAreaSize(float size);
+		void SetPedestrianDensityScale(float scale);
+		void SetPercentInfectedLevelZero(float percent);
+		void SetVehicleDensityScale(float scale);
+		void SetInMissionBriefing(bool briefing);
+		void SetPercentageLowMorale(float percent);
+		void SetIgnoreDeadSphereLocaters(bool ignore);
 
 		AmbientArray12 unknown0;
 		unsigned char unknownC[4];
