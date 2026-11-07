@@ -10,6 +10,7 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/math/matrix.h"
+#include "code/pure3d/effects/multiarray.h"
 #include "code/pure3d/effects/particlecontroller.h"
 #include "code/pure3d/effects/particlesystem.h"
 #include "code/pure3d/primitive.h"
@@ -66,6 +67,58 @@ template void core::RefAssign<pure3d::ParticleSystemState>(pure3d::ParticleSyste
 // FUNCTION: ENGINE 0x1070A8E0
 template void core::RefAssign<pure3d::ParticleGenerator>(pure3d::ParticleGenerator*& pointer,
 	pure3d::ParticleGenerator* object);
+
+// The arrays of the attributes of a block of particles
+// FUNCTION: ENGINE 0x1070B220
+template pure3d::particles::MultiArray<57>::MultiArray();
+
+// FUNCTION: ENGINE 0x1070B260
+template pure3d::particles::MultiArray<57>::~MultiArray();
+
+// FUNCTION: ENGINE 0x1070A440
+template void pure3d::particles::MultiArray<57>::Free();
+
+// FUNCTION: ENGINE 0x1070B550
+template pure3d::particles::AttributeData<57>::AttributeData();
+
+// FUNCTION: ENGINE 0x1070B5C0
+template pure3d::particles::AttributeData<57>::~AttributeData();
+
+// FUNCTION: ENGINE 0x1070AFE0
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan0(int index);
+
+// FUNCTION: ENGINE 0x1070B010
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan0(int index) const;
+
+// FUNCTION: ENGINE 0x1070B040
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan1(int index);
+
+// FUNCTION: ENGINE 0x1070B070
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan1(int index) const;
+
+// FUNCTION: ENGINE 0x1070B0A0
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan2(int index);
+
+// FUNCTION: ENGINE 0x1070B0D0
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan2(int index) const;
+
+// FUNCTION: ENGINE 0x1070B100
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan3(int index);
+
+// FUNCTION: ENGINE 0x1070B130
+template pure3d::particles::Span pure3d::particles::AttributeData<57>::GetSpan3(int index) const;
+
+// FUNCTION: ENGINE 0x1070B160
+template int pure3d::particles::AttributeData<57>::GetCount0() const;
+
+// FUNCTION: ENGINE 0x1070B1C0
+template bool pure3d::particles::AttributeData<57>::IsEmpty1(int index) const;
+
+// FUNCTION: ENGINE 0x1070B1E0
+template bool pure3d::particles::AttributeData<57>::IsEmpty2(int index) const;
+
+// FUNCTION: ENGINE 0x1070B200
+template bool pure3d::particles::AttributeData<57>::IsEmpty3(int index) const;
 
 namespace pure3d
 {
@@ -394,5 +447,33 @@ namespace pure3d
 			core::RefAssign(vertexBuffers[1], gPddiDx ? gPddiDx->NewUnsupportedVertexBuffer(&description) : 0);
 		}
 		unknown4BB = true;
+	}
+
+	// FUNCTION: ENGINE 0x1070BD00
+	particles::Span ParticleSystemState::GetSpan0(int index)
+	{
+		return inheritUnknown4BC ? parent->GetSpan0(index)
+			: particles::Span(block + attributes2C0->entries[index].offset, block + attributes2C0->entries[index].unknown4);
+	}
+
+	// FUNCTION: ENGINE 0x1070BD60
+	particles::Span ParticleSystemState::GetSpan1(int index)
+	{
+		return inheritUnknown4BC ? parent->GetSpan1(index)
+			: particles::Span(block + attributes2C8->entries[index].offset, block + attributes2C8->entries[index].unknown4);
+	}
+
+	// FUNCTION: ENGINE 0x1070BDC0
+	particles::Span ParticleSystemState::GetSpan2(int index)
+	{
+		return inheritUnknown4BC ? parent->GetSpan2(index)
+			: particles::Span(block + attributes2D0->entries[index].offset, block + attributes2D0->entries[index].unknown4);
+	}
+
+	// FUNCTION: ENGINE 0x1070BE20
+	particles::Span ParticleSystemState::GetSpan3(int index)
+	{
+		return inheritUnknown4BC ? parent->GetSpan3(index)
+			: particles::Span(block + attributes2D8->entries[index].offset, block + attributes2D8->entries[index].unknown4);
 	}
 }

@@ -16,6 +16,7 @@
 #include "code/math/vector.h"
 #include "code/math/vector2.h"
 #include "code/math/vector4.h"
+#include "code/pure3d/effects/multiarray.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/framecontroller.h"
@@ -1687,6 +1688,12 @@ namespace pure3d
 		virtual void GetBoundingBox(math::AABB* box);
 		// 0x1070C340 (not reconstructed)
 		void Unknown1070C340();
+		// 0x1070BD00 - 0x1070BE20: the arrays of an entry of the lists of the attributes (vectors, four-component
+		// vectors, floats, floats) of the state that owns them (the parent's when inherited)
+		particles::Span GetSpan0(int index);
+		particles::Span GetSpan1(int index);
+		particles::Span GetSpan2(int index);
+		particles::Span GetSpan3(int index);
 		// 0x106E9980: the number of particles of the state that owns them (the parent's when inherited)
 		unsigned int GetParticleCount();
 		// 0x10709C00: starts the update unless the state takes its values from its parent
@@ -1836,7 +1843,9 @@ namespace pure3d
 		unsigned char* block;
 		unsigned char unknown2B8[8];
 		ParticleAttributeTable* attributes2C0;
-		unsigned char unknown2C4[0xC];
+		unsigned char unknown2C4[4];
+		ParticleAttributeTable* attributes2C8;
+		unsigned char unknown2CC[4];
 		ParticleAttributeTable* attributes2D0;
 		unsigned char unknown2D4[4];
 		ParticleAttributeTable* attributes2D8;
