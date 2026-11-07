@@ -99196,3 +99196,5 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??1ThreatBallInitializeMessage@proto@@UAE@XZ = 0x10407F80 ; function size:0x7 | public: virtual __thiscall proto::ThreatBallInitializeMessage::~ThreatBallInitializeMessage(void) (kept copy)
 ??1ThreatInitializeMessage@proto@@UAE@XZ = 0x10408000 ; function size:0x7 | public: virtual __thiscall proto::ThreatInitializeMessage::~ThreatInitializeMessage(void) (kept copy)
 ??0ThreatBallInitializeMessage@proto@@QAE@ABVSphere@math@@ABVVector@3@MV?$Name@UCaseSensitiveKey@core@@@core@@VGameObjectHandle@engine@@PAVBranch@fight@@H@Z = 0x10407EE0 ; function size:0x7F | proto::ThreatBallInitializeMessage::ThreatBallInitializeMessage (name guess)
+?OnThreatReported@ThreatReceiverBehaviour@proto@@QAEXVGameObjectHandle@engine@@@Z = 0x104033D0 ; function size:0x13C | proto::ThreatReceiverBehaviour::OnThreatReported (name guess)
+?HasThreat@ThreatReceiverBehaviour@proto@@QAE_NIH@Z = 0x10403190 ; function size:0x32 | proto::ThreatReceiverBehaviour::HasThreat (name guess)
