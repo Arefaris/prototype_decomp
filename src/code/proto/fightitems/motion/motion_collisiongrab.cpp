@@ -272,19 +272,19 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A7250
 			int CollisionGrabAction::GetCollideWith()
 			{
-				return link.object->collideWith;
+				return link.Get()->collideWith;
 			}
 
 			// FUNCTION: ENGINE 0x100A7260
 			float CollisionGrabAction::GetArcOffset()
 			{
-				return link.object->arcOffset;
+				return link.Get()->arcOffset;
 			}
 
 			// FUNCTION: ENGINE 0x100A7270
 			float CollisionGrabAction::GetArcRange()
 			{
-				return link.object->arcRange;
+				return link.Get()->arcRange;
 			}
 
 			// FUNCTION: ENGINE 0x100A6F30
@@ -301,7 +301,7 @@ namespace proto
 				{
 					return 0xffff;
 				}
-				return FindDrawablePart(object, &link.object->joint);
+				return FindDrawablePart(object, &link.Get()->joint);
 			}
 
 			// FUNCTION: ENGINE 0x100A72D0
@@ -309,7 +309,7 @@ namespace proto
 #ifdef NONMATCHING
 			math::Vector* CollisionGrabAction::GetOffset(math::Vector* offset)
 			{
-				math::Vector copy(link.object->offset);
+				math::Vector copy(link.Get()->offset);
 				offset->x = copy.x;
 				offset->y = copy.y;
 				offset->z = copy.z;
@@ -320,13 +320,13 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A7300
 			bool CollisionGrabAction::GetUseMotion()
 			{
-				return link.object->useMotion;
+				return link.Get()->useMotion;
 			}
 
 			// FUNCTION: ENGINE 0x100A7310
 			float CollisionGrabAction::GetRadius()
 			{
-				return link.object->radius;
+				return link.Get()->radius;
 			}
 
 			// FUNCTION: ENGINE 0x100A6F40
@@ -361,7 +361,7 @@ namespace proto
 						return false;
 					}
 				}
-				AttemptGrabMessage message(target, link.object->devastatorGrab);
+				AttemptGrabMessage message(target, link.Get()->devastatorGrab);
 				object->SendMessage(&message);
 				if (message.grabbed && message.allowed)
 				{
@@ -373,21 +373,21 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A7B90
 			bool CollisionGrabAction::Slot27()
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return CollisionAction::Slot27();
 				}
-				return link.object->grabOnlyPowerTarget;
+				return link.Get()->grabOnlyPowerTarget;
 			}
 
 			// FUNCTION: ENGINE 0x100A7BB0
 			bool CollisionGrabAction::Slot29()
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return CollisionAction::Slot29();
 				}
-				return link.object->considerPlatformAsTarget;
+				return link.Get()->considerPlatformAsTarget;
 			}
 
 			// ---- actions end
@@ -445,3 +445,4 @@ namespace proto
 // FUNCTION: ENGINE 0x100A6DE0
 // FUNCTION: ENGINE 0x100A6E10
 // FUNCTION: ENGINE 0x100A7220
+// FUNCTION: ENGINE 0x100A6BB0

@@ -648,19 +648,19 @@ namespace proto
 			// FUNCTION: ENGINE 0x100B2500
 			int DetectAction::GetCollideWith()
 			{
-				return link.object->collideWith;
+				return link.Get()->collideWith;
 			}
 
 			// FUNCTION: ENGINE 0x100B2510
 			float DetectAction::GetArcOffset()
 			{
-				return link.object->arcOffset;
+				return link.Get()->arcOffset;
 			}
 
 			// FUNCTION: ENGINE 0x100B2520
 			float DetectAction::GetArcRange()
 			{
-				return link.object->arcRange;
+				return link.Get()->arcRange;
 			}
 
 			// FUNCTION: ENGINE 0x100B2530
@@ -671,7 +671,7 @@ namespace proto
 				{
 					return 0xffff;
 				}
-				return FindDrawablePart(object, &link.object->joint);
+				return FindDrawablePart(object, &link.Get()->joint);
 			}
 
 			// FUNCTION: ENGINE 0x100B2580
@@ -679,9 +679,9 @@ namespace proto
 #ifdef NONMATCHING
 			math::Vector* DetectAction::GetOffset(math::Vector* offset)
 			{
-				offset->x = link.object->offset.x;
-				offset->y = link.object->offset.y;
-				offset->z = link.object->offset.z;
+				offset->x = link.Get()->offset.x;
+				offset->y = link.Get()->offset.y;
+				offset->z = link.Get()->offset.z;
 				return offset;
 			}
 #endif
@@ -689,7 +689,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100B25B0
 			float DetectAction::GetRadius()
 			{
-				return link.object->radius;
+				return link.Get()->radius;
 			}
 
 			// FUNCTION: ENGINE 0x100B17A0
@@ -871,3 +871,4 @@ namespace proto
 // FUNCTION: ENGINE 0x100B1820
 // FUNCTION: ENGINE 0x100B1850
 // FUNCTION: ENGINE 0x100B24D0
+// FUNCTION: ENGINE 0x100B17B0

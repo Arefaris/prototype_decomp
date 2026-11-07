@@ -732,7 +732,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100AC870
 			bool ConsumeGrabberAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.Get() != 0)
 				{
 					engine::GameObject* object = target.Get();
 					engine::Attribute<engine::GameObjectHandle>* attribute = (engine::Attribute<engine::GameObjectHandle>*)object->FindAttribute(engine::gAttachmentState);
@@ -741,7 +741,7 @@ namespace proto
 						engine::GameObjectHandle grabber = attribute->value;
 						if (grabber.Get() != 0)
 						{
-							ConsumeObject(target, grabber, link.object->stealthy);
+							ConsumeObject(target, grabber, link.Get()->stealthy);
 						}
 					}
 				}
@@ -765,7 +765,7 @@ namespace proto
 							ReleaseGrabbedObjectMessage releaseMessage(target);
 							parentObject->SendMessage(&releaseMessage);
 						}
-						ConsumeObject(parent, target, link.object->stealthy);
+						ConsumeObject(parent, target, link.Get()->stealthy);
 					}
 				}
 				return false;
@@ -774,13 +774,13 @@ namespace proto
 			// FUNCTION: ENGINE 0x100AC540
 			bool ConsumeAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.Get() != 0)
 				{
 					engine::GameObject* object = target.Get();
-					core::Name<core::CaseSensitiveKey> slot(link.object->grabSlot);
+					core::Name<core::CaseSensitiveKey> slot(link.Get()->grabSlot);
 					GetGrabbedObjectMessage message(&slot);
 					object->SendMessage(&message);
-					ConsumeObject(target, message.grabbed, link.object->stealthy);
+					ConsumeObject(target, message.grabbed, link.Get()->stealthy);
 				}
 				return false;
 			}
@@ -804,9 +804,9 @@ namespace proto
 				if (!consumed)
 				{
 					consumeTime = consumeTime + value;
-					if (link.object->transformationConsumeTime <= consumeTime && link.object->transformationConsume)
+					if (link.Get()->transformationConsumeTime <= consumeTime && link.Get()->transformationConsume)
 					{
-						ConsumeObject(consumer, target, link.object->stealthy);
+						ConsumeObject(consumer, target, link.Get()->stealthy);
 						consumed = true;
 					}
 				}
@@ -818,7 +818,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100ACF60
 			void ConsumeByParentAction::Slot6()
 			{
-				ConsumeByParentTrack* track = link.object;
+				ConsumeByParentTrack* track = link.Get();
 				if (track != 0 && target.IsValid())
 				{
 					engine::GameObject* object = target.Get();
@@ -832,7 +832,7 @@ namespace proto
 								object->SendMessage(&message);
 								if (message.finished)
 								{
-									ConsumeObject(consumer, target, link.object->stealthy);
+									ConsumeObject(consumer, target, link.Get()->stealthy);
 								}
 							}
 							GrabbableMessage grabbable(8);
@@ -845,7 +845,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100AD140
 			bool ScaleJointForConsumeAction::Slot5(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -858,8 +858,8 @@ namespace proto
 				{
 					return false;
 				}
-				jointIndex = FindDrawablePart(object, &link.object->jointToScale);
-				ScaleJointForConsumeMessage message(jointIndex, link.object->scaleRate, link.object->desiredScale);
+				jointIndex = FindDrawablePart(object, &link.Get()->jointToScale);
+				ScaleJointForConsumeMessage message(jointIndex, link.Get()->scaleRate, link.Get()->desiredScale);
 				object->SendMessage(&message);
 				return true;
 			}
@@ -867,7 +867,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100AD240
 			void ScaleJointForConsumeAction::Slot6()
 			{
-				if (link.object != 0 && target.IsValid())
+				if (link.Get() != 0 && target.IsValid())
 				{
 					engine::GameObject* object = target.Get();
 					if (object != 0)
@@ -1032,3 +1032,8 @@ namespace proto
 // FUNCTION: ENGINE 0x100AB4D0
 // FUNCTION: ENGINE 0x100AB340
 // FUNCTION: ENGINE 0x100AB470
+// FUNCTION: ENGINE 0x100AB1F0
+// FUNCTION: ENGINE 0x100AB200
+// FUNCTION: ENGINE 0x100AB210
+// FUNCTION: ENGINE 0x100AB220
+// FUNCTION: ENGINE 0x100AB230

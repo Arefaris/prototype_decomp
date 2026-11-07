@@ -346,7 +346,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A0690
 			bool ButtonHintShowAction::Slot5(int arg, float value)
 			{
-				if (link.object == 0)
+				if (link.Get() == 0)
 				{
 					return false;
 				}
@@ -355,7 +355,7 @@ namespace proto
 				{
 					return false;
 				}
-				AddButtonHintMessage addMessage(link.object->button, link.object->pressType, link.object->displayMessage, link.object->scenarioMessage, link.object->priority, link.object->persistent, false, false, false, gNoButtonHint);
+				AddButtonHintMessage addMessage(link.Get()->button, link.Get()->pressType, link.Get()->displayMessage, link.Get()->scenarioMessage, link.Get()->priority, link.Get()->persistent, false, false, false, gNoButtonHint);
 				object->SendMessage(&addMessage);
 				EnableButtonHintsMessage enableMessage(true);
 				object->SendMessage(&enableMessage);
@@ -365,7 +365,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100A0790
 			void ButtonHintShowAction::Slot6()
 			{
-				ButtonHintShowTrack* track = link.object;
+				ButtonHintShowTrack* track = link.Get();
 				if (track == 0)
 				{
 					return;
@@ -551,3 +551,4 @@ namespace proto
 // FUNCTION: ENGINE 0x100A00C0
 // FUNCTION: ENGINE 0x100A0310
 // FUNCTION: ENGINE 0x100A0340
+// FUNCTION: ENGINE 0x1009FF40
