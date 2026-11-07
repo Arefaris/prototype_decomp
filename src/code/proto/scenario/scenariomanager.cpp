@@ -48,6 +48,12 @@ namespace proto
 		bool IsPackageUnloaded(engine::StreamPackage* package);
 		bool IsPackageLoaded(engine::StreamPackage* package);
 
+		// 0x1048AD40 / 0x1048ADF0 / 0x1048AE70: the script natives that set and get the corners of a stream trigger's box
+		// (stream_SetCellTriggerBoundingBox, stream_GetCellTriggerHigh, stream_GetCellTriggerLow)
+		bool SetCellTriggerBoundingBox(const char* name, math::Vector low, math::Vector high);
+		math::Vector GetCellTriggerHigh(const char* name);
+		math::Vector GetCellTriggerLow(const char* name);
+
 		// 0x1126B8A8
 		ScenarioManager* gScenarioManager;
 
