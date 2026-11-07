@@ -235,4 +235,6 @@ namespace mgraph
 	template void mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Rename(Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B277D0
 	template mgraph::AbstractOutputPinBase* mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::CreateAbstractPin(mgraph::Abstraction*);
+	// FUNCTION: ENGINE 0x10B276A0
+	template om::MetaTypeBase* mgraph::Outlet<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPacketMetaType();
 }

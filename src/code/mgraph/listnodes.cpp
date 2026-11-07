@@ -164,4 +164,8 @@ namespace mgraph
 	template bool mgraph::PacketPresent<struct mgraph::FrameEntry<class om::DynamicArray<class mgraph::TriggerData,unsigned short> > >(mgraph::FrameEntry<DynamicArray<mgraph::TriggerData,unsigned short> > const*);
 	// FUNCTION: ENGINE 0x10B2CB70
 	template void mgraph::ListEntry<mgraph::TriggerData>::Slot16(mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B2ADA0
+	template mgraph::ListCount<float>::ListCount(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B45080
+	template mgraph::ListEntry<float>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 }

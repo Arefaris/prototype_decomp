@@ -520,4 +520,10 @@ namespace mgraph
 	{
 		return new mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >(static_cast<Graph*>(graph), *nodeName);
 	}
+	// FUNCTION: ENGINE 0x10B33500
+	template mgraph::Throw<mgraph::Packet<float> >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E400
+	template mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B693E0
+	template mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 }

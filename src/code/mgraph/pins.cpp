@@ -642,7 +642,7 @@ namespace mgraph
 	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<float,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B1A820
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B1ABE0
+	// FUNCTION: ENGINE 0x10AB4FA0
 	template MetaTypeBase* mgraph::InputPin<mgraph::Packet<DynamicArray<float,unsigned short> > >::GetPacketType();
 	// FUNCTION: ENGINE 0x10B1AEC0
 	template mgraph::AbstractInputPin<mgraph::Packet<unsigned int> >::AbstractInputPin(void*, Name<CaseSensitive64BitKey> const*, int);
@@ -1202,13 +1202,13 @@ namespace mgraph
 	template void mgraph::AbstractOutputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B26B50
 	template mgraph::AbstractOutputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AbstractOutputPin(void*, Name<CaseSensitive64BitKey> const*, int);
-	// FUNCTION: ENGINE 0x10B26B80
+	// FUNCTION: ENGINE 0x10B4EDE0
 	template MetaTypeBase* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPacketTypeCached();
 	// FUNCTION: ENGINE 0x10B26BA0
 	template char const* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B26BB0
 	template char const* mgraph::AbstractOutputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
-	// FUNCTION: ENGINE 0x10B26BD0
+	// FUNCTION: ENGINE 0x10B0B1B0
 	template char const* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
 	// FUNCTION: ENGINE 0x10B26C30
 	template char const* mgraph::AbstractToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::AllocationTag();
@@ -1240,7 +1240,7 @@ namespace mgraph
 	template void mgraph::ConcreteToAbstractGraphConnection<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B272E0
 	template mgraph::GraphConnectionBase* mgraph::AbstractInputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::MakeConnection(mgraph::Pin*);
-	// FUNCTION: ENGINE 0x10B276A0
+	// FUNCTION: ENGINE 0x10B4EDD0
 	template MetaTypeBase* mgraph::InputPin<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::GetPacketType();
 	// FUNCTION: ENGINE 0x10B2E630
 	template mgraph::PinChannelData* mgraph::InputPin<mgraph::Packet<mgraph::TriggerData> >::GetChannelData();

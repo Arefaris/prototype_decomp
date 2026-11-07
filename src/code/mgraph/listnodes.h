@@ -103,8 +103,7 @@ namespace mgraph
 
 	// Left to the engine: the constructors that would expand the pins of these packet types, whose virtual functions the engine
 	// shares between identical copies
-	template<> ListCount<float>::ListCount(Graph* newGraph, const om::ClassName& newName);
-	template<> ListEntry<float>::ListEntry(Graph* newGraph, const om::ClassName& newName);
+
 	template<> ListCount<EnvelopeData>::ListCount(Graph* newGraph, const om::ClassName& newName);
 
 	// Left to the engine (compared by the types' own tests, not reconstructed)
