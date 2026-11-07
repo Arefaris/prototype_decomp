@@ -135,6 +135,14 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x108AF320
+	void PrimitiveDisplayTrack::ClearPrimitives()
+	{
+		FreePrimitives();
+		primitives = 0;
+		primitiveCount = 0;
+	}
+
 	// FUNCTION: ENGINE 0x108AF790
 	void PrimitiveDisplayTrack::Reset()
 	{

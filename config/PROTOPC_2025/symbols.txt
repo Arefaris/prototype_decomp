@@ -104180,3 +104180,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Slot3@OnlineManager@engine@@UAEXXZ = 0x108BF4B0 ; function size:0x15 | engine::OnlineManager (name guess)
 ?Slot9@OnlineManager@engine@@UAEXXZ = 0x108BF5B0 ; function size:0x13 | engine::OnlineManager (name guess)
 ??_GOnlineManager@engine@@UAEPAXI@Z = 0x108BF8A0 ; function size:0x1E | engine::OnlineManager (name guess)
+?ClearPrimitives@PrimitiveDisplayTrack@engine@@QAEXXZ = 0x108AF320 ; function size:0x22 | engine::PrimitiveDisplayTrack::ClearPrimitives (name guess)
