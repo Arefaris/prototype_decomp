@@ -16,6 +16,15 @@ namespace engine
 		TagSet* tags;
 	};
 
+	// A message to the stream system (RTTI name; 0x10 bytes): an id and a word
+	struct StreamMessage : public IntrusiveMessage
+	{
+		// 0x10854080
+		StreamMessage(short newId, int newValue);
+
+		int value;
+	};
+
 	struct StreamTriggerInfoMessage : public IntrusiveMessage
 	{
 		StreamTriggerInfoMessage() : IntrusiveMessage(0x18, 2)

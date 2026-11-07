@@ -98,6 +98,12 @@ namespace engine
 	bool Unknown1082C7B0();
 	bool Unknown1082C860(int* unused, core::Name<core::CaseSensitiveKey>* name);
 
+	// FUNCTION: ENGINE 0x10854080
+	StreamMessage::StreamMessage(short newId, int newValue) : IntrusiveMessage(0x18, newId)
+	{
+		value = newValue;
+	}
+
 	// FUNCTION: ENGINE 0x108541F0
 	// Copies the first run of digits of the text and, unless omitLetter, the first lowercase letter behind it
 	void ExtractNumberAndLetter(char* out, const char* text, bool omitLetter)
@@ -309,3 +315,11 @@ namespace engine
 // The lookup of a location by name (the filter the inventory is handed)
 // FUNCTION: ENGINE 0x108547D0
 template class content::LoadInventory::DynamicCaster<engine::world::Location>;
+
+// The kept copies of the container members the trigger lists use
+// FUNCTION: ENGINE 0x10854310
+template engine::StreamTrigger*& container::ArrayDynamic<engine::StreamTrigger*, container::AllocatorCoreStatic<12, 16> >::operator[](int);
+// FUNCTION: ENGINE 0x10854320
+template int container::ArrayFixed<engine::StreamTrigger*, 16>::Size() const;
+// FUNCTION: ENGINE 0x10854330
+template engine::StreamTrigger*& container::ArrayFixed<engine::StreamTrigger*, 16>::operator[](int);
