@@ -142,6 +142,8 @@ namespace proto
 	engine::GameObject* Unknown103BE5F0(engine::GameObject* object);
 	// 0x103B85A0: drives the object with a strength along a direction (name guess)
 	void Unknown103B85A0(engine::GameObject* object, float strength, const math::Vector* direction, bool flag);
+	// 0x103C0690: works out where an object follows another to (name guess)
+	math::Vector Unknown103C0690(engine::GameObject* followed, const math::Vector* position);
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
 	// 0x103B8440: whether the object has arrived at its destination (name guess)

@@ -1,6 +1,8 @@
 // Fight items of the ai group: InFormationCondition, FormationReformingCondition, FollowFormationTrack, FollowTargetTrack, ReformTrack (unit 0x10232390 - 0x102338F0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_formation.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+#include <math.h>
 
 namespace proto
 {
@@ -570,7 +572,48 @@ namespace proto
 				return result;
 			}
 
-			// ---- actions end
+			// FUNCTION: ENGINE 0x101F46C0
+			// NONMATCHING: the engine loads the track pointer and sets the result before the cosine, ours the other way round, 87.9 %
+#ifdef NONMATCHING
+			bool FollowTargetAction::Slot5(int arg, float value)
+			{
+				if (target.Get() != 0)
+				{
+					GetFollowInformationMessage message;
+					target.Get()->SendMessage(&message);
+					if (message.information != 0)
+					{
+						unknown2C.x = message.information->position.x;
+						unknown2C.y = message.information->position.y;
+						unknown2C.z = message.information->position.z;
+						unknown38 = message.information->target;
+						float angle = link.object->maxAngleFromTargetFacing;
+						unknown3C = (float)cos(angle);
+						return true;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F47C0
+			bool FollowTargetAction::Slot7(int arg, float value)
+			{
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObjectHandle followedHandle = unknown38;
+				engine::GameObject* followed = followedHandle.Get();
+				if (followed == 0)
+				{
+					return false;
+				}
+				Unknown103C0690(followed, &unknown2C);
+				return true;
+			}
+
+// ---- actions end
 			template class fight::PropertyBool<InFormationCondition>;
 			template class fight::ConditionFactoryTemplate<InFormationCondition>;
 			template class fight::ConditionFactoryCasterTemplate<InFormationCondition>;

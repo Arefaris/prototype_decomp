@@ -51,6 +51,26 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> state;  // +0x10
 	};
 
+	// What an object follows (the part the follow target action reads)
+	struct FollowInformation
+	{
+		math::Vector position;  // +0x0
+		engine::GameObjectHandle target;  // +0xC
+	};
+
+	// RTTI: proto::GetFollowInformationMessage: the object answers what it follows
+	struct GetFollowInformationMessage : public MovementMessage
+	{
+		GetFollowInformationMessage() : MovementMessage(0x37), information(0)
+		{
+		}
+		virtual ~GetFollowInformationMessage()
+		{
+		}
+
+		FollowInformation* information;  // +0xC
+	};
+
 	// RTTI: proto::SetNPCLODStateAIMsg: the object takes a level of detail state
 	struct SetNPCLODStateAIMsg : public LODAIMessage
 	{
