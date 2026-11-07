@@ -35,6 +35,7 @@
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
 #include "code/proto/behaviours/vehicleconstraints.h"
+#include "code/proto/behaviours/wheelconstraint.h"
 #include "code/proto/behaviours/helicopterrotor.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
@@ -142,16 +143,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x124 - sizeof(content::MetaLoadObject)];
-	};
-
-	class WheelConstraintParams : public content::MetaLoadObject
-	{
-	public:
-		WheelConstraintParams();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x40 - sizeof(content::MetaLoadObject)];
 	};
 
 	class WorldTriggers : public content::MetaLoadObject
