@@ -1259,4 +1259,22 @@ namespace om
 	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadText(TextValue const*);
 	// FUNCTION: ENGINE 0x10AA8C60
 	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA2210
+	template CommandMember1<DynamicProperty<unsigned char>,DynamicProperty<unsigned char>,void,unsigned char>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2290
+	template CommandMember1<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,void,unsigned short>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2310
+	template CommandMember1<DynamicProperty<unsigned int>,DynamicProperty<unsigned int>,void,unsigned int>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2420
+	template CommandMember1<DynamicProperty<char>,DynamicProperty<char>,void,char>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA24A0
+	template CommandMember1<DynamicProperty<short>,DynamicProperty<short>,void,short>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2520
+	template CommandMember1<DynamicProperty<int>,DynamicProperty<int>,void,int>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA0B40
+	template Command1<void,char>::~Command1();
+	// FUNCTION: ENGINE 0x10AA1160
+	template Command1<void,short>::~Command1();
+	// FUNCTION: ENGINE 0x10AA1780
+	template Command1<void,int>::~Command1();
 }

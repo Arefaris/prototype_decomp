@@ -1,0 +1,71 @@
+// The description of the whole numbers and the other plain values the om library reflects (0x10AA2770 - 0x10AA2E90): the
+// functions that make one description when there is none yet and let go of a user of it, per type, in the order the
+// compiler emitted them (a guess: the translation unit of the dynamic properties).
+#include "code/om/dynamicproperty.h"
+#include "code/om/metaproperty.h"
+#include "code/om/metasimpletype.h"
+#include "code/om/vector.h"
+
+#pragma warning(disable: 4661)
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x10AA2770
+	template void MetaSimpleType<unsigned char>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA27D0
+	template void MetaSimpleType<unsigned char>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2800
+	template void MetaSimpleType<unsigned short>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2860
+	template void MetaSimpleType<unsigned short>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2890
+	template void MetaSimpleType<unsigned int>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA28F0
+	template void MetaSimpleType<unsigned int>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2920
+	template void MetaSimpleType<unsigned __int64>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2980
+	template void MetaSimpleType<unsigned __int64>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA29B0
+	template void MetaSimpleType<char>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2A10
+	template void MetaSimpleType<char>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2A40
+	template void MetaSimpleType<short>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2AA0
+	template void MetaSimpleType<short>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2AD0
+	template void MetaSimpleType<int>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2B30
+	template void MetaSimpleType<int>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2B60
+	template void MetaSimpleType<__int64>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2BC0
+	template void MetaSimpleType<__int64>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2BF0
+	template void MetaSimpleType<float>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2C50
+	template void MetaSimpleType<float>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2C80
+	template void MetaSimpleType<bool>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2CE0
+	template void MetaSimpleType<bool>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2D10
+	template void MetaSimpleType<String>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2D70
+	template void MetaSimpleType<String>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2DA0
+	template void MetaSimpleType<Vector>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2E00
+	template void MetaSimpleType<Vector>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2F00
+	template void MetaSimpleType<ClassName>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA2F60
+	template void MetaSimpleType<ClassName>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA2F90
+	template bool MetaSimpleType<ClassName>::ReadBinary(BinaryStream*, void*);
+	// FUNCTION: ENGINE 0x10AA2FB0
+	template bool MetaSimpleType<ClassName>::WriteBinary(BinaryStream*, void const*);
+	// FUNCTION: ENGINE 0x10AA6EF0
+	template bool MetaSimpleType<ClassName>::ReadText(TextValue const*, void*);
+}
