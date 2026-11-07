@@ -45,7 +45,6 @@ namespace engine
 		void SetHandle(unsigned int index, GameObjectHandle handle);
 
 		GameObjectHandle handles[HANDLE_COUNT];
-		int unknown1C;
 	};
 
 	struct NullMessage : ScenarioMessage
@@ -93,6 +92,7 @@ namespace engine
 		}
 
 		static ScenarioHandleInfo sHandleInfo;
+		int unknown1C;
 		core::Name<core::CaseSensitiveKey> string;
 	};
 
@@ -123,6 +123,7 @@ namespace engine
 		}
 
 		static ScenarioHandleInfo sHandleInfo;
+		int unknown1C;
 		core::Name<core::CaseSensitiveKey> extraString;
 	};
 
@@ -145,6 +146,7 @@ namespace engine
 		}
 
 		static ScenarioHandleInfo sHandleInfo;
+		int unknown1C;
 		core::Name<core::CaseSensitiveKey> extraString;
 	};
 
@@ -184,6 +186,7 @@ namespace engine
 		}
 
 		static ScenarioHandleInfo sHandleInfo;
+		int unknown1C;
 		core::Name<core::CaseSensitiveKey> newState;
 	};
 
@@ -204,6 +207,7 @@ namespace engine
 		} \
 \
 		static ScenarioHandleInfo sHandleInfo; \
+		int unknown1C; \
 		core::Name<core::CaseSensitiveKey> name; \
 	};
 

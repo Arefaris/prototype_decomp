@@ -7134,3 +7134,25 @@ Reconstructed (all 100 % unless noted):
 - Not done: the large update and message functions (they need the AI, navmesh and movement classes no unit names yet), the path following code, TunnelVolume (the box is built from a `Matrix3` temporary; its slots 3 and 4 use a manager global),
   WorldTriggers (enumeration of the trigger type), AiTree, Bloodtox (its base `TriggerBehaviour` is a stub), Disguise, Driver and Perception (enumerations, `Name` statics, `ArrayDynamic` of structs with enumerations), the movement
   behaviours (the base `MovementBehaviour` is a stub with 15 slots and a 0x1D0 byte constructor), EmotionalState (a file static `Name` copied by the constructor), LODAI, PatrolPoint / PatrolPath (`StringC<64>` members).
+## proto scenario messages, music and fade behaviours, script wrappers: the range 0x10480000 - 0x104A0000 (sn-cb)
+The range holds, in this order: the save game manager (0x1047FEE0 - 0x10488xxx: its script natives `sgm_*`, the game database helper strings), the scenario messages of the proto layer (Lua serialisation `WriteFields`, `Clone`, copy
+constructors, the editor registration of the message kinds, 0x1048B890 - 0x10493xxx), the scenario manager's script wrappers (0x10489C70 - 0x1048B3B0), the state machine natives and messages (0x10493xxx - 0x10495xxx),
+`ScenarioStateMachineBehaviour` (0x10495xxx - 0x10497xxx), the fade and fade out behaviours (0x10497550 - 0x10498200), `LifetimeManager` (0x10498E70 - 0x1049A990), `MusicTreeBehaviour` (0x1049ACB0 - 0x1049AF60) and the
+dialogue resolvers / sound manager (0x1049B130 - 0x104A0000). No assert path names a unit; the file names are guesses. Written (functions match unless noted):
+- `proto/scenariomessages.cpp/.h` (new): the 65 scenario messages derived from `engine::ScenarioMessage` (`Clone` as the copy constructor placed in caller memory, `WriteFields` / `WriteEvent`, the registration instances
+  `engine::scenario::RegisterMessageKind<T>` and the registration function 0x1048FCE0, which an earlier pass had named `RegisterAt1048FCE0Factories(fight::TrackRegistry*)`: it ignores its argument). The `sHandleInfo` statics
+  are the engine's (symbols.txt, 0x14 bytes each), the explicit `Clone` of `ObjectZeroHealthMessage` / `ObjectOffscreenDespawnMessage` constructs from the handles. `WriteFields` of `DestinationReachedMessage`
+  (reads the AI system), `StateMachineStateChangedMessage` (a state object whose name is at +8) and `SquadSpawnedScenarioMessage` (sends a `SetIsInConstructionSquadMsg`) are left to the engine. The word at +0x1C
+  is no member of the base class (the engine's copy constructors do not copy it); a class with a name behind the handles puts its name at +0x20 (the engine's names are 8-aligned), so those classes declare a pad word and
+  a copy constructor that leaves it out, and a bool / int in front of a name leaves a pad word too (`BaseOrHiveScenarioMessage`).
+- `proto/behaviours/musictreebehaviour.cpp` (all but `Update`, NONMATCHING, 53.7 %: registers of the branch, its vftable slot and the parameters), `fadebehaviour.cpp` (`FadeBehaviour`, `FadeoutBehaviour`,
+  `FadeoutBehaviourProperties`: reflection, `OnMessage`, `Slot1`, destructor; NONMATCHING are the two constructors that store the vftable in the middle of the member stores (the known shrink-wrap / vftable scheduling
+  question) and `FadeBehaviour::Update` (95.4 %: the store of the opacity moves behind the compare); `FadeoutBehaviour::Update` (physics object test) is not done).
+- `proto/scenarioscriptfunctions.cpp` (the `Function3 / Function1` instances and one-argument registrations of this unit) and `scenariomanagerwrappers.cpp` (`Method` / `Closure` / `RegisterMethod` instances for
+  `proto::scenario::ScenarioManager`, a class without vftable that only the script natives' signatures name).
+- Shared header changes: `engine/scenariomessage.h` (`ScenarioMessage` lost its word `unknown1C`; `StringMessage`, the trigger messages, `ObjectStateChangedMessage` and the named messages declare it themselves in front
+  of their name), `proto/collectiblebehaviour.h` (the two collectible messages declare their type word and the handle info). The two scalar deleting destructors of `ObjectConsumedMessage` / `DisguiseChangedMessage`
+  (0x100AB500, 0x1007F8B0) call the name's destructor out of line in the engine and are not mapped.
+- Not done: the save game manager (its base `engine::GameDataBaseClient` is not recovered, so the 12 `Method` / `Closure` instances of `sgm_*` wait for it), `ScenarioStateMachineBehaviour` (reflection with a fight branch
+  reference), `LifetimeManager`, the state machine and spawner messages (deleting destructors only), the dialogue resolvers (`engine::AudioDialogueResolver` and its three tiny virtual slots, `proto::SoundDialogueResolver`),
+  `proto::SoundManager`'s script wrappers and the big update functions.

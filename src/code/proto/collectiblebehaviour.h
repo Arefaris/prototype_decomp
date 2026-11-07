@@ -84,6 +84,14 @@ namespace proto
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+
+		int unknown1C;  // +0x1C: the type
 		core::Name<core::CaseSensitiveKey> name;  // +0x20
 	};
 
@@ -96,6 +104,14 @@ namespace proto
 		virtual ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+
+		int unknown1C;  // +0x1C: the type
 		core::Name<core::CaseSensitiveKey> name;  // +0x20
 	};
 
