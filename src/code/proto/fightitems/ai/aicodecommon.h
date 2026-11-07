@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AICODECOMMON_H
 
 #include "code/core/name.h"
+#include "code/math/vector.h"
 
 namespace choreo
 {
