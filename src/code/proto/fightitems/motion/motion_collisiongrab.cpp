@@ -269,6 +269,18 @@ namespace proto
 				return new CollisionGrabAction(listener, this, owner, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100A7080
+			void CollisionGrabAction::Slot6()
+			{
+				CollisionAction::Slot6();
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					OutOfCombatTimerSetMessage message(0.0f);
+					object->SendMessage(&message);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x100A7250
 			int CollisionGrabAction::GetCollideWith()
 			{
@@ -446,3 +458,6 @@ namespace proto
 // FUNCTION: ENGINE 0x100A6E10
 // FUNCTION: ENGINE 0x100A7220
 // FUNCTION: ENGINE 0x100A6BB0
+// FUNCTION: ENGINE 0x100A6CE0
+// FUNCTION: ENGINE 0x100A6CF0
+// FUNCTION: ENGINE 0x100A6D20

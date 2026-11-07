@@ -98995,3 +98995,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?Get@?$Link@VConsumeTrack@motion@fightitems@proto@@@core@@QBEPAVConsumeTrack@motion@fightitems@proto@@XZ = 0x100AB230 ; function size:0x3 | core::Link<proto::fightitems::motion::ConsumeTrack>::Get (kept template or inline copy of this unit)
 ?Get@?$Link@VCollisionGrabTrack@motion@fightitems@proto@@@core@@QBEPAVCollisionGrabTrack@motion@fightitems@proto@@XZ = 0x100A6BB0 ; function size:0x3 | core::Link<proto::fightitems::motion::CollisionGrabTrack>::Get (kept template or inline copy of this unit)
 ?Get@?$Link@VDetectTrack@motion@fightitems@proto@@@core@@QBEPAVDetectTrack@motion@fightitems@proto@@XZ = 0x100B17B0 ; function size:0x3 | core::Link<proto::fightitems::motion::DetectTrack>::Get (kept template or inline copy of this unit)
+??_7OutOfCombatTimerSetMessage@proto@@6B@ = 0x10D9D370 ; data size:0x4 | proto::OutOfCombatTimerSetMessage vftable
+??_GOutOfCombatTimerSetMessage@proto@@UAEPAXI@Z = 0x100A6D20 ; function size:0x1F | proto::OutOfCombatTimerSetMessage::`scalar deleting destructor' vftable slot 0
+??_R0?AVOutOfCombatTimerSetMessage@proto@@@8 = 0x10FF1448 ; data size:0x8 | proto::OutOfCombatTimerSetMessage RTTI type descriptor
+??1OutOfCombatTimerSetMessage@proto@@UAE@XZ = 0x100A6CE0 ; function size:0x7 | proto::OutOfCombatTimerSetMessage::~OutOfCombatTimerSetMessage (kept template or inline copy of this unit)

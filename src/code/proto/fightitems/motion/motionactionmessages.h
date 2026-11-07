@@ -10,6 +10,7 @@
 #include "code/container/string.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/proto/fightitems/motion/motionmessages2.h"
 
 namespace engine
 {
@@ -96,18 +97,6 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> scenarioMessage;  // +0x10
 	};
 
-	// RTTI: proto::GrabbableMessage: the base of the messages about grabbable and consumable objects (message type 0x3C)
-	class GrabbableMessage : public engine::IntrusiveMessage
-	{
-	public:
-		explicit GrabbableMessage(short newId) : engine::IntrusiveMessage(0x3c, newId)
-		{
-		}
-		virtual ~GrabbableMessage()
-		{
-		}
-	};
-
 	// RTTI: proto::AttemptGrabMessage: asks an object whether it can be grabbed by another (the object answers in grabbed)
 	class AttemptGrabMessage : public GrabbableMessage
 	{
@@ -138,6 +127,18 @@ namespace proto
 
 		engine::GameObjectHandle originator;  // +0xC
 		engine::GameObjectHandle unknown10;  // +0x10
+	};
+
+	// RTTI: proto::OutOfCombatTimerSetMessage: sets the out of combat time of the object
+	class OutOfCombatTimerSetMessage : public OutOfCombatTimerMessage
+	{
+	public:
+		explicit OutOfCombatTimerSetMessage(float newTime) : OutOfCombatTimerMessage(7, newTime)
+		{
+		}
+		virtual ~OutOfCombatTimerSetMessage()
+		{
+		}
 	};
 
 	// RTTI: proto::QueryConsumeAnimationFinishedMessage: the object answers whether its consume animation has finished
