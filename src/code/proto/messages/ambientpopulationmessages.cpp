@@ -48,7 +48,7 @@ namespace
 
 	void EmitThreatInitializeMessage(core::Name<core::CaseSensitiveKey> name)
 	{
-		proto::ThreatInitializeMessage message(0.0f, name, 0, 0, 0, 0);
+		proto::ThreatInitializeMessage message(0.0f, name, engine::HandleBase(), engine::HandleBase(), 0, 0);
 	}
 }
 

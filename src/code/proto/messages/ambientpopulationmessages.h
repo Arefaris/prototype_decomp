@@ -145,9 +145,9 @@ namespace proto
 	// Type 0x28, id 3: sets a threat up
 	struct ThreatInitializeMessage : public engine::IntrusiveMessage
 	{
-		ThreatInitializeMessage(float newTime, core::Name<core::CaseSensitiveKey> newName, int newValue, int newOther,
-			fight::Branch* newBranch, int newLast) : engine::IntrusiveMessage(0x28, 3), time(newTime), name(newName),
-			value(newValue), other(newOther), branch(newBranch), last(newLast)
+		ThreatInitializeMessage(float newTime, core::Name<core::CaseSensitiveKey> newName, engine::HandleBase newFirst,
+			engine::HandleBase newSecond, fight::Branch* newBranch, int newLast) : engine::IntrusiveMessage(0x28, 3),
+			time(newTime), name(newName), first(newFirst), second(newSecond), branch(newBranch), last(newLast)
 		{
 		}
 		virtual ~ThreatInitializeMessage()
@@ -156,8 +156,8 @@ namespace proto
 
 		float time;  // +0xC
 		core::Name<core::CaseSensitiveKey> name;  // +0x10
-		int value;  // +0x18
-		int other;  // +0x1C
+		engine::HandleBase first;  // +0x18
+		engine::HandleBase second;  // +0x1C
 		fight::Branch* branch;  // +0x20
 		int last;  // +0x24
 	};

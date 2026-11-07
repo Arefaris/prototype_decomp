@@ -1,5 +1,7 @@
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/messages/ambientpopulationmessages.h"
 
 namespace proto
 {
@@ -74,6 +76,40 @@ namespace proto
 	// FUNCTION: ENGINE 0x10407900
 	ThreatBehaviour::~ThreatBehaviour()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10407C60
+	void ThreatBehaviour::OnMessage(engine::Message* message)
+	{
+		if (message->type == 0x28)
+		{
+			switch ((unsigned short)message->id)
+			{
+			case 2:
+				return;
+			case 4:
+				{
+					ThreatGetInfoMessage* info = (ThreatGetInfoMessage*)message;
+					info->owner = static_cast<engine::GameObjectHandle&>(unknown20);
+					info->target = static_cast<engine::GameObjectHandle&>(unknown24);
+					info->name = unknown18;
+					info->unknown20 = (int)branch.branch;
+					info->unknown24 = unknown34;
+				}
+				return;
+			case 3:
+				{
+					ThreatInitializeMessage* init = (ThreatInitializeMessage*)message;
+					unknown20 = init->first;
+					expiryTime = init->time;
+					unknown18 = init->name;
+					unknown34 = init->last;
+					unknown24 = init->second;
+					branch.Assign(init->branch);
+				}
+				break;
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x104079F0
