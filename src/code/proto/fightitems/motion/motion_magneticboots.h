@@ -596,7 +596,9 @@ namespace proto
 			{
 			public:
 				// 0x100EC4E0 (the deleting destructor 0x100EC4F0 is slot 2)
-				virtual ~MagneticBootsParams();
+				virtual ~MagneticBootsParams()
+				{
+				}
 				// vftable slot 3 (0x100EC4A0): the kind of event (name guess)
 				virtual int GetKind();
 			};

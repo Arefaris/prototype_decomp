@@ -2196,11 +2196,6 @@ namespace proto
 				}
 			}
 
-			// FUNCTION: ENGINE 0x100EC4E0
-			MagneticBootsParams::~MagneticBootsParams()
-			{
-			}
-
 			// FUNCTION: ENGINE 0x100EC4A0
 			int MagneticBootsParams::GetKind()
 			{
