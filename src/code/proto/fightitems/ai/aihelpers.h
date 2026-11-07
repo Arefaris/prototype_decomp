@@ -9,6 +9,7 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/proto/combatbudgetmanager.h"
+#include "code/proto/soldierbudgets.h"
 
 namespace proto
 {
@@ -20,16 +21,6 @@ namespace proto
 
 	// 0x103C4A00: how many objects of a tag are around (name guess)
 	int Unknown103C4A00(const fight::Name* tag, int limit, ByteFlag tryDespawnIfFull, float minDespawnDistance, float objRadius);
-
-	// The soldier budgets (gAISystem +0x10; name guess)
-	class SoldierBudgets
-	{
-	public:
-		// 0x103866C0: whether the object is in a loaded cell (name guess)
-		bool Unknown103866C0(engine::GameObjectHandle handle);
-		// 0x10386810: whether a soldier of a type may still be reserved for the object (name guess)
-		bool Unknown10386810(int type, engine::GameObjectHandle handle);
-	};
 
 	// The strafe run tokens (gAISystem +0x1C; name guess)
 	class StrafeRunTokens
