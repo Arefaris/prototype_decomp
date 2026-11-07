@@ -44,6 +44,26 @@ namespace proto
 			void RegisterReactionTargetGiverTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// 0x101092F0 / 0x10109330: this unit's copies of the helpers that store a reference counted object and release one (name guesses)
+			void AssignRefCountedTargetGiver(core::IRefCount** slot, core::IRefCount* value);
+			void SafeReleaseRefTargetGiver(core::IRefCount*& object);
+
+			// RTTI: proto::fightitems::motion::ReactionTargetGiverAction (9 vftable slots, 0x30 bytes): tells the object the giver of the reaction as its target
+			class ReactionTargetGiverAction : public fight::Action
+			{
+			public:
+				// 0x10109520
+				ReactionTargetGiverAction(ReactionTargetGiverTrack* newTrack, TrackOwner* owner);
+				// 0x101093E0
+				virtual ~ReactionTargetGiverAction();
+
+				// vftable slot 5 (0x10109420, the engine's)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::IRefCount* event;  // +0x20
+				core::Link<ReactionTargetGiverTrack> link;  // +0x24
+			};
 
 			// ---- actions end
 		}

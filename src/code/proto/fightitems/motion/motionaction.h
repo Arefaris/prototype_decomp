@@ -34,12 +34,16 @@ namespace engine
 	void AssignDriverCopy2(choreo::Driver*& driver, choreo::Driver* newDriver);
 	// 0x10095410: the same unit's copy for the second driver of the vertical aim strafe action
 	void ReleaseDriverCopy5(choreo::Driver*& driver);
+	// 0x10098FD0: another copy of AssignRefCounted (name guess)
+	void AssignRefCountedCopy3(core::IRefCount** slot, core::IRefCount* value);
 	// 0x1011AAF0: the supporting limb unit's copy of AssignRefCounted
 	void AssignRefCountedCopy2(core::IRefCount** slot, core::IRefCount* value);
 }
 
 namespace core
 {
+	// 0x10099010: another copy of SafeReleaseRef, taking the address of the pointer (name guess)
+	void SafeReleaseRefCopy3(IRefCount** object);
 	// 0x1011AB30: the supporting limb unit's copy of SafeReleaseRef
 	void SafeReleaseRefCopy2(IRefCount*& object);
 }
@@ -76,6 +80,18 @@ namespace proto
 				}
 				int ownerKind = (int)trackOwner->kind;
 				return (ownerKind >= 0x10000 && ownerKind < 0x30000) ? trackOwner : 0;
+			}
+
+			// The owner of a reaction action as its constructor keeps it: null when the owner is none or not a reaction event (kinds
+			// 0x21000 - 0x21005)
+			inline TrackOwner* AsReactionEventOwner(TrackOwner* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				int ownerKind = (int)owner->kind;
+				return (ownerKind >= 0x21000 && ownerKind < 0x21006) ? owner : 0;
 			}
 
 			// The owner the sequencer hands a condition in its third argument

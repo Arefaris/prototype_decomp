@@ -108,6 +108,22 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10115D90
+			SlaveTransformAction::SlaveTransformAction(SlaveTransformTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), link(newTrack), target(engine::GetObjectHandle(owner)), master(engine::FindGameObject(newTrack->masterObject, *(const content::ObjectName*)""))
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10115CF0
+			SlaveTransformAction::~SlaveTransformAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10116020
+			fight::Action* SlaveTransformTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new SlaveTransformAction(this, actionOwner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<SlaveTransformTrack>;

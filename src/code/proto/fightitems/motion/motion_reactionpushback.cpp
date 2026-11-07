@@ -268,6 +268,86 @@ namespace proto
 			}
 
 			// ---- actions begin
+			static inline engine::GameObjectHandle HandleOf(TrackOwner* owner)
+			{
+				return owner->handle;
+			}
+
+			// FUNCTION: ENGINE 0x10108900
+			// NONMATCHING: registers: the engine keeps the owner in ebx and the zero in ebp, ours the other way round (best 32 %)
+#ifdef NONMATCHING
+			ReactionPushbackAction::ReactionPushbackAction(ReactionPushbackTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), unknown1C(0.0f), target(HandleOf(owner)), event(0), unknown28(0.0f), unknown2C(0.0f), unknown30(0.0f), unknown34(0.0f), driver(0), unknown3C(0.0f), link(newTrack), unknown4C(0.0f)
+			{
+				engine::AssignRefCountedCopy3(&event, (owner->kind == 0x21001) ? owner : 0);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10108680
+			ReactionPushbackAction::~ReactionPushbackAction()
+			{
+				core::SafeReleaseRefCopy3(&event);
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x101086D0
+			void ReactionPushbackAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10109230
+			fight::Action* ReactionPushbackTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ReactionPushbackAction(this, actionOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10109000
+			// NONMATCHING: the engine masks the owner into eax, ours into edx (best 98 %)
+#ifdef NONMATCHING
+			ReactionPushbackOrientAction::ReactionPushbackOrientAction(ReactionPushbackOrientTrack* newTrack, TrackOwner* owner) : fight::Action(0x600), link(newTrack), target(HandleOf(owner)), event(0), driver(0)
+			{
+				engine::AssignRefCountedCopy3(&event, (owner->kind == 0x21001) ? owner : 0);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10108760
+			ReactionPushbackOrientAction::~ReactionPushbackOrientAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+				core::SafeReleaseRefCopy3(&event);
+			}
+
+			// FUNCTION: ENGINE 0x101087B0
+			void ReactionPushbackOrientAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10109290
+			fight::Action* ReactionPushbackOrientTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ReactionPushbackOrientAction(this, actionOwner);
+			}
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ReactionPushbackOrientTrack>;
