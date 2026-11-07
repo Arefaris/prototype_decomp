@@ -350,6 +350,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gFactionTypeConditionFactionTypeTable[3] =
+				{
+					{ fight::Name("military", 0) },
+					{ fight::Name("infected", 0) },
+					{ fight::Name("powered", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DD00
+// FUNCTION: ENGINE 0x10D81480
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1015D870
 // FUNCTION: ENGINE 0x1015D950

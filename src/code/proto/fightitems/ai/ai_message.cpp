@@ -417,6 +417,30 @@ template core::Link<proto::fightitems::ai::BlindTrack>::~Link();
 template proto::fightitems::ai::BlindTrack* core::Link<proto::fightitems::ai::BlindTrack>::Get() const;
 template core::Link<proto::fightitems::ai::BlindTrack>::Link(proto::fightitems::ai::BlindTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gPeriodicMessageTrackTakerTable[6] =
+				{
+					{ fight::Name("None", 0) },
+					{ fight::Name("Target", 0) },
+					{ fight::Name("Holding", 0) },
+					{ fight::Name("AttachedTo", 0) },
+					{ fight::Name("Me", 0) },
+					{ fight::Name("GrabSlot", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51530
+// FUNCTION: ENGINE 0x10D82060
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101FE010
 // FUNCTION: ENGINE 0x1023AB30

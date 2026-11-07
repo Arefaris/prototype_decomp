@@ -787,7 +787,31 @@ namespace engine
 namespace proto
 {
 	// The table of the event mask bits the 'onEvent' tracks of the game know (0x11253498, 0x16 entries, the count at 0x10D98E90)
-	extern fight::EnumEntry gFightEventMasks[];
+	fight::EnumEntry gFightEventMasks[22] =
+		{
+			{ fight::Name("Input", 0) },
+			{ fight::Name("SupportingSurface", 0) },
+			{ fight::Name("Health", 0) },
+			{ fight::Name("Attachment", 0) },
+			{ fight::Name("Playback", 0) },
+			{ fight::Name("LOD", 0) },
+			{ fight::Name("Target", 0) },
+			{ fight::Name("Autonomous", 0) },
+			{ fight::Name("Task", 0) },
+			{ fight::Name("Goal", 0) },
+			{ fight::Name("Variable", 0) },
+			{ fight::Name("Patsy", 0) },
+			{ fight::Name("Threat", 0) },
+			{ fight::Name("DriverState", 0) },
+			{ fight::Name("InfectedLevel", 0) },
+			{ fight::Name("Pedestrian", 0) },
+			{ fight::Name("Charge", 0) },
+			{ fight::Name("Reaction", 0) },
+			{ fight::Name("MotionState", 0) },
+			{ fight::Name("AIEvent", 0) },
+			{ fight::Name("Movement", 0) },
+			{ fight::Name("HunterCorner", 0) }
+		};
 	extern const int gFightEventMaskCount;
 	// The script hook the game replaces (0x11253570 / 0x11253574) and its replacement (0x100912C0)
 	extern engine::ScriptHook gPreviousScriptHook;
@@ -1744,3 +1768,7 @@ namespace proto
 		FinishFightContexts();
 	}
 }
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4D350
+// FUNCTION: ENGINE 0x10D81260

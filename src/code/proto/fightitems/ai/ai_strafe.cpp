@@ -1745,6 +1745,26 @@ template core::Link<proto::fightitems::ai::PrepareTightStrafeRunTrack>::Link(pro
 template proto::fightitems::ai::TryOpenStrafeRunTrack* core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Get() const;
 template core::Link<proto::fightitems::ai::TryOpenStrafeRunTrack>::Link(proto::fightitems::ai::TryOpenStrafeRunTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gStrafeRunTrackHeuristicTable[2] =
+				{
+					{ fight::Name("onlyValid", 0) },
+					{ fight::Name("lowest", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D51B00
+// FUNCTION: ENGINE 0x10D821B0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1020C010
 // FUNCTION: ENGINE 0x1024BFB0

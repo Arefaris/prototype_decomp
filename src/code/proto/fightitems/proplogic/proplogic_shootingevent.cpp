@@ -85,6 +85,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace proplogic
+		{
+			fight::EnumEntry gShootingEventConditionEventTable[4] =
+				{
+					{ fight::Name("ShootBegin", 0) },
+					{ fight::Name("ShootEnd", 0) },
+					{ fight::Name("ShotFired", 0) },
+					{ fight::Name("ClipEmpty", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52020
+// FUNCTION: ENGINE 0x10D822F0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1025ECD0
 // FUNCTION: ENGINE 0x1025ED00

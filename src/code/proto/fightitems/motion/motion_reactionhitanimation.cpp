@@ -217,6 +217,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gReactionHitAnimationTrackCyclicTable[4] =
+				{
+					{ fight::Name("From Animation", 0) },
+					{ fight::Name("Not Cyclic", 0) },
+					{ fight::Name("Cyclic", 0) },
+					{ fight::Name("Hold End Frame", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FE70
+// FUNCTION: ENGINE 0x10D81C10
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A97C0
 // FUNCTION: ENGINE 0x101A97D0

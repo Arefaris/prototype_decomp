@@ -222,6 +222,48 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace alert
+		{
+			fight::EnumEntry gDisguiseReactionConditionReactionTable[24] =
+				{
+					{ fight::Name("Idle", 0) },
+					{ fight::Name("Commanding", 0) },
+					{ fight::Name("Confused", 0) },
+					{ fight::Name("Suspicious", 0) },
+					{ fight::Name("BeginCombat", 0) },
+					{ fight::Name("Angry", 0) },
+					{ fight::Name("Alert", 0) },
+					{ fight::Name("Pursuit", 0) },
+					{ fight::Name("LostHim", 0) },
+					{ fight::Name("Recognition", 0) },
+					{ fight::Name("Startled", 0) },
+					{ fight::Name("IndividualPursuit", 0) },
+					{ fight::Name("ReactingToPatsy", 0) },
+					{ fight::Name("BodyCheck", 0) },
+					{ fight::Name("AttackingPatsy", 0) },
+					{ fight::Name("Disoriented", 0) },
+					{ fight::Name("NotFooled", 0) },
+					{ fight::Name("Curious", 0) },
+					{ fight::Name("Admiring", 0) },
+					{ fight::Name("DenyPatsy", 0) },
+					{ fight::Name("RecognitionPursuit", 0) },
+					{ fight::Name("RecognitionIndividualPursuit", 0) },
+					{ fight::Name("FriendlyFire", 0) },
+					{ fight::Name("CivilianFire", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D524F0
+// FUNCTION: ENGINE 0x10D82430
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10269D70
 // FUNCTION: ENGINE 0x1026A250

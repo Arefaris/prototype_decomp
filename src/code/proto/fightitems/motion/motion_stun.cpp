@@ -208,6 +208,35 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gStunTrackOnBeginTable[3] =
+				{
+					{ fight::Name("Do nothing", 0) },
+					{ fight::Name("Stun", 0) },
+					{ fight::Name("Recover", 0) }
+				};
+			fight::EnumEntry gStunTrackOnEndTable[3] =
+				{
+					{ fight::Name("Restore to previous", 0) },
+					{ fight::Name("Stun", 0) },
+					{ fight::Name("Recover", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4F0E0
+// FUNCTION: ENGINE 0x10D4F130
+// FUNCTION: ENGINE 0x10D81870
+// FUNCTION: ENGINE 0x10D81880
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10119F60
 // FUNCTION: ENGINE 0x10119F70

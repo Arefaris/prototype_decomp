@@ -241,6 +241,36 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gEffectConsumeTrackConsumeModeTable[3] =
+				{
+					{ fight::Name("Forward", 0) },
+					{ fight::Name("ForwardBackward", 0) },
+					{ fight::Name("Backward", 0) }
+				};
+			fight::EnumEntry gEffectConsumeTrackRevealModeTable[4] =
+				{
+					{ fight::Name("None", 0) },
+					{ fight::Name("Solid", 0) },
+					{ fight::Name("Fade In", 0) },
+					{ fight::Name("Fade Out", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DC10
+// FUNCTION: ENGINE 0x10D4DC60
+// FUNCTION: ENGINE 0x10D81450
+// FUNCTION: ENGINE 0x10D81460
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1015CE00
 // FUNCTION: ENGINE 0x1015CE10

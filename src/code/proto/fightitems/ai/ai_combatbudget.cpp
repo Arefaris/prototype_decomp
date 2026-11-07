@@ -334,6 +334,28 @@ template core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::~Link
 template proto::fightitems::ai::RequestCombatBudgetTokenTrack* core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::Get() const;
 template core::Link<proto::fightitems::ai::RequestCombatBudgetTokenTrack>::Link(proto::fightitems::ai::RequestCombatBudgetTokenTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gHasCombatBudgetTokenConditionCombatTypeTable[4] =
+				{
+					{ fight::Name("Bullet", 0) },
+					{ fight::Name("Rocket", 0) },
+					{ fight::Name("Explosion", 0) },
+					{ fight::Name("Gib", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D506B0
+// FUNCTION: ENGINE 0x10D81E30
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E8470
 // FUNCTION: ENGINE 0x10226200

@@ -262,6 +262,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gPerceptionEventConditionEventTable[4] =
+				{
+					{ fight::Name("Confused", 0) },
+					{ fight::Name("KilledEnemy", 0) },
+					{ fight::Name("LostBait", 0) },
+					{ fight::Name("AcquiredBait", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D50E90
+// FUNCTION: ENGINE 0x10D81EA0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1022CD60
 // FUNCTION: ENGINE 0x1022CD90

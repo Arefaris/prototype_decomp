@@ -363,6 +363,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gFXLight_PointTrackEmitSpaceTable[2] =
+				{
+					{ fight::Name("Game Object Space", 0) },
+					{ fight::Name("World Space", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DE10
+// FUNCTION: ENGINE 0x10D814B0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100C1460
 // FUNCTION: ENGINE 0x10162F30

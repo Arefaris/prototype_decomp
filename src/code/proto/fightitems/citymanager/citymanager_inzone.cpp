@@ -73,6 +73,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace citymanager
+		{
+			fight::EnumEntry gInZoneConditionZoneTypeTable[3] =
+				{
+					{ fight::Name("military", 0) },
+					{ fight::Name("infected", 0) },
+					{ fight::Name("neutral ", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D529A0
+// FUNCTION: ENGINE 0x10D82510
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1027DE30
 // FUNCTION: ENGINE 0x1027DE60

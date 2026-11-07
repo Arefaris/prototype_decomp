@@ -1594,6 +1594,27 @@ template core::Link<proto::fightitems::ai::AddDiversionTrack>::Link(proto::fight
 template proto::fightitems::ai::DisguiseActionUsedTrack* core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Get() const;
 template core::Link<proto::fightitems::ai::DisguiseActionUsedTrack>::Link(proto::fightitems::ai::DisguiseActionUsedTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gIsDisguiseActionEnabledConditionActionTable[3] =
+				{
+					{ fight::Name("Patsy", 0) },
+					{ fight::Name("Air Strike", 0) },
+					{ fight::Name("Call Strike Team", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D50D70
+// FUNCTION: ENGINE 0x10D81E80
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101EA040
 // FUNCTION: ENGINE 0x101EA160

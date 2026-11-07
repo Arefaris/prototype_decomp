@@ -381,6 +381,26 @@ template core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::~Link();
 template proto::fightitems::ai::AiTreeEventSendTrack* core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::Get() const;
 template core::Link<proto::fightitems::ai::AiTreeEventSendTrack>::Link(proto::fightitems::ai::AiTreeEventSendTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gEventConditionWhenTable[2] =
+				{
+					{ fight::Name("OnEnter", 0) },
+					{ fight::Name("OnExit", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D50F90
+// FUNCTION: ENGINE 0x10D81EE0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F0C10
 // FUNCTION: ENGINE 0x1022FB50

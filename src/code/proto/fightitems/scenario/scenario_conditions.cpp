@@ -593,6 +593,27 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace scenario
+		{
+			fight::EnumEntry gTriggerVolumeEventConditionTypeTable[3] =
+				{
+					{ fight::Name("Either", 0) },
+					{ fight::Name("Enter", 0) },
+					{ fight::Name("Exit", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D50100
+// FUNCTION: ENGINE 0x10D81CE0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101DC200
 // FUNCTION: ENGINE 0x101DC230

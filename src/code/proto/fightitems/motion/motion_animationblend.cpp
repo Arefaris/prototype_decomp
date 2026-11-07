@@ -1640,6 +1640,69 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gAnimationBlendDirectionalTrackAnimNorthAllowedTransitionsTable[4] =
+				{
+					{ fight::Name("North", 0) },
+					{ fight::Name("East", 0) },
+					{ fight::Name("South", 0) },
+					{ fight::Name("West", 0) }
+				};
+			fight::EnumEntry gAnimationBlendVerticalAimTrackTargetingModeTable[4] =
+				{
+					{ fight::Name("Target", 0) },
+					{ fight::Name("TargetFeet", 0) },
+					{ fight::Name("Intention", 0) },
+					{ fight::Name("Motion", 0) }
+				};
+			fight::EnumEntry gAnimationBlendVerticalAimTrackCyclicTable[3] =
+				{
+					{ fight::Name("Not Cyclic", 0) },
+					{ fight::Name("Cyclic", 0) },
+					{ fight::Name("Hold End Frame", 0) }
+				};
+			fight::EnumEntry gAnimationBlendSimpleTrackCyclicTable[3] =
+				{
+					{ fight::Name("Not Cyclic", 0) },
+					{ fight::Name("Cyclic", 0) },
+					{ fight::Name("Hold End Frame", 0) }
+				};
+			fight::EnumEntry gAnimationBlendVerticalAimStrafeTrackCyclicTable[3] =
+				{
+					{ fight::Name("Not Cyclic", 0) },
+					{ fight::Name("Cyclic", 0) },
+					{ fight::Name("Hold End Frame", 0) }
+				};
+			fight::EnumEntry gAnimationBlendDirectionalTrackCyclicTable[3] =
+				{
+					{ fight::Name("Not Cyclic", 0) },
+					{ fight::Name("Cyclic", 0) },
+					{ fight::Name("Hold End Frame", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4D5A0
+// FUNCTION: ENGINE 0x10D4D610
+// FUNCTION: ENGINE 0x10D4FA80
+// FUNCTION: ENGINE 0x10D4FAD0
+// FUNCTION: ENGINE 0x10D4FB20
+// FUNCTION: ENGINE 0x10D4FBA0
+// FUNCTION: ENGINE 0x10D81290
+// FUNCTION: ENGINE 0x10D812A0
+// FUNCTION: ENGINE 0x10D81A20
+// FUNCTION: ENGINE 0x10D81A30
+// FUNCTION: ENGINE 0x10D81A40
+// FUNCTION: ENGINE 0x10D81A60
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1013DDA0
 // FUNCTION: ENGINE 0x1013DDB0

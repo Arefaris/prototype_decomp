@@ -2575,6 +2575,40 @@ template core::Link<proto::fightitems::ai::CombatDestinationTransmitTrack>::Link
 template proto::fightitems::ai::CombatDestinationFindTrack* core::Link<proto::fightitems::ai::CombatDestinationFindTrack>::Get() const;
 template core::Link<proto::fightitems::ai::CombatDestinationFindTrack>::Link(proto::fightitems::ai::CombatDestinationFindTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gHaveTokenConditionTypeTable[2] =
+				{
+					{ fight::Name("hunter", 0) },
+					{ fight::Name("fireClearRequest", 0) }
+				};
+			fight::EnumEntry gHaveTokenConditionOwnerTable[2] =
+				{
+					{ fight::Name("me", 0) },
+					{ fight::Name("anyone", 0) }
+				};
+			fight::EnumEntry gFacingAngleTargetConditionTypeTable[2] =
+				{
+					{ fight::Name("yaw", 0) },
+					{ fight::Name("pitch", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D50410
+// FUNCTION: ENGINE 0x10D50450
+// FUNCTION: ENGINE 0x10D50610
+// FUNCTION: ENGINE 0x10D81DB0
+// FUNCTION: ENGINE 0x10D81DC0
+// FUNCTION: ENGINE 0x10D81E00
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101E75B0
 // FUNCTION: ENGINE 0x101E7710

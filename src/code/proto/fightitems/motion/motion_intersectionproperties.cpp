@@ -93,6 +93,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gIntersectionPropertiesConditionTypeTable[2] =
+				{
+					{ fight::Name("ColliderType", 0) },
+					{ fight::Name("CollideWithType", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FDA0
+// FUNCTION: ENGINE 0x10D81B80
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101813F0
 // FUNCTION: ENGINE 0x10181420

@@ -1438,6 +1438,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gObstacleColliderTypeConditionCompareTable[2] =
+				{
+					{ fight::Name("Contains", 0) },
+					{ fight::Name("DoesNotContain", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FDE0
+// FUNCTION: ENGINE 0x10D81BC0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100F77F0
 // FUNCTION: ENGINE 0x100F8790

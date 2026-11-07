@@ -1480,6 +1480,26 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gSupportingLimbSurfaceIntersectionPropertiesConditionMatchAgainstTable[2] =
+				{
+					{ fight::Name("any", 0) },
+					{ fight::Name("all", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FEE0
+// FUNCTION: ENGINE 0x10D81C20
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1011AE00
 // FUNCTION: ENGINE 0x1011AE20

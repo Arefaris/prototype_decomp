@@ -434,6 +434,28 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gTemporaryTargetableTrackOnBeginTable[4] =
+				{
+					{ fight::Name("Don't Change", 0) },
+					{ fight::Name("Targetable", 0) },
+					{ fight::Name("Non Targetable", 0) },
+					{ fight::Name("Restore", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4F240
+// FUNCTION: ENGINE 0x10D818D0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1011EE40
 // FUNCTION: ENGINE 0x1011EE70

@@ -1668,6 +1668,61 @@ template core::Link<proto::fightitems::ai::CharacterizeTrack>::Link(proto::fight
 template proto::fightitems::ai::CharacterizeFromReservedTrack* core::Link<proto::fightitems::ai::CharacterizeFromReservedTrack>::Get() const;
 template core::Link<proto::fightitems::ai::CharacterizeFromReservedTrack>::Link(proto::fightitems::ai::CharacterizeFromReservedTrack*);
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace ai
+		{
+			fight::EnumEntry gEnableLODPatrolTrackActionOnBeginTable[3] =
+				{
+					{ fight::Name("Do nothing", 0) },
+					{ fight::Name("Enable patrol", 0) },
+					{ fight::Name("Disable patrol", 0) }
+				};
+			fight::EnumEntry gEnableLODPatrolTrackActionOnEndTable[4] =
+				{
+					{ fight::Name("Do nothing", 0) },
+					{ fight::Name("Restore to previous", 0) },
+					{ fight::Name("Enable patrol", 0) },
+					{ fight::Name("Disable patrol", 0) }
+				};
+			fight::EnumEntry gNPCLODConditionValueTable[3] =
+				{
+					{ fight::Name("Frozen", 0) },
+					{ fight::Name("Active", 0) },
+					{ fight::Name("LOD2", 0) }
+				};
+			fight::EnumEntry gLodSteerTrackWalkanimTable[12] =
+				{
+					{ fight::Name("PPS_NONE", 0) },
+					{ fight::Name("PPS_STANDING", 0) },
+					{ fight::Name("PPS_WALKING", 0) },
+					{ fight::Name("PPS_RUNNING", 0) },
+					{ fight::Name("PPS_FLOAT", 0) },
+					{ fight::Name("PPS_DEAD", 0) },
+					{ fight::Name("PPS_COWER", 0) },
+					{ fight::Name("PPS_LOWMORALEWALKING", 0) },
+					{ fight::Name("PPS_LOWMORALERUNNING", 0) },
+					{ fight::Name("PPS_LOWMORALESTANDING", 0) },
+					{ fight::Name("PPS_SPAWN_DEAD", 0) },
+					{ fight::Name("PPS_RUBBERNECKING", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D513C0
+// FUNCTION: ENGINE 0x10D51410
+// FUNCTION: ENGINE 0x10D51480
+// FUNCTION: ENGINE 0x10D55BC0
+// FUNCTION: ENGINE 0x10D82010
+// FUNCTION: ENGINE 0x10D82020
+// FUNCTION: ENGINE 0x10D82030
+// FUNCTION: ENGINE 0x10D832A0
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101FB9A0
 // FUNCTION: ENGINE 0x101FBAB0

@@ -312,6 +312,34 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace render
+		{
+			fight::EnumEntry gFogTrackEmitSpaceTable[2] =
+				{
+					{ fight::Name("World Space", 0) },
+					{ fight::Name("Game Object Space", 0) }
+				};
+			fight::EnumEntry gFogTrackFadingFunctionTable[3] =
+				{
+					{ fight::Name("Linear", 0) },
+					{ fight::Name("Exponential", 0) },
+					{ fight::Name("Logarithmic", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D52090
+// FUNCTION: ENGINE 0x10D520D0
+// FUNCTION: ENGINE 0x10D82320
+// FUNCTION: ENGINE 0x10D82330
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10263600
 // FUNCTION: ENGINE 0x10263610

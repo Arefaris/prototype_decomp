@@ -993,6 +993,45 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gGroundSpikeTestStateConditionTestTypeTable[9] =
+				{
+					{ fight::Name("Offshoots active", 0) },
+					{ fight::Name("Offshoots inactive", 0) },
+					{ fight::Name("Cluster active", 0) },
+					{ fight::Name("Cluster inactive", 0) },
+					{ fight::Name("Cluster motion complete", 0) },
+					{ fight::Name("Cluster motion incomplete", 0) },
+					{ fight::Name("All spawned motion complete", 0) },
+					{ fight::Name("All spawned motion incomplete", 0) },
+					{ fight::Name("Descending", 0) }
+				};
+			fight::EnumEntry gGroundSpikeAnimateClusterRadiiTrackSpawnRadiusVelocityTypeTable[7] =
+				{
+					{ fight::Name("Linear", 0) },
+					{ fight::Name("Accelerate", 0) },
+					{ fight::Name("Accelerate exponential", 0) },
+					{ fight::Name("Decelerate", 0) },
+					{ fight::Name("Decelerate exponential", 0) },
+					{ fight::Name("Acc/Dec", 0) },
+					{ fight::Name("Acc/Dec exponential", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4DF80
+// FUNCTION: ENGINE 0x10D4E050
+// FUNCTION: ENGINE 0x10D81510
+// FUNCTION: ENGINE 0x10D81520
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100CF190
 // FUNCTION: ENGINE 0x100CF1B0

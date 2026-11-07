@@ -194,6 +194,42 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			fight::EnumEntry gEffectChameleonicSkinTrackActionOnBeginTable[3] =
+				{
+					{ fight::Name("Enable", 0) },
+					{ fight::Name("Disable", 0) },
+					{ fight::Name("None", 0) }
+				};
+			fight::EnumEntry gEffectChameleonicSkinTrackActionOnEndTable[3] =
+				{
+					{ fight::Name("Enable", 0) },
+					{ fight::Name("Disable", 0) },
+					{ fight::Name("None", 0) }
+				};
+			fight::EnumEntry gEffectChameleonicSkinTrackColourTypeTable[2] =
+				{
+					{ fight::Name("Prototype", 0) },
+					{ fight::Name("Infected", 0) }
+				};
+		}
+	}
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D4FC80
+// FUNCTION: ENGINE 0x10D4FCD0
+// FUNCTION: ENGINE 0x10D4FD20
+// FUNCTION: ENGINE 0x10D81B00
+// FUNCTION: ENGINE 0x10D81B10
+// FUNCTION: ENGINE 0x10D81B20
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1015C550
 // FUNCTION: ENGINE 0x1015C580
