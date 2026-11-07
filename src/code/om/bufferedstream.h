@@ -4,13 +4,12 @@
 #define OM_BUFFEREDSTREAM_H
 
 #include "code/om/stream.h"
+#include "code/om/allocator.h"
 
 namespace om
 {
 	// 0x105BC9B0 (name guessed): the smaller of two values
 	unsigned int Min(const unsigned int& first, const unsigned int& second);
-	// 0x105B7550 (name guessed): the allocation heap the next allocations come from
-	void SetAllocationHeap(int heap);
 
 	class BufferedStream : public Stream
 	{
