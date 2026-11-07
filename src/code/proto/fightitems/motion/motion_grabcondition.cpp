@@ -1938,6 +1938,33 @@ namespace proto
 				return fight::CompareBools(compare, &wanted, &matches);
 			}
 
+			// FUNCTION: ENGINE 0x100C30F0
+			// NONMATCHING: the engine derives the owner's matrix pointer late and orders the argument loads of the compare differently (90.5 %)
+#ifdef NONMATCHING
+			bool GrabSlotDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetGrabbedObjectMessage query(&grabSlot);
+					object->SendMessage(&query);
+					engine::GameObject* grabbed = query.grabbed.Get();
+					if (grabbed != 0)
+					{
+						math::Matrix* grabbedMatrix = grabbed->transform->GetPointer();
+						math::Matrix* ownerMatrix = object->transform->GetPointer();
+						math::Vector from(grabbedMatrix->m[3][0], grabbedMatrix->m[3][1], grabbedMatrix->m[3][2]);
+						math::Vector to(ownerMatrix->m[3][0], ownerMatrix->m[3][1], ownerMatrix->m[3][2]);
+						math::Vector local(from.x - to.x, from.y - to.y, from.z - to.z);
+						ownerMatrix->RotateInverse(local, local);
+						result = fight::CompareVectorMeasure(compare, &local, direction, distance);
+					}
+				}
+				return result;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x100C2640
 			bool GrabbedByPlayerCondition::Evaluate(int a, int b, int c, int d)
 			{

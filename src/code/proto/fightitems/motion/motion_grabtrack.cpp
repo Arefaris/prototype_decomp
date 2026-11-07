@@ -6,6 +6,8 @@
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/proto/lifetimemanager.h"
+#include "code/engine/physics/setintersectionpropertiesmessage.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/proto/fightitems/motion/motionattachmentmessage.h"
 
 // FUNCTION: ENGINE 0x100C4B90
@@ -3673,6 +3675,41 @@ namespace proto
 				return false;
 			}
 #endif
+
+			// FUNCTION: ENGINE 0x100C6BA0
+			bool DelayCollisionWithGrabbedAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GameObjectHandle parentHandle = engine::GetAttachmentParent(object);
+				engine::GameObject* parent = parentHandle.Get();
+				if (parent == 0)
+				{
+					return false;
+				}
+				engine::GetIntersectionPropertiesMessage parentMessage;
+				parent->PostMessage(&parentMessage);
+				engine::GetIntersectionPropertiesMessage ownMessage;
+				object->PostMessage(&ownMessage);
+				unknown2C = ownMessage.result;
+				engine::SetIntersectionPropertiesMessage setMessage(parentMessage.result, true, 2, false);
+				object->SendMessage(&setMessage);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100C6D30
+			void DelayCollisionWithGrabbedAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::SetIntersectionPropertiesMessage message(unknown2C, true, 2, false);
+					object->SendMessage(&message);
+				}
+			}
 
 			// FUNCTION: ENGINE 0x100C9370
 			// NONMATCHING: shrink-wrap; the engine saves esi before the handle test's branch and that branch leaves through the restore (97.7 %)
