@@ -102788,3 +102788,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??0ViewPassDesc@pure3d@@QAE@PBX@Z = 0x10719390 ; function size:0x3A | pure3d::ViewPassDesc constructor (name guess)
 ??_R0?AUViewPassDesc@pure3d@@@8 = 0x111377D0 ; data | data RTTI type descriptor of ?AUViewPassDesc@pure3d@@
 ??_GViewPassDesc@pure3d@@UAEPAXI@Z = 0x10719510 ; function size:0x1F | pure3d::ViewPassDesc scalar deleting destructor
+??0ParticleData@pure3d@@QAE@XZ = 0x1070CC70 ; function size:0x15 | pure3d::ParticleData constructor (name guess)
+??1ParticleData@pure3d@@UAE@XZ = 0x1070CC90 ; function size:0x14 | pure3d::ParticleData destructor (name guess)
+??_R0?AVParticleData@pure3d@@@8 = 0x111373A4 ; data | data RTTI type descriptor of ?AVParticleData@pure3d@@
+??_GParticleData@pure3d@@UAEPAXI@Z = 0x1070CCB0 ; function size:0x2D | pure3d::ParticleData scalar deleting destructor

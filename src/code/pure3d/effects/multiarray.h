@@ -60,24 +60,8 @@ namespace pure3d
 			{
 				Free();
 			}
-			// Gives the block back (when the array owns it) and forgets the arrays
-			void Free()
-			{
-				if (block != 0)
-				{
-					if (ownsBlock)
-					{
-						core::Free(block);
-					}
-					block = 0;
-					end = 0;
-					for (int i = 0; i < N; i++)
-					{
-						ranges[i].first = 0;
-						ranges[i].second = 0;
-					}
-				}
-			}
+			// Gives the block back (when the array owns it) and forgets the arrays (not inline in the engine)
+			void Free();
 
 			Range ranges[N];
 			unsigned char* block;
@@ -85,17 +69,28 @@ namespace pure3d
 			bool ownsBlock;
 		};
 
+		template<int N> void MultiArray<N>::Free()
+		{
+			if (block != 0)
+			{
+				if (ownsBlock)
+				{
+					core::Free(block);
+				}
+				block = 0;
+				end = 0;
+				for (int i = 0; i < N; i++)
+				{
+					ranges[i].first = 0;
+					ranges[i].second = 0;
+				}
+			}
+		}
+
 		template<int N> class AttributeData : public MultiArray<N>
 		{
 		public:
-			AttributeData()
-			{
-				for (int i = 0; i < 4; i++)
-				{
-					lists[i].begin = 0;
-					lists[i].end = 0;
-				}
-			}
+			AttributeData();
 
 			// The arrays of the entry in the list: their addresses in the block (the same for a block that is not changed)
 			Span GetSpan0(int index)
@@ -183,6 +178,15 @@ namespace pure3d
 
 			RangeList lists[4];
 		};
+
+		template<int N> AttributeData<N>::AttributeData()
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				lists[i].begin = 0;
+				lists[i].end = 0;
+			}
+		}
 	}
 }
 

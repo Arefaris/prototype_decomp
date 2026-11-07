@@ -122,6 +122,16 @@ template bool pure3d::particles::AttributeData<57>::IsEmpty3(int index) const;
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1070CC70
+	ParticleData::ParticleData()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1070CC90
+	ParticleData::~ParticleData()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10709CE0
 	bool ParticleSystemState::GetUnknown490()
 	{
