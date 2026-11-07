@@ -101056,3 +101056,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?BuildLimbMatrix@pure3d@@YAXPAVMatrix@math@@PBVVector@3@111@Z = 0x1072D810 ; function size:0x120 | pure3d::BuildLimbMatrix (name guess)
 ?BuildBindPose@SkeletonData@pure3d@@QAEXXZ = 0x1072DB80 ; function size:0x1DF | pure3d::SkeletonData::BuildBindPose (name guess)
 ?BuildLimbRotations@SkeletonData@pure3d@@QAEXXZ = 0x1072D940 ; function size:0x235 | pure3d::SkeletonData::BuildLimbRotations (name guess)
+??0ParticleRenderer@pure3d@@QAE@XZ = 0x10739930 ; function size:0x68 | pure3d::ParticleRenderer::ParticleRenderer
+??1ParticleRenderer@pure3d@@UAE@XZ = 0x107399A0 ; function size:0x1D | pure3d::ParticleRenderer::~ParticleRenderer
+??_GParticleRenderer@pure3d@@UAEPAXI@Z = 0x10739B70 ; function size:0x1E | pure3d::ParticleRenderer::scalar deleting destructor vftable slot 2
+??_R0?AVParticleRenderer@pure3d@@@8 = 0x110C706C ; data | data RTTI type descriptor of pure3d::ParticleRenderer
