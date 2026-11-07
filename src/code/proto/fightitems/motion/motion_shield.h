@@ -200,6 +200,23 @@ namespace proto
 
 			// ---- actions begin
 
+			// RTTI: proto::fightitems::motion::ShieldDeployAction (9 vftable slots, 0x20 bytes)
+			class ShieldDeployAction : public fight::Action
+			{
+			public:
+				// 0x1010F0F0
+				ShieldDeployAction(engine::GameObjectHandle newTarget);
+				// 0x1010F120
+				virtual ~ShieldDeployAction();
+
+				// vftable slot 5 (0x1010F690)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1010F720)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+			};
+
 			// RTTI: proto::fightitems::motion::ShieldSetStateAction (9 vftable slots, 0x2C bytes)
 			class ShieldSetStateAction : public fight::Action
 			{

@@ -446,6 +446,47 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x1010F0F0
+			ShieldDeployAction::ShieldDeployAction(engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F120
+			ShieldDeployAction::~ShieldDeployAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1010F690
+			bool ShieldDeployAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldSetStateMessage message(2);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1010F720
+			void ShieldDeployAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					ShieldSetStateMessage message(0);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1010F240
+			fight::Action* ShieldDeployTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ShieldDeployAction(engine::GameObjectHandle(actionOwner->handle));
+			}
+
 			// FUNCTION: ENGINE 0x1010F8C0
 			ShieldSetStateAction::ShieldSetStateAction(ShieldSetStateTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
