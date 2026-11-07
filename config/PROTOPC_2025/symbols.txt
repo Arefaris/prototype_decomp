@@ -96392,3 +96392,5 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?Peek@EventQueue@audio@@QAEPAEXZ = 0x105BA6D0 ; function size:0x34 | audio::EventQueue::Peek (name guess)
 ?FindBranchByPath@TrackRegistry@fight@@QAEPAVBranch@2@PBDPA_N@Z = 0x105A5380 ; function size:0xD5 | fight::TrackRegistry::FindBranchByPath (name guess)
 ?GetTrackPath@Sequencer@fight@@QAEPBDXZ = 0x105A46C0 ; function size:0xB5 | fight::Sequencer::GetTrackPath (name guess)
+??_R0?AVAllocator@om@@@8 = 0x110B644C ; data size:0x8 | class om::Allocator RTTI Type Descriptor
+??_R0?AVDefaultAllocator@om@@@8 = 0x110B6468 ; data size:0x8 | class om::DefaultAllocator RTTI Type Descriptor
