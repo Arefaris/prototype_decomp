@@ -7354,3 +7354,29 @@ classes the units do not name; those stay open.
 - `pass/src/pass.cpp`: `PassDesc` constructor (the flag is a byte, stored as it comes), `Pass` constructor NONMATCHING (50.7 %: the engine constructs the part filter after the flag words). `pass/src/postprocesspasses.cpp`: `ProtoRadialBlurPass::Render` (the inline `GetSource` reads the singleton again for each use), `DepthOfFieldPass::Begin`; `pass/src/protopasses.cpp`: `SlowZPass::Render`. `PassContext` got its size members (+0x1C, +0x20).
 - Shared header changes: `primitive.h` (the generators), `lighting.h` (the settings of the shadow, `math/vector.h` included), `light.h`, `pass.h`, `renderscheme.h` (`PassDesc` / `Pass` name and flag members), `postprocesspass.h` (`Blur`), `effects/particledata.h`, `effects/particlecontroller.h`.
 - Not done and why: the generator base constructor and destructor (a 0x110 byte inline-storage index list at +0x2F0 that no container header has, an uninitialised stack copy the engine makes into it), `Advance` / constructor of the controller, the dead COMDAT copies of container templates (`ArrayFixed<T, N>` for N = 64 and 5000, the vertex animation arrays; no caller or vftable names the element type, so the class is unknown), the setters at 0x10740180 - 0x10740440 (members at +0x410 - +0x448 of a class no vftable or caller names), the render passes' `Render` bodies beyond 100 bytes (each needs the pass's draw helpers; `FastZPass::Render` is 97 bytes long but functions.tsv has 90), the font draw functions and the `RenderScheme` tree (the `Map` instances).
+## 0x105C0000 - 0x105E0000, second pass: the dynamic object, the class reflection base, the mixer and cue classes (sn-cm)
+- `om/dynamicobject.cpp` (new, `dynamicobject.h`): `om::DynamicObject` (RTTI base `om::DlListNode` at 8, 0x28 bytes: the object's name at 0x10, the
+  list of its properties at 0x18 - 0x1C, its class name at 0x20). Slots 1 - 9, 11, 12 and 13, the constructor, the property list's `GetFirst` /
+  `DeleteAll` (`PropertyList`), and the factory registry the properties are made by (`PropertyFactories`, 0x28 bytes, two tree heads, the global
+  0x11276808): constructor, destructor, allocation, `Create` / `Destroy`. `DynamicPropertyBase` keeps the link of the property list as a member
+  (`link`, was `unknown4`); a base class there changes the representation of the pointers to its members and breaks every command template.
+  Slot 10 (`ReadText`, 0x105C1900) is NONMATCHING (65.6 %): the engine keeps the keys of the first two child lookups in the other order in
+  the frame. The list append 0x105CBE20, count 0x105CBE90 and removal 0x105CBE50 are the engine's one copy, mapped under `PropertyList` /
+  `GarbageList` names.
+- `om/dynamicobjectentity.cpp`: `DynamicObjectEntity` embeds the object at +0x20: constructor, destructor, slots 3, 4, 6, 7, 9 (forwarders), the
+  forwarding property functions at 0x105C1BB0 - 0x105C1BF0, 0x105C1D80, 0x105C1DA0 (the shared header `dynamicobjectentity.h` changed).
+- `om/metaclass.cpp` (new): `MetaClassBase` constructor. The destructor (98.1 %: eax / ecx for the second registry's node) and the three tree
+  `DeleteAll<T>` instances 0x105C0750 / 0x105C07B0 / 0x105C0780 (93.8 %: the vftable of the deleted object goes through eax, ours edx) are
+  NONMATCHING. `TreeHead::InsertMetaClassByName` / `ByType` (0x105C0AB0 / 0x105C0170, the red-black insertions) are declared and left to the engine.
+- `audio/mixstrip.cpp` (new): the accessors of `audio::MixStrip` (name 0x10, volume 0x18, pitch 0x1C, reverb 0x20, sub 0x24, muted / solo / pause
+  bytes at 0x28 - 0x2A; names from the registration strings of 0x105CFD50) and `audio::Mix` (fade in / out times at 0x28 / 0x2C, the strip list at
+  0x20, the tree of strips at 0x30), the mixer constructor and slot 9. `MixStrip::SetMuted` / `SetSolo` (they count the solo and mute flags of every
+  strip through the helpers 0x105CCBD0 - 0x105CCC60), `SetName` (moves the strip in the mixer's tree) and `Mix` slots 3 - 7 are declared and mapped only.
+- `music/cueclass.cpp` (new): `music::Cue` constructor (the grid of cells at 0x20: part count, layer count, cell array; the trees of layers (0x2C)
+  and parts (0x40) by index; the tempo 120 and the 4/4 signature), `GetCell` (and its second engine copy `GetCellAt`), slots 8 and 9, and the
+  parts' and layers' allocation tags. `Part::~Part` / `Layer::~Layer` are NONMATCHING (36.4 %: lea against add on this). Cue slots 3, 4, 6, 7
+  (722 - 2331 bytes) are mapped only.
+- Not done and why: the audio task queue (`om::Task`, `om::TaskThread`, `audio::PageStreamer`, the file / decoder open tasks: they hang on counted
+  pointer and array templates that no class names), the renderer and its voices (0x105D1100 - 0x105D2800), the cue controller (`om::Rpc` based) and
+  the clock state at 0x105D2850 - 0x105D2D00 (a tempo / position class without a name), and the container, tree and counter template instances
+  between them (about 1000 functions of 4 - 60 bytes: tree erase / insert per node offset, list appends, interlocked counters, identity functions).

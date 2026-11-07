@@ -11,12 +11,11 @@ namespace audio
 {
 	class Mix;
 
-	// A strip of the mixer (0x40 bytes). The members are named after the properties the reflection registers them
-	// under.
+	// A strip of the mixer (RTTI: audio::MixStrip, a class without virtual functions, 0x40 bytes). The members are named
+	// after the properties the reflection registers them under.
 	class MixStrip
 	{
 	public:
-		virtual ~MixStrip();
 
 		// 0x105CFCC0 (moves the strip within the mixer's tree)
 		void SetName(const om::Name<om::CaseSensitive64BitKey>& newName);
@@ -44,6 +43,7 @@ namespace audio
 		bool GetPause() const;
 		void SetPause(bool newPause);
 
+		om::GarbageList children;  // 0: the list the strip's destructor deletes
 		Mix* mix;  // 8
 		int unknownC;
 		om::ClassName name;  // 0x10
