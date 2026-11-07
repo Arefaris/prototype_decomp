@@ -54,7 +54,8 @@ namespace pure3d
 		// 0x0: the texture the shadow map is drawn into (released when the memory is lent)
 		Texture* texture;
 		int unknown4;
-		void* unknown8;
+		// The texture of the second kind of map (set when unknown10 is); else unknownC is the target's handle
+		Texture* unknown8;
 		int unknownC;
 		// 0x10: set by 0x10715B20 (0x10715CD0 reads it; name guess)
 		bool unknown10;

@@ -6,7 +6,9 @@
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/memory/memorypool.h"
 #include "code/core/refptr.h"
+#include "code/pure3d/protopass.h"
 #include "code/pure3d/shader.h"
+#include "code/pure3d/shaderconstants.h"
 #include "code/pure3d/texture/texture.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
@@ -407,6 +409,45 @@ namespace pure3d
 	{
 		shadowMap = (pddiSurface*)value;
 		context->UpdateRenderParams();
+	}
+
+	// FUNCTION: ENGINE 0x10715B00
+	void ShadowRenderManager::Unknown10715B00()
+	{
+		BindTextureConstant(gConstantShadowMap.index, 0);
+	}
+
+	// FUNCTION: ENGINE 0x10715940
+	void ShadowRenderManager::Unknown10715940()
+	{
+		pddi->SetColourWrite(true, true, true, true);
+		pddi->SetRenderTargets(0);
+		pddi->SetViewUnknown10(0);
+	}
+
+	// FUNCTION: ENGINE 0x10715CD0
+	void ShadowRenderManager::Unknown10715CD0()
+	{
+		pddiRenderTargets targets = { 0, 0, 0, 0, 0 };
+		Unknown10715B00();
+		if (unknown10)
+		{
+			targets.colour = ((pddiSurface*)unknown8->info)->GetHandle();
+		}
+		else
+		{
+			targets.colour = unknownC;
+		}
+		targets.depth = ((pddiSurface*)texture->info)->GetHandle();
+		pddi->SetRenderTargets(&targets);
+		if (unknown10)
+		{
+			pddi->SetColourWrite(true, true, true, true);
+		}
+		else
+		{
+			pddi->SetColourWrite(false, false, false, false);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10715B20
