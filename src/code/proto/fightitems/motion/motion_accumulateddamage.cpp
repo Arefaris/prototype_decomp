@@ -855,6 +855,18 @@ namespace proto
 				return message.count != 0;
 			}
 
+			// FUNCTION: ENGINE 0x100D11D0
+			void RegisterAccumulatedDamageFactories(fight::TrackRegistry* registry)
+			{
+				RegisterAccumulatedDamageConditionFactory(registry, "accumulatedDamage");
+			}
+
+			// FUNCTION: ENGINE 0x100D11F0
+			void RegisterIsUndamageableFactories(fight::TrackRegistry* registry)
+			{
+				RegisterIsUndamageableConditionFactory(registry, "isUndamageable");
+			}
+
 			template class fight::PropertyEnumConstList<AccumulatedDamageCondition>;
 			template class fight::PropertyFloatConstRange<AccumulatedDamageCondition>;
 			template class fight::ConditionFactoryTemplate<AccumulatedDamageCondition>;

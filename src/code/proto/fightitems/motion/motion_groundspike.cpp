@@ -974,6 +974,23 @@ namespace proto
 #endif
 
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100CEDD0
+			void RegisterGroundSpikeTestStateFactories(fight::TrackRegistry* registry)
+			{
+				RegisterGroundSpikeTestStateConditionFactory(registry, "groundSpikeTestState");
+				RegisterGroundSpikeParentConditionGroupConditionFactory(registry, "groundSpikeParentConditionGroup");
+			}
+
+			// FUNCTION: ENGINE 0x100CEE00
+			void RegisterGroundSpikeSpawnClusterFactories(fight::TrackRegistry* registry)
+			{
+				RegisterGroundSpikeSpawnClusterTrackFactory(registry, "groundSpikeSpawnCluster");
+				RegisterGroundSpikeSpawnOffshootTrackFactory(registry, "groundSpikeSpawnOffshoot");
+				RegisterGroundSpikeClusterDescendTrackFactory(registry, "groundSpikeClusterDescend");
+				RegisterGroundSpikeAnimateClusterRadiiTrackFactory(registry, "groundSpikeAnimateClusterRadii");
+				RegisterGroundSpikeConfigureAutoOffshootsTrackFactory(registry, "groundSpikeConfigureAutoOffshoots");
+			}
+
 			template class fight::PropertyConditionGroup<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<GroundSpikeParentConditionGroupCondition>;
 			template class fight::ConditionFactoryCasterTemplate<GroundSpikeParentConditionGroupCondition>;

@@ -1796,6 +1796,33 @@ namespace proto
 				return proto::IsPlayerObject(proto::GetGrabbingObject(object)) == wanted;
 			}
 
+			// FUNCTION: ENGINE 0x100C2200
+			void RegisterGrabSlotFactories(fight::TrackRegistry* registry)
+			{
+				RegisterGrabSlotConditionFactory(registry, "grabSlot");
+				RegisterGrabbedConditionFactory(registry, "grabbed");
+				RegisterGrabbedByPlayerConditionFactory(registry, "grabbedByPlayer");
+				RegisterGrabbedBySlotConditionFactory(registry, "grabbedBySlot");
+				RegisterGrabSlotConditionGroupConditionFactory(registry, "grabSlotConditionGroup");
+				RegisterGrabbableClassConditionFactory(registry, "grabbableClass");
+				RegisterGrabbableSizeConditionFactory(registry, "grabbableSize");
+				RegisterGrabSlotDistanceConditionFactory(registry, "grabSlotDistance");
+				RegisterGrabSlotGrabbableClassConditionFactory(registry, "grabSlotGrabbableClass");
+				RegisterGrabbedGrabbableClassConditionFactory(registry, "grabbedGrabbableClass");
+				RegisterGrabbedClassNameConditionFactory(registry, "grabbedClassName");
+				RegisterGrabSlotObjectTemplateConditionFactory(registry, "grabSlotObjectTemplate");
+				RegisterGrabSlotClassNameConditionFactory(registry, "grabSlotClassName");
+				RegisterGrabbedConditionGroupConditionFactory(registry, "grabbedConditionGroup");
+				RegisterGrabSlotMassConditionFactory(registry, "grabSlotMass");
+				RegisterIsGrabbableConditionFactory(registry, "isGrabbable");
+				RegisterHaveGrabTargetConditionFactory(registry, "haveGrabTarget");
+				RegisterGrabTargetAngleConditionFactory(registry, "grabTargetAngle");
+				RegisterGrabTargetConditionGroupConditionFactory(registry, "grabTargetConditionGroup");
+				RegisterGrabTargetDistanceConditionFactory(registry, "grabTargetDistance");
+				RegisterTargetCanGrabConditionFactory(registry, "targetCanGrab");
+				RegisterTargetIsGrabTargetConditionFactory(registry, "targetIsGrabTarget");
+			}
+
 			template class fight::PropertyBool<GrabbedCondition>;
 			template class fight::ConditionFactoryTemplate<GrabbedCondition>;
 			template class fight::ConditionFactoryCasterTemplate<GrabbedCondition>;
