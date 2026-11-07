@@ -6,6 +6,7 @@
 #define PURE3D_CAMERA_H
 
 #include "code/math/matrix.h"
+#include "code/math/plane.h"
 #include "code/pure3d/entity.h"
 #include "code/math/vector.h"
 
@@ -27,11 +28,17 @@ namespace pure3d
 	// the horizontal one (names and meanings guessed)
 	void ConvertFov(float fov, float aspect, float otherAspect, float* vertical, float* horizontal);
 
+	// 0x106DCE70: the matrix of a camera at position looking along forward with the up vector (name guessed)
+	void SetViewMatrix(math::Matrix* target, const math::Vector* position, math::Vector forward, math::Vector up);
+
 	class Camera : public Entity
 	{
 	public:
-		// 0x106DD480 (another unit): a camera without a view volume; the destructor is not reconstructed
+		// 0x106DD480: a camera with the unit aspect ratio and the default field of view; 0x106DD510: a copy of the
+		// settings, the planes and both matrices of another camera (the copy constructor of the engine's unit)
 		Camera();
+		Camera(const Camera& other);
+		// 0x106DC840
 		virtual ~Camera();
 		// 0x106DD190: the vertical field of view in radians; 0x106DCA20 / 0x106DCA30: the clipping planes; 0x106DD2B0:
 		// the aspect ratio (and whether it is fixed); 0x106DCE40: the camera's matrix at 0x90 (names guessed)
@@ -56,6 +63,28 @@ namespace pure3d
 		// 0x106E2920: a thunk that calls the virtual Release through the vftable (the engine's code reaches it through
 		// a pointer; name guessed)
 		void ReleaseThunk();
+		// 0x106DC940: recomputes the four side planes from the two field-of-view angles (not for the box volume)
+		void UpdatePlanes();
+		// 0x106DCA40: the clipping plane of the side the bit selects (1 near, 2 far, 4 / 8 bottom / top, 0x10 / 0x20
+		// left / right) in camera space; 0x106DCC00 the same moved through the camera's matrix at 0x90 (names guessed)
+		void GetPlane(int side, math::Plane* plane);
+		void GetWorldPlane(int side, math::Plane* plane);
+		// 0x106DCDB0: a bit per side of the view volume the point (in camera space) lies outside of; 0x106DD360: none
+		// (names guessed)
+		unsigned int Classify(const math::Vector* point);
+		bool IsInsideView(const math::Vector* point);
+		// 0x106DCEA0: the near and far point of the view ray through the screen position (two floats), in camera
+		// space; 0x106DCF40: a point of camera space in the world; 0x106DD430: the two ray points in the world (names
+		// guessed)
+		void GetRayPoints(const float* screen, math::Vector* nearPoint, math::Vector* farPoint);
+		void ToWorld(const math::Vector* point, math::Vector* out);
+		void GetRay(const float* screen, math::Vector* nearPoint, math::Vector* farPoint);
+		// 0x106DCF50: the position of a world point on the screen (two floats) and its depth (name guessed)
+		void ToScreen(const math::Vector* point, float* out);
+		// 0x106DD0B0: the window in pieces (name guessed); 0x106DD100 / 0x106DD120: the size of the view
+		void GetWindow(bool* enabled, float* a, float* b, float* c, float* d, bool* flag);
+		void SetSize(float width, float height);
+		void GetSize(float* width, float* height);
 		// 0x106DCC20: true when the sphere of radius around point lies in the view volume (a frustum, or an
 		// axis-aligned box when unknown10 is set)
 		bool Contains(const math::Vector& point, float radius) const;
@@ -82,21 +111,25 @@ namespace pure3d
 		float plane3y;
 		float plane3z;
 		math::Matrix matrix;
-		// The camera's own matrix at 0x90: its translation (the camera's position in the world) is the vector at 0xC0
-		unsigned char unknown90[0xc0 - 0x90];
-		math::Vector position;
-		unsigned char unknownCC[4];
+		// The camera's own matrix at 0x90: its translation (the camera's position in the world) is the row at 0xC0
+		math::Matrix world;
 		CameraWindow window;
-		unsigned char unknownE8[8];
+		float width;
+		float height;
 
+		// The camera's position in the world: the translation row of the matrix
+		const math::Vector& GetPosition() const
+		{
+			return *(const math::Vector*)world.m[3];
+		}
 		math::Matrix* GetWorldMatrix()
 		{
-			return (math::Matrix*)(unknown90);
+			return &world;
 		}
 		// The 16 floats of the matrix at 0x90 (rows of four)
 		const float* GetWorldFloats() const
 		{
-			return (const float*)unknown90;
+			return &world.m[0][0];
 		}
 	};
 
