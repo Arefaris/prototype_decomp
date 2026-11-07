@@ -102676,3 +102676,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?UnpackAll@ControllerPacker@controller@engine@@UAEXPAVPlayerInput@23@PAEH@Z = 0x108A2690 ; function size:0x60 | engine::controller::ControllerPacker::UnpackAll vftable slot 4 (name guess)
 ?VerifyAll@ControllerPacker@controller@engine@@UAE_NPAVPlayerInput@23@PAEH@Z = 0x108A2700 ; function size:0x86 | engine::controller::ControllerPacker::VerifyAll vftable slot 5 (name guess)
 ?PackAll@ControllerPacker@controller@engine@@UAEHPAVPlayerInput@23@PAEH_NI@Z = 0x108A3180 ; function size:0xBC | engine::controller::ControllerPacker::PackAll vftable slot 3 (name guess)
+?Unknown1088C370@engine@@YA_NXZ = 0x1088C370 ; function size:0x50 | engine::Unknown1088C370 (name unknown)
+?Close@HintPopup@proto@@QAEXXZ = 0x104D1A10 ; function size:0x32 | proto::HintPopup::Close (name guess)
