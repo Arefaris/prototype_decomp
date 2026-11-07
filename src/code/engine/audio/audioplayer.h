@@ -28,6 +28,14 @@ namespace engine
 	public:
 		// 0x104A3440 (the constructor) / 0x104A2E40 (the destructor body); the deleting destructor is 0x104A2E80
 		AudioPlayer();
+		// The engine's derived constructors have the (empty) base constructor expanded in place; this form is that
+		// expansion
+		struct Expanded
+		{
+		};
+		explicit AudioPlayer(Expanded)
+		{
+		}
 		virtual ~AudioPlayer()
 		{
 		}

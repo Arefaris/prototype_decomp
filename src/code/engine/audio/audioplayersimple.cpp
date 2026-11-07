@@ -2,8 +2,33 @@
 #include "code/engine/audio/audiomessage.h"
 #include "code/engine/audio/audioplayersimple.h"
 
+#include "code/engine/driving/carattributes.h"
+
 namespace engine
 {
+	// FUNCTION: ENGINE 0x1087F5E0
+	AudioPlayerSimple::AudioPlayerSimple(const AudioPlayerDescription* description) :
+		AudioPlayer(Expanded()),
+		name(description->name, 1)
+	{
+		playerId = audio::gRemotePlayers->Create(description->unknown10, description->unknown4 == 0, description->unknown8 == 0,
+			description->unknownC == 0, description->unknown58, 1);
+	}
+
+	// FUNCTION: ENGINE 0x1087F7D0
+	// NONMATCHING: the engine stores the vftable behind the three words and in front of the last float (64.5 %)
+#ifdef NONMATCHING
+	AudioPlayerPhysics::AudioPlayerPhysics(const AudioPlayerDescription* description) :
+		AudioPlayerSimple(description),
+		unknown24(0.0f),
+		unknown28(0.0f),
+		unknown2C(driving::gOne)
+	{
+		unknown20 = 0;
+		unknown1C = 0;
+		unknown18 = 0;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1087F660
 	AudioPlayerSimple::~AudioPlayerSimple()

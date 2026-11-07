@@ -43,9 +43,9 @@ namespace engine
 		ConstAttribute()
 		{
 		}
-		explicit ConstAttribute(T newValue)
+		explicit ConstAttribute(T newValue) :
+			value(newValue)
 		{
-			value = newValue;
 		}
 		T* GetPointer()
 		{

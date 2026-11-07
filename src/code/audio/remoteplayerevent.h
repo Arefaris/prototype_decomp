@@ -90,9 +90,16 @@ namespace audio
 		int unknown34;
 		float unknown38;
 	};
-	struct RemotePlayerHandle;
+	// Names a remote player (0x11276370 holds the table): the index in the low half
+	struct RemotePlayerHandle
+	{
+		unsigned short index;
+		unsigned short serial;
+	};
 	struct RemotePlayerTable
 	{
+		// 0x105BAE40: makes a remote player and answers its handle as a whole word (the arguments are those of the player's description; names guessed)
+		unsigned int Create(const void* settings, bool flagA, bool flagB, bool flagC, const void* extra, int unknown);
 		// 0x105BAF90: lets the player of the handle go
 		void Destroy(RemotePlayerHandle handle);
 
@@ -100,12 +107,6 @@ namespace audio
 	};
 	extern RemotePlayerTable* gRemotePlayers;
 
-	// Names a remote player (0x11276370 holds the table): the index in the low half
-	struct RemotePlayerHandle
-	{
-		unsigned short index;
-		unsigned short serial;
-	};
 
 	class Event
 	{
