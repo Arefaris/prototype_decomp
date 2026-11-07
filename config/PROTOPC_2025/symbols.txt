@@ -98835,3 +98835,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??0Data@BulletTracerParams@proto@@QAE@ABU012@@Z = 0x102CD910 ; function size:0x8B | public: __thiscall proto::BulletTracerParams::Data::Data(struct proto::BulletTracerParams::Data cons (kept copy)
 ??0BulletTracerState@proto@@QAE@ABV01@@Z = 0x102CF600 ; function size:0x12A | public: __thiscall proto::BulletTracerState::BulletTracerState(class proto::BulletTracerState const  (name guess)
 ??0BulletTracerState@proto@@QAE@PAVPrimitive@pure3d@@PBUBulletTracerSetup@1@@Z = 0x102CF450 ; function size:0x127 | public: __thiscall proto::BulletTracerState::BulletTracerState(class pure3d::Primitive *,struct prot (name guess)
+??1BloodSplatterState@proto@@UAE@XZ = 0x102CBFF0 ; function size:0x5 | public: virtual __thiscall proto::BloodSplatterState::~BloodSplatterState(void) (kept copy)
+??1HUDState@proto@@UAE@XZ = 0x102D7C40 ; function size:0x5 | public: virtual __thiscall proto::HUDState::~HUDState(void) (kept copy)
+??1LaserSightState@proto@@UAE@XZ = 0x102D8640 ; function size:0x5 | public: virtual __thiscall proto::LaserSightState::~LaserSightState(void) (kept copy)
