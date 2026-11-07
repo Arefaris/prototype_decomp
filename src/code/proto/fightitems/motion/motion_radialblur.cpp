@@ -385,6 +385,189 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10103EC0
+			float RadialBlurTrack::GetWait() const
+			{
+				return wait;
+			}
+
+			// FUNCTION: ENGINE 0x10103ED0
+			float RadialBlurTrack::GetFadeIn() const
+			{
+				return fadeIn;
+			}
+
+			// FUNCTION: ENGINE 0x10103EE0
+			float RadialBlurTrack::GetDuration() const
+			{
+				return duration;
+			}
+
+			// FUNCTION: ENGINE 0x10103EF0
+			float RadialBlurTrack::GetFadeOut() const
+			{
+				return fadeOut;
+			}
+
+			// FUNCTION: ENGINE 0x10103F00
+			float RadialBlurTrack::GetWaitRand() const
+			{
+				return waitRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103F10
+			float RadialBlurTrack::GetFadeInRand() const
+			{
+				return fadeInRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103F20
+			float RadialBlurTrack::GetDurationRand() const
+			{
+				return durationRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103F30
+			float RadialBlurTrack::GetFadeOutRand() const
+			{
+				return fadeOutRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103F40
+			float RadialBlurTrack::GetIntensityStart() const
+			{
+				return intensityStart;
+			}
+
+			// FUNCTION: ENGINE 0x10103F50
+			float RadialBlurTrack::GetIntensityEnd() const
+			{
+				return intensityEnd;
+			}
+
+			// FUNCTION: ENGINE 0x10103F60
+			float RadialBlurTrack::GetSizeStart() const
+			{
+				return sizeStart;
+			}
+
+			// FUNCTION: ENGINE 0x10103F70
+			float RadialBlurTrack::GetSizeEnd() const
+			{
+				return sizeEnd;
+			}
+
+			// FUNCTION: ENGINE 0x10103F80
+			float RadialBlurTrack::GetFalloffStart() const
+			{
+				return falloffStart;
+			}
+
+			// FUNCTION: ENGINE 0x10103F90
+			float RadialBlurTrack::GetFalloffEnd() const
+			{
+				return falloffEnd;
+			}
+
+			// FUNCTION: ENGINE 0x10103FA0
+			float RadialBlurTrack::GetFlickerIntensityFreq() const
+			{
+				return flickerIntensityFreq;
+			}
+
+			// FUNCTION: ENGINE 0x10103FB0
+			float RadialBlurTrack::GetFlickerIntensityFreqRand() const
+			{
+				return flickerIntensityFreqRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103FC0
+			float RadialBlurTrack::GetFlickerIntensityMag() const
+			{
+				return flickerIntensityMag;
+			}
+
+			// FUNCTION: ENGINE 0x10103FD0
+			float RadialBlurTrack::GetFlickerIntensityMagRand() const
+			{
+				return flickerIntensityMagRand;
+			}
+
+			// FUNCTION: ENGINE 0x10103FE0
+			float RadialBlurTrack::GetFlickerSizeFreq() const
+			{
+				return flickerSizeFreq;
+			}
+
+			// FUNCTION: ENGINE 0x10103FF0
+			float RadialBlurTrack::GetFlickerSizeFreqRand() const
+			{
+				return flickerSizeFreqRand;
+			}
+
+			// FUNCTION: ENGINE 0x10104000
+			float RadialBlurTrack::GetFlickerSizeMag() const
+			{
+				return flickerSizeMag;
+			}
+
+			// FUNCTION: ENGINE 0x10104010
+			float RadialBlurTrack::GetFlickerSizeMagRand() const
+			{
+				return flickerSizeMagRand;
+			}
+
+			// FUNCTION: ENGINE 0x10104020
+			float RadialBlurTrack::GetFlickerFalloffFreq() const
+			{
+				return flickerFalloffFreq;
+			}
+
+			// FUNCTION: ENGINE 0x10104030
+			float RadialBlurTrack::GetFlickerFalloffFreqRand() const
+			{
+				return flickerFalloffFreqRand;
+			}
+
+			// FUNCTION: ENGINE 0x10104040
+			float RadialBlurTrack::GetFlickerFalloffMag() const
+			{
+				return flickerFalloffMag;
+			}
+
+			// FUNCTION: ENGINE 0x10104050
+			float RadialBlurTrack::GetFlickerFalloffMagRand() const
+			{
+				return flickerFalloffMagRand;
+			}
+
+			// FUNCTION: ENGINE 0x10104080
+			int RadialBlurTrack::GetAttachSpace() const
+			{
+				return attachSpace;
+			}
+
+			// FUNCTION: ENGINE 0x10104090
+			const fight::Name& RadialBlurTrack::GetAttachJoint() const
+			{
+				return attachJoint;
+			}
+
+			// FUNCTION: ENGINE 0x101040B0
+			bool RadialBlurTrack::GetInGameCameraOnly() const
+			{
+				return inGameCameraOnly;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1019FE70
 // FUNCTION: ENGINE 0x1019FE80

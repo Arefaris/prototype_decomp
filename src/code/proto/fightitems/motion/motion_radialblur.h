@@ -68,6 +68,37 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetWait() const;
+				float GetFadeIn() const;
+				float GetDuration() const;
+				float GetFadeOut() const;
+				float GetWaitRand() const;
+				float GetFadeInRand() const;
+				float GetDurationRand() const;
+				float GetFadeOutRand() const;
+				float GetIntensityStart() const;
+				float GetIntensityEnd() const;
+				float GetSizeStart() const;
+				float GetSizeEnd() const;
+				float GetFalloffStart() const;
+				float GetFalloffEnd() const;
+				float GetFlickerIntensityFreq() const;
+				float GetFlickerIntensityFreqRand() const;
+				float GetFlickerIntensityMag() const;
+				float GetFlickerIntensityMagRand() const;
+				float GetFlickerSizeFreq() const;
+				float GetFlickerSizeFreqRand() const;
+				float GetFlickerSizeMag() const;
+				float GetFlickerSizeMagRand() const;
+				float GetFlickerFalloffFreq() const;
+				float GetFlickerFalloffFreqRand() const;
+				float GetFlickerFalloffMag() const;
+				float GetFlickerFalloffMagRand() const;
+				int GetAttachSpace() const;
+				const fight::Name& GetAttachJoint() const;
+				bool GetInGameCameraOnly() const;
+
 					fight::Name attachJoint;  // +0x10
 					math::Vector offset;  // +0x18
 					char* patch;  // +0x24
