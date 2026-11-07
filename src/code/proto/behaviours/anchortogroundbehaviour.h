@@ -61,6 +61,8 @@ namespace proto
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
 
+		// 0x10060450 (name guess): destroys the constraints of the anchor
+		void ReleaseConstraints();
 		// 0x10061900: anchors the object to the ground (or to the joint) or lets it go
 		void ApplyAnchor(bool anchor, bool zeroHeight);
 

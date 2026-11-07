@@ -1,6 +1,7 @@
 #include "code/proto/behaviours/consumablebehaviour.h"
 #include "code/core/refptr.h"
 #include "code/engine/driving/carattributes.h"
+#include "code/engine/physics/ragdollmessages.h"
 #include "code/proto/reflectedstubs.h"
 #include "code/ravenphysics/context.h"
 
@@ -9,6 +10,34 @@ namespace engine
 	// 0x11283550 / 0x11283540 (symbols.txt)
 	extern content::ObjectName gPhysicsObjectAttributeName;
 	extern core::Name<core::CaseSensitiveKey> gAttachmentState;
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x1007A060
+	RagdollSetEnabledMessage::RagdollSetEnabledMessage(bool newEnabled, bool newDisableSupportingLimb,
+		bool newInheritJointVelocities, int newPhysicsObject) : IntrusiveMessage(0x12, 1)
+	{
+		enabled = newEnabled;
+		disableSupportingLimb = newDisableSupportingLimb;
+		inheritJointVelocities = newInheritJointVelocities;
+		physicsObject = newPhysicsObject;
+		rootJoint = 0xffff;
+		includeRootJoint = true;
+	}
+
+	// FUNCTION: ENGINE 0x1007A0D0
+	RagdollSetConstraintFixupEnabledMessage::RagdollSetConstraintFixupEnabledMessage(bool newEnabled)
+		: IntrusiveMessage(0x12, 5)
+	{
+		enabled = newEnabled;
+	}
+
+	// FUNCTION: ENGINE 0x1007A110
+	RagdollSetLowLODEnabledMessage::RagdollSetLowLODEnabledMessage(bool newEnabled) : IntrusiveMessage(0x12, 8)
+	{
+		enabled = newEnabled;
+	}
 }
 
 namespace ravenphysics
@@ -191,3 +220,6 @@ namespace proto
 // FUNCTION: ENGINE 0x1007B5F0
 // FUNCTION: ENGINE 0x1007AD30
 // FUNCTION: ENGINE 0x1007AD40
+// FUNCTION: ENGINE 0x1007A0C0
+// FUNCTION: ENGINE 0x1007A100
+// FUNCTION: ENGINE 0x1007A140

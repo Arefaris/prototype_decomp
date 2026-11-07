@@ -24,6 +24,12 @@ namespace proto
 		Listen(0x1a, true);
 	}
 
+	// FUNCTION: ENGINE 0x100610C0
+	AnchorToGroundBehaviour::~AnchorToGroundBehaviour()
+	{
+		ReleaseConstraints();
+	}
+
 	// FUNCTION: ENGINE 0x10061A30
 	void AnchorToGroundBehaviour::OnMessage(engine::Message* message)
 	{

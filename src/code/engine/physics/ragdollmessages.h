@@ -52,6 +52,28 @@ namespace engine
 		bool includeRootJoint;  // +0x18
 	};
 
+	// Turns the fixup of the ragdoll's constraints on or off (id 5); the constructor is the unit 0x1007A210's copy (0x1007A0D0)
+	struct RagdollSetConstraintFixupEnabledMessage : public IntrusiveMessage
+	{
+		explicit RagdollSetConstraintFixupEnabledMessage(bool newEnabled);
+		virtual ~RagdollSetConstraintFixupEnabledMessage()
+		{
+		}
+
+		bool enabled;  // +0xC
+	};
+
+	// Switches the low level of detail of the ragdoll on or off (id 8); the constructor is 0x1007A110
+	struct RagdollSetLowLODEnabledMessage : public IntrusiveMessage
+	{
+		explicit RagdollSetLowLODEnabledMessage(bool newEnabled);
+		virtual ~RagdollSetLowLODEnabledMessage()
+		{
+		}
+
+		bool enabled;  // +0xC
+	};
+
 	// Powers the ragdoll by a pose (id 2); holds a reference on the source while it lives
 	struct RagdollSetPoweredByPoseMessage : public IntrusiveMessage
 	{
