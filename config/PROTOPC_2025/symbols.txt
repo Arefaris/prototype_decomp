@@ -102817,3 +102817,6 @@ _sDevSelectStarted = 0x1126E46C ; data size:0x1 | proto: whether the dev select 
 ?Unknown1047FD10@SaveManager@proto@@QAEXXZ = 0x1047FD10 ; function size:0x8 | proto::SaveManager::Unknown1047FD10 (name guess)
 ?Unknown10893CD0@OnlineGameDBHelper@engine@@QAEXXZ = 0x10893CD0 ; function size:0x3E | engine::OnlineGameDBHelper::Unknown10893CD0 (name guess)
 ?Unknown108939A0@OnlineGameDBHelper@engine@@QAEXXZ = 0x108939A0 ; function size:0x4C | engine::OnlineGameDBHelper::Unknown108939A0 (name guess)
+??_R0?AVGameDatabaseHelper@proto@@@8 = 0x110A0B80 ; data size:0x8 | proto::GameDatabaseHelper RTTI type descriptor
+??_R0?AVOLSGame@engine@@@8 = 0x1109C1B8 ; data size:0x8 | engine::OLSGame RTTI type descriptor
+??_R0?AVOLSGameSystemLink@engine@@@8 = 0x1109C4E4 ; data size:0x8 | engine::OLSGameSystemLink RTTI type descriptor
