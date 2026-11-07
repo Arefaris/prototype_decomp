@@ -6,6 +6,7 @@
 #define PROTO_CAMERA_CAMERAMANAGER_H
 
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/math/vector.h"
 
 namespace pure3d
@@ -111,6 +112,20 @@ namespace proto
 		void SetCameraBaseDist(int type, float distance);
 		// 0x1032CAD0: restarts the scripted camera of an index
 		void ClearScriptedCamera(int index);
+		// 0x1032CB10 / 0x1032CB40: the position / look-at point of a scripted camera as a point of the world
+		bool SetScriptedCameraPosition(int index, math::Vector point);
+		bool SetScriptedCameraTarget(int index, math::Vector point);
+		// 0x1032CB70 / 0x1032CBE0 / 0x1032CC50: the scripted camera follows (or looks at) a part of a game object
+		bool SetCameraObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active);
+		bool SetTargetObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active);
+		bool AttachCameraToObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active);
+		// 0x1032CD30: the field of view of a scripted camera (degrees unless the camera keeps radians)
+		bool SetScriptedCameraFov(int index, float fov);
+		// 0x1032CE30: the window of a scripted camera
+		bool SetScriptedCameraWindow(int index, float first, float second, float third, float fourth);
+		// 0x1032CE90 / 0x1032CEC0: the up vector / a flag of a scripted camera
+		void SetScriptedCameraUp(int index, math::Vector up);
+		void SetScriptedCameraFlag(int index, bool value);
 		// 0x1032CEF0 / 0x1032CF20 / 0x1032CF50 / 0x1032CF80: start, release, ask whether it runs, whether it is over
 		bool StartScriptedCamera(int index);
 		void ReleaseScriptedCamera(int index);
@@ -118,6 +133,15 @@ namespace proto
 		bool IsScriptedCameraFinished(int index);
 		// 0x1032D0B0: the first scripted camera that is free (-1: none)
 		int FindFreeScriptedCamera();
+		// 0x1032BD90: starts a spline of the given number of keys for the scripted cameras
+		bool StartSpline(int keyCount);
+		// 0x1032CFB0 / 0x1032D030: gives the position / look-at track of a scripted camera the finished spline
+		bool SetCameraPositionSpline(int index);
+		bool SetCameraTargetSpline(int index);
+		// 0x1032D220: takes the camera of the last slot of the camera mask away again
+		void EndUnknownCamera(float blendTime);
+		// 0x1032D460: whether the camera of a slot of the camera mask cannot be taken over (0 when it is free)
+		int IsSlotBusy(int slot);
 		// 0x1032D0E0: ends the scripted cameras, blending over the time
 		void EndScriptedCamera(float blendTime);
 		// 0x1032D110: the busy flag of a scripted camera

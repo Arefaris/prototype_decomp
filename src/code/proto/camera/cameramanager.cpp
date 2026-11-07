@@ -5,6 +5,7 @@
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/dramaticcamera.h"
 #include "code/engine/camera/scriptedcamera.h"
+#include "code/math/spline.h"
 #include "code/proto/camera/chasecamera.h"
 #include "code/proto/camera/framercam.h"
 #include "code/proto/fightitems/motion/motioncommon.h"
@@ -507,4 +508,190 @@ namespace proto
 		}
 		cameraMask |= 1;
 	}
+
+	// FUNCTION: ENGINE 0x1032BD90
+	// NONMATCHING: the engine keeps the null in a register for every store (16.3 %)
+#ifdef NONMATCHING
+	bool CameraManager::StartSpline(int keyCount)
+	{
+		if (spline != 0)
+		{
+			delete spline;
+			spline = 0;
+			splineKeyCount = 0;
+		}
+		if (keyCount < 4)
+		{
+			return false;
+		}
+		spline = new math::Spline(keyCount, 4, false);
+		if (spline == 0)
+		{
+			return false;
+		}
+		spline->SetFlag(true);
+		splineKeyCount = keyCount;
+		splineKeyIndex = 0;
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1032CB10
+	bool CameraManager::SetScriptedCameraPosition(int index, math::Vector point)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			return scriptedCameras[index]->SetPositionPoint(point);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CB40
+	bool CameraManager::SetScriptedCameraTarget(int index, math::Vector point)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			return scriptedCameras[index]->SetLookAtPoint(point);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CB70
+	bool CameraManager::SetCameraObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			engine::GameObjectHandle handle = engine::DeserializeHandle(object);
+			return scriptedCameras[index]->BindPosition(handle, part, &offset, mode, active);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CBE0
+	bool CameraManager::SetTargetObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			engine::GameObjectHandle handle = engine::DeserializeHandle(object);
+			return scriptedCameras[index]->BindLookAt(handle, part, &offset, mode, active);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CC50
+	// NONMATCHING: register allocation of the handle and the by-value name differs (19.0 %)
+#ifdef NONMATCHING
+	bool CameraManager::AttachCameraToObject(int index, engine::LuaGOH object, const char* part, math::Vector offset, int mode, bool active)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			engine::GameObjectHandle handle = engine::DeserializeHandle(object);
+			return scriptedCameras[index]->BindPositionNamed(handle, core::Name<core::CaseSensitiveKey>(part, 1), &offset, mode, active);
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1032CD30
+	bool CameraManager::SetScriptedCameraFov(int index, float fov)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			engine::camera::ScriptedCamera* camera = scriptedCameras[index];
+			float value = camera->unknown57 ? fov : fov * 0.017453292f;
+			camera->SetUnknownD8(value);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CE30
+	bool CameraManager::SetScriptedCameraWindow(int index, float first, float second, float third, float fourth)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			return scriptedCameras[index]->SetWindow(first, second, third, fourth);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032CE90
+	void CameraManager::SetScriptedCameraUp(int index, math::Vector up)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			scriptedCameras[index]->SetUp(up);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032CEC0
+	void CameraManager::SetScriptedCameraFlag(int index, bool value)
+	{
+		if (IsScriptedCameraType(index))
+		{
+			scriptedCameras[index]->SetUnknown57(value);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032CFB0
+	bool CameraManager::SetCameraPositionSpline(int index)
+	{
+		if (IsScriptedCameraType(index) && IsSplineComplete())
+		{
+			bool result = scriptedCameras[index]->SetPositionSpline(*spline);
+			delete spline;
+			spline = 0;
+			splineKeyCount = 0;
+			return result;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032D030
+	bool CameraManager::SetCameraTargetSpline(int index)
+	{
+		if (IsScriptedCameraType(index) && IsSplineComplete())
+		{
+			bool result = scriptedCameras[index]->SetLookAtSpline(*spline);
+			delete spline;
+			spline = 0;
+			splineKeyCount = 0;
+			return result;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1032D220
+	void CameraManager::EndUnknownCamera(float blendTime)
+	{
+		if (MaskBit(cameraMask, 4))
+		{
+			StopCamera(4, blendTime);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032D460
+	// NONMATCHING: the engine tests the slot range with two compares, ours merges them (46.4 %)
+#ifdef NONMATCHING
+	int CameraManager::IsSlotBusy(int slot)
+	{
+		if (slot > 0 && slot <= 4)
+		{
+			if (slot == 2 && MaskBit(cameraMask, 2))
+			{
+				return 0;
+			}
+			unsigned int bit = 1 << slot;
+			if ((cameraMask & bit) != 0)
+			{
+				return 1;
+			}
+			if (MaskBit(cameraMask, 1))
+			{
+				EndDramaticCamera(0.0f);
+			}
+			return ((cameraMask & ~bit) & 0x1e) != 0;
+		}
+		return 1;
+	}
+#endif
 }
