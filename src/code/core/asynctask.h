@@ -120,6 +120,10 @@ namespace core
 	class AsyncTaskJob
 	{
 	public:
+		// 0x10B7F960 / 0x10B7F990 (another unit)
+		AsyncTaskJob();
+		~AsyncTaskJob();
+
 		// 1: idle or done; 3: submitted; 4: run on the calling thread
 		int state;
 		int unknown4[3];
