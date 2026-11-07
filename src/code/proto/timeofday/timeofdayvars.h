@@ -81,7 +81,9 @@ namespace proto
 		TimeOfDayVarChannel(const TimeOfDayVarChannel& other) : keys(other.keys)
 		{
 		}
-		virtual ~TimeOfDayVarChannel();
+		virtual ~TimeOfDayVarChannel()
+		{
+		}
 		virtual bool HasKey(float time);
 		virtual int GetValueSize();
 		virtual void SetKeyValue(float time, const void* value);
@@ -198,6 +200,9 @@ namespace proto
 		// The number of names of day groups and the name at an index
 		int GetDayGroupCount();
 		core::Name<core::CaseSensitiveKey>* GetDayGroupName(int index);
+		// Adds a loaded group (the array grows sixteen at a time) and takes one out again
+		void AddGroup(TimeOfDayVarGroup* group);
+		void RemoveGroup(TimeOfDayVarGroup* group);
 		// The number of loaded groups and the group at an index
 		int GetGroupCount();
 		TimeOfDayVarGroup* GetGroup(int index);
@@ -252,6 +257,13 @@ namespace container
 		enum
 		{
 			value = 0
+		};
+	};
+	template<> struct ArrayEraseInline<proto::TimeOfDayVarGroup*>
+	{
+		enum
+		{
+			value = 3
 		};
 	};
 	template<> struct ArrayEraseInline<proto::TimeOfDayLightInfo>
