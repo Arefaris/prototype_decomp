@@ -57,10 +57,20 @@ namespace pure3d
 		virtual void AddPass(const char* name, const char* vertexProgram, const char* pixelProgram,
 			const PrimStreamParameters* state, int unknown);
 
+		// 0x10704990: the word at +0x2DC; 0x107049A0: the record of a pass, 4 bytes into it (none for a number past the
+		// last)
+		unsigned int GetFlags2DC();
+		void* GetPass(unsigned int index);
 		// 0x10618580: copies the defaults of the inputs into the constants of a new shader
 		void InitConstants(pddiBaseContext::Constants* constants);
 
-		unsigned char unknown8[0x2E4 - 8];
+		unsigned char unknown8[0x2CC - 8];
+		// 0x10704990 / 0x107049A0: the passes of the template (the count and the table of their records)
+		unsigned int passCount;
+		void** passes;
+		unsigned char unknown2D4[8];
+		unsigned int flags2DC;
+		unsigned char unknown2E0[4];
 		bool unknown2E4;
 		unsigned char unknown2E5[3];
 		core::Name<core::CaseInsensitiveKey32> templateName;
