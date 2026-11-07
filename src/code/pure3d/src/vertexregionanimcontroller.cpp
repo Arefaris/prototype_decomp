@@ -9,6 +9,56 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x107303F0
+	// NONMATCHING: the engine releases the regions through a counted loop over a copy of the first pointer and clears
+	// the list behind the loop (about 40 %)
+#ifdef NONMATCHING
+	VertexRegionAnimController::~VertexRegionAnimController()
+	{
+		core::SafeRelease(mKeyFrames);
+		VertexDeformRegion** first = mRegions.items;
+		int regionCount = mRegions.end - first;
+		for (VertexDeformRegion** region = first; regionCount != 0; regionCount--, region++)
+		{
+			core::SafeRelease(*region);
+		}
+		mRegions.end = first;
+		delete mOffsets;
+		mOffsets = 0;
+		mRegions.end = first;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107302C0
+	// NONMATCHING: the engine reloads the expression into ecx right after the allocation (96.0 %)
+#ifdef NONMATCHING
+	VertexRegionAnimController::VertexRegionAnimController(const VertexRegionAnimController& other) : SimpleFrameController(other), mRegions()
+	{
+		mKeyFrames = 0;
+		mPrimitive = 0;
+		mMeshState = 0;
+		mExpression = 0;
+		mOffsets = 0;
+		mChanged = true;
+		core::RefAssign(mKeyFrames, other.mKeyFrames);
+		mPrimitive = other.mPrimitive;
+		mMeshState = other.mMeshState;
+		mExpression = other.mExpression;
+		if (mExpression != 0)
+		{
+			delete mOffsets;
+			float* offsets = new float[mExpression->count];
+			VertexOffsetList* expression = mExpression;
+			mOffsets = offsets;
+			unsigned int count = expression->count;
+			for (unsigned int i = 0; i < count; i++)
+			{
+				mOffsets[i] = 0.0f;
+			}
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1072EBD0
 	bool VertexRegionAnimController::Unknown25()
 	{

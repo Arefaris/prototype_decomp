@@ -9,6 +9,22 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10734580
+	ExpressionAnimationController::~ExpressionAnimationController()
+	{
+		core::SafeRelease(mMixer);
+		delete[] mWeights;
+	}
+
+	// FUNCTION: ENGINE 0x10734750
+	ExpressionAnimationController::ExpressionAnimationController(const ExpressionAnimationController& other) : SimpleFrameController(other)
+	{
+		mMixer = 0;
+		mWeightCount = 0;
+		mWeights = 0;
+		SetMixer(const_cast<ExpressionAnimationController&>(other).GetMixer());
+	}
+
 	// FUNCTION: ENGINE 0x10734510
 	bool ExpressionAnimationController::Unknown25()
 	{

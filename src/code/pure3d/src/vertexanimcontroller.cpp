@@ -4,8 +4,32 @@
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/primitive.h"
 
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1073E3F0
+	// NONMATCHING: the engine loads the constant -1 before the first member store (87.9 %)
+#ifdef NONMATCHING
+	VertexAnimController::VertexAnimController(const VertexAnimController& other) : SimpleFrameController(other)
+	, mKeyFrames(0), mPrimitive(0), mMeshState(0), mExpression(0), mChanged(true), mLastFrame(choreo::gMinusOne)
+	{
+		core::RefAssign(mKeyFrames, other.mKeyFrames);
+		mPrimitive = other.mPrimitive;
+		mMeshState = other.mMeshState;
+		mExpression = other.mExpression;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1073E450
+	VertexAnimController::~VertexAnimController()
+	{
+		core::SafeRelease(mKeyFrames);
+	}
+
 	// FUNCTION: ENGINE 0x1073E340
 	bool VertexAnimController::Unknown25()
 	{

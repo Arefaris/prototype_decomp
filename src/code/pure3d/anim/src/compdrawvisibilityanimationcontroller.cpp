@@ -6,6 +6,59 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10734A50
+	// NONMATCHING: the engine stores the vftable and the drawable before it loads the two arrays (75.0 %)
+#ifdef NONMATCHING
+	CompDrawVisibilityAnimationController::~CompDrawVisibilityAnimationController()
+	{
+		mDrawable = 0;
+		if (mSegments != 0)
+		{
+			delete[] mSegments;
+		}
+		if (mChannels != 0)
+		{
+			delete[] mChannels;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107347F0
+	Drawable* CompDrawVisibilityAnimationController::GetDrawable()
+	{
+		return mDrawable;
+	}
+
+	// FUNCTION: ENGINE 0x10734BF0
+	// NONMATCHING: the engine loads the other controller's pointer for the GetDrawable call between the stores of the
+	// two arrays (78.0 %)
+#ifdef NONMATCHING
+	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other) : SimpleFrameController(other), mDrawable(0), mChannels(0), mChannelsEnd(0), mSegments(0), mSegmentsEnd(0)
+	{
+		SetDrawable(const_cast<CompDrawVisibilityAnimationController&>(other).GetDrawable());
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10734BE0
+	void CompDrawVisibilityAnimationController::SetDrawable(Drawable* drawable)
+	{
+		mDrawable = drawable;
+		FindChannels();
+	}
+
+	// FUNCTION: ENGINE 0x10734BB0
+	void CompDrawVisibilityAnimationController::SetAnimation(Animation* animation, float a, float b)
+	{
+		SimpleFrameController::SetAnimation(animation, a, b);
+		FindChannels();
+	}
+
+	// FUNCTION: ENGINE 0x10734C50
+	void CompDrawVisibilityAnimationController::SetTarget(Entity* target)
+	{
+		SetDrawable(dynamic_cast<Drawable*>(target));
+	}
+
 	// FUNCTION: ENGINE 0x107347B0
 	bool CompDrawVisibilityAnimationController::Unknown25()
 	{

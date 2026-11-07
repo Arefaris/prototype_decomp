@@ -1,9 +1,69 @@
 // pure3d::PoseAnimationController (unit around 0x10732100 - 0x10733300; file name guessed from the class). Names are
 // guesses.
+#include "code/pure3d/drawable.h"
 #include "code/pure3d/posecontroller.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10732170
+	bool PoseAnimationController::Unknown29()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10732FD0
+	void PoseAnimationController::SetAnimation(Animation* animation, float a, float b)
+	{
+		BlendFrameController::SetAnimation(animation, a, b);
+		mAnimationChanged = true;
+		UpdateFrameTimes();
+		if (mAnimatesRoot)
+		{
+			for (unsigned int i = 0; i < mCount; i++)
+			{
+				mPreviousTimes[i] = a;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10733040
+	void PoseAnimationController::Advance(float dt, bool update)
+	{
+		BlendFrameController::Advance(dt, false);
+		UpdateFrameTimes();
+		if (mUpdateOnAdvance == true || update == true)
+		{
+			BlendFrameController::Unknown5();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10733080
+	void PoseAnimationController::SetFrame(float frame)
+	{
+		BlendFrameController::SetFrame(frame);
+		UpdateFrameTimes();
+	}
+
+	// FUNCTION: ENGINE 0x10734460
+	PoseAnimationController* PoseAnimationController::Clone()
+	{
+		return new PoseAnimationController(*this);
+	}
+
+	// FUNCTION: ENGINE 0x10734490
+	void PoseAnimationController::SetTarget(Entity* target)
+	{
+		Drawable* drawable = dynamic_cast<Drawable*>(target);
+		if (drawable != 0)
+		{
+			SetPose(drawable->GetPose());
+		}
+		else
+		{
+			SetPose(dynamic_cast<Pose*>(target));
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10732180
 	bool PoseAnimationController::IsSupported(Animation* animation)
 	{

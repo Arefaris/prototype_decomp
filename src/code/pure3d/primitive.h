@@ -261,9 +261,17 @@ namespace pure3d
 		Pose* GetPose();
 		void SetPose(Pose* pose);
 
+		// 0x10734460's clone runs the copy constructor 0x107343D0
+		PoseAnimationController(const PoseAnimationController& other);
+		// 0x10732D40: takes the frame times of the animations for the pose's joints (when mUseFrameTimes)
+		void UpdateFrameTimes();
+
 		unsigned char unknown10C[4];
 		Pose* mPose;
-		unsigned char unknown114[0x31];
+		unsigned char unknown114[0x1C];
+		// The time each animation was last applied at, for the root motion of the next application (name guess)
+		float mPreviousTimes[5];
+		bool mAnimationChanged;
 		bool mUseFrameTimes;
 		unsigned char unknown146[2];
 		float* mFrameTimes;
@@ -280,6 +288,9 @@ namespace pure3d
 	// The regions a controller follows: room for 16 pointers and the end of the used ones (name guess)
 	struct VertexDeformRegionList
 	{
+		VertexDeformRegionList() : end(items)
+		{
+		}
 		bool IsFull()
 		{
 			return end - items == 16;
@@ -305,8 +316,9 @@ namespace pure3d
 	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x107302C0: a copy of another controller
+		// 0x107302C0: a copy of another controller; 0x107303F0: the destructor
 		VertexRegionAnimController(const VertexRegionAnimController& other);
+		virtual ~VertexRegionAnimController();
 
 		// Slot 3 (0x1072EC20: nothing), slots 24 (0x1072EBE0) and 25 (0x1072EBD0)
 		virtual void SetTarget(Entity* target);
@@ -348,8 +360,9 @@ namespace pure3d
 	class VertexAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x1073E3F0: a copy of another controller
+		// 0x1073E3F0: a copy of another controller; 0x1073E450: the destructor
 		VertexAnimController(const VertexAnimController& other);
+		virtual ~VertexAnimController();
 
 		// Slot 3 (0x1073E380: nothing), slots 24 (0x1073E350) and 25 (0x1073E340)
 		virtual void SetTarget(Entity* target);
@@ -386,8 +399,9 @@ namespace pure3d
 	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x1072E9B0: a copy of another controller
+		// 0x1072E9B0: a copy of another controller; 0x1072E5F0: the destructor
 		ShaderAnimationController(const ShaderAnimationController& other);
+		virtual ~ShaderAnimationController();
 
 		// Slot 3 (0x1072EA10: takes the target if it is a shader), slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26
 		// makes a new controller (0x1072E9F0, 0x48 bytes)
@@ -415,8 +429,9 @@ namespace pure3d
 	class ExpressionAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734750: a copy of another controller (it takes the same mixer)
+		// 0x10734750: a copy of another controller (it takes the same mixer); 0x10734580: the destructor
 		ExpressionAnimationController(const ExpressionAnimationController& other);
+		virtual ~ExpressionAnimationController();
 
 		// Slot 3 (0x10734520: nothing), slot 5 (0x10734690: the weights of the animation's expressions at the
 		// current frame), slots 24 (0x107345B0: an expression animation whose expressions the mixer's group has) and
@@ -444,8 +459,9 @@ namespace pure3d
 	class CompDrawVisibilityAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734BF0: a copy of another controller (it takes the same drawable)
+		// 0x10734BF0: a copy of another controller (it takes the same drawable); 0x10734A50: the destructor
 		CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other);
+		virtual ~CompDrawVisibilityAnimationController();
 
 		// Slot 3 (0x10734C50), slot 5 (0x107348B0: the segments' visibility at the current frame), slots 24 (0x107347C0)
 		// and 25 (0x107347B0), slot 26 (0x10734C30)
@@ -454,6 +470,14 @@ namespace pure3d
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		virtual CompDrawVisibilityAnimationController* Clone();
+		// Slot 22 (0x10734BB0): the animation and the lookup of its segments and channels
+		virtual void SetAnimation(Animation* animation, float a, float b);
+
+		// 0x107347F0 / 0x10734BE0: the drawable whose segments the controller shows and hides
+		Drawable* GetDrawable();
+		void SetDrawable(Drawable* drawable);
+		// 0x10734AD0: finds the segment and the visibility channel of every group of the animation
+		void FindChannels();
 
 		Drawable* mDrawable;
 		// One visibility channel and one segment number for each group of the animation
