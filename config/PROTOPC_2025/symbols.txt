@@ -99032,3 +99032,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??_R0?AV?$PropertyName@VPlaybackSet@engine@@@fight@@@8 = 0x111D7EF4 ; data size:0x8 | RTTI Type Descriptor
 ??_R0?AV?$PropertyTrackGroup@VPlaybackNode@engine@@@fight@@@8 = 0x111D8018 ; data size:0x8 | RTTI Type Descriptor
 ??_R0?AVPlaybackNode@engine@@@8 = 0x111D8058 ; data size:0x8 | RTTI Type Descriptor
+?UnpackAll@ControllerPacker@controller@engine@@UAEXPAVPlayerInput@23@PAEH@Z = 0x108A2690 ; function size:0x60 | engine::controller::ControllerPacker::UnpackAll vftable slot 4 (name guess)
+?VerifyAll@ControllerPacker@controller@engine@@UAE_NPAVPlayerInput@23@PAEH@Z = 0x108A2700 ; function size:0x86 | engine::controller::ControllerPacker::VerifyAll vftable slot 5 (name guess)
+?PackAll@ControllerPacker@controller@engine@@UAEHPAVPlayerInput@23@PAEH_NI@Z = 0x108A3180 ; function size:0xBC | engine::controller::ControllerPacker::PackAll vftable slot 3 (name guess)
