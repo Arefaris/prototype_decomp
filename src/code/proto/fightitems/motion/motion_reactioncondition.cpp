@@ -1655,16 +1655,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106730
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), ours has a redundant xor before the setcc (33.3 %)
 			bool ReactionHitDamageTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					bool equal = hit->damageType == damageType;
-					return doesMatch == equal;
+					return false;
 				}
-				return false;
+				bool same = (hit->damageType == damageType);
+				bool wanted = doesMatch;
+				return (wanted == same) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101075D0
