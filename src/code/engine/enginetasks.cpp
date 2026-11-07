@@ -2,8 +2,10 @@
 // all function names are guesses): the update of the game objects, pass by pass.
 #include "code/core/file/filesystem.h"
 #include "code/engine/audio/audiomanager.h"
+#include "code/engine/audio/audiosettings.h"
 #include "code/engine/camera/director.h"
 #include "code/engine/controller/inputsystem.h"
+#include "code/engine/controller/keyboardwin32.h"
 #include "code/engine/fmv/fmvplayer.h"
 #include "code/engine/gamestate.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
@@ -14,7 +16,9 @@
 #include "code/engine/render/effectmanager.h"
 #include "code/engine/system/exceptionmanager.h"
 #include "code/engine/system/gamestatetable.h"
+#include "code/engine/frontend/frontend.h"
 #include "code/engine/system/simulationdriver.h"
+#include "code/engine/world/zoneset.h"
 #include <stdlib.h>
 #include "code/choreo/puppetmanager.h"
 
@@ -180,5 +184,80 @@ namespace engine
 		UpdateFrontend(context);
 		UpdateExceptionManager(*(core::Time*)&context);
 		UpdateMovieState();
+	}
+}
+
+// The entry points the game's executable calls (the exports 73 and 74 of the engine): the keyboard and mouse messages
+// of its window. The mouse position, buttons and wheel go to the frontend's screen.
+namespace engine
+{
+	// The name of the mix event that lowers the audio while the window has no focus ("nofocus"; the statics unit's)
+	extern core::Name<core::CaseSensitiveKey> gNofocus;
+	// 0x111CA914: whether the window has the focus; 0x1131558C: 3 while it has, 1 while it has not (names guessed)
+	bool gWindowFocused;
+	int gFocusState;
+}
+
+extern "C"
+{
+	// FUNCTION: ENGINE 0x1085E6D0
+	void EngineWindowFocus(bool focused)
+	{
+		if (engine::gWindowFocused != focused)
+		{
+			if (!focused)
+			{
+				engine::StopMovie();
+				engine::gAudioEmitterSystem->MixEvent(engine::gNofocus, engine::gDuckName, true, 0, -1.0f, -1.0f);
+			}
+			engine::gFocusState = focused ? 3 : 1;
+			engine::ZoneSet* zones = engine::GetZoneSet();
+			if (zones != 0)
+			{
+				zones->Unknown108948D0(focused);
+			}
+			engine::controller::InputSystem::Get()->StopVibration();
+			engine::controller::InputSystem::Get()->ClearRemotePlayers();
+			engine::controller::InputSystem::Get()->ClearControllers();
+			engine::gWindowFocused = focused;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1085E560
+	void EngineKeyboardService(int message, int key, unsigned int flags, bool capsLock, bool numLock)
+	{
+		engine::controller::KeyboardWin32::Get()->OnKeyMessage(message, key, flags, capsLock, numLock);
+	}
+
+	// FUNCTION: ENGINE 0x1085E590
+	void EngineMouseService(unsigned int message, unsigned int wheel, unsigned int position)
+	{
+		switch (message)
+		{
+		case 0x201:
+			engine::SetScreenFlag(0, true, (unsigned short)position, position >> 16);
+			break;
+		case 0x202:
+			engine::SetScreenFlag(0, false, (unsigned short)position, position >> 16);
+			break;
+		case 0x204:
+			engine::SetScreenFlag(1, true, (unsigned short)position, position >> 16);
+			break;
+		case 0x205:
+			engine::SetScreenFlag(1, false, (unsigned short)position, position >> 16);
+			break;
+		case 0x207:
+			engine::SetScreenFlag(2, true, (unsigned short)position, position >> 16);
+			break;
+		case 0x208:
+			engine::SetScreenFlag(2, false, (unsigned short)position, position >> 16);
+			break;
+		case 0x20a:
+			engine::SetScreenClampedFloat((unsigned short)position, position >> 16, 541.0f - (float)(int)(wheel >> 16) * (1.0f / 120.0f));
+			break;
+		case 0x200:
+			engine::SetScreenCentre((unsigned short)position, position >> 16);
+			break;
+		}
 	}
 }

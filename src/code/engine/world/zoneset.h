@@ -23,6 +23,9 @@ namespace engine
 		// 0x10894860: adds a zone and its package file with that many entries
 		void AddZone(const char* name, const char* file, unsigned int entryCount, const ZoneEntry* newEntries);
 
+		// 0x108948D0: told when the window gains or loses the focus
+		void Unknown108948D0(bool focused);
+
 		int unknown0;
 		const char* name;  // +4
 		const char* file;  // +8
