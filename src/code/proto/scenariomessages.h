@@ -970,6 +970,159 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> unknownName20;  // +0x20
 	};
 
+	struct AboutToSaveGameScenarioMessage : public engine::ScenarioMessage
+	{
+		AboutToSaveGameScenarioMessage() : engine::ScenarioMessage(0x4B)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+	};
+
+	struct AboutToSaveCheckpointScenarioMessage : public engine::ScenarioMessage
+	{
+		AboutToSaveCheckpointScenarioMessage() : engine::ScenarioMessage(0x4C)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+	};
+
+	struct JustLoadedCheckpointScenarioMessage : public engine::ScenarioMessage
+	{
+		JustLoadedCheckpointScenarioMessage() : engine::ScenarioMessage(0x4D)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+	};
+
+	struct AboutToLoadCheckpointScenarioMessage : public engine::ScenarioMessage
+	{
+		AboutToLoadCheckpointScenarioMessage() : engine::ScenarioMessage(0x4E)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+	};
+
+	struct FreeRoamEventScenarioMessage : public engine::ScenarioMessage
+	{
+		FreeRoamEventScenarioMessage() : engine::ScenarioMessage(0x4F)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int state;  // +0x1C
+		core::Name<core::CaseSensitiveKey> eventName;  // +0x20
+		core::Name<core::CaseSensitiveKey> className;  // +0x28
+		core::Name<core::CaseSensitiveKey> string;  // +0x30
+	};
+
+	struct FramerCamEventScenarioMessage : public engine::ScenarioMessage
+	{
+		FramerCamEventScenarioMessage() : engine::ScenarioMessage(0x50)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual bool WriteEvent();
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int type;  // +0x1C
+		core::Name<core::CaseSensitiveKey> name;  // +0x20
+	};
+
+	struct DestinationReachedMessage : public engine::ScenarioMessage
+	{
+		DestinationReachedMessage() : engine::ScenarioMessage(0x1A)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		char data[64];  // +0x1C
+	};
+
+	struct StateMachineStateChangedMessage : public engine::ScenarioMessage
+	{
+		StateMachineStateChangedMessage() : engine::ScenarioMessage(0x30)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		void* newState;  // +0x1C: the state (its name is at +8)
+	};
+
+	struct SquadSpawnedScenarioMessage : public engine::ScenarioMessage
+	{
+		SquadSpawnedScenarioMessage() : engine::ScenarioMessage(0x37)
+		{
+		}
+		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
+		virtual void WriteFields(engine::LuaScriptManager* context);
+
+		static engine::ScenarioHandleInfo GetHandleInfo()
+		{
+			return sHandleInfo;
+		}
+
+		static engine::ScenarioHandleInfo sHandleInfo;
+		int unknown1C;  // +0x1C
+	};
+
 }
 
 #endif

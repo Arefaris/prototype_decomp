@@ -21,8 +21,20 @@ namespace engine
 	}
 }
 
+namespace fight
+{
+	class TrackRegistry;
+}
+
 namespace proto
 {
+	namespace fightitems
+	{
+		// The registration of the scenario message kinds in the editor's lists; it is called with the track registry of
+		// the factories (name from the call site), which it does not use
+		void RegisterAt1048FCE0Factories(fight::TrackRegistry* registry);
+	}
+
 	// FUNCTION: ENGINE 0x10493810
 	engine::ScenarioMessage* ObjectSpawnedMessage::Clone(void* memory, int unused)
 	{
@@ -750,6 +762,192 @@ namespace proto
 		context->SetInt("attackType", attackType);
 	}
 
+	// FUNCTION: ENGINE 0x10493480
+	engine::ScenarioMessage* AboutToSaveGameScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) AboutToSaveGameScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D770
+	bool AboutToSaveGameScenarioMessage::WriteEvent()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x104934F0
+	engine::ScenarioMessage* AboutToSaveCheckpointScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) AboutToSaveCheckpointScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D780
+	bool AboutToSaveCheckpointScenarioMessage::WriteEvent()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10493560
+	engine::ScenarioMessage* JustLoadedCheckpointScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) JustLoadedCheckpointScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D790
+	bool JustLoadedCheckpointScenarioMessage::WriteEvent()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x104935D0
+	engine::ScenarioMessage* AboutToLoadCheckpointScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) AboutToLoadCheckpointScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D7A0
+	bool AboutToLoadCheckpointScenarioMessage::WriteEvent()
+	{
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10493640
+	engine::ScenarioMessage* FreeRoamEventScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) FreeRoamEventScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D7B0
+	bool FreeRoamEventScenarioMessage::WriteEvent()
+	{
+		engine::LuaScriptManager* context = engine::GetScriptManager();
+		if (context == 0)
+		{
+			return false;
+		}
+		if (!context->OpenEvent())
+		{
+			return false;
+		}
+		context->SetInt("state", state);
+		context->SetName("eventName", eventName);
+		context->SetName("className", className);
+		context->SetName("string", string);
+		context->Close();
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10493660
+	engine::ScenarioMessage* FramerCamEventScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) FramerCamEventScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x1048D840
+	bool FramerCamEventScenarioMessage::WriteEvent()
+	{
+		engine::LuaScriptManager* context = engine::GetScriptManager();
+		if (context == 0)
+		{
+			return false;
+		}
+		if (!context->OpenEvent())
+		{
+			return false;
+		}
+		context->SetInt("type", type);
+		context->SetName("name", name);
+		context->Close();
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x104923E0
+	engine::ScenarioMessage* DestinationReachedMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) DestinationReachedMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x10492C70
+	engine::ScenarioMessage* StateMachineStateChangedMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) StateMachineStateChangedMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x10492EE0
+	engine::ScenarioMessage* SquadSpawnedScenarioMessage::Clone(void* memory, int unused)
+	{
+		return new (memory) SquadSpawnedScenarioMessage(*this);
+	}
+
+
+	// FUNCTION: ENGINE 0x1048FCE0
+	void fightitems::RegisterAt1048FCE0Factories(fight::TrackRegistry* registry)
+	{
+		engine::scenario::RegisterMessageKind<proto::DestinationReachedMessage>(0x1a, "Destination Reached");
+		engine::scenario::RegisterMessageKind<proto::DisguiseChangedMessage>(0x15, "Disguise Changed");
+		engine::scenario::RegisterMessageKind<proto::FixedTargetDeadMessage>(0x1c, "Fixed Target Dead");
+		engine::scenario::RegisterMessageKind<proto::ObjectSpawnedMessage>(0x14, "Object Spawned");
+		engine::scenario::RegisterMessageKind<proto::HeliLandedStateChangeMessage>(0x1e, "Heli Landed State Change");
+		engine::scenario::RegisterMessageKind<proto::ObjectConsumedMessage>(0x13, "Object Consumed");
+		engine::scenario::RegisterMessageKind<proto::ObjectDamagedMessage>(0x16, "Object Damaged");
+		engine::scenario::RegisterMessageKind<proto::ObjectDeadMessage>(0x17, "Object Dead");
+		engine::scenario::RegisterMessageKind<proto::ObjectZeroHealthMessage>(0x18, "Object Zero Health");
+		engine::scenario::RegisterMessageKind<proto::ObjectOffscreenDespawnMessage>(0x19, "Object Offscreen Despawn");
+		engine::scenario::RegisterMessageKind<proto::TargetChangedMessage>(0x1b, "Target Changed");
+		engine::scenario::RegisterMessageKind<proto::HintCancelledMessage>(0x1b, "Hint Cancelled");
+		engine::scenario::RegisterMessageKind<proto::StateMachineStateChangedMessage>(0x30, "State Machine State Change");
+		engine::scenario::RegisterMessageKind<proto::EnterAlertScenarioMsg>(0x1f, "Enter Alert");
+		engine::scenario::RegisterMessageKind<proto::LeaveAlertScenarioMsg>(0x20, "Leave Alert");
+		engine::scenario::RegisterMessageKind<proto::DisguiseBlownScenarioMsg>(0x22, "Disguise Blown");
+		engine::scenario::RegisterMessageKind<proto::DisguiseUnblownScenarioMsg>(0x23, "Disguise Unblown");
+		engine::scenario::RegisterMessageKind<proto::PlayerWatchedScenarioMsg>(0x24, "Player Watched");
+		engine::scenario::RegisterMessageKind<proto::PlayerUnwatchedScenarioMsg>(0x25, "Player Unwatched");
+		engine::scenario::RegisterMessageKind<proto::BaseEnterAlertScenarioMsg>(0x26, "Base Enter Alert");
+		engine::scenario::RegisterMessageKind<proto::BaseLeaveAlertScenarioMsg>(0x27, "Base Leave Alert");
+		engine::scenario::RegisterMessageKind<proto::BaseBackToIdleScenarioMsg>(0x28, "Base Back To Idle");
+		engine::scenario::RegisterMessageKind<proto::BaseEnterBeginCombatScenarioMsg>(0x29, "Base Enter BeginCombat");
+		engine::scenario::RegisterMessageKind<proto::DisguiseHUDWhiteScenarioMsg>(0x2a, "Disguise HUD White");
+		engine::scenario::RegisterMessageKind<proto::DisguiseHUDYellowScenarioMsg>(0x2b, "Disguise HUD Yellow");
+		engine::scenario::RegisterMessageKind<proto::DisguiseHUDRedScenarioMsg>(0x2c, "Disguise HUD Red");
+		engine::scenario::RegisterMessageKind<proto::DisguiseHUDRedHideScenarioMsg>(0x2d, "Disguise HUD Red Hide");
+		engine::scenario::RegisterMessageKind<proto::PlayerEngagedScenarioMsg>(0x2e, "Player Engaged");
+		engine::scenario::RegisterMessageKind<proto::RadioAttemptScenarioMsg>(0x2f, "Radio Attempt");
+		engine::scenario::RegisterMessageKind<proto::SpawnerAllSpawnedScenarioMessage>(0x34, "Spawner All Spawned");
+		engine::scenario::RegisterMessageKind<proto::SpawnerFinishedScenarioMessage>(0x35, "Spawner Finished");
+		engine::scenario::RegisterMessageKind<proto::SpawnerAllZeroHealthScenarioMessage>(0x36, "Spawner All Zero Health");
+		engine::scenario::RegisterMessageKind<proto::SquadSpawnedScenarioMessage>(0x37, "Squad Spawned");
+		engine::scenario::RegisterMessageKind<proto::SquadDisbandedScenarioMessage>(0x38, "Squad Disbanded");
+		engine::scenario::RegisterMessageKind<proto::EnterVehicleScenarioMessage>(0x39, "Enter Vehicle");
+		engine::scenario::RegisterMessageKind<proto::ExitVehicleScenarioMessage>(0x3a, "Exit Vehicle");
+		engine::scenario::RegisterMessageKind<proto::ObjectGrabbedScenarioMessage>(0x3b, "Object Grabbed");
+		engine::scenario::RegisterMessageKind<proto::ObjectDroppedScenarioMessage>(0x3c, "Object Dropped");
+		engine::scenario::RegisterMessageKind<proto::ObjectThrownScenarioMessage>(0x3d, "Object Thrown");
+		engine::scenario::RegisterMessageKind<proto::MotionStateScenarioMessage>(0x3e, "Motion State Changed");
+		engine::scenario::RegisterMessageKind<proto::SupportingSurfaceChangedScenarioMessage>(0x3f, "Supporting Surface Changed");
+		engine::scenario::RegisterMessageKind<proto::CollectibleSpawnedScenarioMessage>(0x40, "Collectible Spawned");
+		engine::scenario::RegisterMessageKind<proto::CollectibleCollectedScenarioMessage>(0x41, "Collectible Collected");
+		engine::scenario::RegisterMessageKind<proto::CollectibleEndOfLifeScenarioMessage>(0x42, "Collectible End Of Life");
+		engine::scenario::RegisterMessageKind<proto::WOINodeStateScenarioMessage>(0x43, "WOI Node State Changed");
+		engine::scenario::RegisterMessageKind<proto::WOINodeFMVPlayedScenarioMessage>(0x44, "WOI FMV Played");
+		engine::scenario::RegisterMessageKind<proto::PatrolDestroyedScenarioMessage>(0x45, "Patrol Destroyed");
+		engine::scenario::RegisterMessageKind<proto::StrikeTeamDestroyedScenarioMessage>(0x46, "Strike Team Destroyed");
+		engine::scenario::RegisterMessageKind<proto::StrikeTeamEvadedScenarioMessage>(0x47, "Strike Team Evaded");
+		engine::scenario::RegisterMessageKind<proto::StrikeTeamInboundScenarioMessage>(0x48, "Strike Team Inbound");
+		engine::scenario::RegisterMessageKind<proto::BaseOrHiveDestroyedScenarioMessage>(0x49, "Base or Hive Destroyed");
+		engine::scenario::RegisterMessageKind<proto::BaseOrHiveScenarioMessage>(0x4a, "Base or Hive Generic");
+		engine::scenario::RegisterMessageKind<proto::AboutToSaveGameScenarioMessage>(0x4b, "About to Save the Game");
+		engine::scenario::RegisterMessageKind<proto::AboutToSaveCheckpointScenarioMessage>(0x4c, "About to Save a Checkpoint");
+		engine::scenario::RegisterMessageKind<proto::JustLoadedCheckpointScenarioMessage>(0x4d, "Just loaded a Checkpoint");
+		engine::scenario::RegisterMessageKind<proto::AboutToLoadCheckpointScenarioMessage>(0x4e, "About to Load a Checkpoint");
+		engine::scenario::RegisterMessageKind<proto::FreeRoamEventScenarioMessage>(0x4f, "Free Roam Event");
+		engine::scenario::RegisterMessageKind<proto::FramerCamEventScenarioMessage>(0x50, "Framer Camera Event");
+		engine::scenario::RegisterMessageKind<proto::NISDoneScenarioMessage>(0x51, "NIS Done");
+		engine::scenario::RegisterMessageKind<proto::WOITargetSpawnedScenarioMessage>(0x52, "WOI Target Spawned");
+		engine::scenario::RegisterMessageKind<proto::WOITargetSpawnedScenarioMessage>(0x53, "WOI Target Consumed");
+		engine::scenario::RegisterMessageKind<proto::UnlockableAcquiredScenarioMessage>(0x54, "Unlockable Acquired");
+		engine::scenario::RegisterMessageKind<proto::UnlockableIncrementedPurchaseTypeScenarioMessage>(0x55, "Unlockable Incremented Purchase Type");
+		engine::scenario::SortListers();
+	}
+
 }
 
 namespace engine
@@ -862,6 +1060,24 @@ namespace engine
 		template void RegisterMessageKind<proto::ObjectZeroHealthMessage>(int, const char*);
 		// FUNCTION: ENGINE 0x1048DEE0
 		template void RegisterMessageKind<proto::ObjectOffscreenDespawnMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F710
+		template void RegisterMessageKind<proto::AboutToSaveGameScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F7A0
+		template void RegisterMessageKind<proto::AboutToSaveCheckpointScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F830
+		template void RegisterMessageKind<proto::JustLoadedCheckpointScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F8C0
+		template void RegisterMessageKind<proto::AboutToLoadCheckpointScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F950
+		template void RegisterMessageKind<proto::FreeRoamEventScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048F9E0
+		template void RegisterMessageKind<proto::FramerCamEventScenarioMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048D9D0
+		template void RegisterMessageKind<proto::DestinationReachedMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048E090
+		template void RegisterMessageKind<proto::StateMachineStateChangedMessage>(int, const char*);
+		// FUNCTION: ENGINE 0x1048EBD0
+		template void RegisterMessageKind<proto::SquadSpawnedScenarioMessage>(int, const char*);
 	}
 }
 
@@ -1006,3 +1222,21 @@ namespace engine
 // FUNCTION: ENGINE 0x1048BA10
 // FUNCTION: ENGINE 0x104902C0
 // FUNCTION: ENGINE 0x104903B0
+// FUNCTION: ENGINE 0x1048C590
+// FUNCTION: ENGINE 0x1048C5D0
+// FUNCTION: ENGINE 0x1048C610
+// FUNCTION: ENGINE 0x1048C650
+// FUNCTION: ENGINE 0x1048C690
+// FUNCTION: ENGINE 0x1048C6D0
+// FUNCTION: ENGINE 0x10491CA0
+// FUNCTION: ENGINE 0x10491D00
+// FUNCTION: ENGINE 0x10491D60
+// FUNCTION: ENGINE 0x10491DC0
+// FUNCTION: ENGINE 0x10491E20
+// FUNCTION: ENGINE 0x10491F00
+// FUNCTION: ENGINE 0x1048BA50
+// FUNCTION: ENGINE 0x1048BB90
+// FUNCTION: ENGINE 0x1048BC90
+// FUNCTION: ENGINE 0x10490470
+// FUNCTION: ENGINE 0x10490D60
+// FUNCTION: ENGINE 0x104911F0
