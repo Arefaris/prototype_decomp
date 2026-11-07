@@ -7523,3 +7523,24 @@ Units extended in `src/code/proto/fightitems/motion/` (the action half sits betw
 - `mgraph/nodes.h`, `abstraction.cpp`: `Abstraction` (the contained graph at 0x58, the link in the graph's list at 0x50), `LinkedGraph` (one channel, the abstracted name at 0x60) and `EmbeddedGraph`: attach, detach, channel count, enabled channels, channel reset. `Node::Slot12` is `SetChannelEnabled(unsigned int, bool)`.
 - What the pass taught: (1) the engine's inline helpers that turn a link into the object around it (`link ? link - 4 : 0`) compile to the shape `if (x != 0) r = ...; else r = 0; return r;` in a `__forceinline` function; a ternary or an early return lets the optimiser remove the second test. (2) A pair of list pointers passed as `NodeLink**` (`list[0]` head, `list[1]` tail) gives the engine's address arithmetic for a list that sits inside another object (`add eax, 0x3C` before the first compare). (3) The largest part of the range is dead template copies: the same template instance (`ReadText<audio::BufferLocation>`, `MetaClass<T>::Slot5`, ...) exists at several addresses and only one of them can be bound to the source's instance; the rest cannot be reconstructed.
 - Not done: the Direct sound driver (its class is spread over 0x10ABC000 - 0x10AC0F10, the device code and model are 2.5 KB), `Graph` destructor / `Slot3` .. `Slot8` (the XML and binary reading and writing), `Context::SetNodeLevel` (0x10AC46F0) and the evaluation (0x10AC4A40), the node reflection registration functions (shrink-wrap), the pins' base constructors and destructors (`Pin::Pin` at 0x10B6A600 is outside the range), `Abstraction` destructor / `SetInnerGraph` (0x10ACCF00).
+
+## sn-dm: the range 0x10080000 - 0x100A0000 (animation blend, boundary and whip fist actions)
+- `proto/fightitems/motion/motion_animationblend.cpp` (+ `.h`): `Slot5` / `Slot7` of `AnimationBlendSimpleAction` and `AnimationBlendDirectionalAction`
+  (with the directional helpers `GetInput`, `ChooseDirection`, `Blend`, `AdjustWeights`, the table of the four allowed-transitions getters
+  `_sAllowedTransitionsGetters` at 0x10D9C08C) and `Slot5` of `AnimationBlendVerticalAimAction`; the track getters the actions use are kept copies
+  (in the order of the properties, defined in the track classes: a getter is emitted only when compiled code uses it, so the getters that only the
+  `Slot7` of the vertical aim and strafe actions use stay open). Left to the engine: 0x10095190 (`GetQuadrant`: the engine keeps the constant 1
+  in another register), 0x100956D0 (the weight variable message: the engine drops the base vftable stores), `Slot7` of the vertical aim action and
+  `Slot5` / `Slot7` of the strafe action (they need the static helpers 0x10095B00, 0x10095D40, 0x10095610 that take xmm0 / esi / edi).
+  A pointer into the object's transform must be taken as `const math::Matrix& matrix = object->transform->value;` (then the engine's leftover
+  `add eax, 4` appears); an early return per condition gives the engine's shared failure return.
+- `proto/fightitems/motion/motion_boundary.cpp` (+ `.h`): `FromWaterSetJumpToAction`, `IgnoreWaterReactionAction`, `OrientTowardsJumpInPositionAction::Slot5`,
+  four of the six `JumpFromWaterAction` helpers, the helpers of this unit (`AssignRefCountedCopy4` 0x1009E210, `SafeReleaseRefCopy4` 0x1009E250),
+  the messages `GetJumpDestinationMovementMessage`, `JumpToMovementMessage`, `ChargeEatMessage`. NONMATCHING: `FromWaterSetJumpToAction::Slot5` 94.7 %
+  and `OrientTowardsJumpInPositionAction::Slot7` 88.6 % (frame offsets / x87 stack), `JumpFromWaterAction::Slot5` 64.1 % (the engine knows that its
+  helpers keep ecx; two of them, 0x1009F2C0 and 0x1009F390, do not reach 100 % and are left to the engine). The engine's classes
+  `proto::WorldTriggerCollisionCallback` (0x11264740) and the jump destination (`Update` 0x103C5C60) are declared with the members seen.
+- `proto/fightitems/motion/motion_autotarget.cpp`: `AssignRefCountedCopy3` / `SafeReleaseRefCopy3` and `AutoTargetPositionAction::Slot5`.
+- `proto/powers/whipfistpower.cpp` (+ `.h`): the layout of `WhipFistPower` (0x130 bytes), its segment and chain structs, the destructor, `Clone`.
+  NONMATCHING: both constructors (87.7 % and 95.4 %, the engine zeroes the floats with two registers and schedules the handle's address later).
+  Shared header change: `ai/aihelpers.h` (`AISystem::Unknown10360C80`).
