@@ -553,7 +553,7 @@ namespace proto
 			PathNode* first = path88.At(0);
 			unsigned short owner = first->areaLink->owner;
 			engine::GameObjectHandle handle = (owner != 0xffff) ? gNavMesh->handles[owner] : engine::GameObjectHandle();
-			if (Unknown10431520(&handle, first->link->GetLaneCount()) == 0.0f)
+			if (Unknown10431520(&handle, first->link->GetNextLightIndex()) == 0.0f)
 			{
 				unknown170 = Unknown1044C340(sSecondChances[0]);
 			}
@@ -1643,7 +1643,7 @@ namespace proto
 	bool VehicleBehaviourAmbient::FindNeighbourLanes(int* lower, int* upper)
 	{
 		PathNode::AreaLink* area = path88.At(0)->areaLink;
-		int lane = path88.At(0)->link->lane;
+		int lane = path88.At(0)->link->currentLane;
 		*lower = -1;
 		*upper = 6;
 		int count = area->lanesEnd - area->lanes;

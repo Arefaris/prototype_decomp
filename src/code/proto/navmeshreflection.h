@@ -37,11 +37,39 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 	};
 
-	// One lane of an edge (RTTI proto::LaneData)
+	// One lane of an edge (RTTI proto::LaneData, 4 bytes): the lane the vehicle is in, where it goes next and the light
+	// it waits for. The reflected names are original, the rest is guessed.
 	struct LaneData
 	{
+		// 0x10567F20: lane 0, edge 0, lane 0, light 0, active
+		LaneData();
+
 		// 0x10567E90
 		static content::ClassInfo* GetClassInfo();
+		// 0x1056C190
+		static content::MemberList* GetMembers();
+
+		// 0x10567F60 / 0x10567F40: the low four bits of the fourth byte
+		char GetNextLightIndex() const;
+		void SetNextLightIndex(char value);
+		// 0x10567F90 / 0x10567F70: the bit above them
+		bool GetActive() const;
+		void SetActive(bool value);
+
+		union
+		{
+			// The first two bytes compare as one key
+			unsigned short key;
+			struct
+			{
+				char currentLane;
+				char nextEdge;
+			};
+		};
+		char nextLane;  // +2
+		unsigned char nextLightIndex : 4;  // +3
+		unsigned char active : 1;
+		unsigned char unknown3 : 3;
 	};
 
 	// One edge of an area (RTTI proto::Edge)
