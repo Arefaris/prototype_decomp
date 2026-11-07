@@ -104,6 +104,12 @@ namespace fight
 	class PropertyTypePropertyList : public Property
 	{
 	public:
+		// 0x108AF0B0 (the primitive display track's unit keeps a copy; the engine's calls expand it)
+		PropertyTypePropertyList(const char* name) : Property(name)
+		{
+		}
+		// vftable slot 0 (0x108AF0D0)
+		virtual int GetType() const;
 		// vftable slot 6 (0x105A94C0)
 		virtual bool Slot6(int object, int context, void* reader);
 		// vftable slots 7 - 9: the count of items / the property of an item / sets the count
@@ -193,7 +199,37 @@ namespace fight
 			{
 				return false;
 			}
-			return (static_cast<T*>(object)->*m_setter)(value);
+			return (ObjectOf<T>(object)->*m_setter)(value);
+		}
+
+		Setter m_setter;
+	};
+
+	// The same for a float member that is not limited (RTTI: fight::PropertyFloat<T>); the object is the Param part of the class
+	template<class T> class PropertyFloat : public PropertyTypeFloat
+	{
+	public:
+		typedef bool (T::*Setter)(float);
+
+		PropertyFloat(const char* name, Setter setter)
+			: PropertyTypeFloat(name), m_setter(setter)
+		{
+		}
+
+		// vftable slot 1
+		virtual bool IsNull() const
+		{
+			return m_setter == 0;
+		}
+
+		// vftable slot 7
+		virtual bool Set(void* object, float value)
+		{
+			if (m_setter == 0)
+			{
+				return false;
+			}
+			return (ObjectOf<T>(object)->*m_setter)(value);
 		}
 
 		Setter m_setter;
@@ -241,7 +277,7 @@ namespace fight
 		// vftable slot 8
 		virtual bool Set(void* object, const Name& value)
 		{
-			return (static_cast<T*>(object)->*m_setter)(value);
+			return (ObjectOf<T>(object)->*m_setter)(value);
 		}
 
 		Setter m_setter;
@@ -743,7 +779,7 @@ namespace fight
 			{
 				return false;
 			}
-			return (static_cast<T*>(object)->*m_setter)(text);
+			return (ObjectOf<T>(object)->*m_setter)(text);
 		}
 
 		Setter m_setter;

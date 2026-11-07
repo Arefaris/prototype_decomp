@@ -10,7 +10,7 @@ namespace engine
 {
 	namespace controller
 	{
-		class PlayerInfo;
+		class PlayerInput;
 
 		// One timed force feedback effect (20 bytes): it ramps up over the attack time, holds for the hold time and
 		// ramps down over the release time
@@ -57,7 +57,7 @@ namespace engine
 			{
 			}
 			// Reads the bound input points into the player's state
-			virtual void Read(PlayerInfo* player) = 0;
+			virtual void Read(PlayerInput* player) = 0;
 			// Starts a force feedback effect on a motor, or stops the motor's effects when the intensity is 0
 			virtual void SetRumble(int motor, float hold, float intensity, float attack, float release) = 0;
 			virtual void SetRumbleEnabled(bool enabled) = 0;
@@ -165,7 +165,7 @@ namespace engine
 
 			// 0x10846E50
 			PhysicalController(int buttonCapacity, int axisCapacity, int motorCount, int effectCapacity);
-			virtual void Read(PlayerInfo* player);
+			virtual void Read(PlayerInput* player);
 			virtual void SetRumble(int motor, float hold, float intensity, float attack, float release);
 			virtual void SetRumbleEnabled(bool enabled);
 			virtual void UpdateRumble(float delta);
@@ -180,12 +180,12 @@ namespace engine
 			// 0x10845C80: stops all motors
 			void StopRumble();
 			// 0x10846B00: reads the buttons into the player, 0x108472A0 the axes
-			void UpdateButtons(PlayerInfo* player);
-			void UpdateAxes(PlayerInfo* player);
+			void UpdateButtons(PlayerInput* player);
+			void UpdateAxes(PlayerInput* player);
 			// 0x10847150: a mouse axis (the sensitivity setting scales it)
-			void ReadMouse(MouseView* mouse, PlayerInfo* player);
+			void ReadMouse(MouseView* mouse, PlayerInput* player);
 			// 0x10846D40: a hat switch as two axes
-			void ReadHat(HatView* hat, PlayerInfo* player);
+			void ReadHat(HatView* hat, PlayerInput* player);
 			// 0x10846340 / 0x108463A0 / 0x10846430: the binding that feeds a player value / drives an axis (in one
 			// direction)
 			ButtonBinding* FindButton(int value);

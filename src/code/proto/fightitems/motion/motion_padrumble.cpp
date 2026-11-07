@@ -402,7 +402,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x101001B0
 			void StopPadRumble()
 			{
-				engine::controller::PlayerInfo* info = (engine::controller::PlayerInfo*)engine::controller::InputSystem::Get()->connected.head;
+				engine::controller::PlayerInput* info = (engine::controller::PlayerInput*)engine::controller::InputSystem::Get()->connected.head;
 				for (int motor = 0; motor < 2; motor++)
 				{
 					engine::controller::InputSystem::Get()->SetVibration(info->id, motor, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -445,7 +445,7 @@ namespace proto
 #ifdef NONMATCHING
 			bool PadRumbleSetAction::Slot5(int arg, float value)
 			{
-				engine::controller::PlayerInfo* info = (engine::controller::PlayerInfo*)engine::controller::InputSystem::Get()->connected.head;
+				engine::controller::PlayerInput* info = (engine::controller::PlayerInput*)engine::controller::InputSystem::Get()->connected.head;
 				float intensity = link.object->scale;
 				if (usePosition)
 				{

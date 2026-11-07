@@ -21,7 +21,7 @@ namespace engine
 			// vftable slots 0 - 2 and 3 (0x10890980, 0x10890990, 0x108909A0, 0x10890970): handed on
 			virtual void SetFlags(unsigned int id, unsigned int flags, bool set);
 			virtual void SetValue(unsigned int id, int value);
-			virtual void Refresh();
+			virtual void Release(unsigned int id, int slot);
 			virtual void Collect(container::SListBase* players);
 			// slot 4 (0x10892130)
 			virtual void CollectActive(container::SListBase* players, float time);

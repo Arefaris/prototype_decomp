@@ -21,9 +21,9 @@ namespace engine
 	namespace controller
 	{
 		// Kept copies of inline functions and compiler-generated members (symbols in symbols.txt):
-		// PlayerInfo::GetNext, HasFlags, SetFlags, ClearFlags, ResetFlags, IsActive, GetFlags, GetInput, SetInput,
+		// PlayerInput::GetNext, HasFlags, SetFlags, ClearFlags, ResetFlags, IsActive, GetFlags, GetInput, SetInput,
 		// SetContext, SetSlot, SetId; PlayerInfoFactoryInterface's constructor; the scalar deleting destructors of
-		// PhysicalControllerManager, PlayerInfoFactory and InputSystem; PlayerInfo's vector deleting destructor
+		// PhysicalControllerManager, PlayerInfoFactory and InputSystem; PlayerInput's vector deleting destructor
 		// FUNCTION: ENGINE 0x107DF3B0
 		// FUNCTION: ENGINE 0x107DF3D0
 		// FUNCTION: ENGINE 0x107DF3F0
@@ -83,7 +83,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DF650
 		void InputSystem::SetPlayerFlags(unsigned int id, unsigned int flags)
 		{
-			PlayerInfo* info = GetPlayer(id);
+			PlayerInput* info = GetPlayer(id);
 			if (!info->HasFlags(flags))
 			{
 				OnFlags(id, flags, true, 1);
@@ -97,7 +97,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DF6A0
 		void InputSystem::ClearPlayerFlags(unsigned int id, unsigned int flags)
 		{
-			PlayerInfo* info = GetPlayer(id);
+			PlayerInput* info = GetPlayer(id);
 			if (info->HasFlags(flags))
 			{
 				OnFlags(id, flags, false, 1);
@@ -199,11 +199,10 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DF960
-		// EQUIVALENT: the tail call takes the slot through edx instead of eax
-		void InputSystem::Update()
+		void InputSystem::ReleaseSlot(unsigned int id, int slot)
 		{
 			pending++;
-			manager->Refresh();
+			manager->Release(id, slot);
 		}
 
 		// FUNCTION: ENGINE 0x107DF970
@@ -213,7 +212,7 @@ namespace engine
 			{
 				core::Trace(0, &value, 4);
 			}
-			ReleaseSlot(id, value);
+			SlotManager::ReleaseSlot(id, value);
 		}
 
 		// FUNCTION: ENGINE 0x107DF9B0
@@ -237,13 +236,13 @@ namespace engine
 			this->config = config;
 			if (this->config.helperA == 0)
 			{
-				this->config.helperA = new InputHelperA;
+				this->config.helperA = new ControllerPacker;
 			}
 			if (this->config.helperB == 0)
 			{
-				this->config.helperB = new InputHelperB;
+				this->config.helperB = new ControllerPackerLossLess;
 			}
-			players = new PlayerInfo[playerCount + controllerCount];
+			players = new PlayerInput[playerCount + controllerCount];
 			physical = new PhysicalControllerManager(controllerCount);
 			InitControllers();
 			Reset();
@@ -277,9 +276,9 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107DFDD0
-		PlayerInfo* InputSystem::FindPlayer(unsigned int id, container::SListBase* list)
+		PlayerInput* InputSystem::FindPlayer(unsigned int id, container::SListBase* list)
 		{
-			PlayerInfo* info = (PlayerInfo*)list->head;
+			PlayerInput* info = (PlayerInput*)list->head;
 			while (info != 0 && info->id != id)
 			{
 				info = info->GetNext();
@@ -291,7 +290,7 @@ namespace engine
 		void InputSystem::CollectPlayers()
 		{
 			manager->Collect(&connected);
-			for (PlayerInfo* info = (PlayerInfo*)connected.head; info != 0; info = info->GetNext())
+			for (PlayerInput* info = (PlayerInput*)connected.head; info != 0; info = info->GetNext())
 			{
 				info->Update();
 			}
@@ -309,7 +308,7 @@ namespace engine
 		{
 			GetKeyboard()->Update(context.dt);
 			manager->CollectActive(&active, context.dt);
-			for (PlayerInfo* info = (PlayerInfo*)active.head; info != 0; info = info->GetNext())
+			for (PlayerInput* info = (PlayerInput*)active.head; info != 0; info = info->GetNext())
 			{
 				info->Update();
 			}
@@ -319,7 +318,7 @@ namespace engine
 		// EQUIVALENT: the second SetVibration call loads the id into ecx and the manager later
 		void InputSystem::StopVibration()
 		{
-			for (PlayerInfo* info = (PlayerInfo*)active.head; info != 0; info = info->GetNext())
+			for (PlayerInput* info = (PlayerInput*)active.head; info != 0; info = info->GetNext())
 			{
 				physical->SetVibration(info->id, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 				physical->SetVibration(info->id, 1, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -329,8 +328,8 @@ namespace engine
 		// FUNCTION: ENGINE 0x107DFED0
 		void InputSystem::SetValue(unsigned int id, int value)
 		{
-			PlayerInfo* info = GetPlayer(id);
-			info->input->SetValue(value);
+			PlayerInput* info = GetPlayer(id);
+			info->input->Assign((const PlayerInfo*)value);
 			for (InputCallback* callback = callbacks.First(); callback != 0; callback = callbacks.Next(callback))
 			{
 				callback->OnValue(id, 1, info->input);
@@ -369,7 +368,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x107E00A0
 		void InputSystem::UpdateLocal(unsigned int id, unsigned int flags, bool set)
 		{
-			PlayerInfo* info = GetPlayer(id);
+			PlayerInput* info = GetPlayer(id);
 			if (set)
 			{
 				info->SetFlags(flags);
@@ -397,7 +396,7 @@ namespace engine
 		// EQUIVALENT: the engine inlines finder / remover helpers our compiler declines to inline; the expanded loops differ in load order
 		void InputSystem::UpdateRemote(unsigned int id, unsigned int flags, bool set)
 		{
-			PlayerInfo* info = 0;
+			PlayerInput* info = 0;
 			int i;
 			for (i = controllerCount; i < playerCount + controllerCount; i++)
 			{
@@ -436,10 +435,10 @@ namespace engine
 			{
 				info->ClearFlags(flags);
 			}
-			PlayerInfo* item;
+			PlayerInput* item;
 			if (!(info->GetFlags() & 2))
 			{
-				for (item = (PlayerInfo*)connected.head; item != 0; item = item->GetNext())
+				for (item = (PlayerInput*)connected.head; item != 0; item = item->GetNext())
 				{
 					if (item == info)
 					{
@@ -458,7 +457,7 @@ namespace engine
 			}
 			else if (!info->IsActive())
 			{
-				for (item = (PlayerInfo*)connected.head; item != 0; item = item->GetNext())
+				for (item = (PlayerInput*)connected.head; item != 0; item = item->GetNext())
 				{
 					if (item == info)
 					{
@@ -476,7 +475,7 @@ namespace engine
 			}
 			else
 			{
-				for (item = (PlayerInfo*)connected.head; item != 0; item = item->GetNext())
+				for (item = (PlayerInput*)connected.head; item != 0; item = item->GetNext())
 				{
 					if (item == info)
 					{
@@ -505,10 +504,10 @@ namespace engine
 		// FUNCTION: ENGINE 0x107E0390
 		void InputSystem::OnValue(unsigned int id, int value)
 		{
-			PlayerInfo* info = FindConnected(id);
+			PlayerInput* info = FindConnected(id);
 			if (info != 0)
 			{
-				info->input->SetValue(value);
+				info->input->Assign((const PlayerInfo*)value);
 				for (InputCallback* callback = callbacks.First(); callback != 0; callback = callbacks.Next(callback))
 				{
 					callback->OnValue(id, 0, info->input);
@@ -521,7 +520,7 @@ namespace engine
 		{
 			if (slots[index].id != 0xffffffff)
 			{
-				PlayerInfo* info = slots[index].info;
+				PlayerInput* info = slots[index].info;
 				if (info != 0)
 				{
 					info->SetSlot(-1);

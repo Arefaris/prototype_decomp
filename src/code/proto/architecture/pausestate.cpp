@@ -541,7 +541,7 @@ namespace proto
 	// FUNCTION: ENGINE 0x104E74A0
 	void GamePauseState::PauseGame()
 	{
-		unsigned int player = ((engine::controller::PlayerInfo*)engine::controller::InputSystem::Get()->active.head)->id;
+		unsigned int player = ((engine::controller::PlayerInput*)engine::controller::InputSystem::Get()->active.head)->id;
 		Slot2(player);
 	}
 

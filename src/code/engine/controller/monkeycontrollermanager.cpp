@@ -23,10 +23,9 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108909A0
-		// EQUIVALENT: register allocation (the engine jumps through eax, ours through edx; 80 %)
-		void MonkeyControllerManager::Refresh()
+		void MonkeyControllerManager::Release(unsigned int id, int slot)
 		{
-			inner->Refresh();
+			inner->Release(id, slot);
 		}
 
 		// FUNCTION: ENGINE 0x10890970
