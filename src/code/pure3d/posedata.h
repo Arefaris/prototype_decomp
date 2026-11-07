@@ -50,6 +50,8 @@ namespace pure3d
 		unsigned int SetJointArrays(unsigned int memory);
 		// 0x1072D930: gives the memory back
 		void Free();
+		// 0x1072DB80: builds the bind pose matrices from the rotations and translations a file gave (name guess)
+		void Finish();
 		// 0x1072D7D0: the index of the joint of that name, or 0xFFFF
 		unsigned int FindJoint(const core::Name<core::CaseSensitiveKey>& name);
 		// 0x1072D620: the limb count and the word at +0x48 (the skeleton's own data after this part)
@@ -137,6 +139,10 @@ namespace pure3d
 		void Update();
 		// 0x10708E00: the local matrices from the joint transforms (flag 1), leaves flag 2 for UpdateWorld
 		void UpdateLocal();
+		// 0x10708710: the joint matrices of the joints first to last from the local ones (names guessed); 0x10708770:
+		// the skinning matrices from the joint matrices
+		void UpdateWorldRange(unsigned int first, unsigned int last);
+		void UpdateSkin();
 		// 0x10708330: the joint matrices (parents applied) and the skinning matrices (inverse bind pose applied)
 		void UpdateWorld();
 		// 0x107098B0 / 0x107098D0: the joint matrix of a joint (the pose is brought up to date) and its position

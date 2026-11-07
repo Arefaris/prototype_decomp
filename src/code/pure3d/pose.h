@@ -20,6 +20,8 @@ namespace pure3d
 	{
 		// 0x106DD980
 		explicit SkeletonDebugInfo(Skeleton* owner);
+		// 0x106DD9A0: frees the names (the scalar deleting form is 0x106DDA40)
+		~SkeletonDebugInfo();
 
 		Skeleton* skeleton;
 		char* name;
@@ -37,6 +39,8 @@ namespace pure3d
 		class Partition
 		{
 		public:
+			// 0x106DDB20 / 0x106DDB40 (the vector deleting destructor is 0x106DDBA0)
+			Partition();
 			virtual ~Partition();
 
 			unsigned char unknown4[4];
@@ -70,6 +74,11 @@ namespace pure3d
 	class LockableRefCounted : public core::IRefCount
 	{
 	public:
+		LockableRefCounted() : mLock(0), mRefCount(0)
+		{
+		}
+		// 0x106E29D0 (another unit)
+		virtual ~LockableRefCounted();
 		// 0x106E2A70 / 0x106E2A80
 		virtual void AddRef();
 		virtual void Release();
@@ -85,8 +94,22 @@ namespace pure3d
 	class Pose : public LockableRefCounted
 	{
 	public:
+		// 0x106DD620: a pose of the skeleton with the given kinds of data; 0x106DD670: the same in a block the caller
+		// gives
+		Pose(Skeleton* skeleton, int spaces);
 		// 0x106DD670
 		Pose(Skeleton* skeleton, int a, int b, int c);
+		// 0x106DD800 (the scalar deleting destructor is 0x106DD860)
+		virtual ~Pose();
+		// 0x106DD720: brings the joint matrices of the joints first to last up to date
+		void UpdateWorldRange(unsigned int first, unsigned int last);
+		// 0x106DD740 / 0x106DD750: the joint matrix and the position of a joint, the pose brought up to date
+		void GetJointMatrix(int joint, math::Matrix* matrix);
+		void GetJointPosition(int joint, math::Vector* position);
+		// 0x106DD7A0: the joints of another pose that have a joint of the same name here
+		void CopyMatchingFrom(Pose* other);
+		// 0x106DD7E0: moves every joint the fraction t of the way to the other pose
+		void Blend(Pose* other, float t, bool root);
 		// 0x106DD7C0: takes over the joint data of another pose
 		void CopyStateFrom(Pose* other);
 		// 0x106DD760, 0x106DD730
