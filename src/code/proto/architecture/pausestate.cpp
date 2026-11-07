@@ -119,7 +119,7 @@ namespace proto
 	// 0x1126E4F0 (profilekeys.cpp)
 	extern core::Name<core::CaseSensitiveKey> gProtoTutorialNum;
 	// 0x104DEFD0 (name unknown)
-	void Unknown104DEFD0();
+	void ClearDevSelectStart();
 	// 0x110A1374 / 0x110A137C: the movies the front end loads (names guessed)
 	extern const char* gFrontEndFlashFiles[];
 	extern unsigned int gFrontEndFlashFileCount;
@@ -239,7 +239,7 @@ namespace proto
 		engine::Unknown1088A690();
 		if (unknown8F)
 		{
-			Unknown104DEFD0();
+			ClearDevSelectStart();
 			UnloadFrontEndPackages("FETransient");
 		}
 		else
