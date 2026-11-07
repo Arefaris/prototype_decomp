@@ -172,3 +172,6 @@ namespace engine
 #endif
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A1A40

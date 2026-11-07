@@ -28,3 +28,6 @@ namespace debugoverlay
 	{
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108BC8C0

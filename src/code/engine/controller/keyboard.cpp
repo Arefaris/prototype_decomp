@@ -71,3 +71,18 @@ template int KeyMapType::CompareKey(const void*, const container::TreeBase::Node
 template int KeyMapType::CompareNodes(const container::TreeBase::Node*, const container::TreeBase::Node*);
 template bool KeyMapType::DeleteNode(container::TreeBase::Node*, void*);
 template container::SListLite<engine::controller::Keyboard::Callback>::SListLite();
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A1E90
+// FUNCTION: ENGINE 0x108A1EC0
+// FUNCTION: ENGINE 0x108A1EE0
+// FUNCTION: ENGINE 0x108A1F10
+// FUNCTION: ENGINE 0x108A1F30
+// FUNCTION: ENGINE 0x108A1F60
+// FUNCTION: ENGINE 0x108A1F70
+// FUNCTION: ENGINE 0x108A1FC0
+// FUNCTION: ENGINE 0x108A1FE0
+// FUNCTION: ENGINE 0x108A2010
+// FUNCTION: ENGINE 0x108A2040
+// FUNCTION: ENGINE 0x108A20B0
+// FUNCTION: ENGINE 0x108A2130

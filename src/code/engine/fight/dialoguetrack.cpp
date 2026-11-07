@@ -209,3 +209,17 @@ namespace engine
 		return new DialogueAction(this, GetObjectHandle(owner), owner);
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A8910
+// FUNCTION: ENGINE 0x108A8930
+// FUNCTION: ENGINE 0x108A8950
+// FUNCTION: ENGINE 0x108A8960
+// FUNCTION: ENGINE 0x108A8980
+// FUNCTION: ENGINE 0x108A89A0
+// FUNCTION: ENGINE 0x108A89B0
+// FUNCTION: ENGINE 0x108A89D0
+// FUNCTION: ENGINE 0x108A89F0
+// FUNCTION: ENGINE 0x108A8A00
+// FUNCTION: ENGINE 0x108A8A20
+// FUNCTION: ENGINE 0x108A8A40
