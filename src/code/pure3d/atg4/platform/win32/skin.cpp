@@ -11,7 +11,9 @@
 #include "code/pure3d/context.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/dx9/dxindexbuffer.h"
+#include "code/pure3d/pddi/dx9/dxvertexbuffer.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
@@ -1749,6 +1751,137 @@ namespace pure3d
 			pddi->DrawPrimitive(shader, &desc, parameters);
 		}
 	}
+
+	// 0x1127F180, 0x1127F1B8, 0x1127F1DC, 0x1127F16C, 0x1127F0B4, 0x1127F340: the names of the vertex streams of a skin
+	// (name guesses); the first three and the next two take 12, 12 and 16 and 12 and 4 bytes of a vertex, the last
+	// marks the wide vertex and takes 16
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F180;
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F1B8;
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F1DC;
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F16C;
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F0B4;
+	extern core::Name<core::CaseInsensitiveKey32> gName1127F340;
+
+	// FUNCTION: ENGINE 0x1071FF00
+	// NONMATCHING: 89.8 %; the engine fetches the allocator's vtable slot before it works out the size of the block and
+	// multiplies the second factor first, the compiler's register choices differ from there on
+#ifdef NONMATCHING
+	Skin::Skin(const ShaderParameters* shaderParameters, const ShaderParameters* vertexDescription,
+		const ShaderParameters* stateStreams, const IndexBufferDescription* indices, int kind) : Primitive(4),
+		unknown1C(kind)
+	{
+		centre.x = 0.0f;
+		centre.y = 0.0f;
+		centre.z = 0.0f;
+		unknown294 = -1;
+		unknown298 = false;
+		parameters = *shaderParameters;
+		bool wide = false;
+		unsigned int size;
+		if (parameters.unknown110)
+		{
+			size = parameters.unknown114;
+			unknown13C = parameters.parameters[0].unknown9;
+			wide = ((unsigned int)parameters.unknownC >> 29 & 1) != 0;
+		}
+		else
+		{
+			unknown13C = 0;
+			for (int i = 0; i < parameters.unknown4; i++)
+			{
+				parameters.parameters[i].value = unknown13C;
+				if (parameters.parameters[i].name == gName1127F180)
+				{
+					unknown13C += 0xC;
+				}
+				else if (parameters.parameters[i].name == gName1127F1B8)
+				{
+					unknown13C += 0xC;
+				}
+				else if (parameters.parameters[i].name == gName1127F1DC)
+				{
+					unknown13C += 0x10;
+				}
+				else if (parameters.parameters[i].name == gName1127F16C)
+				{
+					unknown13C += 0xC;
+				}
+				else if (parameters.parameters[i].name == gName1127F0B4)
+				{
+					unknown13C += 4;
+				}
+				else if (parameters.parameters[i].name == gName1127F340)
+				{
+					wide = true;
+					unknown13C += 0x10;
+				}
+			}
+			for (int i = 0; i < parameters.unknown4; i++)
+			{
+				parameters.parameters[i].unknown9 = unknown13C;
+			}
+			size = unknown13C * parameters.unknown0;
+		}
+		core::IMemoryAllocator* allocator = core::GetHeapAllocator(core::GetCurrentHeap());
+		unsigned int bytes;
+		if (wide)
+		{
+			bytes = parameters.unknown0 * 0x60;
+		}
+		else
+		{
+			bytes = parameters.unknown0 * 0x50;
+		}
+		unknown140 = allocator->AllocAligned(bytes, 0x10);
+		unknown138 = core::HeapAllocAligned(1, size, 0x10);
+		buffer = 0;
+		if (vertexDescription->unknown4 != 0)
+		{
+			dxVertexBuffer* vertexBuffer = gPddiDx->NewVertexBuffer((const VertexBufferDescription*)vertexDescription);
+			buffer = (PrimBuffer*)vertexBuffer;
+			vertexBuffer->AddRef();
+		}
+		if (stateStreams != 0)
+		{
+			stateParameters = *stateStreams;
+			int offset = 0;
+			for (unsigned int i = 0; i < (unsigned int)stateParameters.unknown4; i++)
+			{
+				stateParameters.parameters[i].value = offset;
+				offset += stateParameters.GetElementSize(i);
+			}
+			for (unsigned int i = 0; i < (unsigned int)stateParameters.unknown4; i++)
+			{
+				stateParameters.parameters[i].unknown9 = offset;
+			}
+			unknown268 = stateParameters.unknown0 * offset;
+			unknown264 = new unsigned char[unknown268];
+		}
+		else
+		{
+			unknown264 = 0;
+		}
+		indexBuffer = 0;
+		if ((unsigned int)indices->count > 0)
+		{
+			dxIndexBuffer* newIndexBuffer = gPddiDx->NewIndexBuffer(indices);
+			indexBuffer = newIndexBuffer;
+			newIndexBuffer->AddRef();
+		}
+		for (int i = 0; i < parameters.unknown4; i++)
+		{
+			if (gName1127F1B8 == parameters.parameters[i].name)
+			{
+				flagWord.SetBit(6, true);
+			}
+			else if (gName1127F1DC == parameters.parameters[i].name)
+			{
+				flagWord.SetBit(7, true);
+			}
+		}
+	}
+
+#endif
 
 	// FUNCTION: ENGINE 0x1071F940
 	Skin::~Skin()
