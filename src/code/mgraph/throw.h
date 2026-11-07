@@ -143,7 +143,7 @@ namespace mgraph
 	template<class P> void Throw<P>::Slot16(EvaluationFrame* frame)
 	{
 		FrameEntries<Value>* entries = static_cast<FrameEntries<Value>*>(frame->inputs);
-		GetChannels()[frame->channel].Assign(*reinterpret_cast<P*>(entries->entries[0]), frame->id, frame->unknown18);
+		GetChannels()[frame->channel].Assign(*reinterpret_cast<P*>(entries->entries[0]), frame->id, reinterpret_cast<om::Allocator*>(frame->unknown18));
 	}
 
 	template<class P> void Throw<P>::SetEventName(const om::ClassName& newEventName)
@@ -188,7 +188,7 @@ namespace mgraph
 		if (throwNode != 0)
 		{
 			P* target = reinterpret_cast<P*>(static_cast<FrameOutput<Value>*>(frame->outputs)->entry);
-			target->Assign(throwNode->GetChannels()[frame->channel], frame->id, frame->unknown18);
+			target->Assign(throwNode->GetChannels()[frame->channel], frame->id, reinterpret_cast<om::Allocator*>(frame->unknown18));
 		}
 	}
 	// Left to the engine: the constructors and the channel resizing of these classes do not match yet (their symbols are mapped)

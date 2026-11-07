@@ -6,6 +6,7 @@
 
 #include "code/mgraph/envelope.h"
 #include "code/mgraph/graph.h"
+#include "code/om/allocator.h"
 #include "code/om/dynamicarray.h"
 #include "code/om/delegate.h"
 #include "code/om/dynamicproperty.h"
@@ -25,6 +26,12 @@ namespace om
 			values[1] = 0.0f;
 			values[0] = 0.0f;
 		}
+		Vector(float x, float y, float z)
+		{
+			values[0] = x;
+			values[1] = y;
+			values[2] = z;
+		}
 
 		float values[3];
 	};
@@ -38,8 +45,14 @@ namespace om
 			values[1] = 0.0f;
 		}
 
+		OM_ALLOCATION(Complex);
+
 		float values[2];
 	};
+	inline const char* Complex::AllocationTag()
+	{
+		return "";
+	}
 }
 
 namespace mgraph
@@ -59,12 +72,18 @@ namespace mgraph
 			unknown0(0)
 		{
 		}
+		TriggerData& operator=(const TriggerData& other)
+		{
+			unknown0 = other.unknown0;
+			return *this;
+		}
 
 		unsigned char unknown0;
 	};
 
-	// What a pin keeps for one channel (RTTI: mgraph::PinChannelData and mgraph::Packet<T>, 0x10 bytes). Slot 0 of the packets is
-	// not recovered; slot 1 is the destructor. The packet is a handle (a pointer into a table, a count and a pool).
+	// What a pin keeps for one channel (RTTI: mgraph::PinChannelData and mgraph::Packet<T>, 0x10 bytes). Slot 0 of the packets
+	// folds the values of all channels into one again; slot 1 is the destructor. The packet holds its value itself, or a block
+	// of the values of 256 channels.
 	class PinChannelData
 	{
 	public:
@@ -72,37 +91,64 @@ namespace mgraph
 			unknown4(0)
 		{
 		}
-		virtual void Slot0(void* unknown, int unknown2) = 0;
+		virtual void Slot0(int count, om::Allocator* allocator) = 0;
 		virtual ~PinChannelData()
 		{
 		}
 
-		unsigned int unknown4;  // the owner of the channel (set by the input pins)
+		unsigned int unknown4;  // the owner of the channel (set by the input pins), after Slot0 the number of channels
 	};
+
+	// The values of 256 channels, aligned to 128 bytes inside the block (the block is allocated from the pin's allocator)
+	template<class T> struct PacketBlock
+	{
+		PacketBlock()
+		{
+			data = reinterpret_cast<T*>((reinterpret_cast<unsigned int>(this) + 0x80) & 0xFFFFFF80);
+		}
+		static void* operator new(size_t, om::Allocator* allocator)
+		{
+			return om::AllocateFrom(allocator, AllocationTag(), sizeof(PacketBlock), 4);
+		}
+		static void operator delete(void*, om::Allocator*)
+		{
+		}
+		static const char* AllocationTag();
+
+		char storage[256 * sizeof(T) + 0x80];
+		T* data;
+	};
+	template<class T> const char* PacketBlock<T>::AllocationTag()
+	{
+		return "";
+	}
 
 	// The values a pin carries for each channel
 	template<class T> class Packet : public PinChannelData
 	{
 	public:
 		Packet() :
-			unknown8(0),
+			blocks(0),
 			value()
 		{
 		}
 		Packet(const Packet& other) :
-			unknown8(0),
+			blocks(0),
 			value()
 		{
 			Assign(other, 0, 0);
 		}
-		virtual void Slot0(void* unknown, int unknown2);
+		virtual void Slot0(int count, om::Allocator* allocator);
 		virtual ~Packet()
 		{
 		}
-		// 0x10AF5980 (one copy in the engine): gives up what the packet holds and shares what the other holds
-		void Assign(const Packet& other, int unknown, int unknown2);
+		// Gives up what the packet holds and takes over what the other holds
+		void Assign(const Packet& other, int count, om::Allocator* allocator);
+		// The values of the channels (null while the packet holds one value)
+		T* GetData();
+		const T* GetData() const;
 
-		unsigned int unknown8;
+		PacketBlock<T>* blocks;  // 8
 		T value;  // 0xC
 	};
 
@@ -559,41 +605,91 @@ namespace mgraph
 		}
 	}
 
-	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet): it
-	// names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names guessed)
+	// The description of a pin's data type (RTTI: mgraph::PinDataTypeBase and mgraph::PinDataType<P>, P is a packet, 0x20 bytes,
+	// 8-aligned): it names the reflection of the packet and the node classes that carry such packets (slots 1 to 4, names
+	// guessed). It sits in a registry under its name (the tree node is the last member).
 	class PinDataTypeBase
 	{
 	public:
-		virtual ~PinDataTypeBase();
+		PinDataTypeBase(const om::ClassName& newName) :
+			name(newName)
+		{
+		}
+		virtual ~PinDataTypeBase()
+		{
+		}
 		virtual om::MetaTypeBase* GetPacketType() = 0;
 		virtual NodeTypeBase* GetPropertyNodeType() = 0;
 		virtual NodeTypeBase* GetInletType() = 0;
 		virtual NodeTypeBase* GetOutletType() = 0;
+
+		om::ClassName name;  // 8
+		om::TreeNode treeNode;  // 0x10: the data type in the registry of the data types
 	};
+
+	// 0x10AD31E0 / 0x10AD2ED0: enter a data type in the registry, and take it out of it again (names guessed)
+	void RegisterPinDataType(PinDataTypeBase* dataType);
+	void UnregisterPinDataType(PinDataTypeBase* dataType);
+
+	// The static in which the engine keeps the data type made for a packet type (one word per packet type, name guessed)
+	template<class P> struct PinDataTypeCache
+	{
+		static PinDataTypeBase* type;
+	};
+
 	template<class P> class PinDataType : public PinDataTypeBase
 	{
 	public:
-		PinDataType()
+		PinDataType(const om::ClassName& newName) :
+			PinDataTypeBase(newName)
 		{
+			RegisterPinDataType(this);
 		}
-		virtual ~PinDataType();
+		virtual ~PinDataType()
+		{
+			UnregisterPinDataType(this);
+		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
 		}
 		virtual NodeTypeBase* GetPropertyNodeType()
 		{
-			return NodeType<PropertyNode<P> >::Get();
+			return FindCachedNodeType<PropertyNode<P> >();
 		}
 		virtual NodeTypeBase* GetInletType()
 		{
-			return NodeType<Inlet<P> >::Get();
+			return FindCachedNodeType<Inlet<P> >();
 		}
 		virtual NodeTypeBase* GetOutletType()
 		{
-			return NodeType<Outlet<P> >::Get();
+			return FindCachedNodeType<Outlet<P> >();
+		}
+		// Makes the data type of the packet type P and keeps it (names guessed)
+		static void Create(const om::ClassName& newName)
+		{
+			PinDataTypeCache<P>::type = new PinDataType(newName);
+		}
+		// Destroys the data type of P and forgets it together with the packet reflection the pins share (defined where the
+		// pins are known)
+		static void Release();
+		OM_ALLOCATION(PinDataType);
+
+	private:
+		template<class N> static NodeTypeBase* FindCachedNodeType()
+		{
+			NodeTypeBase*& cache = NodeTypeCache<N>::type;
+			if (cache == 0)
+			{
+				cache = FindNodeType(typeid(N));
+			}
+			return cache;
 		}
 	};
+	template<class P> const char* PinDataType<P>::AllocationTag()
+	{
+		return "";
+	}
 }
 
 #endif

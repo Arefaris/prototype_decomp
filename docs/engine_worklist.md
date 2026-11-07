@@ -7523,3 +7523,46 @@ Units extended in `src/code/proto/fightitems/motion/` (the action half sits betw
 - `mgraph/nodes.h`, `abstraction.cpp`: `Abstraction` (the contained graph at 0x58, the link in the graph's list at 0x50), `LinkedGraph` (one channel, the abstracted name at 0x60) and `EmbeddedGraph`: attach, detach, channel count, enabled channels, channel reset. `Node::Slot12` is `SetChannelEnabled(unsigned int, bool)`.
 - What the pass taught: (1) the engine's inline helpers that turn a link into the object around it (`link ? link - 4 : 0`) compile to the shape `if (x != 0) r = ...; else r = 0; return r;` in a `__forceinline` function; a ternary or an early return lets the optimiser remove the second test. (2) A pair of list pointers passed as `NodeLink**` (`list[0]` head, `list[1]` tail) gives the engine's address arithmetic for a list that sits inside another object (`add eax, 0x3C` before the first compare). (3) The largest part of the range is dead template copies: the same template instance (`ReadText<audio::BufferLocation>`, `MetaClass<T>::Slot5`, ...) exists at several addresses and only one of them can be bound to the source's instance; the rest cannot be reconstructed.
 - Not done: the Direct sound driver (its class is spread over 0x10ABC000 - 0x10AC0F10, the device code and model are 2.5 KB), `Graph` destructor / `Slot3` .. `Slot8` (the XML and binary reading and writing), `Context::SetNodeLevel` (0x10AC46F0) and the evaluation (0x10AC4A40), the node reflection registration functions (shrink-wrap), the pins' base constructors and destructors (`Pin::Pin` at 0x10B6A600 is outside the range), `Abstraction` destructor / `SetInnerGraph` (0x10ACCF00).
+## sn-cw: the range 0x10AE0000 - 0x10B00000, second pass (mgraph pin data types, packets, const reference properties)
+Second pass over the instances of sn-bd (see there); 254 functions of the range were added (1041 open at the start).
+- `mgraph/nodes.h`: **`PinDataTypeBase`** (0x20 bytes: name at +8, the registry's tree node at +0x10; the constructor and the destructor are
+  inline, so every derived constructor carries the base vftable store) and **`PinDataType<P>`** for the 18 packet types: constructor
+  (names itself in the registry of the data types, 0x10AD31E0), destructor (takes itself out, 0x10AD2ED0), `operator new` / `operator delete` /
+  `AllocationTag`, the three node type slots (`GetPropertyNodeType`, `GetInletType`, `GetOutletType`: the cached `FindNodeType` of the
+  property node, inlet and outlet class inlined into the slot, 28 bytes), the static `Create` (makes the data type and keeps it in
+  `PinDataTypeCache<P>::type`, one word per packet type, 0x1132777C ...) and `Release` (destroys it and forgets it and
+  `GraphMetaTypeCache<P>::type`; defined in reflection.cpp where the pins are known). 180 functions, all 100 %. `RegisterPinDataType` /
+  `UnregisterPinDataType` (names guessed) and `PinDataTypeBase`'s deleting destructor (0x10AD4090) are mapped only.
+- **`Packet<T>`** (`nodes.h`, definitions in reflection.cpp, for the seven types of this range: bool, `TriggerData`, `Vector`, unsigned int,
+  unsigned __int64, `String`, `Complex`): the engine's packet holds its value or a **`PacketBlock<T>`** of 256 channel values (0x100 * sizeof(T)
+  + 0x80 + 4 bytes, the data pointer aligned to 128 bytes inside it, allocated from the pin's allocator). `Slot0(int id, Allocator*)` folds
+  the block back into the value (the value of the last channel), `Assign(const Packet&, int id, Allocator*)` (the second argument is the
+  `EvaluationFrame::id`, the third its word at +0x18, which the Throw / Catch slots now cast to `om::Allocator*`), the two `GetData`
+  accessors (not inlined: the copy loop calls them), `PacketBlock<T>::operator new(size_t, Allocator*)` (the engine ignores the size
+  argument and uses the block's own size). The symbols of `Slot0` / `Assign` of all 18 packet types changed with the signature
+  (renamed in symbols.txt); the types of other ranges still use the engine's functions. `TriggerData::operator=` is user-written
+  (the engine's slot-0 fold reloads the block pointer after the store). `InputPin<Packet<T>>::operator new` of the same seven types.
+- **const reference properties** (`reflection.cpp`): `MetaProperty<T const&>::Create`, `CreateDelegate` and the `DelegateMetaProperty`
+  constructor for bool, unsigned __int64, `Vector`, `Complex`, `EnvelopeData` and the arrays of bool, unsigned __int64, `Vector`,
+  `TriggerData`; the vector property's text and binary slots (`MetaProperty<Vector const&>` and `<Vector>`: the zero vector is made with
+  `Vector(0, 0, 0)` because the engine stores the components in order here, while `Packet<Vector>` keeps `Vector()`'s reverse
+  order), `Complex` SetText / SetBinary, `MetaProperty<Vector>::Create` and delegate. Left to the engine (declared as explicit
+  specializations without a body, mapped in symbols.txt): `MetaProperty<bool const&>` / `<unsigned __int64 const&>` SetBinary and
+  GetBinary (the engine normalises the byte it writes and orders the stream's copy differently), `MetaProperty<EnvelopeData const&>`
+  GetText / SetText / SetBinary.
+- **methods**: the constructors and `Create` of `MetaMethod1<Rand<Vector>, ..., void, Vector>`, `MetaMethod0Const<Rand<Vector>, ..., Vector>` and
+  `MetaMethod0Const<PropertyNode<Packet<bool / String / Vector>>, ..., T const&>`, the `Invoke` slots of the random vector's getter (the result's
+  three floats are written one by one, in line) and of the bool and vector property nodes. Left to the engine: `Invoke` of the string
+  property node's getter (98.9 %: register choice of the string's length write) and of `MetaMethod1<Rand<Vector>, ...>`.
+- Arrays: `operator[]` of the bool, vector, trigger, complex and envelope arrays, `WriteText` of the bool and vector arrays.
+  `EnvelopeData` and `Complex` now allocate through the om allocator (`OM_ALLOCATION`), as the holders' destructors show;
+  `DynamicArray` uses `::new` for its placement news.
+- Findings: (1) the 18 `PinDataType` and `Packet` families were the only large groups here whose names had no address yet. About 780 functions
+  of the range remain open and are **second copies**: the engine keeps one copy per original translation unit of a template instance, and
+  symbols.txt (names) bind the other one (the cached `FindMetaType` / `FindNodeType` helpers of the node classes, `NodeType<N>::Destroy`
+  of the property, inlet and outlet classes, `MetaProperty<Name const&>::Create` x18, `Garbage<V>` list helpers, the array text / binary
+  functions of the generic `ReadText<T>` ...), dead 4 - 9 byte COMDATs (the 50 base destructors of the method classes, `mov eax, [esp+4]`),
+  and compiler-generated deleting destructors (mapped only). (2) `DynamicArray<bool / Vector / unsigned __int64>` `ReadText`,
+  `ReadBinary`, `WriteBinary`, `Append` of the byte arrays and `DeleteValue<float>` (one argument in the engine) did not reach 100 %.
+- Shared header changes: `mgraph/nodes.h` (`PinDataTypeBase`, `PinDataType`, `Packet`, `PacketBlock`, `TriggerData::operator=`, `Vector(float, float,
+  float)`, `Complex` allocation), `mgraph/throw.h` (the Assign casts), `mgraph/envelope.h` (allocation), `om/dynamicarray.h` (`::new`).
