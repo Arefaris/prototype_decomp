@@ -292,6 +292,9 @@ namespace proto
 				// vftable slot 7 (0x101EF3F0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101EF100: where the action reserves (name guess)
+				bool FindPosition(math::Vector* position);
+
 				core::Link<ReservePositionTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				math::Vector unknown2C;  // +0x2C
@@ -333,6 +336,9 @@ namespace proto
 				// vftable slot 7 (0x101EF870)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101EF580: where the action reserves (name guess)
+				bool FindPosition(math::Vector* position);
+
 				core::Link<ReserveHydraPositionTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				math::Vector unknown2C;  // +0x2C
@@ -373,6 +379,9 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x101EFA60)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x101EE150: where the action reserves (name guess)
+				bool FindPosition(math::Vector* position);
 
 				core::Link<ReserveTargetsPositionTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

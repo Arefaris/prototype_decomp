@@ -8,6 +8,7 @@
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/math/vector.h"
 
 namespace proto
 {
@@ -83,6 +84,14 @@ namespace proto
 		bool Unknown10384090(engine::GameObjectHandle handle, ByteFlag requestIt);
 		// 0x103840E0: whether the object may gun butt (name guess)
 		bool Unknown103840E0(engine::GameObjectHandle handle);
+		// 0x103833C0 / 0x10383520: releases a reserved position (name guesses); the flag tells the targets' kind from the others
+		void Unknown103833C0(const math::Vector* position, bool targets);
+		void Unknown10383520(const math::Vector* position);
+		// 0x10385420: releases the volume the object reserved (name guess)
+		void Unknown10385420(engine::GameObjectHandle handle);
+		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
+		void Unknown10384460(const math::Vector* position, float time, bool targets);
+		void Unknown103844F0(const math::Vector* position, float time);
 	};
 
 	// The base alert (gAISystem +0x20; name guess)

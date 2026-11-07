@@ -185,6 +185,9 @@ namespace engine
 	// long it has been in that state
 	struct CharacterIntentionButton
 	{
+		// 0x107E2580 (another unit; name guess): presses the button (state 1) or releases it (state 3) with a value
+		void Press(float newValue);
+
 		int state;
 		float value;
 		float time;
@@ -204,6 +207,8 @@ namespace engine
 		// 0x107E3090 / 0x107E30B0 (another unit): the entries of the button and of the axis table
 		CharacterIntentionButton* GetButton(int index);
 		CharacterIntentionAxis* GetAxis(int index);
+		// 0x107E30A0: the engine's second out-of-line copy of GetButton, the one the ai fight items call
+		CharacterIntentionButton* GetButtonOther(int index);
 
 		unsigned char unknown0[0x10];
 		CharacterIntentionButton* buttons;  // +0x10

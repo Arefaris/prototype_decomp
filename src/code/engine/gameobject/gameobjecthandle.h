@@ -39,6 +39,15 @@ namespace engine
 		HandleBase(unsigned short newIndex, unsigned short newSerial);
 		// The current serial of the table entry
 		explicit HandleBase(unsigned short newIndex);
+		// The engine compares the two words at once
+		bool operator==(const HandleBase& other) const
+		{
+			return *reinterpret_cast<const int*>(this) == *reinterpret_cast<const int*>(&other);
+		}
+		bool operator!=(const HandleBase& other) const
+		{
+			return *reinterpret_cast<const int*>(this) != *reinterpret_cast<const int*>(&other);
+		}
 
 		unsigned short index;
 		unsigned short serial;

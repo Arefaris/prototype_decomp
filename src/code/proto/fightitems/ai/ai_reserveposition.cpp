@@ -1,5 +1,6 @@
 // Fight items of the ai group: CanGunButtCondition, ReservePositionTrack, CommanderInCombatTrack, EngageTrack, ReserveHydraPositionTrack, ReserveGunButtTrack, ReserveTargetsPositionTrack (unit 0x1022D810 - 0x1022F8E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_reserveposition.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -772,6 +773,93 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x101EF100
+			bool ReservePositionAction::FindPosition(math::Vector* position)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.hasDestination && message.unknownD)
+				{
+					position->x = message.destination.x;
+					position->y = message.destination.y;
+					position->z = message.destination.z;
+				}
+				else
+				{
+					math::Matrix& world = object->transform->value;
+					math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+					position->x = place.x;
+					position->y = place.y;
+					position->z = place.z;
+				}
+				math::Vector offset = link.Get()->offset;
+				if (offset.Dot(offset) > 9.99999975e-06f)
+				{
+					math::Matrix matrix = object->transform->value;
+					matrix.SetTranslation(math::kZeroVector);
+					matrix.Transform(offset, offset);
+					position->x += offset.x;
+					position->y += offset.y;
+					position->z += offset.z;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F03A0
+			bool ReservePositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (!FindPosition(&unknown2C))
+				{
+					return false;
+				}
+				gAISystem->strafeRunTokens->Unknown10384460(&unknown2C, link.Get()->radius, false);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101ED700
+			void ReservePositionAction::Slot6()
+			{
+				gAISystem->strafeRunTokens->Unknown103833C0(&unknown2C, false);
+			}
+
+			// FUNCTION: ENGINE 0x101EF3F0
+			// NONMATCHING: the engine loads the track pointer into ecx / eax where ours uses eax / edi, 90.4 %
+#ifdef NONMATCHING
+			bool ReservePositionAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				math::Vector position;
+				if (!FindPosition(&position))
+				{
+					return false;
+				}
+				math::Vector* reserved = &unknown2C;
+				if (!position.IsNearOther(*reserved, link.Get()->posTolerance))
+				{
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					tokens->Unknown103833C0(reserved, false);
+					ReservePositionTrack* track = link.Get();
+					reserved->x = position.x;
+					reserved->y = position.y;
+					reserved->z = position.z;
+					tokens->Unknown10384460(reserved, track->radius, false);
+				}
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x101F0350
 			fight::Action* ReservePositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -811,6 +899,92 @@ namespace proto
 			ReserveHydraPositionAction::~ReserveHydraPositionAction()
 			{
 			}
+
+			// FUNCTION: ENGINE 0x101EF580
+			bool ReserveHydraPositionAction::FindPosition(math::Vector* position)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.hasDestination && message.unknownD)
+				{
+					position->x = message.destination.x;
+					position->y = message.destination.y;
+					position->z = message.destination.z;
+				}
+				else
+				{
+					math::Matrix& world = object->transform->value;
+					math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+					position->x = place.x;
+					position->y = place.y;
+					position->z = place.z;
+				}
+				math::Vector offset = link.Get()->offset;
+				if (offset.Dot(offset) > 9.99999975e-06f)
+				{
+					math::Matrix matrix = object->transform->value;
+					matrix.SetTranslation(math::kZeroVector);
+					matrix.Transform(offset, offset);
+					position->x += offset.x;
+					position->y += offset.y;
+					position->z += offset.z;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F0450
+			bool ReserveHydraPositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (!FindPosition(&unknown2C))
+				{
+					return false;
+				}
+				gAISystem->strafeRunTokens->Unknown103844F0(&unknown2C, link.Get()->radius);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101ED720
+			void ReserveHydraPositionAction::Slot6()
+			{
+				gAISystem->strafeRunTokens->Unknown10383520(&unknown2C);
+			}
+
+			// FUNCTION: ENGINE 0x101EF870
+			// NONMATCHING: the engine loads the track pointer into ecx / eax where ours uses eax / edi, about 90 %
+#ifdef NONMATCHING
+			bool ReserveHydraPositionAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				math::Vector position;
+				if (!FindPosition(&position))
+				{
+					return false;
+				}
+				math::Vector* reserved = &unknown2C;
+				if (!position.IsNearOther(*reserved, link.Get()->posTolerance))
+				{
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					tokens->Unknown10383520(reserved);
+					reserved->x = position.x;
+					reserved->y = position.y;
+					reserved->z = position.z;
+					tokens->Unknown103844F0(reserved, link.Get()->radius);
+				}
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101F0400
 			fight::Action* ReserveHydraPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
@@ -856,6 +1030,76 @@ namespace proto
 			ReserveTargetsPositionAction::~ReserveTargetsPositionAction()
 			{
 			}
+
+			// FUNCTION: ENGINE 0x101EE150
+			bool ReserveTargetsPositionAction::FindPosition(math::Vector* position)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* targetObject = Unknown103B8B80(object).Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = targetObject->transform->value;
+				math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+				position->x = place.x;
+				position->y = place.y;
+				position->z = place.z;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101EFA00
+			bool ReserveTargetsPositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (!FindPosition(&unknown2C))
+				{
+					return false;
+				}
+				gAISystem->strafeRunTokens->Unknown10384460(&unknown2C, link.Get()->radius, true);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101ED740
+			void ReserveTargetsPositionAction::Slot6()
+			{
+				gAISystem->strafeRunTokens->Unknown103833C0(&unknown2C, true);
+			}
+
+			// FUNCTION: ENGINE 0x101EFA60
+			// NONMATCHING: the engine loads the track pointer into ecx / eax where ours uses eax / edi, about 90 %
+#ifdef NONMATCHING
+			bool ReserveTargetsPositionAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				math::Vector position;
+				if (!FindPosition(&position))
+				{
+					return false;
+				}
+				math::Vector* reserved = &unknown2C;
+				if (!position.IsNearOther(*reserved, link.Get()->posTolerance))
+				{
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					tokens->Unknown103833C0(reserved, true);
+					reserved->x = position.x;
+					reserved->y = position.y;
+					reserved->z = position.z;
+					tokens->Unknown10384460(reserved, link.Get()->radius, true);
+				}
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101F04B0
 			fight::Action* ReserveTargetsPositionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

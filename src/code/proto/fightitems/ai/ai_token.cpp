@@ -1,5 +1,8 @@
 // Fight items of the ai group: TargetHasLoFCondition, HaveTokenCondition, DestinationTargetDistanceCondition, InfectedAlertedCondition, TargetHasLoFDistanceCondition, FloatShotAllowedCondition, InTargetsCameraCondition, ShouldRadioHQCondition, TargetIsHumanCondition, AnyPlayerDistanceCondition, AimingAtCondition, FacingAngleTargetCondition, HaveStrafeRunTokenCondition, AimingAtTargetCondition, TargetBeingHeldCondition, RefreshStrafeRunTokenTrack, ActionTrack, RequestTokenTrack, CombatDestinationFindTrack, CombatDestinationTransmitTrack, DrawDebugTrack, TargetTokenBoostTrack (unit 0x1021E550 - 0x10225F80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_token.h"
+#include "code/engine/controller/characterintentioninputmap.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/proto/fightitems/ai/aitokenmessages.h"
 
 namespace proto
 {
@@ -2331,6 +2334,132 @@ namespace proto
 			// FUNCTION: ENGINE 0x101E4470
 			void ActionAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4480
+			const fight::EnumEntry* ActionTrack::GetButtonEntry(int index)
+			{
+				return (const fight::EnumEntry*)engine::CharacterIntentionInputMap::GetButtonNames() + index;
+			}
+
+			// FUNCTION: ENGINE 0x101E44A0
+			int ActionTrack::GetButtonCount()
+			{
+				return engine::CharacterIntentionInputMap::GetButtonCount();
+			}
+
+			// FUNCTION: ENGINE 0x101E75E0
+			bool ActionAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::CharacterQueryIntentionMessage message;
+				object->SendMessage(&message);
+				if (message.intention == 0)
+				{
+					return false;
+				}
+				message.intention->GetButtonOther(link.object->button)->Press(1.0f);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7860
+			bool RequestTokenAction::RequestToken()
+			{
+				int type = link.Get()->type;
+				RequestTokenMsg message(type, target);
+				engine::GameObject* object = unknown2C.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				object->SendMessage(&message);
+				return message.granted;
+			}
+
+			// FUNCTION: ENGINE 0x101E78F0
+			bool RequestTokenAction::ReleaseToken()
+			{
+				int type = link.Get()->type;
+				ReleaseTokenMsg message(type, target);
+				engine::GameObject* object = unknown2C.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7E10
+			bool RequestTokenAction::Slot5(int arg, float value)
+			{
+				GetTargetMessage message;
+				target.Get()->SendMessage(&message);
+				unknown2C = message.target;
+				return RequestToken();
+			}
+
+			// FUNCTION: ENGINE 0x101E7FB0
+			void RequestTokenAction::Slot6()
+			{
+				if (link.Get() != 0)
+				{
+					ReleaseToken();
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101E7EB0
+			bool RequestTokenAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				target.Get()->SendMessage(&message);
+				if (unknown2C != message.target)
+				{
+					ReleaseToken();
+					unknown2C = message.target;
+					RequestToken();
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7B30
+			bool TargetTokenBoostAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* targetObject = message.target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				SetHunterTokenBoostTokenMsg boost(link.Get()->extraTokens, link.Get()->boostTime);
+				targetObject->SendMessage(&boost);
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x101E7D20

@@ -2587,6 +2587,12 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x101FEDC0
+			void ReserveVolumeAction::Slot6()
+			{
+				gAISystem->strafeRunTokens->Unknown10385420(target);
+			}
+
 			// FUNCTION: ENGINE 0x102041E0
 			fight::Action* ReserveVolumeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
