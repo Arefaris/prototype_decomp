@@ -235,6 +235,34 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x102E8340
+	// NONMATCHING: the engine expands the array allocation and the copies of the patch inline, with the colours' words
+	// not zeroed first (21 %)
+#ifdef NONMATCHING
+	void ShaderPalette::AddBlankData()
+	{
+		if (entries.begin == entries.end)
+		{
+			return;
+		}
+		ShaderPaletteData blank;
+		blank.colours.Allocate(entries.Size());
+		for (unsigned int i = 0; i < entries.Size(); i++)
+		{
+			ShaderPaletteEntryTemplate& entry = entries[i];
+			if (entry.type == EntryType_Colour)
+			{
+				ShaderInputPatchFloat4 patch;
+				patch.name = entry;
+				patch.value = math::Colour128(0.0f, 0.0f, 0.0f, 0.0f);
+				blank.colours.PushBack(patch);
+			}
+		}
+		data.Reserve(data.Size() + 1);
+		data.PushBack(blank);
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x102E7D50
 	ShaderPaletteData::ShaderPaletteData(const ShaderPaletteData& other)
 		: colours(other.colours), patches(other.patches)

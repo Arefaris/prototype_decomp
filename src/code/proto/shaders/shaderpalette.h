@@ -302,6 +302,9 @@ namespace proto
 		// 0x102E5780 (the thunk 0x1002AB6C is what the vftable holds)
 		virtual bool Slot5();
 
+		// 0x102E8340: adds a data set with a patch of all zeros for every colour entry (name guess)
+		void AddBlankData();
+
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
