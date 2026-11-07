@@ -12,6 +12,13 @@
 #include "code/core/name.h"
 #include "code/core/time.h"
 
+struct IDirect3DQuery9;
+
+namespace core
+{
+	class MemoryTwoWayAllocator;
+}
+
 namespace content
 {
 	class LoadInventory;
@@ -424,16 +431,37 @@ namespace pure3d
 		bool setsTargets;
 	};
 
-	// The chain of render passes the context's frame runs (the object at +0x68); 0x1074D650 walks the passes of
-	// the chain. Only what this unit calls is reconstructed and the name is a guess.
+	// The object at +0x68 of the context (the name is a guess): two arenas of the dynamic vertex buffers
+	// ("DynamicVertexBuffer[0]" / "[1]") that the frames take turns in, with a query that tells when the device is
+	// done with a frame, and the objects handed out during the frame (released by Update)
 	class RenderPassChain
 	{
 	public:
-		// 0x1074D730 (another unit): the destructor; 0x1070EDB0: its scalar deleting form
+		// 0x1074D530: the heap the arenas come from and the two heap indices they are registered under
+		RenderPassChain(int newHeap, int firstHeap, int secondHeap);
+		// 0x1074D730 (the destructor); 0x1070EDB0: its scalar deleting form
 		~RenderPassChain();
 		void* DeleteThis(unsigned int flags);
-		// 0x1074D650
+		// 0x1074D5C0: makes the arenas, each half of the sizes given
+		void Create(unsigned int size, unsigned int size2);
+		// 0x1074D570: lets go of the arenas
+		void Destroy();
+		// 0x1074D650: releases the frame's objects, notes the peak use and moves on to the other arena
 		void Update();
+
+		int heap;
+		core::MemoryTwoWayAllocator* allocators[2];
+		int heapIndices[2];
+		int currentHeap;
+		int current;
+		unsigned int size;
+		unsigned int size2;
+		unsigned int peaks[2];
+		unsigned int count;
+		unsigned int maxCount;
+		IDirect3DQuery9* query;
+		int unknown38;
+		core::IRefCount* objects[1];
 	};
 
 	// One entry of the frame pool: the object it hands out and whether the entry is in use
