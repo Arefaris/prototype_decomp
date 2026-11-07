@@ -150,13 +150,8 @@ namespace engine
 		return "";
 	}
 
-	// FUNCTION: ENGINE 0x10856510
 	// FUNCTION: ENGINE 0x10856650
-	// FUNCTION: ENGINE 0x10855880
-	const char* AudioDialogueSubtitle::AllocationTag()
-	{
-		return "";
-	}
+	// The compiler's destructor of AudioDialogueSubtitle (the class declares none)
 
 	// The loaders as the registry makes them (a helper to keep the constructors and the destructors out of line)
 	content::ObjectLoader2* MakeDialogueLoader(int kind)

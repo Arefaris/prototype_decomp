@@ -38,8 +38,6 @@ namespace engine
 		// Slots 3 and 4 (0x10858A20, 0x10858A50; not reconstructed)
 		virtual void Slot3(int unused);
 		virtual bool IsReady();
-		OM_ALLOCATION(AudioDialogueSubtitle);
-
 		int unknown8;  // +8
 		om::String text;  // +0xC
 		unsigned char unknown18[0x18];
