@@ -275,7 +275,7 @@ namespace mgraph
 		int count;
 	};
 
-	class __declspec(align(8)) PropertyNodeBase : public Node
+	class __declspec(align(8) novtable) PropertyNodeBase : public Node
 	{
 	public:
 		PropertyNodeBase(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName, unsigned int numInputs, unsigned int numOutputs) :

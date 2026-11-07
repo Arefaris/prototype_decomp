@@ -203,6 +203,8 @@ namespace mgraph
 	template<> Catch<Packet<EnvelopeData > >::Catch(Graph* newGraph, const om::ClassName& newName);
 	template<> Catch<Packet<om::DynamicArray<EnvelopeData,unsigned short> > >::Catch(Graph* newGraph, const om::ClassName& newName);
 	template<> Throw<Packet<om::String > >::~Throw();
+	template<> Throw<Packet<om::DynamicArray<float,unsigned short> > >::~Throw();
+	template<> Throw<Packet<om::DynamicArray<EnvelopeData,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<bool,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<unsigned int,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<unsigned __int64,unsigned short> > >::~Throw();
