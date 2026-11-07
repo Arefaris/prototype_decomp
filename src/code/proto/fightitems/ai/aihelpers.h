@@ -10,9 +10,12 @@
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/proto/combatbudgetmanager.h"
 #include "code/proto/soldierbudgets.h"
+#include "code/math/vector.h"
 
 namespace proto
 {
+	class Heightmap;
+
 	// 0x103C4A00: how many objects of a tag are around (name guess)
 	int Unknown103C4A00(const fight::Name* tag, int limit, ByteFlag tryDespawnIfFull, float minDespawnDistance, float objRadius);
 
@@ -31,6 +34,14 @@ namespace proto
 		bool Unknown10384090(engine::GameObjectHandle handle, ByteFlag requestIt);
 		// 0x103840E0: whether the object may gun butt (name guess)
 		bool Unknown103840E0(engine::GameObjectHandle handle);
+		// 0x103833C0 / 0x10383520: releases a reserved position (name guesses); the flag tells the targets' kind from the others
+		void Unknown103833C0(const math::Vector* position, bool targets);
+		void Unknown10383520(const math::Vector* position);
+		// 0x10385420: releases the volume the object reserved (name guess)
+		void Unknown10385420(engine::GameObjectHandle handle);
+		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
+		void Unknown10384460(const math::Vector* position, float time, bool targets);
+		void Unknown103844F0(const math::Vector* position, float time);
 	};
 
 	// The base alert (gAISystem +0x20; name guess)
@@ -52,17 +63,30 @@ namespace proto
 	class AISystem
 	{
 	public:
+		// 0x10360BF0: the height map of the world
+		Heightmap* GetHeightmap();
+
 		unsigned char unknown0[0x10];
 		SoldierBudgets* soldierBudgets;  // +0x10
 		CombatBudgetManager* budgets;  // +0x14
 		unsigned char unknown18[4];
 		StrafeRunTokens* strafeRunTokens;  // +0x1C
 		BaseAlert* baseAlert;  // +0x20
+		unsigned char unknown24[4];
+		Heightmap* heightmap;  // +0x28
 	};
 
 	// 0x11263AB0
 	extern AISystem* gAISystem;
 
+	// 0x103B9940: a debug output the release build leaves empty (name guess)
+	void Unknown103B9940(engine::GameObject* object, int channel, const char* text);
+	// 0x103BE5F0: the object that holds the given one, null when none does (name guess)
+	engine::GameObject* Unknown103BE5F0(engine::GameObject* object);
+	// 0x103B85A0: drives the object with a strength along a direction (name guess)
+	void Unknown103B85A0(engine::GameObject* object, float strength, const math::Vector* direction, bool flag);
+	// 0x103C0690: works out where an object follows another to (name guess)
+	math::Vector Unknown103C0690(engine::GameObject* followed, const math::Vector* position);
 	// 0x103B92B0: the name of an object (name guess)
 	const fight::Name* Unknown103B92B0(engine::GameObject* object);
 	// 0x103B8440: whether the object has arrived at its destination (name guess)

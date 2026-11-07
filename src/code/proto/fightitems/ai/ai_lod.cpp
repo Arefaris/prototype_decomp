@@ -1,6 +1,7 @@
 // Fight items of the ai group: CanReserveSoldierBudgetCondition, IsInLoadedCellCondition, NPCLODCondition, LodSteerTrack, ResetPhysicVelocitiesTrack, LodMoveTrack, EnableLODPatrolTrack, GameObjectOrientTrack, CharacterizeTrack, CharacterizeFromReservedTrack, SetNPCLODStateTrack, LodGotoFixedDestinationTrack, UnDowngradableTrack, UpdateSoldierReservationBudgetTrack (unit 0x10236270 - 0x10239F70; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_lod.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 
 namespace proto
 {
@@ -1320,6 +1321,93 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x101FAD00
+			bool UpdateSoldierReservationBudgetAction::Slot7(int arg, float value)
+			{
+				if (target.Get() != 0)
+				{
+					SoldierBudgets* budgets = gAISystem->soldierBudgets;
+					return budgets->Unknown10385DA0(target);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FC0E0
+			bool UpdateSoldierReservationBudgetAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0 && target.Get() != 0)
+				{
+					SoldierBudgets* budgets = gAISystem->soldierBudgets;
+					return budgets->Unknown10385DA0(target);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101FA160
+			void SetNPCLODState(int state, engine::GameObject* object)
+			{
+				SetNPCLODStateAIMsg message(state);
+				object->SendMessage(&message);
+			}
+
+			// FUNCTION: ENGINE 0x101FB9D0
+			bool SetNPCLODStateAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetNPCLODState(link.Get()->value, object);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FC1F0
+			bool CharacterizeFromReservedAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage message(&link.Get()->grabSlot);
+				object->SendMessage(&message);
+				gAISystem->soldierBudgets->Unknown10388130(message.grabbed);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FC360
+			bool CharacterizeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage message(&link.Get()->grabSlot);
+				object->SendMessage(&message);
+				engine::GameObjectHandle grabbed = message.grabbed;
+				if (grabbed.IsValid())
+				{
+					gAISystem->soldierBudgets->Unknown10388030(grabbed, true);
+					return true;
+				}
+				gAISystem->soldierBudgets->Unknown10388030(target, true);
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x101FC770
 			fight::Action* LodSteerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -1552,7 +1640,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101FBEF0
-			// EQUIVALENT: block order; the engine puts the failure return of the library test in front of the body, ours behind it; the same instructions (63.0 %)
 			bool UnDowngradableAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -1560,7 +1647,11 @@ namespace proto
 					return false;
 				}
 				engine::GameObject* object = target.Get();
-				if (object == 0 || Unknown103B8DC0(object) == -2)
+				if (object == 0)
+				{
+					return false;
+				}
+				if (Unknown103B8DC0(object) == -2)
 				{
 					return false;
 				}
@@ -1925,3 +2016,5 @@ namespace proto
 // FUNCTION: ENGINE 0x101FA000
 // FUNCTION: ENGINE 0x101FA010
 // FUNCTION: ENGINE 0x101FA040
+// FUNCTION: ENGINE 0x101FA050
+// FUNCTION: ENGINE 0x101FA080

@@ -51,6 +51,11 @@ namespace proto
 		bool Unknown103866C0(engine::GameObjectHandle handle) const;
 		// 0x10386810: whether a soldier of a type may still be reserved for the object (name guess)
 		bool Unknown10386810(int type, engine::GameObjectHandle handle);
+		// 0x10385DA0: renews the object's reservation (name guess)
+		bool Unknown10385DA0(engine::GameObjectHandle handle);
+		// 0x10388030 / 0x10388130: counts the object in, with a flag, or out of the characterized (name guesses)
+		bool Unknown10388030(engine::GameObjectHandle handle, bool flag);
+		bool Unknown10388130(engine::GameObjectHandle handle);
 
 		EntryArray entries;  // +0
 		unsigned char unknownC[0x10];

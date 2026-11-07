@@ -1082,6 +1082,8 @@ namespace proto
 		DestinationReachedMessage() : engine::ScenarioMessage(0x1A)
 		{
 		}
+		// 0x101F1030 (the ai fight items' unit): the object that arrived, and what it did
+		DestinationReachedMessage(engine::GameObjectHandle arrived, const char* newData);
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 

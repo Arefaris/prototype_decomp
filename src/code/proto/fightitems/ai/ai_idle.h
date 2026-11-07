@@ -107,6 +107,9 @@ namespace proto
 				// vftable slot 7 (0x101F8700)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101F7D30: lets the object keep to its place; answers whether it did (name guess)
+				bool KeepPlace();
+
 				core::Link<FlyingIdleTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				bool unknown2C;  // +0x2C
@@ -129,6 +132,9 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x101F8840)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x101F8210: lets the object keep to its place; answers whether it did (name guess)
+				bool KeepPlace();
 
 				core::Link<IdleTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

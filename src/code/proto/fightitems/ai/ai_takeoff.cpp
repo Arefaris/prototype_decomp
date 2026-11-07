@@ -1,5 +1,7 @@
 // Fight items of the ai group: TakeOffTrack, LandTrack (unit 0x102356A0 - 0x10236270; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_takeoff.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/heightmap.h"
 
 namespace proto
 {
@@ -301,6 +303,81 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new LandAction(this, handle);
 			}
+
+			// FUNCTION: ENGINE 0x101F8F90
+			void TakeOffAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0 && !unknown34)
+				{
+					SetStateStateChangeMessage message(engine::gDriverAI3);
+					object->SendMessage(&message);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101F9BD0
+			// NONMATCHING: the engine schedules the grid size product after the loads of the position, ours before them, 86 %
+#ifdef NONMATCHING
+			bool TakeOffAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetStateStateChangeMessage message(engine::gDriverAITakingOff);
+				object->SendMessage(&message);
+				math::Matrix& world = object->transform->value;
+				math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+				Heightmap* map = gAISystem->GetHeightmap();
+				float cellX = position.x - map->minVec.x + map->gridSize * 0.5f;
+				float cellZ = position.z - map->minVec.z + map->gridSize * 0.5f;
+				unknown2C = map->GetHeight((int)(map->inverseGridSize * cellX), (int)(map->inverseGridSize * cellZ), false);
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F9D00
+			// NONMATCHING: the engine clamps the strength in registers and stores it once into the argument slot, ours stores it in each branch, about 90 %
+#ifdef NONMATCHING
+			bool TakeOffAction::Slot7(int arg, float value)
+			{
+				TakeOffTrack* track = link.Get();
+				if (track == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector up(0.0f, 1.0f, 0.0f);
+				unknown30 = track->acceleration * value + unknown30;
+				value = unknown30;
+				if (!(track->speed > value))
+				{
+					value = track->speed;
+				}
+				if (!(value >= 0.0f))
+				{
+					value = 0.0f;
+				}
+				if (value - 1.0f >= 0.0f)
+				{
+					value = 1.0f;
+				}
+				Unknown103B85A0(object, value, &up, false);
+				if (object->transform->value.m[3][1] - unknown2C > link.Get()->minHeight)
+				{
+					SetStateStateChangeMessage message(engine::gDriverAI3);
+					object->SendMessage(&message);
+					unknown34 = true;
+					return false;
+				}
+				return true;
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<TakeOffTrack>;

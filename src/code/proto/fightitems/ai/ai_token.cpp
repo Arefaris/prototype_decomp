@@ -1,5 +1,19 @@
 // Fight items of the ai group: TargetHasLoFCondition, HaveTokenCondition, DestinationTargetDistanceCondition, InfectedAlertedCondition, TargetHasLoFDistanceCondition, FloatShotAllowedCondition, InTargetsCameraCondition, ShouldRadioHQCondition, TargetIsHumanCondition, AnyPlayerDistanceCondition, AimingAtCondition, FacingAngleTargetCondition, HaveStrafeRunTokenCondition, AimingAtTargetCondition, TargetBeingHeldCondition, RefreshStrafeRunTokenTrack, ActionTrack, RequestTokenTrack, CombatDestinationFindTrack, CombatDestinationTransmitTrack, DrawDebugTrack, TargetTokenBoostTrack (unit 0x1021E550 - 0x10225F80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_token.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/proto/fightitems/ai/aitokenmessages.h"
+
+namespace engine
+{
+	// The button names of the intention maps (code/engine/controller/characterintentioninputmap.h, whose arrays cannot be
+	// included next to the ai units' code/container/arraydynamicallocatornew.h)
+	class CharacterIntentionInputMap
+	{
+	public:
+		static unsigned int GetButtonCount();
+		static const core::Name<core::CaseSensitiveKey>* GetButtonNames();
+	};
+}
 
 namespace proto
 {
@@ -2254,10 +2268,10 @@ namespace proto
 
 
 			// FUNCTION: ENGINE 0x101E44B0
-			// EQUIVALENT: scheduling and register choice (the engine loads the float constant and the manager first, ours the handle first); the same call with the same arguments (best 38.7 %)
 			bool RefreshStrafeRunTokenAction::Slot5(int arg, float value)
 			{
-				return proto::gAISystem->strafeRunTokens->Unknown10383FF0(target, 2.0f);
+				StrafeRunTokens* tokens = proto::gAISystem->strafeRunTokens;
+				return tokens->Unknown10383FF0(target, 2.0f);
 			}
 
 			// FUNCTION: ENGINE 0x101E7A30
@@ -2272,15 +2286,18 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E7740
-			// EQUIVALENT: block order (the engine puts the failure exit first and jumps back to it, ours puts it last); the same tests, the same store (best 21.7 %)
 			bool DrawDebugAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0 && target.IsValid())
+				if (link.object == 0)
 				{
-					unknown2C = 0;
-					return true;
+					return false;
 				}
-				return false;
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				unknown2C = 0;
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101E77A0
@@ -2331,6 +2348,159 @@ namespace proto
 			// FUNCTION: ENGINE 0x101E4470
 			void ActionAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101E4480
+			const fight::EnumEntry* ActionTrack::GetButtonEntry(int index)
+			{
+				return (const fight::EnumEntry*)engine::CharacterIntentionInputMap::GetButtonNames() + index;
+			}
+
+			// FUNCTION: ENGINE 0x101E44A0
+			int ActionTrack::GetButtonCount()
+			{
+				return engine::CharacterIntentionInputMap::GetButtonCount();
+			}
+
+			// FUNCTION: ENGINE 0x101E75E0
+			bool ActionAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::CharacterQueryIntentionMessage message;
+				object->SendMessage(&message);
+				if (message.intention == 0)
+				{
+					return false;
+				}
+				message.intention->GetButtonOther(link.object->button)->Press(1.0f);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7860
+			bool RequestTokenAction::RequestToken()
+			{
+				int type = link.Get()->type;
+				RequestTokenMsg message(type, target);
+				engine::GameObject* object = unknown2C.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				object->SendMessage(&message);
+				return message.granted;
+			}
+
+			// FUNCTION: ENGINE 0x101E78F0
+			bool RequestTokenAction::ReleaseToken()
+			{
+				int type = link.Get()->type;
+				ReleaseTokenMsg message(type, target);
+				engine::GameObject* object = unknown2C.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7E10
+			bool RequestTokenAction::Slot5(int arg, float value)
+			{
+				GetTargetMessage message;
+				target.Get()->SendMessage(&message);
+				unknown2C = message.target;
+				return RequestToken();
+			}
+
+			// FUNCTION: ENGINE 0x101E7FB0
+			void RequestTokenAction::Slot6()
+			{
+				if (link.Get() != 0)
+				{
+					ReleaseToken();
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101E7EB0
+			bool RequestTokenAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				target.Get()->SendMessage(&message);
+				if (unknown2C != message.target)
+				{
+					ReleaseToken();
+					unknown2C = message.target;
+					RequestToken();
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E7B30
+			bool TargetTokenBoostAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* targetObject = message.target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				SetHunterTokenBoostTokenMsg boost(link.Get()->extraTokens, link.Get()->boostTime);
+				targetObject->SendMessage(&boost);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101E6140
+			bool TargetBeingHeldCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				engine::GameObject* targetObject = message.target.Get();
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				engine::GameObject* holder = Unknown103BE5F0(targetObject);
+				if (holder != 0)
+				{
+					if (dontCountIfHeldByMe && holder == object)
+					{
+						holder = 0;
+					}
+				}
+				bool isHeld = holder != 0;
+				return isHeld == held;
 			}
 
 			// FUNCTION: ENGINE 0x101E7D20
@@ -2963,3 +3133,12 @@ namespace proto
 // FUNCTION: ENGINE 0x101E6AE0
 // FUNCTION: ENGINE 0x101E6AF0
 // FUNCTION: ENGINE 0x101E6B60
+// FUNCTION: ENGINE 0x101E3AB0
+// FUNCTION: ENGINE 0x101E3AF0
+// FUNCTION: ENGINE 0x101E3CB0
+// FUNCTION: ENGINE 0x101E3CF0
+// FUNCTION: ENGINE 0x101E3D00
+// FUNCTION: ENGINE 0x101E3D40
+// FUNCTION: ENGINE 0x101E3D50
+// FUNCTION: ENGINE 0x101E3D90
+// FUNCTION: ENGINE 0x101FD210

@@ -1,6 +1,8 @@
 // Fight items of the ai group: AbsoluteHeightCondition, AreDisguiseActionsEnabledCondition, IsDisguiseActionEnabledCondition, DisguiseActionUsedTrack, ClearMarkersTrack, DumpAlertCharactersTrack, PlayDebugDialogTrack, DrawObjectDebugTrack, HelicopterStrafeModeTrack, ShowDisguiseActionHUDTrack, AddMarkerByKeyTrack, AddDiversionTrack, SetUserTooltipTrack, AdjustHydraMovementTrack (unit 0x102272B0 - 0x1022AC60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_disguise.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 #include <new>
 
 namespace proto
@@ -1189,32 +1191,51 @@ namespace proto
 
 
 			// FUNCTION: ENGINE 0x101EA690
-			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
 			bool AddMarkerByKeyAction::Slot7(int arg, float value)
 			{
-				return link.object != 0;
+				if (link.object != 0)
+				{
+					return true;
+				}
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x101EA190
-			// EQUIVALENT: instruction selection (ours clears eax before the compare); the same result (best 0.0 %)
 			bool PlayDebugDialogAction::Slot7(int arg, float value)
 			{
-				return link.object != 0;
+				if (link.object != 0)
+				{
+					return true;
+				}
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x101EB900
-			// EQUIVALENT: block order and constant selection (the engine puts the failure exit first and returns the constants in al, ours in eax); the same tests (best 17.9 %)
 			bool AdjustHydraMovementAction::Slot5(int arg, float value)
 			{
-				return link.object != 0 && target.IsValid();
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101E9A60
-			// EQUIVALENT: block order and constant selection (the engine returns the failure first and the constants in al, ours in eax); the same tests (best 68.0 %)
+			// NONMATCHING: the engine lays the true exit after the false one (jne to mov al, 1), ours the other way round, 85 %
+#ifdef NONMATCHING
 			bool HelicopterStrafeModeAction::Slot5(int arg, float value)
 			{
-				return target.IsValid();
+				if (target.IsValid())
+				{
+					return true;
+				}
+				return false;
 			}
+#endif
 
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x101EA6A0
@@ -1342,6 +1363,160 @@ namespace proto
 			// FUNCTION: ENGINE 0x101E8C20
 			void SetUserTooltipAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101EA070
+			bool SetUserTooltipAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				char* tooltip = link.Get()->tooltip;
+				Unknown103B9940(target.Get(), 0xB, tooltip);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101E9AA0
+			bool HelicopterStrafeModeAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::CharacterQueryIntentionMessage message;
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E9950
+			// NONMATCHING: the object pointer sits in eax in the engine and in ecx in ours, 91.9 %
+#ifdef NONMATCHING
+			bool AbsoluteHeightCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Matrix& world = object->transform->value;
+					math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+					float limit = distance;
+					result = fight::CompareVectorMeasure(compare, &position, 1, limit);
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101EB460
+			void ShowDisguiseActionHUDAction::Slot6()
+			{
+				if (link.object != 0 && link.object->showAndHideOnly)
+				{
+					PopupController* popups = GetFrontEndHud()->GetPopups();
+					if (popups->disguiseActions != 0)
+					{
+						popups->disguiseActions->Unknown104CF870();
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EBC30
+			bool ShowDisguiseActionHUDAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				if (popup != 0 && popup->GetEnabled())
+				{
+					Update(popup, object);
+					if (link.object->showAndHideOnly)
+					{
+						popup->Unknown104CF840();
+					}
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EBCE0
+			bool ShowDisguiseActionHUDAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				if (popup != 0)
+				{
+					Update(popup, object);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E8C70
+			bool ClearMarkersAction::Slot5(int arg, float value)
+			{
+				MarkerList* markers = GetFrontEndHud()->GetMarkers();
+				engine::SerializedHandle handle = engine::SerializeHandle(target);
+				markers->Unknown104B94D0(handle, 0x26);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101EA610
+			void AddMarkerByKeyAction::Slot6()
+			{
+				if (link.object != 0 && target.Get() != 0)
+				{
+					MarkerList* markers = GetFrontEndHud()->GetMarkers();
+					engine::SerializedHandle handle = engine::SerializeHandle(target);
+					markers->Unknown104B94D0(handle, link.object->type);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101EA560
+			bool AddMarkerByKeyAction::Slot5(int arg, float value)
+			{
+				MarkerList* markers = GetFrontEndHud()->GetMarkers();
+				engine::SerializedHandle handle = engine::SerializeHandle(target);
+				int displayType = link.object->displayType;
+				if (displayType == 0)
+				{
+					displayType = 0xFF;
+				}
+				markers->Unknown104B57D0(handle, 3);
+				markers->Unknown104B9400(handle, link.object->type, displayType, 1, 0);
+				markers->Unknown104B57F0(handle, link.object->color);
+				if (link.object->animType != 0)
+				{
+					markers->Unknown104B8280(handle, link.object->animType);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101E98C0
+			bool AreDisguiseActionsEnabledCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (GetFrontEndHud()->GetPopups()->disguiseActions != 0 && object != 0)
+				{
+					result = GetFrontEndHud()->GetPopups()->disguiseActions->GetEnabled();
+				}
+				return result;
 			}
 
 			// FUNCTION: ENGINE 0x101EB9F0

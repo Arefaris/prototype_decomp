@@ -602,6 +602,9 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// 0x101FA160: gives the object a level of detail state (name guess)
+			void SetNPCLODState(int state, engine::GameObject* object);
+
 			// RTTI: proto::fightitems::ai::SetNPCLODStateAction (9 vftable slots, 0x2C bytes)
 			class SetNPCLODStateAction : public fight::Action
 			{

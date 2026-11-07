@@ -1,5 +1,6 @@
 // Fight items of the ai group: FlyingIdleTrack, IdleTrack (unit 0x10234D10 - 0x102356A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_idle.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -251,6 +252,52 @@ namespace proto
 			// FUNCTION: ENGINE 0x101F7B60
 			void IdleAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101F8700
+			bool FlyingIdleAction::Slot7(int arg, float value)
+			{
+				if (!KeepPlace())
+				{
+					engine::GameObject* object = target.Get();
+					GetAimParametersMovementMessage message(true);
+					object->SendMessage(&message);
+					if (message.parameters != 0)
+					{
+						message.parameters->active = 1;
+						math::Vector* offset = &message.parameters->offset;
+						offset->z = 0.0f;
+						offset->y = 0.0f;
+						offset->x = 0.0f;
+						message.parameters->where = 1;
+						message.parameters->forceWorldAngles = false;
+					}
+					Unknown103B82F0(object);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F8840
+			bool IdleAction::Slot7(int arg, float value)
+			{
+				if (!KeepPlace())
+				{
+					engine::GameObject* object = target.Get();
+					GetAimParametersMovementMessage message(true);
+					object->SendMessage(&message);
+					if (message.parameters != 0)
+					{
+						message.parameters->active = 1;
+						math::Vector* offset = &message.parameters->offset;
+						offset->z = 0.0f;
+						offset->y = 0.0f;
+						offset->x = 0.0f;
+						message.parameters->where = 1;
+						message.parameters->forceWorldAngles = false;
+					}
+					Unknown103B82F0(object);
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101F87F0

@@ -64,6 +64,14 @@ namespace proto
 		// Vftable slot 5 (0x10393160): works out the factor behind the grid size and the half of the rows
 		virtual bool Slot5();
 
+		// 0x101E0A80 (the ai fight items' unit): the height of the cell (x, z); outside the grid or past the largest stored height it
+		// is zero, or the invalid height when invalidOutside is set
+		float GetHeight(int x, int z, bool invalidOutside) const;
+
+		// 0x10DFA880 / 0x10DFA774: the largest stored height that counts and the one that marks a cell without a height
+		static const unsigned short sMaxRawHeight;
+		static const unsigned short sInvalidHeight;
+
 		float gridSize;  // +8
 		float inverseGridSize;  // +0xC
 		int sizeX;  // +0x10

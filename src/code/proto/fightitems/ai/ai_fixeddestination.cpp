@@ -1,6 +1,11 @@
 // Fight items of the ai group: FixedDestinationDistanceCondition, FixedDestinationGotoTrack, FixedDestinationJumpToTrack, ClearFixedAreaDestinationTrack, FixedDestinationFlytoTrack (unit 0x102305F0 - 0x10231FB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_fixeddestination.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/proto/scenariomessages.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/core/strings.h"
 
 namespace proto
 {
@@ -534,6 +539,134 @@ namespace proto
 			}
 
 			// ---- actions begin
+
+			// FUNCTION: ENGINE 0x101F1AF0
+			void FixedDestinationGotoAction::MoveToDestination(engine::GameObject* object)
+			{
+				MoveParams params;
+				params.tolerance = link.Get()->tolerance;
+				params.braking = link.Get()->braking;
+				params.ignoreRestrictions = link.Get()->ignoreRestrictions;
+				Unknown103B8330(object, &unknown2C, &params);
+			}
+
+			// FUNCTION: ENGINE 0x101F2770
+			bool FixedDestinationGotoAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTaskAIMsg task;
+				object->SendMessage(&task);
+				unknown38 = task.task;
+				GetFixedDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.destination != 0)
+				{
+					unknown2C.x = message.destination->position.x;
+					unknown2C.y = message.destination->position.y;
+					unknown2C.z = message.destination->position.z;
+					message.destination->source = this;
+					MoveToDestination(object);
+					return true;
+				}
+				Unknown103B82F0(object);
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x101F28B0
+			// NONMATCHING: the engine stores the arrived flag before it pushes the object, ours after loading this, 98 %
+#ifdef NONMATCHING
+			bool FixedDestinationGotoAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetFixedDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.destination != 0)
+				{
+					message.destination->source = this;
+					math::Vector position(message.destination->position.x, message.destination->position.y, message.destination->position.z);
+					if (math::DistanceSquared(position, unknown2C) > engine::driving::gOne)
+					{
+						unknown40 = false;
+						unknown2C.x = position.x;
+						unknown2C.y = position.y;
+						unknown2C.z = position.z;
+						MoveToDestination(object);
+					}
+					if (!unknown40 && Unknown103B8440(object))
+					{
+						DestinationReachedMessage reached(target, "goto");
+						engine::SendMessage(&reached, &engine::gScenario38);
+						unknown40 = true;
+					}
+					return true;
+				}
+				unknown2C.z = 0.0f;
+				unknown2C.y = 0.0f;
+				unknown2C.x = 0.0f;
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F1290
+			void ClearFixedDestinationUnlessGoto(fight::Action* action, const core::Name<core::CaseSensitiveKey>* task, engine::GameObject* object)
+			{
+				GetTaskAIMsg message;
+				object->SendMessage(&message);
+				if (*task != message.task)
+				{
+					for (int i = 0; i < 8; i++)
+					{
+						if (message.task == engine::gGotoTable[i].name)
+						{
+							return;
+						}
+					}
+				}
+				ClearFixedDestinationMessage clear(action);
+				object->SendMessage(&clear);
+			}
+
+			// FUNCTION: ENGINE 0x101F1AA0
+			void FixedDestinationGotoAction::Slot6()
+			{
+				if (link.object->clearDestination)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ClearFixedDestinationUnlessGoto(this, &unknown38, object);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101F20E0
+			void FixedDestinationJumpToAction::Slot6()
+			{
+				if (link.object->clearDestination)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ClearFixedDestinationUnlessGoto(this, &unknown38, object);
+					}
+				}
+			}
 			// FUNCTION: ENGINE 0x101F2560
 			ClearFixedAreaDestinationAction::ClearFixedAreaDestinationAction(ClearFixedAreaDestinationTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* effect, fight::Track* listener) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
@@ -672,6 +805,16 @@ template core::Link<proto::fightitems::ai::FixedDestinationFlytoTrack>::Link(pro
 template proto::fightitems::ai::FixedDestinationJumpToTrack* core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Get() const;
 template core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Link(proto::fightitems::ai::FixedDestinationJumpToTrack*);
 
+namespace proto
+{
+	// FUNCTION: ENGINE 0x101F1030
+	DestinationReachedMessage::DestinationReachedMessage(engine::GameObjectHandle arrived, const char* newData) : engine::ScenarioMessage(0x1A)
+	{
+		handles[0] = arrived;
+		core::StrNCpy(data, newData, 0x40u);
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101F25E0
 // FUNCTION: ENGINE 0x10230BD0
@@ -753,3 +896,8 @@ template core::Link<proto::fightitems::ai::FixedDestinationJumpToTrack>::Link(pr
 // FUNCTION: ENGINE 0x101F18F0
 // FUNCTION: ENGINE 0x101F0FA0
 // FUNCTION: ENGINE 0x101F0FD0
+// FUNCTION: ENGINE 0x101F0F20
+// FUNCTION: ENGINE 0x101F0F60
+// FUNCTION: ENGINE 0x101F0F90
+// FUNCTION: ENGINE 0x101F1020
+// FUNCTION: ENGINE 0x101F1240

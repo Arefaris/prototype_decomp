@@ -7667,3 +7667,31 @@ and half-float helpers (0x10397C00 - 0x10398C00). The stand-ins (`BaseAlert`, `S
 - Shared header changes: `container/arraydynamicallocatornew.h` (`Grow`, `EraseSwap`), `engine/gameobject/gameobjecthandle.h` (`GameObjectHandle::operator==`, the engine compares the handle as one 32-bit value), `proto/variant.h` (`IsEmpty`, `GetHeldDiscriminator`),
   `proto/characterbudgetpolicy.h` (the two default squared distances are declared), `proto/fightitems/ai/aihelpers.h` (`CombatBudget`, `CombatBudgets` and `SoldierBudgets` moved to their own headers, `ByteFlag` moved to `combatbudgetmanager.h`).
   Renamed symbols: `SoldierBudgets::Unknown103866C0` is a const method now (`QBE`).
+## proto/fightitems/ai: the action half of 0x101E0000 - 0x10200000, second pass (sn-cy)
+Written into the existing units (`ai_token`, `ai_reserveposition`, `ai_destination`, `ai_lod`, `ai_disguise`, `ai_goto`, `ai_flee`, `ai_idle`, `ai_takeoff`, `ai_formation`, `ai_fixeddestination`, `ai_circle`);
+new shared headers `aiactionmessages.h` (ClearFixedDestination, SetNPCLODState, SetStateStateChange, GetFollowInformation messages, the externs of `gGotoTable`, `gScenario38`, `gDriverAI3`,
+`gDriverAITakingOff`), `aitokenmessages.h` (RequestToken / ReleaseToken / SetHunterTokenBoost messages), `aiactionhelpers.h` (`MoveParams`, `Unknown103B8330`) and `aihudhelpers.h` (the front end hud:
+marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to shared headers: `aihelpers.h` (`StrafeRunTokens` / `SoldierBudgets` members, `AISystem::GetHeightmap`, a few free helpers),
+`aimessages.h` (`FixedDestination`), `engine/gameobject/gameobjecthandle.h` (`HandleBase::operator==` / `!=`, the engine compares the two words at once), `engine/gameobject/gameobjectmessages.h`
+(`CharacterIntentionButton::Press`, `CharacterIntention::GetButtonOther` = the engine's second copy of `GetButton`), `proto/heightmap.h` (`Heightmap::GetHeight` 0x101E0A80 and the two 16-bit limits it reads),
+`proto/scenariomessages.h` (the constructor `DestinationReachedMessage(handle, text)` 0x101F1030).
+- Match: the reserve position family (`FindPosition` of the three classes, Slot5 / Slot6 of all four, `ReserveVolumeAction::Slot6`), the token actions (`RequestTokenAction` all slots and its two helpers, `TargetTokenBoostAction::Slot5`,
+  `ActionAction::Slot7`, `ActionTrack::GetButtonEntry` / `GetButtonCount`, `TargetBeingHeldCondition::Evaluate`), `EngageAction` (constructor, destructor, Slot5 / 6 / 7, `ReleasePosition`, `CreateAction`), the goto family (`GoToAction::Slot5`,
+  `DumbGotoAction::Slot5` / `Slot6` / `ClearDestination`, `FixedDestinationGotoAction::Slot5` / `Slot6` / `MoveToDestination`, `FixedDestinationJumpToAction::Slot6`, `ClearFixedDestinationUnlessGoto` 0x101F1290,
+  `DestinationReachedMessage` constructor), `FleeAction::Slot5`, `IdleAction` / `FlyingIdleAction::Slot7`, `TakeOffAction::Slot6`, `Heightmap::GetHeight`, the lod actions (`UpdateSoldierReservationBudgetAction` Slot5 / 7,
+  `SetNPCLODStateAction::Slot5` with its sender, `CharacterizeAction` / `CharacterizeFromReservedAction::Slot5`), the disguise ones (`SetUserTooltipAction::Slot7`, `HelicopterStrafeModeAction::Slot7`, the hud actions
+  `ShowDisguiseActionHUDAction` Slot5 / 6 / 7, `ClearMarkersAction::Slot5`, `AddMarkerByKeyAction` Slot5 / 6, `AreDisguiseActionsEnabledCondition::Evaluate`), `FollowTargetAction::Slot7`; about 30 kept copies of the new messages and links
+  mapped by `keptmap.py` (equal bytes).
+- EQUIVALENT turned into matches (the engine's block layout is what a chain of early `return false;` gives, the true exit last; a member call whose object is loaded before its arguments needs the object in a local):
+  `AdjustHydraMovementAction::Slot5`, `DrawDebugAction::Slot5`, `UnDowngradableAction::Slot5` (two separate tests), `RefreshStrafeRunTokenAction::Slot5`, `AddMarkerByKeyAction::Slot7`, `PlayDebugDialogAction::Slot7`
+  (`if (x != 0) return true; return false;` gives the engine's `cmp / setne al`).
+- NONMATCHING (reason, best %): `ReservePositionAction::Slot7`, `ReserveHydraPositionAction::Slot7`, `ReserveTargetsPositionAction::Slot7` (the track pointer is loaded into ecx / eax in the engine, 74 - 90 %),
+  `EngageAction::ChooseDistances` (the inlined random steps keep a pointer to the second state in esi), `AbsoluteHeightCondition::Evaluate` (92 %), `FixedDestinationGotoAction::Slot7` (98 %, the arrived flag is stored
+  before the object is pushed), `TakeOffAction::Slot5` (86 %, scheduling of the grid size product) and `Slot7` (the clamp stores once into the argument slot), `FollowTargetAction::Slot5` (88 %, the result is set
+  before the cosine), `HelicopterStrafeModeAction::Slot5` (85 %, was EQUIVALENT).
+- Findings: a local `math::Vector place(m.m[3][0], m.m[3][1], m.m[3][2]);` followed by component stores gives the engine's three loads and three stores; the engine's `Vector` zeroing stores z, y, x (write them in that order); a handle
+  the engine copies into a register (`mov edx, [handle]` and tests the halves) is a by-value copy `GameObjectHandle copy = message.handle;`; an inlined `Random::Range` is `(high - low) * NextFloat01() + low`.
+- Not done (blocked): the flying constraints message of `FixedDestinationFlyto` / `JumpTo` and the big update functions (`CircleStrafeAction::Slot7`, `CombatDestinationFindAction::Slot7`, `FollowFormationAction::Slot7`, the `Reform`,
+  `Land` and `DumbGoto` updates), the `Request*Condition` family (the per-player request table of the ai system), `HaveTokenCondition` / `TargetIsHumanCondition` / `FloatShotAllowedCondition` (messages with lists or global names),
+  the height grid, navmesh and array helpers of the circle unit whose class no unit names, `ResetPhysicVelocitiesAction` (ravenphysics objects), and the actions whose constructors build arrays (`IntersectionCirclePatrol`,
+  `LodGotoFixedDestination`, `Message`, `PeriodicMessage`).

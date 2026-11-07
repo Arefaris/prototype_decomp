@@ -212,7 +212,7 @@ namespace proto
 				core::Link<FollowTargetTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				math::Vector unknown2C;  // +0x2C
-				engine::HandleBase unknown38;  // +0x38
+				engine::GameObjectHandle unknown38;  // +0x38
 				float unknown3C;  // +0x3C
 				float unknown40;  // +0x40
 				float unknown44;  // +0x44

@@ -890,9 +890,14 @@ namespace proto
 				// vftable slot 7 (0x101E7EB0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101E7860: asks the target's target for a token (name guess)
+				bool RequestToken();
+				// 0x101E78F0: gives the token back (name guess)
+				bool ReleaseToken();
+
 				core::Link<RequestTokenTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				engine::HandleBase unknown2C;  // +0x2C
+				engine::GameObjectHandle unknown2C;  // +0x2C
 			};
 
 			// RTTI: proto::fightitems::ai::DrawDebugAction (9 vftable slots, 0x2C bytes)
