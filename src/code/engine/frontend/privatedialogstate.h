@@ -6,22 +6,12 @@
 #define ENGINE_FRONTEND_PRIVATEDIALOGSTATE_H
 
 #include "code/engine/gamestate.h"
+#include "code/engine/gameflowmanager.h"
 
 namespace engine
 {
 	class DialogState;
 	class FEOverlay;
-
-	// RTTI: engine::GameFlowManager::StateRequestCallback (one slot, 4 bytes): told when a state request was carried out
-	class GameFlowManager
-	{
-	public:
-		class StateRequestCallback
-		{
-		public:
-			virtual void OnFinished(int state, bool aborted) = 0;
-		};
-	};
 
 	// RTTI: engine::FEOverlay::Callback (a struct with one slot): what the overlay's movie calls the engine back with
 	class FEOverlay

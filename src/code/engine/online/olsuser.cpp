@@ -2,6 +2,7 @@
 #include "code/engine/online/olsfriend.h"
 #include "code/engine/gamelink.h"
 #include "code/engine/online/ols.h"
+#include "code/engine/online/olsgame.h"
 #include <string.h>
 
 namespace engine
@@ -401,21 +402,4 @@ namespace engine
 		}
 	}
 
-	// FUNCTION: ENGINE 0x10888080
-	void OLSLocalUser::SetSetting(int key, int value)
-	{
-		for (int i = 0; i < settingCount; i++)
-		{
-			if (settings[i].key == key)
-			{
-				settings[i].value = value;
-				return;
-			}
-		}
-	}
 }
-
-// Kept copies (inline members of this unit):
-// FUNCTION: ENGINE 0x10887340
-// FUNCTION: ENGINE 0x10887360
-// FUNCTION: ENGINE 0x10887380

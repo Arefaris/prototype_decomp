@@ -134,30 +134,14 @@ namespace engine
 		unsigned char* items;  // +0x1C
 		unsigned char unknown20[4];
 		int current;  // +0x24
+		unsigned char unknown28[0x10];
+		bool unknown38;
+		// 0x108E7F60 (another unit)
+		bool Unknown108E7F60();
 	};
 
-	// A user that plays on this machine (another unit)
-	class OLSLocalUser
-	{
-	public:
-		// One setting of the user (0x10 bytes; names guessed)
-		struct Setting
-		{
-			int value;
-			int unknown4;
-			int key;  // +8
-			int unknownC;
-		};
-
-		// 0x10888080: sets the value of the setting with that key
-		void SetSetting(int key, int value);
-
-		unsigned char unknown0[0xC];
-		int settingCount;  // +0xC
-		Setting* settings;  // +0x10
-		// 0x108882C0: leaves the online session; false when there was none
-		bool Unknown108882C0();
-	};
+	// The game the services run on this machine (RTTI engine::OLSGame, olsgame.h)
+	class OLSGame;
 
 	// The list of users at OLS +0x94 and the friend list at +0x98 (olsfriend.h)
 	class OLSUserList;
@@ -191,7 +175,7 @@ namespace engine
 		void SendMessage(OLSMessage* message);
 
 		// The local user that is selected: null when there are none
-		OLSLocalUser* GetLocalUser()
+		OLSGame* GetLocalUser()
 		{
 			return localUsers != 0 ? localUsers[selectedLocalUser] : 0;
 		}
@@ -226,7 +210,7 @@ namespace engine
 		OLSUserTable* userTable;  // +0x80
 		unsigned char unknown84[4];
 		int selectedLocalUser;  // +0x88
-		OLSLocalUser** localUsers;  // +0x8C
+		OLSGame** localUsers;  // +0x8C
 		unsigned char unknown90[4];
 		OLSUserList* userList;  // +0x94
 		OLSFriend* friends;  // +0x98

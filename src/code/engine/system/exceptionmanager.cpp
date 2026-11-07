@@ -3,6 +3,7 @@
 #include "code/core/file/filesystem.h"
 #include "code/core/interlocked.h"
 #include "code/core/thread.h"
+#include "code/engine/online/olsgame.h"
 #include "code/engine/system/engineflags.h"
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/gamestatetable.h"
@@ -230,7 +231,7 @@ namespace engine
 				while (true)
 				{
 					OLS* ols = OLS::Get();
-					OLSLocalUser* user = ols->localUsers != 0 ? ols->localUsers[ols->selectedLocalUser] : 0;
+					OLSGame* user = ols->localUsers != 0 ? ols->localUsers[ols->selectedLocalUser] : 0;
 					if (user->Unknown108882C0())
 					{
 						break;
