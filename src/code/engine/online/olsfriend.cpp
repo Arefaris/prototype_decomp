@@ -81,7 +81,7 @@ namespace engine
 		if (userId != -1)
 		{
 			int id = OLS::Get()->userList->records[userId].id;
-			OLS::Get()->userList->Unknown10887870(id);
+			OLS::Get()->userList->ClearInvite(id);
 			userId = -1;
 		}
 		name.Set("");

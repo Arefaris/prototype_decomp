@@ -4,10 +4,14 @@
 
 namespace engine
 {
-	// FUNCTION: ENGINE 0x10886A30
-	OLSUserMessage::OLSUserMessage(short newId) : OLSMessage(5, newId)
+	// The engine's out-of-line copies of the inline constructor and destructor of the user message (0x10886A30 and
+	// 0x10886A60) come from a call that is not expanded
+#pragma inline_depth(0)
+	void KeepUserMessageCopies()
 	{
+		OLSUserMessage message(0);
 	}
+#pragma inline_depth()
 
 	// FUNCTION: ENGINE 0x10887D20
 	OLSGameMessage::OLSGameMessage(short newId) : OLSMessage(3, newId)
@@ -15,12 +19,13 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1088ACA0
-	OLSProfileStorageMessage::OLSProfileStorageMessage(short newId) : OLSMessage(0xB, newId)
+	OLSProfileStorageMessage::OLSProfileStorageMessage(short newId) : OLSMessageWords(0xB, newId)
 	{
 	}
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10886A30
 // FUNCTION: ENGINE 0x10886A60
 // FUNCTION: ENGINE 0x10887320
 // FUNCTION: ENGINE 0x10887D50

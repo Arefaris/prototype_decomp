@@ -472,14 +472,14 @@ namespace proto
 			{
 				if (id == 0)
 				{
-					if (message->user == engine::OLS::Get()->currentUser->id)
+					if (message->Words()->user == engine::OLS::Get()->currentUser->id)
 					{
 						unknown8A = true;
 					}
 				}
 				else if (id == 1)
 				{
-					if (message->user == engine::OLS::Get()->currentUser->id)
+					if (message->Words()->user == engine::OLS::Get()->currentUser->id)
 					{
 						unknown8A = true;
 					}

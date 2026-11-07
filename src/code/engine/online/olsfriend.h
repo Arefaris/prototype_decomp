@@ -5,6 +5,8 @@
 #ifndef ENGINE_ONLINE_OLSFRIEND_H
 #define ENGINE_ONLINE_OLSFRIEND_H
 
+#include "code/engine/controller/inputsystem.h"
+
 namespace engine
 {
 	// A string of wide characters the front end shows (0x108A5560 / 0x108A5570: constructor and destructor, another unit)
@@ -54,6 +56,47 @@ namespace engine
 	{
 		// 0x10886BB0: makes the record free again
 		void Reset();
+		// 0x10886BF0: gives the user a name
+		void SetName(const WideStringBuffer& text);
+		// 0x10887340 / 0x10887360 / 0x10887380: the game / the session / the invitation the user is in (names guessed); each
+		// is kept in its member and in a flag of the record
+		struct Invite;
+		void SetGame(int value)
+		{
+			unknown14 = value;
+			if (value != 0)
+			{
+				flags |= 2;
+			}
+			else
+			{
+				flags &= ~2;
+			}
+		}
+		void SetSession(int value)
+		{
+			unknown18 = value;
+			if (value != 0)
+			{
+				flags |= 1;
+			}
+			else
+			{
+				flags &= ~1;
+			}
+		}
+		void SetInvite(Invite* value)
+		{
+			invite = value;
+			if (value != 0)
+			{
+				flags |= 4;
+			}
+			else
+			{
+				flags &= ~4;
+			}
+		}
 
 		int index;  // +0
 		WideStringBuffer name;  // +4
@@ -64,7 +107,8 @@ namespace engine
 		// The invitation the user sent (its id is at +0x10)
 		struct Invite
 		{
-			unsigned char unknown0[0x10];
+			unsigned char unknown0[0xC];
+			unsigned int flags;  // +0xC
 			int id;  // +0x10
 		}* invite;  // +0x1C
 		unsigned int flags;  // +0x20
@@ -75,16 +119,77 @@ namespace engine
 		unsigned char* values;  // +0x34 (valueCount entries of 0x10 bytes)
 	};
 
-	// The list of users at OLS +0x94 (another unit; names guessed)
-	class OLSUserList
+	// A tagged value of the online services (16 bytes; the tag at +0, a wide string for tag 4 at +8; 0x10844110 /
+	// 0x10844120 are the engine's copies of its constructor and destructor)
+	struct OLSValue
+	{
+		OLSValue();
+		~OLSValue();
+
+		unsigned char type;
+		unsigned char unknown1[7];
+		WideStringBuffer text;  // +8
+	};
+
+	// A table of eight-byte entries (an id and a kind; 0x10844450 sets one), made by 0x108443F0 (names guessed)
+	struct OLSKeyTable
+	{
+		struct Entry
+		{
+			int id;
+			int kind;
+		};
+
+		// 0x10844450
+		void Set(int index, int id, int kind);
+
+		Entry* entries;
+		int count;
+	};
+
+	// What the user list knows about one setting (0x14 bytes, copied from the platform layer; names guessed)
+	struct OLSSettingInfo
+	{
+		int used;
+		int unknown4;
+		int type;  // +8: 1 to 5
+		const char* name;  // +0xC
+		int scope;  // +0x10: 2 for none
+	};
+
+	// How the list recognises a user on the net (a machine and the slot on it; names guessed)
+	struct OLSHostKey
+	{
+		unsigned int address;
+		int unknown4;
+		unsigned char slot;  // +8
+	};
+
+	// The list of users at OLS +0x94 (RTTI engine::OLSUser; a listener of the input system, the platform layers derive
+	// from it and implement the slots behind the input ones). Names guessed
+	class OLSUserList : public controller::InputSystem::InputCallback
 	{
 	public:
+		// 0x10887560: the number of settings, of ids and of records
+		OLSUserList(int newSettingCount, int newIdCount, int newRecordCount);
+		// vftable slots 0 - 2 of the input listener: a controller was connected / given a player / its state changed
+		virtual void OnFlags(unsigned int id, int local, unsigned int flags, bool set);
+		virtual void OnValue(unsigned int id, int local, controller::PlayerInfo* input);
+		virtual void OnNotify(int a, int b, int c);
+		// vftable slot 3 (0x10887CD0), slot 4 (0x104DCCF0) and slot 5 (0x108878B0, the list starts listening and makes
+		// the database subjects of its settings)
+		virtual void Slot3();
+		virtual void Slot4();
+		virtual void Start();
+
 		// 0x108871C0: the index of the selected user
 		int GetSelected();
+		// 0x108871B0
+		void SetSelected(int index);
 		// 0x10886F50
 		void SetCurrentUser(int id);
-		// 0x10887870: the user is no longer needed (by its id)
-		void Unknown10887870(int id);
+		// 0x10887870: the user is no longer needed as the invited one (by its id)
+		void ClearInvite(int id);
 
 		// 0x10886C40 / 0x10886C60: makes one record / all of them free again
 		void ResetRecord(int index);
@@ -92,13 +197,44 @@ namespace engine
 		// 0x10886C90 / 0x10886CD0: the index of the record of a user id / of a controller, -1 for none
 		int FindIndexById(int id);
 		int FindIndexByController(unsigned int controller);
+		// 0x10886D10: the index of the record whose controller sits on the machine of the key
+		int FindIndexByHost(const OLSHostKey* key);
+		// 0x10886D80: the record of the user id (a free one is made when there is none), null when the list is full
+		OLSUserRecord* AddUser(int id);
+		// 0x10886E60: lets the record go when no flag is left (the users hear of it)
+		void Release(int index);
+		// 0x10886EF0 / 0x10886F10: set the id of a record / set or clear flags of it (clearing may release it)
+		void SetRecordId(int index, int id);
+		void SetFlag(int index, unsigned int mask, bool set);
+		// 0x10887130 / 0x10887160: describe a setting (its id and kind / the platform's information)
+		void SetSettingKey(int index, const OLSKeyTable::Entry* key);
+		void SetSettingInfo(int index, const OLSSettingInfo* info);
+		// 0x108871D0: whether the selected user has an invitation that can still be answered
+		int CanAnswerInvite();
+		// 0x10887200: the name of the selected user as text (in the member buffer)
+		const char* GetSelectedName();
+		// 0x10887230: the selected user's values as text
+		const char* GetSelectedValuesText();
+		// 0x108876C0 / 0x10887780 / 0x10887820: the user takes part in a game / in a session / was invited (answer the index)
+		int SetGame(int id, int value, const WideStringBuffer* text);
+		int SetSession(int id, int value, const WideStringBuffer* text, unsigned int controller);
+		int SetInvite(int id, OLSUserRecord::Invite* invite, const WideStringBuffer* text);
+		// 0x10887710 / 0x108877D0: forget every user of a game / of a session
+		void ClearGame(int value);
+		void ClearSession(int value);
 
-		unsigned char unknown0[0x10];
+		int settingCount;  // +8
+		int idCount;  // +0xC
 		int recordCount;  // +0x10
 		int activeCount;  // +0x14
 		OLSUserRecord* records;  // +0x18
 		int currentUser;  // +0x1C (the id of the user the current profile belongs to)
-		unsigned char unknown20[0x13C - 0x20];
+		OLSSettingInfo* settings;  // +0x20
+		bool settingsChanged;  // +0x24
+		OLSKeyTable::Entry* settingKeys;  // +0x28
+		char text[0x100];  // +0x2C
+		OLSKeyTable settingKeyTable;  // +0x12C
+		OLSKeyTable idKeyTable;  // +0x134
 		int selected;  // +0x13C
 	};
 
