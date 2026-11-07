@@ -12,16 +12,88 @@
 
 namespace music
 {
-	// FUNCTION: ENGINE 0x105D28B0
-	void CueEvent::Read(om::BinaryStream* stream)
+	// This unit's own copy of EntityType<Cue>::CreateEntity (the engine calls it directly on the entity type of the cue)
+	struct CueEntityTypeCopy
 	{
-		GetMetaClassForRead()->ReadBinary(stream, this);
+		void CreateEntity(om::Entity** entity, const om::ClassName& name);
+	};
+
+	// FUNCTION: ENGINE 0x105D28B0
+	bool CueEvent::Read(om::BinaryStream* stream)
+	{
+		return GetMetaClassForRead()->ReadBinary(stream, this);
 	}
 
 	// FUNCTION: ENGINE 0x105D28D0
-	void CueEvent::Write(om::BinaryStream* stream)
+	bool CueEvent::Write(om::BinaryOutput* output)
 	{
-		GetMetaClassForWrite()->WriteBinary(stream, this);
+		return GetMetaClassForWrite()->WriteBinary(&output->stream, this);
+	}
+
+	// FUNCTION: ENGINE 0x105F1980
+	void CueEntityTypeCopy::CreateEntity(om::Entity** entity, const om::ClassName& name)
+	{
+		Cue* created = new Cue(name);
+		*entity = created;
+		om::ThreadSafeRefCount::AddRef(&created->count);
+		om::RegisterEntity(*entity);
+	}
+
+	// FUNCTION: ENGINE 0x105F5FB0
+	bool CueEventCueState::Read(om::BinaryStream* stream)
+	{
+		if (cue == 0)
+		{
+			{
+				om::String text("CueEventCueStateCue", false);
+				om::ClassName name = om::MakeClassName(text);
+				om::EntityTypeBase* type = om::FindEntityType(typeid(Cue));
+				reinterpret_cast<CueEntityTypeCopy*>(type)->CreateEntity(reinterpret_cast<om::Entity**>(&cue), name);
+			}
+			return cue->Slot6(stream);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105F6820
+	bool CueEventCellState::Read(om::BinaryStream* stream)
+	{
+		om::BinaryStream copy = *stream;
+		if (cell == 0)
+		{
+			om::ClassName name;
+			om::ReadBinary(stream, &name);
+			om::MetaClassBase* description = om::FindMetaClassByName(name);
+			if (description != 0)
+			{
+				cell = reinterpret_cast<Cell*>(description->Slot5());
+				return cell->ReadBinary(&copy);
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105F68A0
+	bool CueEventCellState::Write(om::BinaryOutput* output)
+	{
+		om::BinaryOutput copy = *output;
+		if (cell != 0)
+		{
+			om::WriteBinary(&output->stream, cell->GetMetaType()->GetName());
+			return cell->WriteBinary(&copy.stream);
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105F1960
+	bool CueEventCueState::Write(om::BinaryOutput* output)
+	{
+		Cue* current = cue;
+		if (current != 0)
+		{
+			return current->Slot7(output);
+		}
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x105D2900

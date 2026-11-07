@@ -77,6 +77,8 @@ namespace om
 		void DeleteAllEnumValues();
 		// 0x105EB6E0 / 0x105EBAC0 (names guessed): enter an entry of an enumeration in the tree by its value and in the tree by its
 		// name; false when there is one of that value or name already
+		// 0x105C09F0 (name guessed): the class description of a name in the registry of the descriptions
+		MetaClassBase* FindMetaClassByName(const ClassName* name);
 		bool InsertByValue(EnumValue* entry);
 		bool InsertEnumValueByName(EnumValue* entry);
 

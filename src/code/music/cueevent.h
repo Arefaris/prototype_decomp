@@ -13,6 +13,11 @@
 #include "code/om/bool32.h"
 #include "code/om/metaclass.h"
 
+namespace om
+{
+	struct BinaryOutput;
+}
+
 namespace music
 {
 	class CueEvent
@@ -26,8 +31,8 @@ namespace music
 		{
 		}
 		// Slots 1 and 2 (0x105D28B0 / 0x105D28D0): read and write the event through its description
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		// Slots 3 and 4 (0x105D2900 / 0x105D28F0): the description of the event's class, none here
 		virtual om::MetaClassBase* GetMetaClassForWrite();
 		virtual om::MetaClassBase* GetMetaClassForRead();
@@ -342,8 +347,8 @@ namespace music
 			}
 		}
 		// Slots 1 and 2 (0x105F5FB0 / 0x105F1960)
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		OM_ALLOCATION(CueEventCueState);
 
 		Cue* cue;  // 8
@@ -360,8 +365,8 @@ namespace music
 		{
 		}
 		// Slots 1 and 2 (0x105F6820 / 0x105F68A0)
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		OM_ALLOCATION(CueEventCellState);
 
 		om::ClassName unknown8;
