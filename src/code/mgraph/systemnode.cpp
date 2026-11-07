@@ -1,5 +1,6 @@
 // The system node of the mgraph library (0x10B76E80 - 0x10B77640): the reflection of the class and the description of its node type, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/mgraph/systemnode.h"
+#include "code/mgraph/events.h"
 #include "code/om/metaclass.h"
 
 #pragma warning(disable: 4661)
@@ -13,6 +14,46 @@ namespace mgraph
 	{
 		return "";
 	}
+
+	// FUNCTION: ENGINE 0x10B773F0
+	// NONMATCHING: the call that gets the allocation tag of the pin leads to another copy of the same function in the engine (99.5 %)
+#ifdef NONMATCHING
+	SystemNode::SystemNode(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<SystemNode>(), newGraph, newName, 0, 1)
+	{
+		new OutputPin<Packet<unsigned __int64> >(this, &MGRAPH_NAME("evaluate_count"), 0, Packet<unsigned __int64>());
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x10B76EB0
+	SystemNode::~SystemNode()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10B76EE0
+	void SystemNode::SetNumChannels(unsigned int newCount)
+	{
+		Node::SetNumChannels(newCount);
+	}
+
+	// FUNCTION: ENGINE 0x10B77020
+	// NONMATCHING: the engine reads the frame's id into edi, ours into edx (81.6 %)
+#ifdef NONMATCHING
+	// Puts a value and the id of the frame in an output
+	static inline void SetOutput(FrameEntry<unsigned __int64>* output, unsigned int id, unsigned __int64 value)
+	{
+		output->id = id;
+		output->value = value;
+	}
+
+	void SystemNode::Slot16(EvaluationFrame* frame)
+	{
+		FrameEntry<unsigned __int64>* output = static_cast<FrameOutput<unsigned __int64>*>(frame->outputs)->entry;
+		SetOutput(output, frame->id, (unsigned int)context->GetChannelOwner());
+	}
+
+#endif
 
 	// FUNCTION: ENGINE 0x10B77550
 	void RegisterSystemNode()

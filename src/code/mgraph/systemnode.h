@@ -11,7 +11,14 @@ namespace mgraph
 
 	class __declspec(align(8)) SystemNode : public Node
 	{
-		MGRAPH_NODE_BODY(SystemNode, Node, 0x50);
+	public:
+		SystemNode(Graph* newGraph, const om::ClassName& newName);
+		virtual ~SystemNode();
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void Slot16(EvaluationFrame* frame);
+		OM_ALLOCATION(SystemNode);
+
+		char unknown4[0x50 - sizeof(Node)];
 	};
 
 }
