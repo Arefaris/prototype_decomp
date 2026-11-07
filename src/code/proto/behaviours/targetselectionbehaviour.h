@@ -125,7 +125,7 @@ namespace proto
 		bool unknown15;
 		bool unknown16;
 		bool unknown17;
-		int unknown18;
+		engine::GameObject* current;  // +0x18: the object that carries the target lock of the selection
 		int unknown1C;
 		engine::HandleBase unknown20;
 		float unknown24;

@@ -2,6 +2,7 @@
 #include "code/core/refptr.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/message.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 
 namespace choreo
 {
@@ -57,6 +58,62 @@ namespace proto
 		return &sInfo;
 	}
 
+	// RTTI proto::AddTargetLockMessage and RemoveTargetLockMessage (type 0x3B, ids 7 and 8): an object is told that the selection
+	// of another one locks onto it (or no longer does); the message carries the place the lock is kept at
+	struct AddTargetLockMessage : public TargetableMessage
+	{
+		explicit AddTargetLockMessage(engine::GameObject** newLock) : TargetableMessage(7), lock(newLock), flag(false)
+		{
+		}
+		virtual ~AddTargetLockMessage()
+		{
+		}
+
+		engine::GameObject** lock;  // +0xC
+		bool flag;  // +0x10
+	};
+
+	struct RemoveTargetLockMessage : public TargetableMessage
+	{
+		explicit RemoveTargetLockMessage(engine::GameObject** newLock) : TargetableMessage(8), lock(newLock)
+		{
+		}
+		virtual ~RemoveTargetLockMessage()
+		{
+		}
+
+		engine::GameObject** lock;  // +0xC
+	};
+
+	// FUNCTION: ENGINE 0x104009A0
+	void TargetSelectionBehaviour::SetCurrent(engine::HandleBase handle)
+	{
+		engine::GameObject* object;
+		if (handle.index == 0xffff || engine::GetGameObjectEntries()[handle.index].serial != handle.serial)
+		{
+			object = 0;
+		}
+		else
+		{
+			object = engine::GetGameObjectEntries()[handle.index].object;
+		}
+		engine::GameObject** lock = &current;
+		engine::GameObject* old = *lock;
+		if (old != object)
+		{
+			if (old != 0)
+			{
+				RemoveTargetLockMessage remove(lock);
+				old->SendMessage(&remove);
+			}
+			if (object != 0)
+			{
+				AddTargetLockMessage add(lock);
+				object->SendMessage(&add);
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10401A50
 	void TargetSelectionBehaviour::Reset()
 	{
@@ -108,7 +165,7 @@ namespace proto
 	// its own (48.6 %)
 #ifdef NONMATCHING
 	TargetSelectionBehaviour::TargetSelectionBehaviour(engine::GameObject* newOwner) : TargetingBehaviour(newOwner),
-		unknown14(false), unknown15(false), unknown16(false), unknown17(false), unknown18(0), unknown1C(0),
+		unknown14(false), unknown15(false), unknown16(false), unknown17(false), current(0), unknown1C(0),
 		unknown24(choreo::gMinusOne), unknown29(false), unknown2A(true), registered(false), ignorePatsy(false),
 		unknown37(0xfe), weights(0), forgetTime(5.0f), tooFar(proto::gFifty), weightDistance(engine::driving::gTwo),
 		weightHysteresis(engine::driving::gOne), weightCanSee(engine::driving::gOne), weightTargetingMe(0.4f),
@@ -236,3 +293,5 @@ namespace proto
 // FUNCTION: ENGINE 0x10401080
 // FUNCTION: ENGINE 0x104020E0
 // FUNCTION: ENGINE 0x10402380
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
