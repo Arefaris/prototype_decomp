@@ -6,13 +6,17 @@
 #include "code/proto/fightitems/motion/motionaction.h"
 #include "code/proto/camera/cameramanager.h"
 
+namespace engine
+{
+	extern fight::EnumEntry gCharacterChaseTable[];  // 0x11263770 (the camera types use this table)
+}
+
 namespace proto
 {
 	namespace fightitems
 	{
 		namespace motion
 		{
-			extern fight::EnumEntry gCameraAvatarSelectTrackCameraTypeTable[];  // 0x11263770
 			extern const int gCameraAvatarSelectTrackCameraTypeCount;  // 0x10DF4344
 
 			// RTTI: proto::fightitems::motion::CameraAvatarSelectTrack (16 vftable slots, 0x28 bytes)

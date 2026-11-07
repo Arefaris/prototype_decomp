@@ -83,7 +83,7 @@ namespace proto
 					fight::Property* property = 0;
 					property = new fight::PropertyFloatConstRange<CameraAvatarSelectTrack>("timeBegin", &CameraAvatarSelectTrack::SetTimeBegin);
 					properties[0] = property;
-					property = new fight::PropertyEnumConstList<CameraAvatarSelectTrack>("cameraType", gCameraAvatarSelectTrackCameraTypeTable, gCameraAvatarSelectTrackCameraTypeCount, &CameraAvatarSelectTrack::SetCameraType);
+					property = new fight::PropertyEnumConstList<CameraAvatarSelectTrack>("cameraType", engine::gCharacterChaseTable, gCameraAvatarSelectTrackCameraTypeCount, &CameraAvatarSelectTrack::SetCameraType);
 					properties[1] = property;
 					property = new fight::PropertyBool<CameraAvatarSelectTrack>("parent", &CameraAvatarSelectTrack::SetParent);
 					properties[2] = property;
@@ -177,7 +177,7 @@ namespace proto
 					fight::Property* property = 0;
 					property = new fight::PropertyFloatConstRange<CameraTypeSelectTrack>("timeBegin", &CameraTypeSelectTrack::SetTimeBegin);
 					properties[0] = property;
-					property = new fight::PropertyEnumConstList<CameraTypeSelectTrack>("cameraType", gCameraAvatarSelectTrackCameraTypeTable, gCameraAvatarSelectTrackCameraTypeCount, &CameraTypeSelectTrack::SetCameraType);
+					property = new fight::PropertyEnumConstList<CameraTypeSelectTrack>("cameraType", engine::gCharacterChaseTable, gCameraAvatarSelectTrackCameraTypeCount, &CameraTypeSelectTrack::SetCameraType);
 					properties[1] = property;
 					property = new fight::PropertyFloatConstRange<CameraTypeSelectTrack>("cameraBlendTime", &CameraTypeSelectTrack::SetCameraBlendTime);
 					properties[2] = property;
