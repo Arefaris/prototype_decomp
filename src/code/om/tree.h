@@ -10,6 +10,7 @@ namespace om
 	class Entity;
 	class EntityTypeBase;
 	class MetaClassBase;
+	struct EnumValue;
 
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
 	struct TreeNode
@@ -69,6 +70,15 @@ namespace om
 		// 0x105C0750 (attributes), 0x105C07B0 (properties), 0x105C0780 (methods): takes the objects that have their tree
 		// node at 8 out one by one and deletes them
 		template<class T> void DeleteAll();
+		// 0x105EB910 / 0x105EBA10 / 0x105EB9E0: for the entries of an enumeration (the value tree holds the first node of
+		// the entry, the name tree its second): the first entry of a value, the first entry of a name, and deleting all
+		TreeNode* FindFirstByValue(const int* value);
+		EnumValue* FindByName(const ClassName* name);
+		void DeleteAllEnumValues();
+		// 0x105EB6E0 / 0x105EBAC0 (names guessed): enter an entry of an enumeration in the tree by its value and in the tree by its
+		// name; false when there is one of that value or name already
+		bool InsertByValue(EnumValue* entry);
+		bool InsertEnumValueByName(EnumValue* entry);
 
 		TreeNode* root;
 		TreeNode nil;
