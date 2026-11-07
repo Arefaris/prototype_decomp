@@ -6688,4 +6688,25 @@ namespace om
 	template Complex& DynamicArray<Complex,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10AE8BC0
 	template mgraph::EnvelopeData& DynamicArray<mgraph::EnvelopeData,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AF5B90
+	template void om::WriteText(TextValue*, DynamicArray<bool,unsigned short> const&);
+}
+
+namespace mgraph
+{
+	using namespace om;
+	// FUNCTION: ENGINE 0x10AE1CC0
+	template void* mgraph::PacketBlock<mgraph::TriggerData>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE1CE0
+	template void* mgraph::PacketBlock<Vector>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE2400
+	template void* mgraph::PacketBlock<bool>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE61A0
+	template void* mgraph::PacketBlock<unsigned int>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE6580
+	template void* mgraph::PacketBlock<unsigned __int64>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE66E0
+	template void* mgraph::PacketBlock<String>::operator new(size_t, om::Allocator*);
+	// FUNCTION: ENGINE 0x10AE6A80
+	template void* mgraph::PacketBlock<Complex>::operator new(size_t, om::Allocator*);
 }

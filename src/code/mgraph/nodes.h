@@ -100,9 +100,9 @@ namespace mgraph
 		{
 			data = reinterpret_cast<T*>((reinterpret_cast<unsigned int>(this) + 0x80) & 0xFFFFFF80);
 		}
-		static void* operator new(size_t size, om::Allocator* allocator)
+		static void* operator new(size_t, om::Allocator* allocator)
 		{
-			return om::AllocateFrom(allocator, AllocationTag(), size, 4);
+			return om::AllocateFrom(allocator, AllocationTag(), sizeof(PacketBlock), 4);
 		}
 		static void operator delete(void*, om::Allocator*)
 		{
