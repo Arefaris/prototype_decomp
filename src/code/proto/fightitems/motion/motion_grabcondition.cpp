@@ -6,6 +6,14 @@
 
 namespace proto
 {
+	namespace HitEffectManager
+	{
+		extern core::Name<core::CaseSensitiveKey> gClassNameAttributeName;  // 0x112562B8
+	}
+}
+
+namespace proto
+{
 	namespace fightitems
 	{
 		namespace motion
@@ -1593,6 +1601,110 @@ namespace proto
 					return false;
 				}
 				return fight::CompareNames(compare, attributeValue, &grabbableSize);
+			}
+
+			// FUNCTION: ENGINE 0x100C2E50
+			bool GrabbedGrabbableClassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				const fight::Name& wanted = grabbableClass;
+				GetGrabbableClassMessage message;
+				engine::GameObject* grabber = proto::GetGrabbingObject(object);
+				if (grabber != 0)
+				{
+					grabber->SendMessage(&message);
+				}
+				return fight::CompareNames(compare, &message.className, &wanted);
+			}
+// FUNCTION: ENGINE 0x100C2F30
+			bool GrabbedClassNameCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				core::Name<core::CaseSensitiveKey> grabberName;
+				engine::GameObject* grabber = proto::GetGrabbingObject(object);
+				if (grabber != 0)
+				{
+					engine::BaseAttribute* attribute = grabber->FindAttribute(proto::HitEffectManager::gClassNameAttributeName);
+					if (attribute != 0)
+					{
+						core::Name<core::CaseSensitiveKey>* attributeValue = &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+						if (attributeValue != 0)
+						{
+							grabberName = *attributeValue;
+						}
+					}
+				}
+				return fight::CompareNames(compare, &grabberName, &className);
+			}
+
+			// FUNCTION: ENGINE 0x100C24B0
+			bool GrabSlotCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage message(&grabSlot);
+				object->SendMessage(&message);
+				engine::GameObjectHandle grabbed = message.grabbed;
+				engine::GameObject* other = grabbed.Get();
+				bool found = other != 0;
+				return found == isGrabbing;
+			}
+
+			// FUNCTION: ENGINE 0x100C2D10
+			bool GrabSlotGrabbableClassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage query(&grabSlot);
+				object->SendMessage(&query);
+				const fight::Name* wanted = &grabbableClass;
+				GetGrabbableClassMessage message;
+				engine::GameObject* grabbed = query.grabbed.Get();
+				if (grabbed != 0)
+				{
+					grabbed->SendMessage(&message);
+				}
+				return fight::CompareNames(compare, &message.className, wanted);
+			}
+// FUNCTION: ENGINE 0x100C33D0
+			bool GrabSlotClassNameCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage query(&grabSlot);
+				object->SendMessage(&query);
+				core::Name<core::CaseSensitiveKey> grabbedName;
+				engine::GameObject* grabbed = query.grabbed.Get();
+				if (grabbed != 0)
+				{
+					engine::BaseAttribute* attribute = grabbed->FindAttribute(proto::HitEffectManager::gClassNameAttributeName);
+					if (attribute != 0)
+					{
+						core::Name<core::CaseSensitiveKey>* attributeValue = &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+						if (attributeValue != 0)
+						{
+							grabbedName = *attributeValue;
+						}
+					}
+				}
+				return fight::CompareNames(compare, &grabbedName, &className);
 			}
 
 			// FUNCTION: ENGINE 0x100C2640
