@@ -18,6 +18,8 @@ template<class R, class A> inline void engine::LuaScriptManager::Register(const 
 }
 
 template void engine::LuaScriptManager::Register<engine::LuaGOH, int>(const char*, engine::LuaGOH (*)(int));
+template void engine::LuaScriptManager::Register<math::Vector, const char*>(const char*, math::Vector (*)(const char*));
+template void engine::LuaScriptManager::Register<bool, const char*, math::Vector, math::Vector>(const char*, bool (*)(const char*, math::Vector, math::Vector));
 template void engine::LuaScriptManager::Register<const char*, engine::LuaGOH>(const char*, const char* (*)(engine::LuaGOH));
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -33,3 +35,5 @@ template void engine::LuaScriptManager::Register<const char*, engine::LuaGOH>(co
 // FUNCTION: ENGINE 0x10493D10
 // FUNCTION: ENGINE 0x10494C50
 // FUNCTION: ENGINE 0x10494CE0
+// FUNCTION: ENGINE 0x1048A5A0
+// FUNCTION: ENGINE 0x1048A600
