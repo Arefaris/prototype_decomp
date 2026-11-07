@@ -102801,3 +102801,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?gShadowMapBlock@pure3d@@3PAXA = 0x11281738 ; data size:0x4 | pure3d::gShadowMapBlock: the aligned block the shadow render manager's start-up left (name guess)
 ??1ShadowRenderManager@pure3d@@QAE@XZ = 0x10715C00 ; function size:0x57 | pure3d::ShadowRenderManager destructor (not reconstructed; name guess)
 ??$SafeRelease@UIMemoryAllocator@core@@@core@@YAXAAPAUIMemoryAllocator@0@@Z = 0x10715B50 ; function size:0x1A | template instance (name guess)
+?Unknown3@SkinState@pure3d@@UAEPAVPrimitiveState@2@XZ = 0x10720C60 ; function | pure3d::SkinState vftable slot 3: a state of the same skin (not reconstructed; name guess)
+??_GSkinState@pure3d@@UAEPAXI@Z = 0x107209E0 ; function | pure3d::SkinState scalar deleting destructor
+??1SkinState@pure3d@@UAE@XZ = 0x1071FE10 ; function size:0x82 | pure3d::SkinState destructor (name guess)
+??1AsyncTaskJob@core@@QAE@XZ = 0x10B7F990 ; function size:0x1 | core::AsyncTaskJob destructor (another unit; name guess)

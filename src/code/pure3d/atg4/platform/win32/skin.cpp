@@ -2193,6 +2193,24 @@ namespace pure3d
 		mState->FinishTask(result);
 	}
 
+	// The pose is released through the core region's own helper
+	void ReleaseCoreRef(core::IRefCount*& pointer);
+
+	// FUNCTION: ENGINE 0x1071FE10
+	SkinState::~SkinState()
+	{
+		SkinState::Unknown9();
+		ReleaseCoreRef((core::IRefCount*&)pose);
+		core::SafeRelease((dxVertexBuffer*&)mPoses[0]);
+		core::SafeRelease((dxVertexBuffer*&)mPoses[1]);
+		core::SafeRelease(expression);
+		core::SafeRelease(controller1);
+		core::SafeRelease((ExpressionAnimationController*&)controller2);
+		core::SafeRelease(expressionState);
+		core::FreeAligned(jobData);
+		jobData = 0;
+	}
+
 	// FUNCTION: ENGINE 0x1071F900
 	void SkinState::Unknown9()
 	{

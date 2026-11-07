@@ -1352,6 +1352,8 @@ namespace pure3d
 			SkinState* mState;
 		};
 
+		// Slot 2 (the body is 0x1071FE10, the deleting destructor 0x107209E0)
+		virtual ~SkinState();
 		// Slots 3 - 9 and the state's own slot 10 (skin.cpp)
 		virtual PrimitiveState* Unknown3();
 		virtual void Unknown5();
