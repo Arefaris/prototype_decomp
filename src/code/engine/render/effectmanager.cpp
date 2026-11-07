@@ -1287,12 +1287,24 @@ namespace engine
 		// 0x102D2420; the copies of other units are other functions); kept out of line like the engine's
 		void AssignInventory(content::LoadInventory*& pointer, content::LoadInventory* inventory)
 		{
-			core::RefAssign(pointer, inventory);
+			if (inventory != 0)
+			{
+				inventory->AddRef();
+			}
+			if (pointer != 0)
+			{
+				pointer->Release();
+			}
+			pointer = inventory;
 		}
 
 		void ReleaseInventory(content::LoadInventory*& pointer)
 		{
-			core::SafeRelease(pointer);
+			if (pointer != 0)
+			{
+				pointer->Release();
+				pointer = 0;
+			}
 		}
 
 		// FUNCTION: ENGINE 0x108193B0
