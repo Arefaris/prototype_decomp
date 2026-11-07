@@ -146,27 +146,18 @@ namespace mgraph
 	{
 	public:
 		AbstractToConcreteGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~AbstractToConcreteGraphConnectionBase()
-		{
-		}
 	};
 
 	class ConcreteToAbstractGraphConnectionBase : public GraphConnectionBase
 	{
 	public:
 		ConcreteToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~ConcreteToAbstractGraphConnectionBase()
-		{
-		}
 	};
 
 	class AbstractToAbstractGraphConnectionBase : public GraphConnectionBase
 	{
 	public:
 		AbstractToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo);
-		virtual ~AbstractToAbstractGraphConnectionBase()
-		{
-		}
 	};
 
 	// The connection a context keeps for the pin of a graph (RTTI: mgraph::ContextConnectionBase). Slot 0 destroys it
@@ -207,9 +198,6 @@ namespace mgraph
 			GraphConnectionBase(newFrom, newTo)
 		{
 		}
-		virtual ~ConcreteToConcreteGraphConnection()
-		{
-		}
 		OM_ALLOCATION(ConcreteToConcreteGraphConnection);
 	};
 	template<class P> const char* ConcreteToConcreteGraphConnection<P>::AllocationTag()
@@ -222,9 +210,6 @@ namespace mgraph
 	public:
 		AbstractToConcreteGraphConnection(Pin* newFrom, Pin* newTo) :
 			AbstractToConcreteGraphConnectionBase(newFrom, newTo)
-		{
-		}
-		virtual ~AbstractToConcreteGraphConnection()
 		{
 		}
 		OM_ALLOCATION(AbstractToConcreteGraphConnection);
@@ -241,9 +226,6 @@ namespace mgraph
 			AbstractToAbstractGraphConnectionBase(newFrom, newTo)
 		{
 		}
-		virtual ~AbstractToAbstractGraphConnection()
-		{
-		}
 		OM_ALLOCATION(AbstractToAbstractGraphConnection);
 	};
 	template<class P> const char* AbstractToAbstractGraphConnection<P>::AllocationTag()
@@ -256,9 +238,6 @@ namespace mgraph
 	public:
 		ConcreteToAbstractGraphConnection(Pin* newFrom, Pin* newTo) :
 			ConcreteToAbstractGraphConnectionBase(newFrom, newTo)
-		{
-		}
-		virtual ~ConcreteToAbstractGraphConnection()
 		{
 		}
 		OM_ALLOCATION(ConcreteToAbstractGraphConnection);
@@ -463,9 +442,6 @@ namespace mgraph
 		{
 		}
 		virtual void Destroy();
-		virtual ~ContextConnection()
-		{
-		}
 		OM_ALLOCATION(ContextConnection);
 	};
 	template<class P> const char* ContextConnection<P>::AllocationTag()
