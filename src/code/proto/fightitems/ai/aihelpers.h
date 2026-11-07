@@ -65,6 +65,9 @@ namespace proto
 	public:
 		// 0x10360BF0: the height map of the world
 		Heightmap* GetHeightmap();
+		// 0x10364760 / 0x10362E30: registers a targetable prop with the AI system, takes it out again (name guesses)
+		void AddTargetable(engine::GameObject* object);
+		void RemoveTargetable(engine::GameObject* object);
 
 		unsigned char unknown0[0x10];
 		SoldierBudgets* soldierBudgets;  // +0x10
