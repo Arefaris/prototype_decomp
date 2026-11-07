@@ -1,4 +1,5 @@
 // Name tables that the engine's static initialisers construct in translation units whose code is not reconstructed (unit name guess).
+#include "code/core/hash.h"
 #include "code/core/name.h"
 
 namespace engine
@@ -88,6 +89,20 @@ namespace engine
 		{ core::Name<core::CaseSensitiveKey>("groundSpikeMedium", 0), core::Name<core::CaseSensitiveKey>("GroundSpikeMediumForSuper", 0), core::Name<core::CaseSensitiveKey>("GroundSpikeShardMedium", 0), 5.5f, 4.5f },
 		{ core::Name<core::CaseSensitiveKey>("groundSpikeLarge", 0), core::Name<core::CaseSensitiveKey>("GroundSpikeLargeForSuper", 0), core::Name<core::CaseSensitiveKey>("GroundSpikeShardLarge", 0), 4.5f, 5.0f }
 	};
+
+	struct EffectScale
+	{
+		unsigned __int64 effect;
+		float scale;
+	};
+
+	EffectScale gEffectScales[4] =
+	{
+		{ core::Hash64("CLONE_fireandsmoke_pristine", 0), 20.0f },
+		{ core::Hash64("CLONE_fireandsmoke_infected", 0), 20.0f },
+		{ core::Hash64("CLONE_smoke_normal", 0), 20.0f },
+		{ core::Hash64("AMB_smokestack_pristine", 0), 20.0f }
+	};
 }
 
 // The dynamic initialisers and atexit stubs of the unit's globals:
@@ -99,3 +114,4 @@ namespace engine
 // FUNCTION: ENGINE 0x10D81000
 // FUNCTION: ENGINE 0x10D810A0
 // FUNCTION: ENGINE 0x10D81960
+// FUNCTION: ENGINE 0x10D53160

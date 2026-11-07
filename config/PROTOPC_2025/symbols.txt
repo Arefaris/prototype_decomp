@@ -89875,3 +89875,5 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?gSwatchColours@engine@@3PAVColour128@math@@A = 0x1109B2D0 ; data size:0x50 | engine::gSwatchColours: five swatch colours as floats (name guess)
 ??__EgColourPalette@engine@@YAXXZ = 0x10D58B80 ; function size:0x2E1 | engine::gColourPalette dynamic initializer
 ??__EgSwatchColours@engine@@YAXXZ = 0x10D5FAA0 ; function size:0x1D0 | engine::gSwatchColours dynamic initializer
+?gEffectScales@engine@@3PAUEffectScale@1@A = 0x1125A5E0 ; data size:0x40 | engine::gEffectScales: the scales of four effects, by the hash of their name (name guess)
+??__EgEffectScales@engine@@YAXXZ = 0x10D53160 ; function size:0xA8 | engine::gEffectScales dynamic initializer
