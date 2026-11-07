@@ -65,4 +65,10 @@ namespace pure3d
 		}
 		return true;
 	}
+
+	// FUNCTION: ENGINE 0x106E2920
+	void Camera::ReleaseThunk()
+	{
+		Release();
+	}
 }

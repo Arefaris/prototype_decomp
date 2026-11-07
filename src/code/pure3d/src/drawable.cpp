@@ -629,6 +629,25 @@ namespace pure3d
 		CopySphere(*sphere, box.GetSphere());
 	}
 
+	// FUNCTION: ENGINE 0x106E0950
+	void Drawable::SetUnknownBC(float value)
+	{
+		if (value != unknownBC)
+		{
+			if (!(value >= 0.0f))
+			{
+				value = 0.0f;
+			}
+			if (value - engine::driving::gOne >= 0.0f)
+			{
+				value = engine::driving::gOne;
+			}
+			partsDirty = true;
+			unknownBC = value;
+			dirty.SetMask(8);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x106E11F0
 	void Drawable::SetUnknownCC(int value)
 	{

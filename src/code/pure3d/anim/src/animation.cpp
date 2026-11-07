@@ -371,6 +371,59 @@ namespace pure3d
 		return FindGroupIndex(&core::Name<core::CaseSensitiveKey>(name, 1));
 	}
 
+	// FUNCTION: ENGINE 0x106E5CC0
+	void VectorKeys::Evaluate(FrameTime time, math::Vector* out)
+	{
+		switch (type)
+		{
+		case 0:
+			((DOFKeys<float>*)keys)->Evaluate(time, out);
+			break;
+		case 1:
+			((DOFKeys<Float2>*)keys)->Evaluate(time, out);
+			break;
+		case 2:
+			((ChannelKeys<math::Vector>*)keys)->Evaluate(time, out);
+			break;
+		case 3:
+			((DOFKeys<Short2>*)keys)->Evaluate(time, out);
+			break;
+		case 4:
+			((ChannelKeys<Short3>*)keys)->Evaluate(time, out);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E6D70
+	void RotationKeys::Evaluate(FrameTime time, math::Quaternion* out)
+	{
+		switch (type)
+		{
+		case 0:
+			keys.Evaluate(time, out);
+			break;
+		case 1:
+			((ChannelKeys<math::CompressedQuaternion8>*)&keys)->Evaluate(time, out);
+			break;
+		case 2:
+			((ChannelKeys<math::CompressedQuaternion6>*)&keys)->Evaluate(time, out);
+			break;
+		case 3:
+			((ChannelKeys<math::CompressedQuaternion4>*)&keys)->Evaluate(time, out);
+			break;
+		case 4:
+			((ChannelKeys<math::CompressedQuaternion3>*)&keys)->Evaluate(time, out);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E3050
+	void FrameTime::SetTime(float newTime)
+	{
+		time = newTime;
+		frame = (short)(int)newTime;
+	}
+
 	// FUNCTION: ENGINE 0x106E7B20
 	void Animation::Touch()
 	{
@@ -386,6 +439,54 @@ namespace pure3d
 		KeysBase<T>::Type::Set(mode, count, frames);
 		this->values = values;
 	}
+
+	// FUNCTION: ENGINE 0x106E3440
+	// NONMATCHING: the engine's search tests once more whether the key is above the frame before it drops the upper half (a
+	// comparison that cannot be true there; 146 bytes against 148)
+#ifdef NONMATCHING
+	bool ChannelKeysBase::FindKeys(float frame, unsigned int* index0, unsigned int* index1)
+	{
+		short key = (short)(int)frame;
+		const short* keys = this->frames;
+		if (key < keys[0])
+		{
+			*index1 = 0;
+			*index0 = 0;
+			return false;
+		}
+		if (key >= keys[count - 1])
+		{
+			*index1 = *index0 = count - 1;
+			return false;
+		}
+		unsigned int low = 0;
+		unsigned int high = count - 1;
+		unsigned int sum = high + low;
+		for (;;)
+		{
+			unsigned int middle = sum >> 1;
+			short value = keys[middle];
+			if (value <= key)
+			{
+				if (key < keys[middle + 1])
+				{
+					*index0 = middle;
+					*index1 = middle + 1;
+					return true;
+				}
+				if (value < key)
+				{
+					low = middle + 1;
+				}
+			}
+			else
+			{
+				high = middle - 1;
+			}
+			sum = high + low;
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x106E34E0
 	// EQUIVALENT: the engine's search tests once more whether the key is above the time before it drops the upper

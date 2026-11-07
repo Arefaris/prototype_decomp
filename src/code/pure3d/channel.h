@@ -129,6 +129,10 @@ namespace pure3d
 	{
 		typedef VectorKeysBase Type;
 	};
+	template<> struct KeyValue<Short3>
+	{
+		typedef math::Vector Type;
+	};
 
 	// Two floats and two or three shorts a key (plain structs: the channels allocate their values without constructors)
 	struct Float2
@@ -172,6 +176,8 @@ namespace pure3d
 	public:
 		void Set(unsigned int mode, unsigned int count, const short* frames, int axis, math::Vector constant,
 			const T* values);
+		// 0x106E44D0 (float), 0x106E49D0 (Float2), 0x106E4B80 (Short2)
+		void Evaluate(FrameTime time, math::Vector* out);
 
 		int axis;
 		math::Vector constant;
