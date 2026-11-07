@@ -76,6 +76,46 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x10885610
+		// NONMATCHING: the engine keeps the movie in ecx and sets the kind of the input behind the pushed address (56.6 %)
+#ifdef NONMATCHING
+		void SetMovieValue(FlashMovieHandler movie, unsigned int index, bool value, int a, int b)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				FlashMovieInput input(2, (float)a, (float)b, 0.0f, index);
+				if (!value)
+				{
+					input.kind = 3;
+				}
+				(*slot)->Unknown10964120(&input);
+			}
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x108856A0
+		void SetMovieCursor(FlashMovieHandler movie, int x, int y)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				FlashMovieInput input(1, (float)x, (float)y, 0.0f, 0);
+				(*slot)->Unknown10964120(&input);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x10885720
+		void SetMovieNumber(FlashMovieHandler movie, int index, int a, float value)
+		{
+			FlashMovie** slot = gFlashMovieTable->Find(movie);
+			if (slot != 0 && *slot != 0)
+			{
+				FlashMovieInput input(4, (float)index, (float)a, value, 0);
+				(*slot)->Unknown10964120(&input);
+			}
+		}
+
 		// FUNCTION: ENGINE 0x10886410
 		void ReleaseMovie(FlashMovieHandler movie)
 		{

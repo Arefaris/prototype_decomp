@@ -18,12 +18,38 @@ namespace engine
 			unsigned int generation : 16;  // the serial the entry must still carry
 		};
 
+		// What the front end tells the movie (0x1C bytes; names guessed): the kind of input (1 the cursor, 2 / 3 a
+		// value set / cleared, 4 a number), its three numbers and the index it concerns
+		struct FlashMovieInput
+		{
+			FlashMovieInput(int newKind, float newX, float newY, float newZ, int newIndex)
+			{
+				kind = newKind;
+				flag = false;
+				x = newX;
+				y = newY;
+				z = newZ;
+				index = newIndex;
+				unknown18 = 0;
+			}
+
+			int kind;
+			bool flag;  // +4
+			float x;  // +8
+			float y;  // +0xC
+			float z;  // +0x10
+			int index;  // +0x14
+			int unknown18;
+		};
+
 		// The movie the Flash player runs (another unit; names guessed)
 		class FlashMovie
 		{
 		public:
 			// 0x10964000
 			void Unknown10964000(float value);
+			// 0x10964120: hands the movie an input
+			void Unknown10964120(const FlashMovieInput* input);
 
 			unsigned char unknown0[0x9C];
 			bool unknown9C;

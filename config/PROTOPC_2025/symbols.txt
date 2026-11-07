@@ -104250,3 +104250,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Get@FlashRenderer@render@engine@@SAPAV123@XZ = 0x109602F0 ; function size:0x6 | engine::render::FlashRenderer::Get (name guess)
 ?Unknown10960E60@FlashRenderer@render@engine@@QAEXPAVFlashMovie@23@@Z = 0x10960E60 ; function size:0x4B | engine::render::FlashRenderer::Unknown10960E60 (name unknown)
 ?Free@FlashMovieTable@render@engine@@QAEXPBVFlashMovieHandler@23@@Z = 0x10884FD0 ; function size:0x56 | engine::render::FlashMovieTable::Free (name guess)
+?Unknown10964120@FlashMovie@render@engine@@QAEXPBUFlashMovieInput@23@@Z = 0x10964120 ; function size:0x14 | engine::render::FlashMovie::Unknown10964120 (name unknown)
