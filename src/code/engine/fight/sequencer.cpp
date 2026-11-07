@@ -1,6 +1,7 @@
 // The fight sequencer: the list of actions a node runs, advanced against its clock. See sequencer.h for the model.
 // Names are guesses (no assert path names this unit).
 #include "code/core/heap.h"
+#include "code/content/metatype.h"
 #include "code/engine/fight/branch.h"
 #include "code/engine/fight/chunk.h"
 #include "code/engine/fight/fightsystem.h"
@@ -20,6 +21,34 @@ namespace fight
 	int gActionCount;
 	// GLOBAL: ENGINE 0x11275ECC
 	int gActionPeak;
+
+#define ENGINE_OFFSET(type, member) 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+#define ENGINE_NAME_OFFSET(type, member) 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x105A3E80
+	content::ClassInfo* Sequencer::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "fight::Sequencer";
+		sInfo.code = "d";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x105A43F0
+	content::MemberList* Sequencer::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetNameMetaTypeCopy<Sequencer>(true, true, "p"), ENGINE_NAME_OFFSET(Sequencer, contextName), "Name" },
+			{ content::GetMemberPrimitiveMetaType<Sequencer, float, 0>("p"), ENGINE_OFFSET(Sequencer, timeScale),
+				"TimeScale" }
+		};
+		sList.members = sMembers;
+		sList.count = 2;
+		return &sList;
+	}
 
 	// ---- the reference count -----------------------------------------------------------------------------------
 
@@ -656,6 +685,8 @@ namespace fight
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x105A3F30
+// FUNCTION: ENGINE 0x105A4380
 // FUNCTION: ENGINE 0x105A2520
 // FUNCTION: ENGINE 0x105A3FC0
 // FUNCTION: ENGINE 0x105A3FD0

@@ -96381,3 +96381,5 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?gStreamContextObject@om@@3HA = 0x112767D4 ; data size:0x4 | om::gStreamContextObject (name guess)
 ?CompareStrings@om@@YAHPBVString@1@0@Z = 0x105B8B50 ; function size:0x4B | om::CompareStrings (name guess)
 ?CompareNodes@om@@YAHPBVTextValue@1@0@Z = 0x105B8BA0 ; function size:0x4D | om::CompareNodes (name guess)
+??$GetNameMetaTypeCopy@VSequencer@fight@@@content@@YAPAVNameMetaType@0@_N0PBD@Z = 0x105A3F30 ; function size:0x32 | content::GetNameMetaTypeCopy<fight::Sequencer> (kept copy)
+??$GetMemberPrimitiveMetaType@VSequencer@fight@@M$0A@@content@@YAPAV?$PrimitiveMetaType@M@0@PBD@Z = 0x105A4380 ; function size:0x32 | content::GetMemberPrimitiveMetaType<fight::Sequencer,float,0> (kept copy)
