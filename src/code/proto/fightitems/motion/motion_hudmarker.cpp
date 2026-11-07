@@ -66,6 +66,24 @@ namespace proto
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x100D6260
+			bool HaveIconTypeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() == 0)
+				{
+					return false;
+				}
+				engine::SerializedHandle serial = engine::SerializeHandle(handle);
+				FrontEndHud* hud = GetFrontEndHud();
+				if (hud != 0 && hud->GetMarkers()->Unknown104B8680(serial) == type)
+				{
+					result = true;
+				}
+				return result;
+			}
+
 			fight::Property** gHUDMarkerTrackProperties;  // 0x11254704
 
 			// FUNCTION: ENGINE 0x1017CAA0
@@ -219,6 +237,72 @@ namespace proto
 			// FUNCTION: ENGINE 0x100D6230
 			HUDMarkerAction::~HUDMarkerAction()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x100D6420
+			// NONMATCHING: the engine keeps zero in esi and the master table in ebx across the slot loop, the marker list spilled (best 33.6 %)
+#ifdef NONMATCHING
+			bool HUDMarkerAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				MarkerList* markers = GetFrontEndHud()->GetMarkers();
+				marker = target;
+				if (link.object->useGrabSlot)
+				{
+					GetGrabSlotsMessage message;
+					target.Get()->SendMessage(&message);
+					engine::GameObjectHandle found;
+					if (message.slots != 0)
+					{
+						for (GrabSlot* slot = message.slots->begin; slot != message.slots->end; slot++)
+						{
+							if (static_cast<engine::GameObjectHandle&>(slot->held).Get() != 0 && slot->name == link.object->grabSlot)
+							{
+								marker = static_cast<engine::GameObjectHandle&>(slot->held);
+								break;
+							}
+						}
+					}
+				}
+				engine::SerializedHandle handle = engine::SerializeHandle(marker);
+				int displayType = link.object->displayType;
+				if (displayType == 0)
+				{
+					displayType = 0xFF;
+				}
+				if (link.object->type == 9)
+				{
+					float size = link.object->radius + link.object->radius;
+					markers->Unknown104B5790(handle, size, size);
+					markers->Unknown104B57D0(handle, 0);
+				}
+				else
+				{
+					markers->Unknown104B57D0(handle, 3);
+				}
+				markers->Unknown104B57F0(handle, link.object->color);
+				markers->Unknown104B9400(handle, link.object->type, displayType, 6, 0);
+				markers->Unknown104B8280(handle, link.object->animType);
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100D6650
+			void HUDMarkerAction::Slot6()
+			{
+				if (link.object != 0 && marker.IsValid())
+				{
+					MarkerList* markers = GetFrontEndHud()->GetMarkers();
+					engine::SerializedHandle handle = engine::SerializeHandle(marker);
+					markers->Unknown104B94D0(handle, link.object->type);
+				}
 			}
 
 			// FUNCTION: ENGINE 0x100D66D0

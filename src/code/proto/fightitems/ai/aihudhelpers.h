@@ -13,6 +13,10 @@ namespace proto
 	public:
 		// 0x104B57D0 / 0x104B9400 / 0x104B57F0 / 0x104B8280: give an object's marker its look (name guesses)
 		void Unknown104B57D0(engine::SerializedHandle handle, int kind);
+		// 0x104B5790: sets the size of an object's marker (name guess)
+		void Unknown104B5790(engine::SerializedHandle handle, float width, float height);
+		// 0x104B8680: the type of an object's marker (name guess)
+		int Unknown104B8680(engine::SerializedHandle handle);
 		void Unknown104B9400(engine::SerializedHandle handle, int type, int displayType, int unknown1, int unknown2);
 		void Unknown104B57F0(engine::SerializedHandle handle, int color);
 		void Unknown104B8280(engine::SerializedHandle handle, int animation);

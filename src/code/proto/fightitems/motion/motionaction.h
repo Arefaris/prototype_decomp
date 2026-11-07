@@ -22,6 +22,10 @@ namespace engine
 	// the player that controls an object, or -1
 	int GetControllingPlayer(GameObject* object);
 	void ReleaseDriver(choreo::Driver*& driver);
+	// 0x100C4B90: the handle of the object an object is attached to, or an empty handle (name guess)
+	GameObjectHandle GetAttachmentParent(GameObject* object);
+	// 0x1005E1D0: sticks the character to its supporting surface or lets it go (sends the stick message; name guess)
+	void SetStickToSupportingSurface(GameObject* object, bool stick);
 	void AssignDriver(choreo::Driver*& driver, choreo::Driver* newDriver);
 	// 0x10098F50: stores a reference counted object in a slot, releasing the previous one
 	void AssignRefCounted(core::IRefCount** slot, core::IRefCount* value);

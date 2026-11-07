@@ -5,6 +5,20 @@
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/proto/lifetimemanager.h"
+#include "code/proto/fightitems/motion/motionattachmentmessage.h"
+
+// FUNCTION: ENGINE 0x100C4B90
+engine::GameObjectHandle engine::GetAttachmentParent(engine::GameObject* object)
+{
+	AttachmentGetAttachmentStateMessage message;
+	object->PostMessage(&message);
+	if (message.parent == 0)
+	{
+		return GameObjectHandle();
+	}
+	return *message.parent;
+}
 
 namespace proto
 {
@@ -3659,6 +3673,49 @@ namespace proto
 				return false;
 			}
 #endif
+
+			// FUNCTION: ENGINE 0x100C9370
+			// NONMATCHING: shrink-wrap; the engine saves esi before the handle test's branch and that branch leaves through the restore (97.7 %)
+#ifdef NONMATCHING
+			bool GrabSlotDeathAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						GetGrabbedObjectMessage query(&link.object->grabSlot);
+						object->SendMessage(&query);
+						if (query.grabbed.Get() != 0 && gLifetimeManager != 0)
+						{
+							engine::GameObjectHandle none;
+							gLifetimeManager->Unknown104988C0(&query.grabbed, &none, false, true);
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100CA6B0
+			bool GrabbedSwapGrabberSlotsAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::GameObjectHandle parentHandle = engine::GetAttachmentParent(object);
+						engine::GameObject* parent = parentHandle.Get();
+						if (parent != 0)
+						{
+							SwapGrabSlotsMessage message(&link.object->slotA, &link.object->slotB);
+							parent->SendMessage(&message);
+						}
+					}
+				}
+				return false;
+			}
 
 			// FUNCTION: ENGINE 0x100CA570
 			bool GrabSlotSwapAction::Slot5(int arg, float value)

@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_MOTION_MOTION_GRAPPLE_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/choreo/drivers.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
 

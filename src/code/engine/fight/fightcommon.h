@@ -19,6 +19,9 @@ namespace fight
 	// greater or equal, 5 greater): lhs op rhs
 	bool CompareFloats(int op, const float* lhs, const float* rhs);
 	// 0x100A1FB0: compares two names (0 equal, 1 not equal)
+	// 0x100C2350 / 0x100C2430: the same for two flags (0 equal, 1 not equal)
+	bool BoolsEqual(const bool* lhs, const bool* rhs);
+	bool CompareBools(int op, const bool* lhs, const bool* rhs);
 	bool CompareNames(int op, const core::Name<core::CaseSensitiveKey>* lhs, const core::Name<core::CaseSensitiveKey>* rhs);
 }
 
