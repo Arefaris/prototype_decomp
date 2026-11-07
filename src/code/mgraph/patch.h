@@ -7,6 +7,11 @@
 
 namespace mgraph
 {
+	class Graph;
+
+	// 0x105B9740: the graph of a name (the entity of that name that is a graph), null when there is none
+	Graph* FindGraph(const om::ClassName& graphName);
+
 	class Patch : public om::DynamicObjectEntity
 	{
 	public:
@@ -25,6 +30,10 @@ namespace mgraph
 		virtual om::EntityTypeBase* GetEntityType();
 		OM_ENTITY_ALLOCATION(Patch)
 
+		// 0x105BA0B0: takes the graph of the name in (name guessed)
+		void SetGraphName(om::ClassName newGraphName);
+		// 0x105B9BA0: makes the properties of the patch fit the trigger data of the graph (name guessed, not reconstructed)
+		void UpdateFromGraph(Graph* graph);
 		// 0x105B93B0 / 0x105B93C0 / 0x105B93D0
 		const om::ClassName& GetGraphName() const;
 		bool GetIsSingleton() const;

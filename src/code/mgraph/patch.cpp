@@ -1,6 +1,9 @@
 // The patch of the mgraph library (0x105B9380 - 0x105BA570) and the reflection and entity type that the om library's
 // templates make for it.
 #include "code/mgraph/patch.h"
+#include "code/mgraph/graph.h"
+#include "code/om/metaproperty.h"
+#include "code/om/metaenum.h"
 #include "code/om/metaclass.h"
 #include "code/om/reflection.h"
 
@@ -17,6 +20,91 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x105B9380
 	Patch::~Patch()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x105B9740
+	Graph* FindGraph(const om::ClassName& graphName)
+	{
+		om::Entity* entity = om::FindEntityByName(graphName);
+		while (entity != 0)
+		{
+			if (entity->name.key != graphName.key)
+			{
+				return 0;
+			}
+			Graph* graph = dynamic_cast<Graph*>(entity);
+			if (graph != 0)
+			{
+				return graph;
+			}
+			entity = om::GetNextEntity(entity);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x105BA0B0
+	void Patch::SetGraphName(om::ClassName newGraphName)
+	{
+		UpdateFromGraph(FindGraph(newGraphName));
+		graphName = newGraphName;
+	}
+
+	// FUNCTION: ENGINE 0x105B9CD0
+	bool Patch::Slot7(void* argument)
+	{
+		om::BinaryStream* stream = static_cast<om::BinaryStream*>(argument);
+		bool result;
+		if (om::WriteBinary(stream, GetGraphName()))
+		{
+			bool singleton = isSingleton ? true : false;
+			om::StreamBuffer* buffer = stream->buffer;
+			result = buffer->Write(&singleton, 1) && om::WriteBinary(stream, GetPropertyCount());
+		}
+		else
+		{
+			result = false;
+		}
+		om::DynamicPropertyBase* property = GetFirstProperty();
+		while (property != 0)
+		{
+			if (result && property->WriteBinary(stream))
+			{
+				result = true;
+			}
+			else
+			{
+				result = false;
+			}
+			property = GetNextProperty(property);
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x105B9D70
+	bool Patch::Slot8(void* argument)
+	{
+		Graph* graph = FindGraph(graphName);
+		if (graph != 0)
+		{
+			UpdateFromGraph(graph);
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105B9860
+	void Patch::Slot4(void* argument)
+	{
+		om::TextValue* text = static_cast<om::TextValue*>(argument);
+		new om::TextNode(text, om::String::Wrap("GraphName"));
+		om::TextNode* singletonNode = new om::TextNode(text, om::String::Wrap("IsSingleton"));
+		om::WriteText(singletonNode, isSingleton);
+		om::TextValue* node = new om::TextNode(text, om::String::Wrap("Properties"));
+		om::DynamicPropertyBase* property = GetFirstProperty();
+		while (property != 0)
+		{
+			property->WriteText(node);
+			property = GetNextProperty(property);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x105B93B0

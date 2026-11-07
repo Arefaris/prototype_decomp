@@ -104222,3 +104222,6 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Slot6@Patch@mgraph@@UAE_NPAX@Z = 0x105BA370 ; function size:0x173 | virtual Slot6::Patch (name guess)
 ?Slot7@Patch@mgraph@@UAE_NPAX@Z = 0x105B9CD0 ; function size:0x92 | virtual Slot7::Patch (name guess)
 ?Slot8@Patch@mgraph@@UAE_NPAX@Z = 0x105B9D70 ; function size:0x21 | virtual Slot8::Patch (name guess)
+?SetGraphName@Patch@mgraph@@QAEXV?$Name@UCaseSensitive64BitKey@om@@@om@@@Z = 0x105BA0B0 ; function size:0x2A | mgraph::Patch::SetGraphName (name guess)
+?UpdateFromGraph@Patch@mgraph@@QAEXPAVGraph@2@@Z = 0x105B9BA0 ; function size:0x127 | mgraph::Patch::UpdateFromGraph (name guess)
+?FindGraph@mgraph@@YAPAVGraph@1@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@Z = 0x105B9740 ; function size:0x53 | mgraph::FindGraph (name guess)
