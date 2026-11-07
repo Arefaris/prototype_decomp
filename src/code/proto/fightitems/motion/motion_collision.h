@@ -88,6 +88,12 @@ namespace proto
 			void RegisterHitSurfaceConditionFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// Whether two handles are the same one: the engine compares the 32 bits at once
+			inline bool SameHandle(const engine::HandleBase& lhs, const engine::HandleBase& rhs)
+			{
+				return *(const unsigned int*)&lhs == *(const unsigned int*)&rhs;
+			}
+
 			// RTTI: proto::fightitems::motion::CollisionAction (31 vftable slots, 0x9C bytes): the base of the actions that watch the collision of a
 			// volume around a joint of the object (grab, hit, detect and hit weapon); the members the tracks supply are read through the slots
 			class CollisionAction : public fight::Action
@@ -114,7 +120,7 @@ namespace proto
 				virtual float Slot15(int unused);
 				virtual void Slot16(int a, int b);
 				virtual int GetJointIndex();
-				virtual void GetOffset(math::Vector* offset);
+				virtual math::Vector* GetOffset(math::Vector* offset);
 				virtual bool GetUseMotion();
 				virtual float GetRadius();
 				virtual float Slot21();

@@ -108,6 +108,24 @@ namespace proto
 		}
 	};
 
+	// RTTI: proto::AttemptGrabMessage: asks an object whether it can be grabbed by another (the object answers in grabbed)
+	class AttemptGrabMessage : public GrabbableMessage
+	{
+	public:
+		AttemptGrabMessage(engine::GameObjectHandle newGrabber, bool newDevastatorGrab) : GrabbableMessage(0), grabber(newGrabber), victim(), allowed(true), grabbed(false), devastatorGrab(newDevastatorGrab)
+		{
+		}
+		virtual ~AttemptGrabMessage()
+		{
+		}
+
+		engine::GameObjectHandle grabber;  // +0xC
+		engine::GameObjectHandle victim;  // +0x10
+		bool allowed;  // +0x14
+		bool grabbed;  // +0x15
+		bool devastatorGrab;  // +0x16
+	};
+
 	// RTTI: proto::QueryConsumeAnimationFinishedMessage: the object answers whether its consume animation has finished
 	struct QueryConsumeAnimationFinishedMessage : public GrabbableMessage
 	{

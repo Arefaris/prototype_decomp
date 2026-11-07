@@ -259,11 +259,12 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x100A5B20
-			void CollisionAction::GetOffset(math::Vector* offset)
+			math::Vector* CollisionAction::GetOffset(math::Vector* offset)
 			{
 				offset->x = 0.0f;
 				offset->y = 0.0f;
 				offset->z = 0.0f;
+				return offset;
 			}
 
 			// FUNCTION: ENGINE 0x100A5B40

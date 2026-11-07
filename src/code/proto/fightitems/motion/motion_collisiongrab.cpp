@@ -1,5 +1,9 @@
 // Fight items of the motion group: CollisionGrabTrack (unit 0x1014A890 - 0x1014B6C0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_collisiongrab.h"
+#include <new>
+#include "code/proto/fightitems/motion/motion_consume.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/proto/fightitems/motion/motionactionmessages.h"
 
 namespace proto
 {
@@ -243,6 +247,149 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100A7180
+			CollisionGrabAction::CollisionGrabAction(fight::Track* listener, CollisionGrabTrack* newTrack, core::IRefCount* owner, engine::GameObjectHandle newTarget) : CollisionAction(newTarget, listener, newTrack), link(newTrack)
+			{
+				const ReactionEvent* event = (const ReactionEvent*)owner;
+				if (event != 0 && event->kind == 0x2100b)
+				{
+					grabber = ((const CollisionGrabEvent*)event)->grabber;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100A6EE0
+			CollisionGrabAction::~CollisionGrabAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100A7BD0
+			fight::Action* CollisionGrabTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CollisionGrabAction(listener, this, owner, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100A7250
+			int CollisionGrabAction::GetCollideWith()
+			{
+				return link.object->collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100A7260
+			float CollisionGrabAction::GetArcOffset()
+			{
+				return link.object->arcOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100A7270
+			float CollisionGrabAction::GetArcRange()
+			{
+				return link.object->arcRange;
+			}
+
+			// FUNCTION: ENGINE 0x100A6F30
+			int CollisionGrabAction::Slot14()
+			{
+				return -1;
+			}
+
+			// FUNCTION: ENGINE 0x100A7280
+			int CollisionGrabAction::GetJointIndex()
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return 0xffff;
+				}
+				return FindDrawablePart(object, &link.object->joint);
+			}
+
+			// FUNCTION: ENGINE 0x100A72D0
+			// NONMATCHING: the engine advances the pointer to the offset after the first load and loads the destination first (78.8 %)
+#ifdef NONMATCHING
+			math::Vector* CollisionGrabAction::GetOffset(math::Vector* offset)
+			{
+				const math::Vector* source = &link.object->offset;
+				offset->x = source->x;
+				offset->y = source->y;
+				offset->z = source->z;
+				return offset;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100A7300
+			bool CollisionGrabAction::GetUseMotion()
+			{
+				return link.object->useMotion;
+			}
+
+			// FUNCTION: ENGINE 0x100A7310
+			float CollisionGrabAction::GetRadius()
+			{
+				return link.object->radius;
+			}
+
+			// FUNCTION: ENGINE 0x100A6F40
+			// NONMATCHING: the engine reads the end of the hits for the search through the start of the storage and keeps the handle in edi (38.5 %)
+#ifdef NONMATCHING
+			void CollisionGrabAction::Slot24(engine::GameObject* object)
+			{
+				engine::GameObjectHandle handle = engine::GetHandle(object);
+				if (hits.Size() != 10)
+				{
+					engine::GameObjectHandle* it = hits.Begin();
+					engine::GameObjectHandle* last = hits.End();
+					while (it != last && !SameHandle(*it, handle))
+					{
+						++it;
+					}
+					if (it == hits.End())
+					{
+						hits.PushBack(handle);
+					}
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100A7320
+			bool CollisionGrabAction::Slot25(engine::GameObject* object)
+			{
+				if (grabber.IsValid())
+				{
+					if (object != grabber.Get())
+					{
+						return false;
+					}
+				}
+				AttemptGrabMessage message(target, link.object->devastatorGrab);
+				object->SendMessage(&message);
+				if (message.grabbed && message.allowed)
+				{
+					return true;
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100A7B90
+			bool CollisionGrabAction::Slot27()
+			{
+				if (link.object == 0)
+				{
+					return CollisionAction::Slot27();
+				}
+				return link.object->grabOnlyPowerTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100A7BB0
+			bool CollisionGrabAction::Slot29()
+			{
+				if (link.object == 0)
+				{
+					return CollisionAction::Slot29();
+				}
+				return link.object->considerPlatformAsTarget;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CollisionGrabTrack>;
 			template class fight::PropertyNameList<CollisionGrabTrack>;
@@ -292,3 +439,9 @@ namespace proto
 // FUNCTION: ENGINE 0x1014B610
 // FUNCTION: ENGINE 0x1014B640
 // FUNCTION: ENGINE 0x1014B670
+// FUNCTION: ENGINE 0x100A6BC0
+// FUNCTION: ENGINE 0x100A6BF0
+// FUNCTION: ENGINE 0x100A6C60
+// FUNCTION: ENGINE 0x100A6DE0
+// FUNCTION: ENGINE 0x100A6E10
+// FUNCTION: ENGINE 0x100A7220
