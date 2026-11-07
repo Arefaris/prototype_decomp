@@ -149,9 +149,31 @@ namespace pure3d
 	// The states the device keeps on stacks (RTTI pddiViewState, pddiRenderState, pddiZState, pddiStencilState; their
 	// sizes are 0x3C, 0x3C, 0x18 and 0x38). Only the words the device's accessors use are named, after what they
 	// set (guesses)
+	// The four floats at +0x14 of the view state (the viewport as fractions of the target; name guess)
+	struct pddiViewRect
+	{
+		// 0x1061DAE0 (out of line, does nothing)
+		pddiViewRect();
+		// 0x1061DB20
+		void Set(float a, float b, float c, float d);
+
+		float values[4];
+	};
+
+	// The six floats at +0x24 of the view state (the near and far distance, then four more; name guess)
+	struct pddiViewProjection
+	{
+		// 0x1061DB50
+		void Set(float a, float b, float c, float d, float e, float f);
+
+		float values[6];
+	};
+
 	class pddiViewState : public pddiState
 	{
 	public:
+		// 0x106156D0
+		pddiViewState();
 		// 0x1061DC70
 		virtual void Apply(pddiBaseContext* context);
 
@@ -159,8 +181,8 @@ namespace pure3d
 		float unknown8;
 		int unknownC;
 		int unknown10;
-		float unknown14[4];
-		float unknown24[6];
+		pddiViewRect unknown14;
+		pddiViewProjection unknown24;
 	};
 
 	class pddiRenderState : public pddiState
@@ -226,6 +248,29 @@ namespace pure3d
 		int unknown2C;
 		int unknown30;
 		int unknown34;
+	};
+
+	// The stack of states the device keeps for one kind of state (RTTI pddiStack<T>, one slot: the destructor): count
+	// of them made at once, the one on top is the one in effect. Members are defined in the unit of the context
+	// (0x106157B0 / 0x10615810 / 0x10615830 for the view state's, then 0x10615860, 0x10615910 and 0x106159C0).
+	template<class T> class pddiStack
+	{
+	public:
+		explicit pddiStack(unsigned int newCapacity);
+		virtual ~pddiStack()
+		{
+			delete[] items;
+		}
+
+		// The state on top (0x106151D0, the engine has a copy out of line for each kind)
+		T* Top()
+		{
+			return items + top;
+		}
+
+		unsigned int capacity;
+		unsigned int top;
+		T* items;
 	};
 
 	// A 64-bit time that keeps the 4-byte alignment of the class around it
@@ -577,6 +622,9 @@ namespace pure3d
 		// 0x10615390: sets the view matrix (nothing when it is the one already set)
 		void SetViewMatrix(const math::Matrix* matrix);
 
+		// 0x10615A80: makes the stacks of the four states, two states deep each, and takes the top of each (name guess)
+		void CreateStacks();
+
 		// View state (0x10614C30, 0x10614C50, 0x10614C80, 0x10614CA0, 0x10614CD0, 0x10615570)
 		void SetViewUnknown4(int value);
 		void SetViewUnknown8(float value);
@@ -690,10 +738,10 @@ namespace pure3d
 		unsigned int frameActive;
 		unsigned char unknown18[4];
 		// The stacks of the four states and the state each is on (the top)
-		void* viewStack;
-		void* renderStack;
-		void* zStack;
-		void* stencilStack;
+		pddiStack<pddiViewState>* viewStack;
+		pddiStack<pddiRenderState>* renderStack;
+		pddiStack<pddiZState>* zStack;
+		pddiStack<pddiStencilState>* stencilStack;
 		pddiViewState* viewState;
 		pddiRenderState* renderState;
 		pddiZState* zState;

@@ -68,7 +68,112 @@ namespace pure3d
 		unsigned int rest : 5;
 	};
 
-	// The description of a shader's inputs (8 bytes, copied and destroyed out of line: 0x10612A70 / 0x10613840)
+	// One input of a shader (0x4C bytes): its name, a kind, a word that is never set and the value's 64 bytes (what they
+	// hold depends on the kind: a bool, a float, a vector, a matrix, a sampler's packed settings)
+	struct ShaderInputValue
+	{
+		// 0x1007EE60 for the name
+		ShaderInputValue()
+		{
+		}
+
+		union Words
+		{
+			unsigned int words[16];
+			unsigned char flag;
+			float number;
+			float vector[16];
+			// The sampler settings packed from a SamplerSetting (the low 27 bits; the rest is not set)
+			struct Sampler
+			{
+				unsigned int h : 4;
+				unsigned int g : 2;
+				unsigned int f : 2;
+				unsigned int e : 2;
+				unsigned int d : 4;
+				unsigned int c : 4;
+				unsigned int b : 4;
+				unsigned int a : 5;
+				unsigned int rest : 5;
+			} sampler;
+		};
+
+		// The copy is made member by member into a name constructed empty (0x10612A10)
+		ShaderInputValue(const ShaderInputValue& other)
+		{
+			name = other.name;
+			kind = other.kind;
+			unknown8 = other.unknown8;
+			value = other.value;
+		}
+
+		core::Name<core::CaseInsensitiveKey32> name;
+		int kind;
+		int unknown8;
+		Words value;
+	};
+
+	// The inputs a description holds: a growable array of them (begin, end, end of storage; 0x10612A10 - 0x10612D20)
+	class ShaderInputList
+	{
+	public:
+		ShaderInputList()
+		{
+			begin = 0;
+			end = 0;
+			capacity = 0;
+		}
+		// 0x10612D20: the deleting destructor (0x10612C00 the destructor's body)
+		~ShaderInputList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				operator delete[](begin);
+			}
+		}
+
+		int Size() const
+		{
+			return (int)(end - begin);
+		}
+		int Capacity() const
+		{
+			return (int)(capacity - begin);
+		}
+		// Room for that many inputs (inline in both constructors of the description)
+		void Reserve(unsigned int count)
+		{
+			if (count != 0)
+			{
+				begin = (ShaderInputValue*)operator new[](count * sizeof(ShaderInputValue));
+				if (begin != 0)
+				{
+					end = begin;
+					capacity = begin + count;
+					return;
+				}
+			}
+			else
+			{
+				begin = 0;
+			}
+			end = 0;
+			capacity = 0;
+		}
+		// 0x10612C20: moves the inputs to a block of that many
+		void Resize(int capacityCount);
+		// 0x10612A10: false when the storage is full
+		bool PushBack(const ShaderInputValue& input);
+
+		ShaderInputValue* begin;
+		ShaderInputValue* end;
+		ShaderInputValue* capacity;
+		int unknownC;
+	};
+
+	// The description of a shader's inputs (8 bytes, copied and destroyed out of line: 0x10612A70 / 0x10613840): a list
+	// of the inputs and the xor of their names
 	class pddiShaderInputInitData
 	{
 	public:
@@ -89,9 +194,24 @@ namespace pure3d
 		void SetSampler(int kind, const char* name, const SamplerSetting* value);
 		// 0x10613870: the default value
 		void SetDefault(int kind, const char* name);
+		// 0x106139C0: a sampler with only its filter (name guess)
+		void SetFilter(int kind, const char* name, unsigned int filter);
 
-		void* unknown0;
-		int unknown4;
+		// The inputs of a name that the description does not hold yet are added, the others keep their first value
+		// (0x10612D50 default, 0x10612E60 bool, 0x10612F70 float, 0x10613080 / 0x106131A0 / 0x106132C0 vectors,
+		// 0x106133F0 matrix, 0x106135A0 filter, 0x106136C0 sampler)
+		void AddDefault(int kind, const core::Name<core::CaseInsensitiveKey32>& name);
+		void AddBool(int kind, const core::Name<core::CaseInsensitiveKey32>& name, bool value);
+		void AddFloat(int kind, const core::Name<core::CaseInsensitiveKey32>& name, float value);
+		void AddVector2(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddVector3(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddVector4(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddMatrix(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddFilter(int kind, const core::Name<core::CaseInsensitiveKey32>& name, unsigned int filter);
+		void AddSampler(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const SamplerSetting* value);
+
+		ShaderInputList* inputs;
+		unsigned int hash;
 	};
 
 	// RTTI: pure3d::VertexOffsetList (base RefCounted, 3 slots, vftable 0x10E5DE74; 0x38 bytes): the offsets a

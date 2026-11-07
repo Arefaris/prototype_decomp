@@ -179,6 +179,12 @@ namespace pure3d
 	// are only passed on when the word differs from the one kept here
 	struct dxRenderStateCache
 	{
+		// 0x1061EE30: every state is -1, a value no state has (so the first set always reaches the device)
+		dxRenderStateCache();
+		// 0x1061EDB0 (the engine has a copy of the reset out of line at 0x1061ED70)
+		~dxRenderStateCache();
+		void Reset();
+
 		// The sampler states: four vertex samplers, then the pixel samplers, 0x50 states each
 		int samplerStates[20][0x50];
 		int renderStates[400];
@@ -368,6 +374,10 @@ namespace pure3d
 
 	// 0x11276D70
 	extern dxRenderStateCache* gRenderStateCache;
+	// 0x1061EE70: makes the cache when there is none and starts its constant registers over (name guess)
+	void CreateRenderStateCache();
+	// 0x1061EF40: deletes the cache (name guess)
+	void DestroyRenderStateCache();
 	// 0x11276D4C / 0x11276D50 / 0x11276D54 / 0x11276D58 / 0x11276D5C (dxdefaulttextures.cpp)
 	extern dxTexture* gWhiteTexture;
 	extern dxTexture* gBlackTexture;
