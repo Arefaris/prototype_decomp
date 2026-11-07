@@ -11,19 +11,19 @@ namespace engine
 	namespace controller
 	{
 		// FUNCTION: ENGINE 0x10845B50
-		void PlayerInfo::SetAxisFloat(int axis, float value, int component)
+		void PlayerInput::SetAxisFloat(int axis, float value, int component)
 		{
 			((float*)analog)[axis * 2 + component] = value;
 		}
 
 		// FUNCTION: ENGINE 0x10845B70
-		void PlayerInfo::SetViewMatrix(const math::Matrix& matrix)
+		void PlayerInput::SetViewMatrix(const math::Matrix& matrix)
 		{
 			viewMatrix = matrix;
 		}
 
 		// FUNCTION: ENGINE 0x10845B80
-		void PlayerInfo::SetViewPosition(const math::Vector& position)
+		void PlayerInput::SetViewPosition(const math::Vector& position)
 		{
 			viewPosition[0] = position.x;
 			viewPosition[1] = position.y;
@@ -334,7 +334,7 @@ namespace engine
 		}
 		// FUNCTION: ENGINE 0x10846B00
 		// EQUIVALENT: the engine compares the held button as 0 < value (comiss 0, value; jb), ours as value > 0 (comiss value, 0; ja) in the two-point case; 99.3 %
-		void PhysicalController::UpdateButtons(PlayerInfo* player)
+		void PhysicalController::UpdateButtons(PlayerInput* player)
 		{
 			for (int i = 0; i < 42; i++)
 			{
@@ -421,7 +421,7 @@ namespace engine
 		}
 		// FUNCTION: ENGINE 0x10846D40
 		// EQUIVALENT: register allocation (the engine keeps the zero in xmm1 and loads the axes into xmm0, ours the other way round); 98.1 %
-		void PhysicalController::ReadHat(HatView* hat, PlayerInfo* player)
+		void PhysicalController::ReadHat(HatView* hat, PlayerInput* player)
 		{
 			if (player->context != 0 && player->analog[hat->xAxis].input != 0.0f)
 			{
@@ -467,7 +467,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x108472A0
-		void PhysicalController::UpdateAxes(PlayerInfo* player)
+		void PhysicalController::UpdateAxes(PlayerInput* player)
 		{
 			for (int i = 0; i < 17; i++)
 			{
@@ -527,7 +527,7 @@ namespace engine
 
 		// FUNCTION: ENGINE 0x108474E0
 		// EQUIVALENT: register allocation (ebx and ebp swapped, so is the position of the read flag store); 82.3 %
-		void PhysicalController::Read(PlayerInfo* player)
+		void PhysicalController::Read(PlayerInput* player)
 		{
 			UpdateButtons(player);
 			UpdateAxes(player);

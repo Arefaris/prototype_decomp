@@ -24,14 +24,6 @@ namespace engine
 		// 0x11317840: set while a controller is locked (name guess)
 		extern bool gControllerLocked;
 
-		// 0x108A0B40 (another unit): enables the controller (or all of them with -1) of the physical controller
-		// manager, locked to the second argument (names guessed)
-		class PhysicalControllerManagerView
-		{
-		public:
-			void Unknown108A0B40(int a, unsigned int b);
-		};
-
 		// The input system's virtual functions as the handler calls them: slot 1 takes a controller id and a slot (-1:
 		// none), although the declared slot 1 takes none (the object may be another class on the same slots)
 		class InputSystemView
@@ -74,7 +66,7 @@ namespace engine
 			}
 			if (!secondInstance && !HasCommandLineOption("EnableAllControllers"))
 			{
-				((PhysicalControllerManagerView*)input->physical)->Unknown108A0B40(-1, controller);
+				input->physical->Select(-1, controller);
 			}
 			controller = 0xFFFFFFFF;
 			SetPauseFlagA(false);
@@ -99,7 +91,7 @@ namespace engine
 			InputSystem* input = InputSystem::Get();
 			if (!secondInstance && !HasCommandLineOption("EnableAllControllers"))
 			{
-				((PhysicalControllerManagerView*)input->physical)->Unknown108A0B40(-1, controller);
+				input->physical->Select(-1, controller);
 			}
 		}
 
@@ -149,7 +141,7 @@ namespace engine
 				}
 			}
 			unsigned int chosen = 0xFFFFFFFF;
-			for (PlayerInfo* player = (PlayerInfo*)input->active.head; player != 0;
+			for (PlayerInput* player = (PlayerInput*)input->active.head; player != 0;
 				player = player->GetNext())
 			{
 				unsigned int id = player->id;
@@ -235,7 +227,7 @@ namespace engine
 			int count = input->controllerCount;
 			for (unsigned int i = 3; (int)i < count; i++)
 			{
-				PlayerInfo* player = input->FindPlayer((i & 0xFF) | 0xFE00, &input->active);
+				PlayerInput* player = input->FindPlayer((i & 0xFF) | 0xFE00, &input->active);
 				if (player != 0 && input->connected.count < playerCount && input->FindSlot(player->id) < 0)
 				{
 					input->ClearPlayerFlags(player->id, 4);
@@ -243,7 +235,7 @@ namespace engine
 					((InputSystemView*)input)->ReleaseSlot(player->id, -2);
 				}
 			}
-			PlayerInfo* player = input->FindPlayer(0xFE00, &input->active);
+			PlayerInput* player = input->FindPlayer(0xFE00, &input->active);
 			if (player != 0 && input->connected.count < playerCount && input->FindSlot(player->id) < 0)
 			{
 				input->ClearPlayerFlags(player->id, 4);

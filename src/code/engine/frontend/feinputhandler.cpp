@@ -356,7 +356,7 @@ namespace engine
 		{
 			bool sent = false;
 			FEMovie::Value arguments[4];
-			for (controller::PlayerInfo* player = (controller::PlayerInfo*)controller::InputSystem::Get()->active.head;
+			for (controller::PlayerInput* player = (controller::PlayerInput*)controller::InputSystem::Get()->active.head;
 				player != 0; player = player->GetNext())
 			{
 				if ((controller::InputSystem::Get()->GetContext(player->id) & 2) != 0)

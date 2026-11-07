@@ -1,12 +1,13 @@
 // engine::controller::InputSystem (RTTI: derives from SlotManager and ControllerManagerInterface::Callback, the
 // latter at offset 0x10) and the types around it. No assert path names the unit (0x107DF3B0 - 0x107E0710); the file
-// name is a guess from the class. The InputSystem owns one PlayerInfo (0x2C8 bytes, another unit) per controller and
+// name is a guess from the class. The InputSystem owns one PlayerInput (0x2C8 bytes, another unit) per controller and
 // per remote player: controllers come first and are addressed by local ids 0xFE00 | index, the remote players
 // follow. All member and method names are guesses unless noted.
 #ifndef ENGINE_CONTROLLER_INPUTSYSTEM_H
 #define ENGINE_CONTROLLER_INPUTSYSTEM_H
 
 #include "code/container/map.h"
+#include "code/engine/controller/controllerpacker.h"
 #include "code/engine/updatecontext.h"
 #include "code/container/slist.h"
 #include "code/math/matrix.h"
@@ -16,27 +17,42 @@ namespace engine
 {
 	namespace controller
 	{
-		// The input object a player gets from the PlayerInfoFactory (type unknown; only these virtuals are used)
-		class PlayerInput
+		// RTTI: engine::controller::PlayerInfo (5 vftable slots, 0x20 bytes, made by the PlayerInfoFactory): the name of a
+		// player and two ids
+		class PlayerInfo
 		{
 		public:
-			virtual void Slot0() = 0;
-			virtual void Slot1() = 0;
-			virtual void Slot2() = 0;
-			virtual void SetValue(int value) = 0;
-			virtual void Reset() = 0;
+			// 0x108A19C0
+			PlayerInfo();
+			// 0x108A1880 (slot 0 is the scalar deleting destructor 0x108A19D0)
+			virtual ~PlayerInfo();
+			// Slot 1 (0x108A18D0): the name and the two ids into a buffer; answers the bytes written
+			virtual int Write(char* buffer, int size);
+			// Slot 2 (0x108A1920): the same out of a buffer
+			virtual void Read(const char* buffer, int size);
+			// Slot 3 (0x108A1960)
+			virtual void Assign(const PlayerInfo* other);
+			// Slot 4 (0x108A1990): no name, ids -1
+			virtual void Reset();
 
-			// 0x108A1890 (another unit): gives the input a name
-			void SetName(const char* name);
+			// 0x108A1890: gives the player a name
+			void SetName(const char* newName);
+			// 0x108A18B0
+			void SetIds(int first, int second);
+
+			int unknown4;
+			char name[16];  // +8
+			int firstId;  // +0x18
+			int secondId;  // +0x1C
 		};
 
 		// One player slot (another unit: constructor 0x108A15F0, destructor 0x108A1280). It is a list node of the
 		// InputSystem's player lists, keyed by the id at 4.
-		class PlayerInfo : public container::SListBase::Node
+		class PlayerInput : public container::SListBase::Node
 		{
 		public:
-			PlayerInfo();
-			~PlayerInfo();
+			PlayerInput();
+			~PlayerInput();
 			// 0x108A1290 / 0x108A17E0 (another unit)
 			void Clear();
 			void Update();
@@ -45,9 +61,9 @@ namespace engine
 			void SetAxisFloat(int axis, float value, int component);
 			void SetViewMatrix(const math::Matrix& matrix);
 			void SetViewPosition(const math::Vector& position);
-			PlayerInfo* GetNext() const
+			PlayerInput* GetNext() const
 			{
-				return (PlayerInfo*)next;
+				return (PlayerInput*)next;
 			}
 			bool HasFlags(unsigned int mask) const
 			{
@@ -81,11 +97,11 @@ namespace engine
 			{
 				slot = value;
 			}
-			PlayerInput* GetInput() const
+			PlayerInfo* GetInput() const
 			{
 				return input;
 			}
-			void SetInput(PlayerInput* value)
+			void SetInput(PlayerInfo* value)
 			{
 				input = value;
 			}
@@ -132,11 +148,11 @@ namespace engine
 			ButtonBits buttons[17];  // +0x230
 			int context;
 			int slot;
-			PlayerInput* input;
+			PlayerInfo* input;
 			int unknown2C4;
 		};
 
-		// The slot table base (another unit): slots of {player id, PlayerInfo}
+		// The slot table base (another unit): slots of {player id, PlayerInput}
 		class SlotManager
 		{
 		public:
@@ -146,15 +162,20 @@ namespace engine
 				Slot();
 
 				unsigned int id;
-				PlayerInfo* info;
+				PlayerInput* info;
 			};
 
 			// 0x108A1CA0 / 0x108A1A20
 			explicit SlotManager(int count);
 			virtual ~SlotManager();
-			virtual void Update() = 0;
-			virtual void Notify(int a, int b) = 0;
-			virtual void AssignSlot(int index, unsigned int id) = 0;
+			// Slot 1 (0x108A1AF0): lets go of the slot of id, or of the slot with that index (-1: none, -2: all)
+			virtual void ReleaseSlot(unsigned int id, int slot);
+			// Slot 2 (0x108A1A40): nothing
+			virtual void Notify(int a, int b)
+			{
+			}
+			// Slot 3 (0x108A1C40)
+			virtual void AssignSlot(int index, unsigned int id);
 
 			// 0x108A1A50: the slot holding id, or -1
 			int FindSlot(unsigned int id);
@@ -164,8 +185,6 @@ namespace engine
 			void CountSlots();
 			// 0x108A1C60: lets go of the slots whose id carries that kind in its second byte (name guess)
 			void ReleaseSlotsOfKind(unsigned int kind);
-			// 0x108A1AF0
-			void ReleaseSlot(unsigned int id, int value);
 			// 0x108A1E50: the keyboard (a jump to 0x108D6AA0, which answers the one instance)
 			static class Keyboard* GetKeyboard();
 
@@ -191,7 +210,7 @@ namespace engine
 
 			virtual void SetFlags(unsigned int id, unsigned int flags, bool set) = 0;
 			virtual void SetValue(unsigned int id, int value) = 0;
-			virtual void Refresh() = 0;
+			virtual void Release(unsigned int id, int slot) = 0;
 			virtual void Collect(container::SListBase* players) = 0;
 			virtual void CollectActive(container::SListBase* players, float time) = 0;
 
@@ -213,6 +232,29 @@ namespace engine
 			int scanCode;
 		};
 
+		// The characters a key makes: plain, with shift, with control and with alt (0 when none)
+		struct KeyCharacters
+		{
+			unsigned char plain;
+			unsigned char shifted;
+			unsigned char control;
+			unsigned char alt;
+		};
+
+		// The nodes of the key map come from the global array new and delete
+		struct KeyAllocator
+		{
+			static void* Alloc(unsigned int size)
+			{
+				return operator new[](size);
+			}
+			static void Free(void* block)
+			{
+				operator delete[](block);
+			}
+		};
+		typedef container::Map<int, KeyCharacters, KeyAllocator> KeyMap;
+
 		// RTTI: engine::controller::Keyboard (base of KeyboardWin32): updated with the frame time by the InputSystem;
 		// keeps a list of callbacks and stays enabled while it has one (0x2C bytes)
 		class Keyboard
@@ -225,17 +267,14 @@ namespace engine
 				virtual void OnKey(KeyEvent event) = 0;
 			};
 
-			// 0x108A2180 (another unit)
+			// 0x108A2180: the key map is made from the table of the keys that make characters
 			Keyboard();
 			// The key map is emptied (0x108A1FE0 frees each node)
 			~Keyboard()
 			{
-				keys.Clear(FreeKeyNode, &keys);
 			}
 			// 0x108A20C0: the character a key makes with the modifiers
 			unsigned char GetCharacter(int key, unsigned int modifiers);
-			// 0x108A1FE0
-			static bool FreeKeyNode(container::TreeBase::Node* node, void* context);
 
 			// Vftable slots 0 - 2 (0x108A2260, 0x108A1E60, 0x108A1E70): the base does nothing and is never enabled
 			virtual void Update(float time)
@@ -271,28 +310,44 @@ namespace engine
 			}
 
 			container::SListLite<Callback> callbacks;
-			container::TreeBase keys;  // +0x10
-			int unknown28;
+			KeyMap keys;  // +0x10
 		};
 
-		// RTTI: PhysicalControllerManager (another unit; constructor 0x108A0BB0, destructor 0x108A0970)
+		// RTTI: PhysicalControllerManager (5 vftable slots, 0x38 bytes): the controllers by slot, and the packed state of
+		// the players it last collected
 		class PhysicalControllerManager : public ControllerManagerInterface
 		{
 		public:
+			// 0x108A0BB0 / 0x108A0970
 			explicit PhysicalControllerManager(int controllerCount);
 			~PhysicalControllerManager();
+			// Slots 0 - 2 (0x108A0B60, 0x108A0B80, 0x108A0B90): handed on to the callback
 			virtual void SetFlags(unsigned int id, unsigned int flags, bool set);
 			virtual void SetValue(unsigned int id, int value);
-			virtual void Refresh();
+			virtual void Release(unsigned int id, int slot);
+			// Slot 3 (0x108A0C20) and 4 (0x108A0DB0)
 			virtual void Collect(container::SListBase* players);
 			virtual void CollectActive(container::SListBase* players, float time);
 			// 0x108A0A20: motor 0 / 1 of the controller
 			void SetVibration(unsigned int id, int motor, float a, float b, float c, float d);
 			// 0x108A0990: sets the controller object of the slot (and its flags, when the manager has a callback)
 			void SetController(unsigned int id, class PhysicalController* controller);
+			// 0x108A09D0: takes the controller away
+			void RemoveController(unsigned int id);
+			// 0x108A0B40: the controller (and the one that shares its input) the manager answers for
+			void Select(int secondary, unsigned int primary);
+			// 0x108A0BA0
+			unsigned int GetSelected() const
+			{
+				return selected;
+			}
 
-			// 0x38 bytes in all (InputSystem allocates it); the rest is unknown
-			unsigned char unknown8[0x38 - 8];
+			int controllerCount;  // +8
+			class PhysicalController** controllers;  // +0xC
+			ControllerSnapshot snapshot;  // +0x10
+			unsigned int selected;  // +0x2C
+			unsigned int secondary;  // +0x30
+			bool unknown34;
 		};
 
 		// RTTI: PlayerInfoFactoryInterface (2 slots, no virtual destructor) and PlayerInfoFactory (slots 0 and 1 in
@@ -303,15 +358,15 @@ namespace engine
 			PlayerInfoFactoryInterface()
 			{
 			}
-			virtual PlayerInput* Create() = 0;
-			virtual void Destroy(PlayerInput* input) = 0;
+			virtual PlayerInfo* Create() = 0;
+			virtual void Destroy(PlayerInfo* input) = 0;
 		};
 
 		class PlayerInfoFactory : public PlayerInfoFactoryInterface
 		{
 		public:
-			virtual PlayerInput* Create();
-			virtual void Destroy(PlayerInput* input);
+			virtual PlayerInfo* Create();
+			virtual void Destroy(PlayerInfo* input);
 			virtual ~PlayerInfoFactory()
 			{
 			}
@@ -323,21 +378,6 @@ namespace engine
 		public:
 			virtual void Slot0() = 0;
 			virtual ~InputOverride() = 0;
-		};
-
-		// The two extra objects the configuration may provide (12 bytes each, constructed by 0x108A2B10 / 0x108A4A20
-		// in another unit when it does not)
-		class InputHelperA
-		{
-		public:
-			InputHelperA();
-			int unknown[3];
-		};
-		class InputHelperB
-		{
-		public:
-			InputHelperB();
-			int unknown[3];
 		};
 
 		class InputSystem : public SlotManager, public ControllerManagerInterface::Callback
@@ -358,8 +398,8 @@ namespace engine
 				int defaultContext;
 				float deadZone;
 				bool flag18;
-				InputHelperA* helperA;
-				InputHelperB* helperB;
+				ControllerPacker* helperA;
+				ControllerPackerLossLess* helperB;
 				bool flag24;
 				int unknown28;
 				int unknown2C;
@@ -374,7 +414,7 @@ namespace engine
 				virtual void OnFlags(unsigned int id, int local, unsigned int flags, bool set)
 				{
 				}
-				virtual void OnValue(unsigned int id, int local, PlayerInput* input)
+				virtual void OnValue(unsigned int id, int local, PlayerInfo* input)
 				{
 				}
 				virtual void OnNotify(int a, int b, int c)
@@ -391,7 +431,7 @@ namespace engine
 
 			explicit InputSystem(const Config& config);
 			virtual ~InputSystem();
-			virtual void Update();
+			virtual void ReleaseSlot(unsigned int id, int slot);
 			virtual void Notify(int a, int b);
 			virtual void AssignSlot(int index, unsigned int id);
 			virtual void OnFlags(unsigned int id, unsigned int flags, bool set, int which);
@@ -408,8 +448,8 @@ namespace engine
 			static void Create(const Config& config);
 			static void Destroy();
 			// The player in list whose id matches
-			PlayerInfo* FindPlayer(unsigned int id, container::SListBase* list);
-			PlayerInfo* FindConnected(unsigned int id)
+			PlayerInput* FindPlayer(unsigned int id, container::SListBase* list);
+			PlayerInput* FindConnected(unsigned int id)
 			{
 				return FindPlayer(id, &connected);
 			}
@@ -427,7 +467,7 @@ namespace engine
 			{
 				return (id & 0xffffff00) == 0xfe00;
 			}
-			PlayerInfo* GetPlayer(unsigned int id)
+			PlayerInput* GetPlayer(unsigned int id)
 			{
 				return &players[(unsigned char)id];
 			}
@@ -440,7 +480,7 @@ namespace engine
 				return (unsigned char)index | 0xfe00;
 			}
 			// The remote player with id, or a free remote slot taken for it
-			PlayerInfo* FindRemote(unsigned int id)
+			PlayerInput* FindRemote(unsigned int id)
 			{
 				for (int i = controllerCount; i < playerCount + controllerCount; i++)
 				{
@@ -451,7 +491,7 @@ namespace engine
 				}
 				return 0;
 			}
-			PlayerInfo* AllocRemote(unsigned int id)
+			PlayerInput* AllocRemote(unsigned int id)
 			{
 				for (int i = controllerCount; i < playerCount + controllerCount; i++)
 				{
@@ -473,7 +513,7 @@ namespace engine
 					AssignSlot(slot, id);
 				}
 			}
-			void RemoveConnected(PlayerInfo* info, unsigned int id)
+			void RemoveConnected(PlayerInput* info, unsigned int id)
 			{
 				connected.Remove(info);
 				info->input->Reset();
@@ -507,7 +547,7 @@ namespace engine
 
 			int playerCount;
 			int controllerCount;
-			PlayerInfo* players;
+			PlayerInput* players;
 			container::SListBase connected;
 			container::SListBase active;
 			int pending;
