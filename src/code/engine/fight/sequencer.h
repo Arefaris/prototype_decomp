@@ -334,6 +334,8 @@ namespace fight
 		void CopyTo(Sequencer* other, core::IRefCount* effect, core::IRefCount* owner);
 		// 0x105A4910: walks the actions and their children (name unknown)
 		bool Unknown105A4910(bool flag);
+		// 0x105A46C0: the path of the running track as text, in a buffer of the engine's (name guess)
+		const char* GetTrackPath();
 		// 0x105A4540: whether the track is one the running track's chain of parents leads to (name unknown)
 		bool Unknown105A4540(Branch* other);
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
