@@ -48,6 +48,7 @@
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
 #include "code/proto/worldboundary.h"
 #include "code/proto/tunnelvolume.h"
+#include "code/proto/worldtriggers.h"
 
 namespace ravenphysics
 {
@@ -229,16 +230,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x124 - sizeof(content::MetaLoadObject)];
-	};
-
-	class WorldTriggers : public content::MetaLoadObject
-	{
-	public:
-		WorldTriggers();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
 	struct DisguiseConfig : public content::MetaLoadObject
