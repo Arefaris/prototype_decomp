@@ -16,6 +16,19 @@ namespace proto
 	class CityManager
 	{
 	public:
+		// RTTI proto::CityManager::DecayState: the state of decay of a part of the city (the names of the values are the
+		// reflected ones)
+		enum DecayState
+		{
+			DECAY_STATE_DEFAULT = 0,
+			DECAY_STATE_PRISTINE = 1,
+			DECAY_STATE_MILITARY = 2,
+			DECAY_STATE_INFECTED = 3,
+			DECAY_STATE_BEFORE = 4,
+			DECAY_STATE_DURING = 5,
+			DECAY_STATE_AFTER = 6
+		};
+
 		// 0x105673F0
 		CityManager();
 		// 0x105674C0

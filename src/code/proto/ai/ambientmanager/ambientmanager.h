@@ -9,6 +9,7 @@
 #include "code/core/heap.h"
 #include "code/core/name.h"
 #include "code/math/vector.h"
+#include "code/ravenphysics/context.h"
 
 namespace proto
 {
@@ -200,6 +201,8 @@ namespace proto
 		void ReleaseName(const core::Name<core::CaseSensitiveKey>& name, bool flag);
 		// 0x1041F210: registers the script natives
 		void RegisterScript();
+		// 0x1041C190: how many pedestrians and vehicles the physics area lets in (1.0 all, 0.0 none; name guess)
+		void SetAreaDensity(ravenphysics::ObjectHandle area, float pedestrians, float vehicles);
 		// The script natives amb_SetMaxVehicles (0x10409CF0: nothing to set), amb_SetMaxCharacters, amb_SetSpawnAreaSize,
 		// amb_SetNearSpawnDist, amb_SetFarSpawnDist, amb_SetPedsGlobalDensityScale, amb_SetVehiclesGlobalDensityScale,
 		// amb_SetPercentInfectedLevelZero, amb_SetInMissionBriefing, amb_SetPercentageLowMorale and

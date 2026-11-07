@@ -15,6 +15,7 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/propbehaviour.h"
 #include "code/engine/reflectedclasses2.h"
+#include "code/proto/ai/ambientmanager/ambientexclusionvolume.h"
 #include "code/proto/ai/ambientmanager/ambientspawners.h"
 #include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 #include "code/proto/webofintrigue/webnodelocator.h"
@@ -356,15 +357,6 @@ namespace proto
 		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
-	class AmbientExclusionVolume : public content::MetaLoadObject
-	{
-	public:
-		AmbientExclusionVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x60 - sizeof(content::MetaLoadObject)];
-	};
 
 	struct IntersectionData
 	{
