@@ -43,6 +43,8 @@ namespace om
 	template<> bool MetaProperty<unsigned __int64 const&>::SetBinary(BinaryStream*, void*);
 	template<> bool MetaProperty<unsigned __int64 const&>::GetBinary(BinaryStream*, void*);
 	template<> void MetaProperty<mgraph::EnvelopeData const&>::GetText(TextValue*, void*);
+	template<> bool MetaProperty<mgraph::EnvelopeData const&>::SetText(TextValue const*, void*);
+	template<> bool MetaProperty<mgraph::EnvelopeData const&>::SetBinary(BinaryStream*, void*);
 
 	// FUNCTION: ENGINE 0x10AC2850
 	template MetaClass<audio::XAudio2RendererDriver>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
