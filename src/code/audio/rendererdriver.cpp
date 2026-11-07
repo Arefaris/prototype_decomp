@@ -709,3 +709,22 @@ namespace audio
 		cache = 0;
 	}
 }
+
+namespace audio
+{
+	// What the fold down needs for each type: the name and the program that does it (0x10E30E54, 8 entries of 12 bytes)
+	struct FoldDownDescription
+	{
+		const char* name;
+		const void* program;
+		int unknown8;
+	};
+	extern const FoldDownDescription gFoldDownDescriptions[8];
+
+	// FUNCTION: ENGINE 0x105E4DD0
+	om::String GetFoldDownTypeName(FoldDownType type)
+	{
+		om::String text(gFoldDownDescriptions[type].name, true);
+		return om::String(text);
+	}
+}
