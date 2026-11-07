@@ -42,6 +42,7 @@
 #include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/proto/behaviours/wheelconstraint.h"
 #include "code/proto/behaviours/helicopterrotor.h"
+#include "code/proto/behaviours/helicoptersolverproperties.h"
 #include "code/proto/behaviours/cloudbehaviour.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
@@ -137,98 +138,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(proto::NPCRender)];
-	};
-
-	class HelicopterSolverGenericProperties : public content::MetaLoadObject
-	{
-	public:
-		class CameraParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031DFE0
-		};
-		class EffectsParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E020
-		};
-		class HealthParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E060
-		};
-		class PowerParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E0A0
-		};
-		class RotorParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E0E0
-		};
-		class SoundParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E120
-		};
-
-		HelicopterSolverGenericProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xD0 - sizeof(content::MetaLoadObject)];
-	};
-
-	class HelicopterSolverProperties : public content::MetaLoadObject
-	{
-	public:
-		class AIParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E160
-		};
-		class HoverParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E1A0
-		};
-		class LateralAxisLinearParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E1E0
-		};
-		class LateralAxisAngularParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E220
-		};
-		class LongitudinalAxisLinearParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E260
-		};
-		class LongitudinalAxisAngularParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E2A0
-		};
-		class VerticalAxisParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E2E0
-		};
-		class YawAxisParams
-		{
-		public:
-			static content::ClassInfo* GetClassInfo(); //@0x1031E320
-		};
-
-		HelicopterSolverProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x124 - sizeof(content::MetaLoadObject)];
 	};
 
 	class WorldTriggers : public content::MetaLoadObject
