@@ -119,13 +119,35 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		core::Name<core::CaseSensitiveKey> name;
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;
 		engine::HandleBase handle;  // +8
 		pure3d::ProtoLightUserData* userData;  // +0xC
 		bool unknown10;
 	};
 
 	typedef container::ArrayDynamic<TimeOfDayLightInfo, container::AllocatorNew> LightInfoArray;
+}
+
+namespace container
+{
+	// The engine releases the light data of the lights in a function of its own (0x10529530) that the destructor calls
+	template<> __declspec(noinline) void ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::Clear()
+	{
+		Destroy(begin, end);
+		end = begin;
+	}
+	template<> inline ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::~ArrayDynamic()
+	{
+		Clear();
+		if (begin != 0)
+		{
+			operator delete[](begin);
+		}
+	}
+}
+
+namespace proto
+{
 
 	// One variation of the day (0x108 bytes): the lighting, framebuffer effects and shader parameters and the fog
 	struct TimeOfDayVariation
@@ -133,7 +155,7 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		core::Name<core::CaseSensitiveKey> name;
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;
 		GlobalLightingRig globalLights;  // +8
 		GlobalFBEffectsRig globalFBEffects;  // +0x54
 		GlobalShaderRig globalShaderParams;  // +0xB4
@@ -152,7 +174,7 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
-		core::Name<core::CaseSensitiveKey> name;  // +8
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;  // +8
 		container::ArrayDynamic<TimeOfDayVariation, container::AllocatorNew> dayVariations;  // +0x10
 		int unknown1C;
 	};
@@ -165,6 +187,28 @@ namespace proto
 		virtual ~TimeOfDayVars();
 		virtual bool Slot3();
 		virtual bool Slot4();
+
+		// The number of names of day groups and the name at an index
+		int GetDayGroupCount();
+		core::Name<core::CaseSensitiveKey>* GetDayGroupName(int index);
+		// The number of loaded groups and the group at an index
+		int GetGroupCount();
+		TimeOfDayVarGroup* GetGroup(int index);
+		// The loaded group of that name, null when there is none (the engine keeps a copy for const objects)
+		TimeOfDayVarGroup* FindGroup(const char* groupName);
+		TimeOfDayVarGroup* FindGroup(const char* groupName) const;
+		TimeOfDayVarGroup* FindGroup(const core::Name<core::CaseSensitiveKey>& groupName);
+		TimeOfDayVarGroup* FindGroup(const core::Name<core::CaseSensitiveKey>& groupName) const;
+		// The variation of that name in the group of that name
+		TimeOfDayVariation* FindVariation(const char* groupName, const char* variationName);
+		TimeOfDayVariation* FindVariation(const char* groupName, const char* variationName) const;
+		TimeOfDayVariation* FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
+			const core::Name<core::CaseSensitiveKey>& variationName);
+		TimeOfDayVariation* FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
+			const core::Name<core::CaseSensitiveKey>& variationName) const;
+		// The light at an index and the number of lights
+		TimeOfDayLightInfo* GetLight(int index);
+		int GetLightCount();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
@@ -183,6 +227,63 @@ namespace proto
 		content::LoadInventory* inventory;  // +0x50
 		container::ArrayFixed<TimeOfDayVarGroup*, 128> loadedGroups;  // +0x54
 	};
+}
+
+namespace container
+{
+	// How the arrays of this unit move their elements down: the fog keys and variations by AssignRange, the lights by
+	// CopyRangeEnd
+	template<> struct ArrayEraseInline<proto::FogChannel::Key>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ArrayEraseInline<proto::TimeOfDayVariation>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+	template<> struct ArrayEraseInline<proto::TimeOfDayLightInfo>
+	{
+		enum
+		{
+			value = 4
+		};
+	};
+}
+
+namespace content
+{
+	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::FogChannel::Key)
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
+	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
+	PROTO_KEY_ARRAY_HELPER_END
+
+	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayVariation)
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
+	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
+	PROTO_KEY_ARRAY_HELPER_END
+
+	PROTO_KEY_ARRAY_HELPER_BEGIN(proto::TimeOfDayLightInfo)
+		static T& Default()
+		{
+			static T sDefault;
+			return sDefault;
+		}
+	PROTO_KEY_ARRAY_HELPER_INSERT(a->Insert(position, 1, Default());)
+	PROTO_KEY_ARRAY_HELPER_END
 }
 
 #endif

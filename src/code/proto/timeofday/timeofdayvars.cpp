@@ -6,7 +6,7 @@
 #include "code/math/vector2.h"
 
 namespace proto
-{
+	{
 #define PROTO_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 
@@ -238,6 +238,236 @@ namespace proto
 		sList.members = sMembers;
 		sList.count = 1;
 		return &sList;
+	}
+
+
+	// FUNCTION: ENGINE 0x10521E40
+	int TimeOfDayVars::GetDayGroupCount()
+	{
+		return dayGroups.Size();
+	}
+
+	// FUNCTION: ENGINE 0x10521E50
+	core::Name<core::CaseSensitiveKey>* TimeOfDayVars::GetDayGroupName(int index)
+	{
+		return &dayGroups[index];
+	}
+
+	// FUNCTION: ENGINE 0x10521E60
+	int TimeOfDayVars::GetGroupCount()
+	{
+		return groups.Size();
+	}
+
+	// FUNCTION: ENGINE 0x10521E70
+	TimeOfDayVarGroup* TimeOfDayVars::GetGroup(int index)
+	{
+		return groups[index];
+	}
+
+	// FUNCTION: ENGINE 0x10521E80
+	TimeOfDayVarGroup* TimeOfDayVars::FindGroup(const char* groupName)
+	{
+		TimeOfDayVarGroup* result = 0;
+		for (unsigned int i = 0; i < groups.Size(); i++)
+		{
+			TimeOfDayVarGroup* group = groups[i];
+			__declspec(align(8)) core::Name<core::CaseSensitiveKey> key(groupName, 1);
+			if (group->name == key)
+			{
+				result = group;
+				break;
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10521F10
+	TimeOfDayVarGroup* TimeOfDayVars::FindGroup(const char* groupName) const
+	{
+		TimeOfDayVarGroup* result = 0;
+		for (unsigned int i = 0; i < groups.Size(); i++)
+		{
+			TimeOfDayVarGroup* group = groups[i];
+			__declspec(align(8)) core::Name<core::CaseSensitiveKey> key(groupName, 1);
+			if (group->name == key)
+			{
+				result = group;
+				break;
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10521FA0
+	// NONMATCHING: 77 %: the engine walks the groups with a pointer it loads behind the emptiness test
+#ifdef NONMATCHING
+	TimeOfDayVarGroup* TimeOfDayVars::FindGroup(const core::Name<core::CaseSensitiveKey>& groupName)
+	{
+		TimeOfDayVarGroup* group = 0;
+		unsigned int i = 0;
+		if (groups.Size() != 0)
+		{
+			TimeOfDayVarGroup** p = groups.begin;
+			do
+			{
+				group = *p;
+				if (group->name == groupName)
+				{
+					return group;
+				}
+				i++;
+				p++;
+			} while (i < groups.Size());
+			return 0;
+		}
+		return group;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10522010
+	// NONMATCHING: 77 %: the same
+#ifdef NONMATCHING
+	TimeOfDayVarGroup* TimeOfDayVars::FindGroup(const core::Name<core::CaseSensitiveKey>& groupName) const
+	{
+		TimeOfDayVarGroup* group = 0;
+		unsigned int i = 0;
+		if (groups.Size() != 0)
+		{
+			TimeOfDayVarGroup** p = groups.begin;
+			do
+			{
+				group = *p;
+				if (group->name == groupName)
+				{
+					return group;
+				}
+				i++;
+				p++;
+			} while (i < groups.Size());
+			return 0;
+		}
+		return group;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10522080
+	TimeOfDayVariation* TimeOfDayVars::FindVariation(const char* groupName, const char* variationName)
+	{
+		TimeOfDayVarGroup* group = FindGroup(groupName);
+		TimeOfDayVariation* result = 0;
+		if (group != 0)
+		{
+			for (unsigned int i = 0; i < group->dayVariations.Size(); i++)
+			{
+				TimeOfDayVariation* variation = &group->dayVariations[i];
+				__declspec(align(8)) core::Name<core::CaseSensitiveKey> key(variationName, 1);
+				if (variation->name == key)
+				{
+					result = variation;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10522150
+	TimeOfDayVariation* TimeOfDayVars::FindVariation(const char* groupName, const char* variationName) const
+	{
+		TimeOfDayVarGroup* group = FindGroup(groupName);
+		TimeOfDayVariation* result = 0;
+		if (group != 0)
+		{
+			for (unsigned int i = 0; i < group->dayVariations.Size(); i++)
+			{
+				TimeOfDayVariation* variation = &group->dayVariations[i];
+				__declspec(align(8)) core::Name<core::CaseSensitiveKey> key(variationName, 1);
+				if (variation->name == key)
+				{
+					result = variation;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10522220
+	// NONMATCHING: 30 %: the same walk over the variations
+#ifdef NONMATCHING
+	TimeOfDayVariation* TimeOfDayVars::FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
+		const core::Name<core::CaseSensitiveKey>& variationName)
+	{
+		TimeOfDayVarGroup* group = FindGroup(groupName);
+		if (group != 0)
+		{
+			for (unsigned int i = 0; i < group->dayVariations.Size(); i++)
+			{
+				TimeOfDayVariation* variation = &group->dayVariations[i];
+				if (variation->name == variationName)
+				{
+					return variation;
+				}
+			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105222D0
+	// NONMATCHING: 30 %: the same
+#ifdef NONMATCHING
+	TimeOfDayVariation* TimeOfDayVars::FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
+		const core::Name<core::CaseSensitiveKey>& variationName) const
+	{
+		TimeOfDayVarGroup* group = FindGroup(groupName);
+		if (group != 0)
+		{
+			for (unsigned int i = 0; i < group->dayVariations.Size(); i++)
+			{
+				TimeOfDayVariation* variation = &group->dayVariations[i];
+				if (variation->name == variationName)
+				{
+					return variation;
+				}
+			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10522380
+	TimeOfDayLightInfo* TimeOfDayVars::GetLight(int index)
+	{
+		return &lights[index];
+	}
+
+	// FUNCTION: ENGINE 0x105223A0
+	int TimeOfDayVars::GetLightCount()
+	{
+		return lights.Size();
+	}
+
+
+	extern const float gEighteen;
+
+	// FUNCTION: ENGINE 0x1052C0A0
+	// NONMATCHING: 75 %: the engine stores the base class's vftable and count before the first constant, ours schedules the floats first
+#ifdef NONMATCHING
+	TimeOfDayVars::TimeOfDayVars() : dayLength(300.0f), dawnTime(6.0f), duskTime(gEighteen), renderDawnTime(9.0f),
+		renderDuskTime(16.0f), cloudCover(0)
+	{
+		inventory = new content::LoadInventory(0x20);
+		inventory->AddRef();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1052C190
+	TimeOfDayVars::~TimeOfDayVars()
+	{
+		inventory->Release();
+		core::SafeRelease(cloudCover);
 	}
 
 	// FUNCTION: ENGINE 0x10523820
@@ -533,3 +763,74 @@ namespace proto
 // FUNCTION: ENGINE 0x10522890
 // FUNCTION: ENGINE 0x1052EA30
 // FUNCTION: ENGINE 0x1052F1D0
+// FUNCTION: ENGINE 0x10521B60
+// FUNCTION: ENGINE 0x10521B70
+// FUNCTION: ENGINE 0x10521C00
+// FUNCTION: ENGINE 0x10521C10
+// FUNCTION: ENGINE 0x10521C20
+// FUNCTION: ENGINE 0x10521C30
+// FUNCTION: ENGINE 0x10521C80
+// FUNCTION: ENGINE 0x10521CD0
+// FUNCTION: ENGINE 0x105218B0
+// FUNCTION: ENGINE 0x10521910
+// FUNCTION: ENGINE 0x10521970
+// FUNCTION: ENGINE 0x105224D0
+// FUNCTION: ENGINE 0x10523D30
+// FUNCTION: ENGINE 0x105253F0
+// FUNCTION: ENGINE 0x10529440
+// FUNCTION: ENGINE 0x1052BA60
+// FUNCTION: ENGINE 0x10523DD0
+// FUNCTION: ENGINE 0x10523E30
+// FUNCTION: ENGINE 0x10523EF0
+// FUNCTION: ENGINE 0x10523F50
+// FUNCTION: ENGINE 0x10523E90
+// FUNCTION: ENGINE 0x10521830
+// FUNCTION: ENGINE 0x10521790
+// FUNCTION: ENGINE 0x10521800
+// FUNCTION: ENGINE 0x10521D90
+// FUNCTION: ENGINE 0x10523080
+// FUNCTION: ENGINE 0x10523020
+// FUNCTION: ENGINE 0x10523100
+// FUNCTION: ENGINE 0x10522FD0
+// FUNCTION: ENGINE 0x10523210
+// FUNCTION: ENGINE 0x10523280
+// FUNCTION: ENGINE 0x105229C0
+// FUNCTION: ENGINE 0x10522940
+// FUNCTION: ENGINE 0x105229A0
+// FUNCTION: ENGINE 0x10522D80
+// FUNCTION: ENGINE 0x10522D20
+// FUNCTION: ENGINE 0x10522CB0
+// FUNCTION: ENGINE 0x105231C0
+// FUNCTION: ENGINE 0x10523520
+// FUNCTION: ENGINE 0x10524210
+// FUNCTION: ENGINE 0x10524240
+// FUNCTION: ENGINE 0x105243C0
+// FUNCTION: ENGINE 0x105242E0
+// FUNCTION: ENGINE 0x10529420
+// FUNCTION: ENGINE 0x10525740
+// FUNCTION: ENGINE 0x105257E0
+// FUNCTION: ENGINE 0x10525590
+// FUNCTION: ENGINE 0x10529530
+// FUNCTION: ENGINE 0x1052BA40
+// FUNCTION: ENGINE 0x105256F0
+// FUNCTION: ENGINE 0x1052A690
+// FUNCTION: ENGINE 0x1052A830
+// FUNCTION: ENGINE 0x1052C390
+// FUNCTION: ENGINE 0x1052C410
+// FUNCTION: ENGINE 0x1052BB90
+// FUNCTION: ENGINE 0x1052BF40
+// FUNCTION: ENGINE 0x1052D680
+// FUNCTION: ENGINE 0x1052D6F0
+// FUNCTION: ENGINE 0x10522D00
+// FUNCTION: ENGINE 0x10522CE0
+// FUNCTION: ENGINE 0x105231F0
+// FUNCTION: ENGINE 0x10523000
+// FUNCTION: ENGINE 0x10522980
+// FUNCTION: ENGINE 0x10522960
+// FUNCTION: ENGINE 0x1052CCD0
+// FUNCTION: ENGINE 0x1052C720
+// FUNCTION: ENGINE 0x105228D0
+// FUNCTION: ENGINE 0x10522A20
+// FUNCTION: ENGINE 0x10522FC0
+// FUNCTION: ENGINE 0x105217B0
+// FUNCTION: ENGINE 0x10521850
