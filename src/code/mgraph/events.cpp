@@ -243,4 +243,189 @@ namespace mgraph
 	{
 		return "";
 	}
+
+	// FUNCTION: ENGINE 0x10AC3630
+	const char* CommandNode::AllocationTag()
+	{
+		return "";
+	}
+
+	// The command node a link of the list belongs to, null for no link
+	static __forceinline CommandNode* NodeOfLink(NodeLink* link)
+	{
+		CommandNode* node;
+		if (link != 0)
+		{
+			node = reinterpret_cast<CommandNode*>(reinterpret_cast<char*>(link) - 4);
+		}
+		else
+		{
+			node = 0;
+		}
+		return node;
+	}
+
+	// The link of a command node, null for no node
+	static __forceinline NodeLink* LinkOfNode(CommandNode* node)
+	{
+		NodeLink* link;
+		if (node != 0)
+		{
+			link = &node->link;
+		}
+		else
+		{
+			link = 0;
+		}
+		return link;
+	}
+
+	// FUNCTION: ENGINE 0x10AC5070
+	CommandNode* CommandList::Add(void* command)
+	{
+		CommandNode* node = static_cast<CommandNode*>(om::Allocate(CommandNode::AllocationTag(), sizeof(CommandNode), 4));
+		NodeLink* link;
+		if (node != 0)
+		{
+			node->command = static_cast<EvaluateCommand*>(command);
+			link = &node->link;
+		}
+		else
+		{
+			node = 0;
+			link = 0;
+		}
+		if (head == 0)
+		{
+			head = link;
+			link->previous = 0;
+			tail = link;
+			link->next = 0;
+			return node;
+		}
+		tail->next = link;
+		link->previous = tail;
+		tail = link;
+		link->next = 0;
+		return node;
+	}
+
+	// FUNCTION: ENGINE 0x10AC5180
+	void CommandList::Erase(CommandNode* node)
+	{
+		NodeLink* link = LinkOfNode(node);
+		if (link->previous == 0)
+		{
+			head = link->next;
+		}
+		else
+		{
+			link->previous->next = link->next;
+		}
+		if (link->next == 0)
+		{
+			tail = link->previous;
+		}
+		else
+		{
+			link->next->previous = link->previous;
+		}
+		if (node != 0)
+		{
+			if (node->command != 0)
+			{
+				delete node->command;
+			}
+			delete node;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AC5790
+	void CommandList::Remove(void* command)
+	{
+		CommandNode* node = NodeOfLink(head);
+		while (node != 0)
+		{
+			CommandNode* next = NodeOfLink(LinkOfNode(node)->next);
+			if (node->command == command)
+			{
+				Erase(node);
+				return;
+			}
+			node = next;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AC33D0
+	void* Context::GetChannelOwner()
+	{
+		return reinterpret_cast<void*>(evaluationCount);
+	}
+
+	// FUNCTION: ENGINE 0x10AC4950
+	void Context::AddNode(Node* node)
+	{
+		NodeLink* link;
+		if (node != 0)
+		{
+			link = &node->contextLink;
+		}
+		else
+		{
+			link = 0;
+		}
+		if (firstNode == 0)
+		{
+			firstNode = link;
+			link->previous = 0;
+		}
+		else
+		{
+			lastNode->next = link;
+			link->previous = lastNode;
+		}
+		lastNode = link;
+		link->next = 0;
+		Level* level;
+		if (firstLevel != 0)
+		{
+			level = reinterpret_cast<Level*>(reinterpret_cast<char*>(firstLevel) - 0x20);
+		}
+		else
+		{
+			level = 0;
+		}
+		SetNodeLevel(node, level);
+	}
+
+	// FUNCTION: ENGINE 0x10AC49B0
+	void Context::RemoveNode(Node* node)
+	{
+		SetNodeLevel(node, 0);
+		NodeLink* link;
+		if (node != 0)
+		{
+			link = &node->contextLink;
+		}
+		else
+		{
+			link = 0;
+		}
+		if (link->previous == 0)
+		{
+			firstNode = link->next;
+		}
+		else
+		{
+			link->previous->next = link->next;
+		}
+		if (link->next == 0)
+		{
+			lastNode = link->previous;
+		}
+		else
+		{
+			link->next->previous = link->previous;
+		}
+	}
 }
