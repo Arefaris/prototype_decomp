@@ -52,6 +52,12 @@ namespace engine
 		clock.Clear();
 	}
 
+	// FUNCTION: ENGINE 0x108BF870
+	void OnlineManager::Slot5()
+	{
+		UpdateClock();
+	}
+
 	// FUNCTION: ENGINE 0x108BF5B0
 	void OnlineManager::Slot9()
 	{
