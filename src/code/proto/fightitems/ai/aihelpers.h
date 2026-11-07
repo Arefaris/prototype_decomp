@@ -13,12 +13,6 @@
 
 namespace proto
 {
-	// A one byte flag the engine passes by value (stored in the argument slot and pushed as a word)
-	struct ByteFlag
-	{
-		bool value;
-	};
-
 	// 0x103C4A00: how many objects of a tag are around (name guess)
 	int Unknown103C4A00(const fight::Name* tag, int limit, ByteFlag tryDespawnIfFull, float minDespawnDistance, float objRadius);
 

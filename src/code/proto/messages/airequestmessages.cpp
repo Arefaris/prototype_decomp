@@ -1,4 +1,5 @@
 #include "code/proto/messages/airequestmessages.h"
+#include "code/engine/physics/ragdollmessages.h"
 
 // A function that constructs each message with the expansion of inline functions off: the compiler keeps the out-of-line
 // copy of the constructor and of the destructor the engine has too (the natives that send the messages inline them)
@@ -490,6 +491,11 @@ namespace
 		proto::PurgeKissOfDeathAIMsg message;
 	}
 
+	void EmitRagdollGetEnabledMessage(engine::GameObjectHandle handle)
+	{
+		engine::RagdollGetEnabledMessage message;
+	}
+
 	void EmitSetGoalAIMsg(core::Name<core::CaseSensitiveKey> name)
 	{
 		proto::SetGoalAIMsg message(name);
@@ -806,6 +812,8 @@ namespace
 // FUNCTION: ENGINE 0x10385A50
 // FUNCTION: ENGINE 0x10385A60
 // FUNCTION: ENGINE 0x10385A90
+// FUNCTION: ENGINE 0x10385AA0
+// FUNCTION: ENGINE 0x10385AD0
 // FUNCTION: ENGINE 0x10386340
 // FUNCTION: ENGINE 0x10386370
 // FUNCTION: ENGINE 0x103863A0

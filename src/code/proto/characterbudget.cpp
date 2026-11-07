@@ -1,4 +1,6 @@
 #include "code/proto/characterbudget.h"
+#include "code/content/loadinventory.h"
+#include "code/core/refptr.h"
 #include "code/proto/messages/airequestmessages.h"
 #include "code/proto/soldierbudgets.h"
 
@@ -215,6 +217,17 @@ namespace proto
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x10387FC0
+	void SoldierBudgets::LoadPolicies()
+	{
+		content::LoadInventory* inventory = content::gRootInventory;
+		if (inventory != 0)
+		{
+			CharacterBudgetPolicyList* list = inventory->Find<CharacterBudgetPolicyList>("PolicyList");
+			core::RefAssign(policies, list);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10387530
 	void SoldierBudgets::ResetUnknown48(engine::GameObjectHandle handle)
 	{
@@ -398,6 +411,8 @@ template bool EntryArray::Create(unsigned int);
 template void EntryArray::Allocate(unsigned int);
 template void EntryArray::Clear();
 template bool EntryArray::PushBack(const proto::CharacterBudgetEntry&);
+template void core::RefAssign<proto::CharacterBudgetPolicyList>(proto::CharacterBudgetPolicyList*&, proto::CharacterBudgetPolicyList*);
+template void core::SafeRelease<proto::CharacterBudgetPolicyList>(proto::CharacterBudgetPolicyList*&);
 template void EntryArray::Free();
 template proto::CharacterBudgetEntry* EntryArray::EraseSwap(proto::CharacterBudgetEntry*);
 template proto::CharacterBudgetEntry* EntryArray::Grow();
@@ -418,6 +433,8 @@ template proto::CharacterBudgetEntry* EntryArray::Insert(proto::CharacterBudgetE
 // FUNCTION: ENGINE 0x10386030
 // FUNCTION: ENGINE 0x10386050
 // FUNCTION: ENGINE 0x10386130
+// FUNCTION: ENGINE 0x10386200
+// FUNCTION: ENGINE 0x10386240
 // FUNCTION: ENGINE 0x103868E0
 // FUNCTION: ENGINE 0x10386C30
 // FUNCTION: ENGINE 0x10386CB0

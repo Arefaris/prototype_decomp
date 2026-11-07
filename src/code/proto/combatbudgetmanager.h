@@ -13,6 +13,12 @@
 
 namespace proto
 {
+	// A one byte flag the engine passes by value (stored in the argument slot and pushed as a word)
+	struct ByteFlag
+	{
+		bool value;
+	};
+
 	// 0x103C0F80: how far the position is from the nearest of the things the combat looks at (name guess)
 	float Unknown103C0F80(const math::Vector* position);
 
@@ -58,7 +64,7 @@ namespace proto
 		// 0x10389EC0: counts the timers down and takes the tokens back that ran out
 		void Update(float delta);
 		// 0x1038A130: how much the object wants a token (name guess)
-		static float GetPriority(const engine::GameObjectHandle* handle, bool granted);
+		static float GetPriority(const engine::GameObjectHandle* handle, ByteFlag granted);
 		// 0x1038A4C0: asks for a token for an object
 		void Unknown1038A4C0(const engine::GameObjectHandle* handle);
 		// 0x1038A100: whether the object holds a token

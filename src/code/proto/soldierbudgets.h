@@ -29,6 +29,8 @@ namespace proto
 		bool SetPolicyByName(engine::GameObjectHandle handle, core::Name<core::CaseSensitiveKey> className);
 		// 0x103867D0: sets the squared despawn distance of the character's policy (false when it has no entry)
 		bool SetDespawnDistanceSquared(engine::GameObjectHandle handle, const float* value);
+		// 0x10387FC0: looks the policy list up in the root inventory
+		void LoadPolicies();
 		// 0x10387530
 		void ResetUnknown48(engine::GameObjectHandle handle);
 		// 0x10387620: sets the first flag of the entry of an object (false without an entry)

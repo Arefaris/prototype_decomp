@@ -72,7 +72,7 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10389EC0
-	// NONMATCHING: the engine checks the handle twice (IsValid, then a Get of its own), ours merges the two lookups (18 %)
+	// NONMATCHING: the engine looks the handle up twice (IsValid, then a Get of its own) with the master table in edi and this in ebx; ours merges the lookups (47.8 % of the instructions the same)
 #ifdef NONMATCHING
 	void CombatBudget::Update(float delta)
 	{
@@ -90,7 +90,12 @@ namespace proto
 						Unknown103B9940(object, 0x13, "");
 					}
 					count--;
-					tokens.Erase(token);
+					Token* last = tokens.end;
+					for (Token* next = token + 1; next != last; next++)
+					{
+						next[-1] = *next;
+					}
+					tokens.end--;
 				}
 				else
 				{
@@ -114,7 +119,12 @@ namespace proto
 							Unknown103B9940(object, 0x13, "");
 						}
 					}
-					tokens.Erase(token);
+					Token* last = tokens.end;
+					for (Token* next = token + 1; next != last; next++)
+					{
+						next[-1] = *next;
+					}
+					tokens.end--;
 				}
 				else
 				{
@@ -128,7 +138,7 @@ namespace proto
 	// FUNCTION: ENGINE 0x1038A130
 	// NONMATCHING: the locals take other stack slots (91.2 %)
 #ifdef NONMATCHING
-	float CombatBudget::GetPriority(const engine::GameObjectHandle* handle, bool granted)
+	float CombatBudget::GetPriority(const engine::GameObjectHandle* handle, ByteFlag granted)
 	{
 		float weight;
 		float scale;
@@ -165,18 +175,18 @@ namespace proto
 			}
 		}
 		visible = inside ? 2.0f : 1.0f;
-		scale = granted ? 1.5f : 1.0f;
+		scale = granted.value ? 1.5f : 1.0f;
 		return weight / distance * scale * visible;
 	}
-
 #endif
 
 	// FUNCTION: ENGINE 0x1038A4C0
-	// NONMATCHING: the engine reserves the frame of the flag before the first test, shrink-wrap (6.2 % by bytes, the same code behind a shifted frame)
+	// NONMATCHING: the engine reserves the frame of the flag before the first test, shrink-wrap (56.5 % of the instructions the same, the registers differ)
 #ifdef NONMATCHING
 	void CombatBudget::Unknown1038A4C0(const engine::GameObjectHandle* handle)
 	{
 		if (heuristic == 0)
+
 		{
 			if (count < max && tokens.Size() < tokens.Capacity())
 			{
@@ -188,7 +198,7 @@ namespace proto
 		}
 		unsigned int size = tokens.Size();
 		Token* token = Find(handle);
-		bool granted = token != 0 && token->granted;
+		ByteFlag granted = {token != 0 && token->granted};
 		float priority = GetPriority(handle, granted);
 		if (token == 0)
 		{
@@ -231,7 +241,6 @@ namespace proto
 			token->granted = true;
 		}
 	}
-
 #endif
 
 	// FUNCTION: ENGINE 0x10389850

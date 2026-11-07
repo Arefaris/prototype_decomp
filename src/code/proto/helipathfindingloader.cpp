@@ -1,4 +1,6 @@
 #include "code/proto/helipathfindingloader.h"
+#include "code/container/arraydynamic.h"
+#include "code/core/refptr.h"
 
 namespace proto
 {
@@ -59,7 +61,17 @@ namespace proto
 	}
 }
 
+template void core::RefAssign<proto::HeliPathfindingLoader>(proto::HeliPathfindingLoader*&, proto::HeliPathfindingLoader*);
+template void core::SafeRelease<proto::HeliPathfindingLoader>(proto::HeliPathfindingLoader*&);
+template void container::Swap<int>(int&, int&);
+template void container::Swap<unsigned char>(unsigned char&, unsigned char&);
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10382370
+// FUNCTION: ENGINE 0x103823B0
+// FUNCTION: ENGINE 0x103823F0
+// FUNCTION: ENGINE 0x10382410
 // FUNCTION: ENGINE 0x103977A0
 // FUNCTION: ENGINE 0x103977B0
 // FUNCTION: ENGINE 0x103977C0
