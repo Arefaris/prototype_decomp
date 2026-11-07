@@ -6280,6 +6280,38 @@ Still open: the property tables (a 64-bit name from a string next to a function 
 `ContextName` globals whose mapped type is `MessageListeners`, the camera and world streamer objects, the double list and tree
 resets of lists whose element type is unknown, float and matrix expressions that read other globals, and the initializers
 and stubs whose class is only an address (`sub_...`).
+
+### sn-cc: the range before it (0x10D4C7B0 - 0x10D60000)
+
+The range holds only initializers (1096 functions, all initializers; the stubs they register lie at 0x10D80FE0 - 0x10D85540 and
+are annotated with them). Done with the same forms as above: 92 initializers of units that are reconstructed (the fight item
+enum tables and names, `ai`, `motion`, `scenario`, `online`, the ambient vehicle behaviour) went into those units' sources, the
+other 965 into data-only units `engine/statics/` (`inputnames.cpp` 0x10D4C7B0 - 0x10D50000, `aifightitemnames.cpp`,
+`charactertypenames.cpp`, `incidentnames.cpp`, `mixnames.cpp`, `audiodrivernames.cpp`, `hudnames.cpp`). 24 of the enum tables
+already had a mapped global in a `proto::fightitems` namespace (declared `extern` in the data headers): they are defined in that
+namespace, in the static unit that holds their run, and their mapped size was corrected.
+- `const` names (`gNoButtonHint`, `gPackageLoadSlotGroup`) keep external linkage with `extern const ... g(...)`; one-entry enum
+  tables are written with the entry count 1.
+- A run of `Name` constructions at 8-byte steps followed by a default construction is an array with one more element than
+  initializers (`tablenames.cpp`: the input and axis name arrays, the leg names with `Name(0, 1)` as the last element); three names
+  with two floats per element form a struct array (ground spike names, float constants from the pool and `engine::camera::gThree`);
+  `{ core::Hash64(text, 0), 20.0f }` elements store the hash straight into the element (the effect scale table).
+- Four names are built from a `const char*` variable the unit keeps (`statenames.cpp`, `extern const char* const g...Text`).
+- Copies and combinations of statics of a unit without code (`staticcopies.cpp`, `staticmasks.cpp`): both the source and the copy are
+  globals (a `static` source is folded by the compiler, the engine's is not), the operand order of `a | b | c | d` is the
+  reverse of the load order (the first load is the last operand written first: write the operands in address order), `sinf` of a
+  global compiles to `fsin`.
+- Colour tables converted to floats (`colourtables.cpp`): the engine converts through `cvtsi2ss` of the signed bytes, so a local
+  `(float)(int)channel * (1.0f / 255.0f)` matches where `math::Colour128(const pddiColour&)` (unsigned bit fields: `fild`) does not;
+  `pddiColour` got seven more named constants of the table at 0x111BBA24 (`GREY` ... `BROWN`, names guessed; the red one is
+  `pure3d::gDebugColour`, which is read through a cast).
+- `proto::PedBehaviourTunables` got a declared destructor (0x10434640, mapped, not defined) so that the stub of its global matches.
+- Not done (12 functions, 0x10D53530, 0x10D54F00, 0x10D5C100, 0x10D5C140, 0x10D5C2E0, 0x10D5C400, 0x10D5C4D0, 0x10D5D750,
+  0x10D5D870, 0x10D5D940, 0x10D5FA50, 0x10D5FCF0): the property tables of the audio mix and helicopter / vehicle audio parameters
+  (a 64-bit name hash next to the address of a getter of a class that is not reconstructed; 0x10D5C4D0 holds about 25 elements),
+  a list whose nodes the stub frees (0x10D53530), the proto sound singletons (a global with three vftable pointers whose stub
+  restores the base class's, 0x10D5C100 / 0x10D5C140 `proto::SoundFileLoadManager`), and two constructors of arrays inside the
+  big managers at 0x1126DE08 / 0x1126E0F0 (their classes have no source yet).
 ## sn-az: the range 0x10AA0000 - 0x10AC0000 (om dynamic properties, om services, audio decoders and drivers, mgraph)
 The range (and the area up to 0x10B60000) has no assert paths; its units are template families of the om library and the
 classes of the audio and mgraph namespaces, in the order the compiler emitted them (guesses: `om/dynamicproperties.cpp`
