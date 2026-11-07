@@ -36,6 +36,7 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/bloodtoxbehaviour.h"
 #include "code/proto/behaviours/driverbehaviour.h"
 #include "code/proto/behaviours/emotionalstatebehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
@@ -765,16 +766,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(engine::Behaviour)];
-	};
-
-	class BloodtoxBehaviour : public engine::TriggerBehaviour
-	{
-	public:
-		explicit BloodtoxBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xE4 - sizeof(engine::TriggerBehaviour)];
 	};
 
 	class FormationBehaviour : public proto::SquadCommanderBehaviour

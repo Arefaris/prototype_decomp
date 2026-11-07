@@ -57,13 +57,32 @@ namespace engine
 		unsigned char unknownC[0x1C];
 	};
 
+	namespace trigger
+	{
+		class Volume;
+	}
+
 	// TriggerBehaviour: constructor 0x1083B6C0, reflection 0x1083AD50 / 0x1083B4E0
 	class TriggerBehaviour : public engine::Behaviour
 	{
 	public:
 		TriggerBehaviour(engine::GameObject* owner);
+		// 0x1083B760 / 0x1083B860: the constructors that take the volume (stored at +0xC) and a mode (+0x10)
+		TriggerBehaviour(engine::GameObject* owner, trigger::Volume* volume);
+		TriggerBehaviour(engine::GameObject* owner, trigger::Volume* volume, int mode);
+		// 0x1083AFC0 (the deleting destructor is 0x1083B290)
+		virtual ~TriggerBehaviour();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// The vftable (0x10E6F534): slots 0 (0x1083ADD0), 1 (0x1083B060), 3 (0x1083B100), 4 (0x1083ADE0), 5 (0x1083AE00)
+		// and 6 (0x1083B1D0)
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void OnActiveChanged(bool active);
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnPostedMessage(engine::Message* message);
+		virtual void OnMessage(engine::Message* message);
 
 		unsigned char unknownC[0x98];
 	};
