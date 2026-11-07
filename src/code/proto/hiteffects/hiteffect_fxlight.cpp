@@ -561,6 +561,18 @@ namespace proto
 			return falloff;
 		}
 
+		// FUNCTION: ENGINE 0x104FF260
+		math::Colour128 FXLight_PointTrack::GetStartColour() const
+		{
+			return startColour;
+		}
+
+		// FUNCTION: ENGINE 0x104FF290
+		math::Colour128 FXLight_PointTrack::GetEndColour() const
+		{
+			return endColour;
+		}
+
 		template class fight::PropertyFloatConstRange<FXLight_PointTrack>;
 		template class fight::PropertyEnumConstList<FXLight_PointTrack>;
 		template class fight::PropertyNameList<FXLight_PointTrack>;

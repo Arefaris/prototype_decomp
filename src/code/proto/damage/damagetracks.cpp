@@ -290,6 +290,66 @@ namespace proto
 	{
 	}
 
+	// FUNCTION: ENGINE 0x104FABD0
+	float DebugDamageTrack::GetDistance() const
+	{
+		return distance;
+	}
+
+	// FUNCTION: ENGINE 0x104FABE0
+	int DebugDamageTrack::GetDamageType() const
+	{
+		return damageType;
+	}
+
+	// FUNCTION: ENGINE 0x104FABF0
+	float DebugDamageTrack::GetScaleX() const
+	{
+		return scaleX;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC00
+	float DebugDamageTrack::GetScaleY() const
+	{
+		return scaleY;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC10
+	const fight::Name& DebugDamageTrack::GetDamageSource() const
+	{
+		return damageSource;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC20
+	bool CauseDamageTrack::GetForceZeroHealth() const
+	{
+		return forceZeroHealth;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC30
+	float CauseDamageTrack::GetDamage() const
+	{
+		return damage;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC60
+	const fight::Name& CauseDamageTrack::GetGrabSlot() const
+	{
+		return grabSlot;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC70
+	bool CauseDamageTrack::GetIgnoreShield() const
+	{
+		return ignoreShield;
+	}
+
+	// FUNCTION: ENGINE 0x104FAC80
+	bool CauseDamageTrack::GetSendAlert() const
+	{
+		return sendAlert;
+	}
+
 	// FUNCTION: ENGINE 0x104FB4B0
 	fight::Action* DebugDamageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 	{

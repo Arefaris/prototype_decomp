@@ -93,6 +93,9 @@ namespace proto
 			float GetFlickerRadiusMag() const;
 			float GetFlickerRadiusMagRand() const;
 			bool GetFalloff() const;
+			// 0x104FF260 / 0x104FF290
+			math::Colour128 GetStartColour() const;
+			math::Colour128 GetEndColour() const;
 
 			// The property list, built once and freed again
 			static void RegisterProperties();
