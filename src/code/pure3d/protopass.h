@@ -497,9 +497,15 @@ namespace pure3d
 		unsigned char unknownF4[4];
 	};
 
+	// 0x111BBA54: the colour a view pass is cleared to unless told otherwise (name guess)
+	extern const unsigned int gViewClearColour;
+
 	// What a view pass is made from (RTTI pure3d::ViewPassDesc, a struct; names guessed)
 	struct ViewPassDesc : public PassDesc
 	{
+		// 0x10719390: the defaults of a view (the colour 0x111BBA54, every buffer cleared, the first level of views)
+		explicit ViewPassDesc(const void* name);
+
 		PassColour clearColour; // +0x18
 		unsigned int clearMask; // +0x1C
 		unsigned int viewLevel; // +0x20

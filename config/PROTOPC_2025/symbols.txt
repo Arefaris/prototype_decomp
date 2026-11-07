@@ -102784,3 +102784,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??$SafeRelease@VdxShader@pure3d@@@core@@YAXAAPAVdxShader@pure3d@@@Z = 0x10705250 ; function size:0x1A | template instance (name guess)
 ??1Shader@pure3d@@UAE@XZ = 0x10705280 ; function size:0x1D | pure3d::Shader destructor (name guess)
 ??_GShader@pure3d@@UAEPAXI@Z = 0x107060E0 ; function size:0x1E | pure3d::Shader scalar deleting destructor
+?gViewClearColour@pure3d@@3IB = 0x111BBA54 ; data size:0x4 | pure3d::gViewClearColour: the colour a view pass is cleared to (name guess)
+??0ViewPassDesc@pure3d@@QAE@PBX@Z = 0x10719390 ; function size:0x3A | pure3d::ViewPassDesc constructor (name guess)
+??_R0?AUViewPassDesc@pure3d@@@8 = 0x111377D0 ; data | data RTTI type descriptor of ?AUViewPassDesc@pure3d@@
+??_GViewPassDesc@pure3d@@UAEPAXI@Z = 0x10719510 ; function size:0x1F | pure3d::ViewPassDesc scalar deleting destructor

@@ -5,6 +5,16 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10719390
+	ViewPassDesc::ViewPassDesc(const void* name) : PassDesc(name, 1)
+	{
+		clearColour.bits = gViewClearColour;
+		clearMask = 0xFFFFFFFF;
+		viewLevel = 0;
+		shadowView = true;
+		unknown25 = true;
+	}
+
 	// FUNCTION: ENGINE 0x107191B0
 	RootPass* ProtoRenderScheme::CreateRootPass(const RootPassConfig* config)
 	{
