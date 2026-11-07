@@ -6,6 +6,80 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1072EAA0
+	void VertexOffsetList::SetPosition(int vertex, const math::Vector* offset)
+	{
+		math::Vector* at = &positionOffsets[vertex];
+		at->x = offset->x;
+		at->y = offset->y;
+		at->z = offset->z;
+	}
+
+	// FUNCTION: ENGINE 0x1072EAD0
+	void VertexOffsetList::SetNormal(int vertex, const math::Vector* offset)
+	{
+		math::Vector* at = &normalOffsets[vertex];
+		at->x = offset->x;
+		at->y = offset->y;
+		at->z = offset->z;
+	}
+
+	// FUNCTION: ENGINE 0x1072EB00
+	void VertexOffsetList::SetTexCoords(int vertex, const math::Vector2* offset, int set)
+	{
+		math::Vector2* at = &texCoordOffsets[set][vertex];
+		at->x = offset->x;
+		at->y = offset->y;
+	}
+
+	// FUNCTION: ENGINE 0x10730590
+	// NONMATCHING: the engine adds the old offset first to the first component and the new one first to the others (93.7 %)
+#ifdef NONMATCHING
+	void VertexOffsetList::AddPosition(int vertex, const math::Vector* offset)
+	{
+		positionOffsets[vertex].Add(*offset, positionOffsets[vertex]);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x107305D0
+	// NONMATCHING: the engine adds the old offset first to the first component and the new one first to the others (93.7 %)
+#ifdef NONMATCHING
+	void VertexOffsetList::AddNormal(int vertex, const math::Vector* offset)
+	{
+		normalOffsets[vertex].Add(*offset, normalOffsets[vertex]);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10730610
+	// NONMATCHING: the engine adds the old offset first to the first component and the new one first to the others (93.7 %)
+#ifdef NONMATCHING
+	void VertexOffsetList::AddUnknown18(int vertex, const math::Vector* offset)
+	{
+		unknown18[vertex].Add(*offset, unknown18[vertex]);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10730650
+	// NONMATCHING: the engine adds the old offset first to the first component and the new one first to the others (93.7 %)
+#ifdef NONMATCHING
+	void VertexOffsetList::AddTangent(int vertex, const math::Vector* offset)
+	{
+		tangentOffsets[vertex].Add(*offset, tangentOffsets[vertex]);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1072EA80
+	math::Vector2* VertexOffsetList::GetTexCoordOffsets(int set)
+	{
+		return texCoordOffsets[set];
+	}
+
+	// FUNCTION: ENGINE 0x1072EA90
+	VertexOffsetList::ColourOffset* VertexOffsetList::GetColourOffsets(int set)
+	{
+		return colourOffsets[set];
+	}
+
 	// FUNCTION: ENGINE 0x1073EF40
 	void VertexOffsetList::BlendPosition(int vertex, const math::Vector* target, float weight)
 	{

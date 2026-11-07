@@ -9,12 +9,6 @@
 
 namespace pure3d
 {
-	// What the controller keeps at +0x160 (the joint mask is at +0x10)
-	struct PoseAnimationInfo
-	{
-		unsigned char unknown0[0x10];
-		JointMask* mJointMask;
-	};
 }
 
 #endif

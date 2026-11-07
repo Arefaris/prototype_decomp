@@ -26,6 +26,7 @@ namespace pure3d
 {
 	class PartBinding;
 	class dxVertexBuffer;
+	class Mesh;
 	class dxIndexBuffer;
 	class Shader;
 	class PrimBuffer;
@@ -131,6 +132,8 @@ namespace pure3d
 		virtual ~VertexOffsetList();
 		// 0x1073F220
 		void Prepare();
+		// 0x1073F8B0: writes the vertices of the mesh into the buffer with the offsets added
+		void ApplyTo(Mesh* mesh, dxVertexBuffer* buffer);
 		// 0x1073F880: the flag word
 		unsigned int GetFlags();
 		// 0x1073F300 / 0x1073F350 / 0x1073F3A0 / 0x1073F400: make the storage of a kind (when it has none)
@@ -152,6 +155,18 @@ namespace pure3d
 		void BlendNormal(int vertex, const math::Vector* target, float weight);
 		void BlendUnknown18(int vertex, const math::Vector* target, float weight);
 		void BlendTangent(int vertex, const math::Vector* target, float weight);
+		// 0x1072EAA0 / 0x1072EAD0 / 0x1072EB00: set the offset of a vertex
+		void SetPosition(int vertex, const math::Vector* offset);
+		void SetNormal(int vertex, const math::Vector* offset);
+		void SetTexCoords(int vertex, const math::Vector2* offset, int set);
+		// 0x10730590 / 0x107305D0 / 0x10730610 / 0x10730650: add to the offset of a vertex
+		void AddPosition(int vertex, const math::Vector* offset);
+		void AddNormal(int vertex, const math::Vector* offset);
+		void AddUnknown18(int vertex, const math::Vector* offset);
+		void AddTangent(int vertex, const math::Vector* offset);
+		// 0x1072EA80 / 0x1072EA90: the offsets of a texture coordinate set and of a colour set
+		math::Vector2* GetTexCoordOffsets(int set);
+		ColourOffset* GetColourOffsets(int set);
 		// 0x1073F100 / 0x1073F150
 		void BlendTexCoords(int vertex, const math::Vector2* target, int set, float weight);
 		void BlendColour(int vertex, const ColourOffset* target, int set, float weight);
@@ -180,6 +195,12 @@ namespace pure3d
 		virtual ~VertexOffsetExpressionMixer();
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
+		// 0x10730AF0 / 0x10730B00 / 0x10730B20 / 0x10730C50: the number of weights, one weight (setting it marks the mix as
+		// changed), the weight of an expression and all of them set to zero
+		int GetWeightCount();
+		void SetWeight(int index, float weight);
+		float GetWeight(int index);
+		void ClearWeights();
 		// 0x10731700: prepares the expression and mixes the state into it
 		void Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 		// 0x10731630
@@ -266,6 +287,9 @@ namespace pure3d
 		void Unknown10730C10(void* target);
 		// 0x10730BA0: all weights zero and unchanged
 		void Clear();
+		// 0x10730BC0 / 0x10730BF0: the number of weights and the weight of an expression
+		int GetWeightCount();
+		float GetWeight(int index);
 		// 0x10730BD0
 		void SetWeight(int index, float newWeight);
 		// 0x10730C00
@@ -288,12 +312,35 @@ namespace pure3d
 		} mArray;
 	};
 
+	// RTTI: pure3d::VertexDeformRegion (base RefCounted, 4 slots; 0x68 bytes with the part the deformations that derive from it
+	// add): the region of a mesh a deformation moves vertices in
+	class Mesh;
+
 	class VertexDeformRegion : public RefCounted
 	{
+	public:
+		// 0x1072EB40; the destructor is 0x1072F0D0 and the scalar deleting destructor 0x1072F880
+		VertexDeformRegion();
+		virtual ~VertexDeformRegion();
+		// Slot 3: pure
+		virtual void Deform(float* weights, const math::Matrix* transform) = 0;
+		// 0x1072F0F0: takes a reference to the mesh the region deforms
+		void SetMesh(Mesh* mesh);
+		// 0x1072EB70: sets the vector at +0x1C (name guess)
+		void SetUnknown1C(const math::Vector* value);
+		// 0x1072EB90: takes the position of a matrix and keeps its inverse
+		void SetTransform(const math::Matrix& transform);
+
+		Mesh* mMesh;
+		bool mChanged;
+		unsigned char unknownD[3];
+		// The position the region is at, the vector at +0x1C and the inverse of the region's matrix
+		math::Vector mPosition;
+		math::Vector unknown1C;
+		unsigned char mInverse[0x40];
 	};
 
 	struct JointChannels;
-	struct PoseAnimationInfo;
 
 	// Bases in the RTTI: BlendFrameController, AnimationFrameController
 	class PoseAnimationController : public BlendFrameController
@@ -301,6 +348,8 @@ namespace pure3d
 	public:
 		// 0x10732120 (0x168 bytes)
 		PoseAnimationController();
+		// 0x10732F60; the scalar deleting destructor is 0x107343B0
+		virtual ~PoseAnimationController();
 
 		// Slots 3 (0x10734490), 4 (0x10733040), 10 (0x10733080), 22 (0x10732FD0), 24 (0x10732180: a pose animation), 26
 		// (0x10733270), 27 (0x107332D0), 29 (0x10732170) and the clone (0x10734460) are the controller's own
@@ -323,6 +372,17 @@ namespace pure3d
 		Pose* GetPose();
 		void SetPose(Pose* pose);
 
+		// 0x107321C0: the number at +0x114, kept between 0 and 1 (name guess)
+		void SetUnknown114(float value);
+		// 0x10732200 / 0x10732210: the partition of the skeleton the controller drives, and the one of that name (the
+		// skeleton's own lookup when the pose has no such partition)
+		void SetPartition(Skeleton::Partition* partition);
+		void SetPartition(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x10732DB0: finds the channels of every joint of the pose in each animation, when an animation or the pose
+		// changed (name guess)
+		void FindChannels();
+		// 0x10732250: sets the time of every joint of the partition of that name in the times of an animation
+		void SetPartitionFrameTime(const core::Name<core::CaseSensitiveKey>& name, float time, int animation);
 		// 0x10734460's clone runs the copy constructor 0x107343D0
 		PoseAnimationController(const PoseAnimationController& other);
 		// 0x10732D40: takes the frame times of the animations for the pose's joints (when mUseFrameTimes)
@@ -330,17 +390,22 @@ namespace pure3d
 
 		unsigned char unknown10C[4];
 		Pose* mPose;
-		unsigned char unknown114[0x1C];
+		float unknown114;
+		// How many joints the channel and frame time arrays have room for, and the channels of the joints for each of
+		// the five animations (one block, the animation's joints one after the other)
+		unsigned int mJointCapacity;
+		JointChannels* mChannels[5];
 		// The time each animation was last applied at, for the root motion of the next application (name guess)
 		float mPreviousTimes[5];
 		bool mAnimationChanged;
 		bool mUseFrameTimes;
 		unsigned char unknown146[2];
-		float* mFrameTimes;
-		unsigned char unknown14C[0x10];
+		// The time of every joint, for each of the five animations
+		float* mFrameTimes[5];
 		bool mAnimatesRoot;
 		unsigned char unknown15D[3];
-		PoseAnimationInfo* mInfo;
+		// The partition of the skeleton the controller drives (the root partition when it names none)
+		Skeleton::Partition* mInfo;
 		unsigned char unknown164[4];
 	};
 
@@ -373,6 +438,18 @@ namespace pure3d
 		VertexDeformRegion** end;
 	};
 
+	// RTTI: pure3d::VertexEllipseRegionDeformation (base VertexDeformRegion, 4 slots): the region is an ellipsoid whose
+	// semi-axes are the vector at +0x1C
+	class VertexEllipseRegionDeformation : public VertexDeformRegion
+	{
+	public:
+		// 0x1072F110; the destructor is 0x1072F120 and the scalar deleting destructor 0x1072F8A0
+		VertexEllipseRegionDeformation();
+		virtual ~VertexEllipseRegionDeformation();
+		// Slot 3 (0x1072F980): adds how deep into the region each vertex of the mesh lies to the weights
+		virtual void Deform(float* weights, const math::Matrix* transform);
+	};
+
 	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
 	// FrameController): the controller that follows a vertex region. Its slots 24 - 28 are its own.
 	class VertexRegionAnimController : public SimpleFrameController
@@ -403,6 +480,12 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1072ED30: the byte at +0xD8 (a mesh state's controller of this kind answers whether it is moving)
 		bool GetUnknownD8();
+		// 0x1072F510: recomputes the weights of the regions when something changed; false when nothing is to be done
+		bool UpdateWeights();
+		// 0x1072F150 / 0x1072FF40 / 0x1072FB20: the key frame steps of the update (name guesses)
+		void SetFromKey(int key, bool first);
+		void SetToKey(int key, unsigned int mode);
+		void ApplyKeys();
 
 		// The regions the controller follows (up to 16, +0x40 to the end pointer at +0x80), the key frames, the primitive
 		// and the state it follows with its expression, the offsets it writes for the expression's vertices, the
@@ -444,6 +527,9 @@ namespace pure3d
 		void SetMeshState(MeshState* state);
 		// 0x1073E3C0: the byte at +0x50 (name guess)
 		bool GetUnknown50();
+		// 0x1073E4B0 / 0x1073E850: the key frame steps of the update (name guesses)
+		void SetFromKey(int key, bool first);
+		void SetToKey(int key, float weight, unsigned int mode);
 
 		// The key frames (+0x40), the primitive and the state it follows (+0x44, +0x48) with its expression, whether the
 		// frame changed since the last update and the frame it showed
@@ -558,6 +644,18 @@ namespace pure3d
 			{
 				return begin[index];
 			}
+			void Clear()
+			{
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+				begin = 0;
+				end = 0;
+			}
+			// Makes room for count elements, all set to the value; false when there is none (a copy for each element
+			// type: 0x106E1950 for the segment numbers, 0x107349C0 for the channels)
+			bool Allocate(unsigned int count, const T* value);
 
 			T* begin;
 			T* end;
@@ -850,6 +948,10 @@ namespace pure3d
 		void ReleaseState(PrimitiveState* state);
 		// 0x106EE570: prepares the module's frame (called when a frame opens)
 		void Unknown106EE570();
+		// 0x106EE790: the index of the entry of that name (-1 when there is none); 0x106EE7E0: the number a kind of entry
+		// has (names guessed)
+		int FindEntry(const core::Name<core::CaseInsensitiveKey32>& name);
+		int GetEntryNumber(int index);
 		// 0x106EE6E0: the index of a parameter
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
@@ -1599,6 +1701,8 @@ namespace pure3d
 		void SetPalette(MatrixPaletteList* palettes);
 		// 0x1072DF00: the description of the index buffer (name guess)
 		void GetIndexDescription(IndexBufferDescription* description);
+		// 0x1072E3D0: the shader parameters the device is set up with
+		void GetParameters(ShaderParameters* out);
 
 		// The kind of primitive the batch carries
 		unsigned int unknown1C;
