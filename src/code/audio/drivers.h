@@ -33,16 +33,39 @@ namespace audio
 		AudioFileTypeUnknown
 	};
 
+	// A handle on what the content keeps of a file (a pointer that starts empty)
+	struct FileHandle
+	{
+		FileHandle() :
+			pointer(0)
+		{
+		}
+
+		void* pointer;
+	};
+
 	// An audio file of the content (RTTI: audio::AudioFile, an entity)
 	class AudioFile : public om::Entity
 	{
 	public:
 		// 0x10AB67F0
 		explicit AudioFile(const om::ClassName& newName);
+		// Slot 0 (0x10AB6860 is the body, the deleting destructor 0x10AB6C70)
+		virtual ~AudioFile();
+		// Slots 3, 4, 5 and 7 (0x10AB64C0 / 0x10AB64D0 / 0x10AB64E0 / 0x10AB64F0): nothing is done and nothing answered
+		virtual bool Slot3(void* argument);
+		virtual void Slot4(void* argument);
+		virtual bool Slot5(void* argument);
+		// Slot 6 (0x10AB7000): reads the file's description from a stream
+		virtual bool Slot6(void* argument);
+		virtual bool Slot7(void* argument);
+		// Slot 9 (0x10AB6850)
+		virtual om::EntityTypeBase* GetEntityType();
 		OM_ENTITY_ALLOCATION(AudioFile);
 
 		AudioFileType fileType;  // 0x20
-		char unknown24[0x10];
+		FileHandle file;  // 0x24: what the content keeps of the file (a counted handle; meaning not recovered)
+		om::String unknown28;  // 0x28
 		om::String path;  // 0x34
 	};
 
