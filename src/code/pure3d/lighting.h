@@ -3,6 +3,7 @@
 #ifndef PURE3D_LIGHTING_H
 #define PURE3D_LIGHTING_H
 
+#include "code/math/vector.h"
 #include "code/core/name.h"
 #include "code/pure3d/entity.h"
 
@@ -186,12 +187,45 @@ namespace pure3d
 		void Unknown1074F110(unsigned int index, float value);
 		float Unknown1074F130(unsigned int index);
 		void Unknown1074F4B0(unsigned int count);
+		// 0x1074ED40 - 0x1074EDF0: the setters of the settings at +0x18 - +0x4C (names unknown, the render thread's light
+		// API calls them), 0x1074EE20 - 0x1074EE90 their getters
+		void SetUnknown4C(int value);
+		void SetUnknown24(const math::Vector* value);
+		void SetUnknown18(const math::Vector* value);
+		void SetUnknown30(float value);
+		void SetUnknown34(float value);
+		void SetUnknown38(unsigned int value);
+		void SetUnknown3C(float value);
+		void SetUnknown40(float value);
+		void SetUnknown44(float value);
+		const math::Vector* GetUnknown24();
+		const math::Vector* GetUnknown18();
+		float GetUnknown30();
+		int GetUnknown38();
+		float GetUnknown3C();
+		float GetUnknown40();
+		float GetUnknown44();
+		// 0x1074EEA0 / 0x1074EEC0 / 0x1074EED0 / 0x1074EEF0: whether the kind at +0x48 is 4, is 8, is 3, 6 or 1, is 2, 5 or 4;
+		// 0x1074EF20: 1 for the last kind of them, else 2
+		bool IsKind4();
+		bool IsKind8();
+		bool IsKind361();
+		bool IsKind254();
+		int GetUnknown1074EF20();
 
 		int unknown10;
 		int unknown14;
-		unsigned char unknown18[0x1C];
+		math::Vector unknown18;
+		math::Vector unknown24;
+		float unknown30;
 		float unknown34;
-		unsigned char unknown38[0x40];
+		float unknown38;
+		float unknown3C;
+		float unknown40;
+		float unknown44;
+		int unknown48;
+		int unknown4C;
+		unsigned char unknown50[0x28];
 		struct ViewState
 		{
 			unsigned char unknown0[0x10];
