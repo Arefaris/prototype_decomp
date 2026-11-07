@@ -397,6 +397,8 @@ namespace om
 	template void* MetaEnum<audio::WAVEFORMAT>::operator new(size_t);
 	// FUNCTION: ENGINE 0x105E5AA0
 	template void* MetaMethod1<audio::RendererDriver, audio::RendererDriver, void, unsigned int>::operator new(size_t);
+	// FUNCTION: ENGINE 0x105E6C00
+	template FixedArray<unsigned int, 8>* GarbageList::Hold<FixedArray<unsigned int, 8> >(FixedArray<unsigned int, 8>*);
 	// FUNCTION: ENGINE 0x105E7CC0
 	template FixedArray<unsigned int, 8>* ReadArgument<FixedArray<unsigned int, 8> >(BinaryStream*, GarbageList*);
 

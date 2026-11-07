@@ -1356,6 +1356,10 @@ namespace om
 	template const char* MetaMethod0Const<music::CueEventSetFade, music::CueEventSetFade, const Bool32&>::AllocationTag();
 	// FUNCTION: ENGINE 0x105ED770
 	template const char* MetaProperty<const Bool32&>::AllocationTag();
+	// FUNCTION: ENGINE 0x105F3D00
+	template float* GarbageList::Hold<float>(float*);
+	// FUNCTION: ENGINE 0x105F3D50
+	template Bool32* GarbageList::Hold<Bool32>(Bool32*);
 	// FUNCTION: ENGINE 0x105ED860
 	template bool ReadBinary<music::CellPlayer::State>(BinaryStream*, music::CellPlayer::State*);
 	// FUNCTION: ENGINE 0x105ED890
