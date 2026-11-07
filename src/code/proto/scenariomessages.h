@@ -610,6 +610,11 @@ namespace proto
 		MotionStateScenarioMessage() : engine::ScenarioMessage(0x3E)
 		{
 		}
+		MotionStateScenarioMessage(engine::GameObjectHandle newObject, int newMotionState, int newPrevMotionState) :
+			engine::ScenarioMessage(0x3E), motionState(newMotionState), prevMotionState(newPrevMotionState)
+		{
+			handles[0] = newObject;
+		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 

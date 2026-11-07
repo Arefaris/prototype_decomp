@@ -1,4 +1,7 @@
 #include "code/proto/behaviours/sensesinfobehaviour.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/proto/render/setdrawablevisionflags.h"
+#include <math.h>
 
 namespace content
 {
@@ -44,10 +47,30 @@ namespace engine
 
 namespace proto
 {
+	// 0x10D969FC / 0x10D96A04: 0.00001f and 0.1f in the pooled constants
+	static const float kSensesEpsilon = 0.00001f;
+	static const float kSensesFadeSpeed = 0.1f;
+
+	float gSensesScale = 1.0f;
+	float gSensesNearValues[17] =
+	{
+		0.0f, 0.75f, 0.6f, 0.7f, 0.75f, 0.75f, 0.9f, 1.0f, 0.9f, 0.45f, 0.5f, 0.6f, 0.55f, 0.45f, 0.8f, 1.0f, 0.25f
+	};
+	float gSensesFarValues[17] =
+	{
+		0.0f, 0.75f, 0.6f, 0.5f, 0.75f, 0.75f, 0.9f, 1.0f, 0.9f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.8f, 1.0f, 0.0f
+	};
+
+	// FUNCTION: ENGINE 0x10075B90
+	void SensesInfoBehaviour::SetGlobalScale(float newScale)
+	{
+		gSensesScale = newScale;
+	}
+
 	// FUNCTION: ENGINE 0x10075B00
 	// EQUIVALENT: the vftable store and the load of the constant are scheduled differently (78.9 %)
-	SensesInfoBehaviour::SensesInfoBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner), unknownC(0.0f),
-		unknown10(0.0f), unknown14(engine::driving::gOne), sensesType(SENSES_NONE), unknown1C(false), unknown1D(false)
+	SensesInfoBehaviour::SensesInfoBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner), nearValue(0.0f),
+		farValue(0.0f), scale(engine::driving::gOne), sensesType(SENSES_NONE), active(false), fading(false)
 	{
 		Listen(7, true);
 		Listen(0x3d, true);
@@ -67,6 +90,178 @@ namespace proto
 		sInfo.code = "pn";
 		return &sInfo;
 	}
+
+	// FUNCTION: ENGINE 0x10075D10
+	void SensesInfoBehaviour::ApplyVision(engine::render::Drawable drawable)
+	{
+		if (active && owner->behaviours.requested.Test(7))
+		{
+			SetDrawableVisionFlags* modifier = new SetDrawableVisionFlags(nearValue, scale * farValue, 0);
+			drawable.ApplyModifier(modifier);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10075E60
+	void SensesInfoBehaviour::Refresh()
+	{
+		if (active)
+		{
+			engine::GetCurrentDrawable message;
+			owner->SendMessage(&message);
+			engine::render::Drawable drawable = message.drawable;
+			if (drawable.IsValid())
+			{
+				ApplyVision(drawable);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10075EF0
+	void SensesInfoBehaviour::SetNear(float value)
+	{
+		nearValue = value;
+		Refresh();
+	}
+
+	// FUNCTION: ENGINE 0x10075F10
+	void SensesInfoBehaviour::SetFar(float value)
+	{
+		farValue = value;
+		Refresh();
+	}
+
+	// FUNCTION: ENGINE 0x10075F30
+	void SensesInfoBehaviour::OnActiveChanged(bool newActive)
+	{
+		engine::Behaviour::OnActiveChanged(newActive);
+		if (newActive)
+		{
+			Refresh();
+		}
+		Listen2(8, newActive);
+	}
+
+	// FUNCTION: ENGINE 0x10075F70
+	void SensesInfoBehaviour::Slot1()
+	{
+		active = true;
+		nearValue = gSensesNearValues[sensesType];
+		farValue = gSensesFarValues[sensesType];
+		scale = gSensesScale;
+		Refresh();
+	}
+
+	// FUNCTION: ENGINE 0x10075FB0
+	void SensesInfoBehaviour::Update(float dt, unsigned short mask)
+	{
+		if (scale != gSensesScale)
+		{
+			scale = gSensesScale;
+			Refresh();
+		}
+		if (fading)
+		{
+			float step = dt * kSensesFadeSpeed;
+			float value = nearValue - step;
+			if (!(value >= 0.0f))
+			{
+				value = 0.0f;
+			}
+			float one = engine::driving::gOne;
+			if (value - one >= 0.0f)
+			{
+				value = one;
+			}
+			nearValue = value;
+			float other = farValue - step;
+			if (!(other >= 0.0f))
+			{
+				other = 0.0f;
+			}
+			if (other - one >= 0.0f)
+			{
+				other = one;
+			}
+			farValue = other;
+			Refresh();
+			if ((float)fabs((double)nearValue) <= kSensesEpsilon && (float)fabs((double)farValue) <= kSensesEpsilon)
+			{
+				fading = false;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x100760B0
+	// NONMATCHING: shrink-wrap (the engine saves edi in the entry block), and the engine builds the by-value drawable of the id 3 case in the argument area (20 %)
+#ifdef NONMATCHING
+	void SensesInfoBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 7:
+			switch ((unsigned short)message->id)
+			{
+			case 3:
+			{
+				engine::render::Drawable drawable;
+				drawable = static_cast<engine::SetCurrentDrawable*>(message)->drawable;
+				ApplyVision(drawable);
+				break;
+			}
+			case 9:
+				Refresh();
+				break;
+			}
+			break;
+		case 0x3d:
+			switch ((unsigned short)message->id)
+			{
+			case 0xe:
+			{
+				ConfigureSensesInfoMessage* configure = static_cast<ConfigureSensesInfoMessage*>(message);
+				if (configure->nearValue >= 0.0f)
+				{
+					nearValue = configure->nearValue;
+				}
+				if (configure->farValue >= 0.0f)
+				{
+					farValue = configure->farValue;
+				}
+				if (configure->fade)
+				{
+					fading = true;
+				}
+				if (configure->drawable.IsValid())
+				{
+					ApplyVision(configure->drawable);
+				}
+				else
+				{
+					Refresh();
+				}
+				break;
+			}
+			case 0xf:
+			{
+				GetSensesInfoMessage* get = static_cast<GetSensesInfoMessage*>(message);
+				get->nearValue = nearValue;
+				float value = farValue;
+				get->farValue = value;
+				if (get->scaled)
+				{
+					get->farValue = scale * value;
+				}
+				break;
+			}
+			case 0x10:
+				nearValue = gSensesNearValues[sensesType];
+				farValue = gSensesFarValues[sensesType];
+				break;
+			}
+			break;
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10075DA0
 	content::MemberList* SensesInfoBehaviour::GetMembers()
@@ -93,3 +288,6 @@ namespace proto
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10075B80
 // FUNCTION: ENGINE 0x10075CE0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10075C50

@@ -7,6 +7,8 @@
 #include "code/content/enummetatype.h"
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/engine/render/async/drawable.h"
+#include "code/proto/render/deformshaderbehaviour.h"
 
 namespace proto
 {
@@ -32,6 +34,56 @@ namespace proto
 		SENSES_PEDESTRIAN = 16
 	};
 
+	// RTTI: proto::ConfigureSensesInfoMessage (message type 0x3D, id 0xE): sets the values; a negative value leaves the
+	// old one (the member names are guesses)
+	struct ConfigureSensesInfoMessage : public ProtoRenderMsg
+	{
+		ConfigureSensesInfoMessage(engine::render::Drawable newDrawable, float newNear, float newFar, bool newFade) :
+			ProtoRenderMsg(0xe), drawable(newDrawable), nearValue(newNear), farValue(newFar), fade(newFade)
+		{
+		}
+		virtual ~ConfigureSensesInfoMessage()
+		{
+		}
+
+		engine::render::Drawable drawable;  // +0xC
+		float nearValue;  // +0x10
+		float farValue;  // +0x14
+		bool fade;  // +0x18
+	};
+
+	// RTTI: proto::GetSensesInfoMessage (id 0xF): answers the values
+	struct GetSensesInfoMessage : public ProtoRenderMsg
+	{
+		explicit GetSensesInfoMessage(bool newScaled) : ProtoRenderMsg(0xf), nearValue(0.0f), farValue(0.0f), scaled(newScaled)
+		{
+		}
+		virtual ~GetSensesInfoMessage()
+		{
+		}
+
+		float nearValue;  // +0xC
+		float farValue;  // +0x10
+		bool scaled;  // +0x14
+	};
+
+	// RTTI: proto::ResetSensesInfoMessage (id 0x10): back to the values of the kind
+	struct ResetSensesInfoMessage : public ProtoRenderMsg
+	{
+		ResetSensesInfoMessage() : ProtoRenderMsg(0x10)
+		{
+		}
+		virtual ~ResetSensesInfoMessage()
+		{
+		}
+	};
+
+	// The values of every kind of object: how near and how far it is seen at the start (17 entries each; 0x10FED1F8 and
+	// 0x10FED240) and the scale they are applied with (0x10FED1F4)
+	extern float gSensesScale;
+	extern float gSensesNearValues[17];
+	extern float gSensesFarValues[17];
+
 	class SensesInfoBehaviour : public engine::Behaviour
 	{
 	public:
@@ -48,12 +100,22 @@ namespace proto
 		virtual void Update(float dt, unsigned short mask);
 		virtual void OnMessage(engine::Message* message);
 
-		float unknownC;
-		float unknown10;
-		float unknown14;
+		// 0x10075B90: the scale every object's senses are seen with (names guessed)
+		static void SetGlobalScale(float scale);
+		// 0x10075D10: hands the drawable a modifier with the values
+		void ApplyVision(engine::render::Drawable drawable);
+		// 0x10075E60: asks the object for its drawable and applies the values
+		void Refresh();
+		// 0x10075EF0 / 0x10075F10
+		void SetNear(float value);
+		void SetFar(float value);
+
+		float nearValue;  // +0xC
+		float farValue;  // +0x10
+		float scale;  // +0x14
 		SensesType sensesType;  // +0x18
-		bool unknown1C;
-		bool unknown1D;
+		bool active;  // +0x1C
+		bool fading;  // +0x1D
 	};
 }
 

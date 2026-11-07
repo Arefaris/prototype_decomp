@@ -258,6 +258,33 @@ namespace engine
 		// The object is 0x20 bytes
 		int unknown1C;
 	};
+
+	// Tells a game object which drawable it has now (RTTI name engine::SetCurrentDrawable; message type 7, id 3; the
+	// constructor is inline in the engine, the name is the drawable's name)
+	struct SetCurrentDrawable : public IntrusiveMessage
+	{
+		SetCurrentDrawable(render::Drawable newDrawable, const core::Name<core::CaseSensitiveKey>& newName) :
+			IntrusiveMessage(7, 3), drawable(newDrawable), name(newName)
+		{
+		}
+		virtual ~SetCurrentDrawable()
+		{
+		}
+
+		render::Drawable drawable;  // +0xC
+		core::Name<core::CaseSensitiveKey> name;  // +0x10
+	};
+
+	// Asks a game object to make its drawable (RTTI name engine::RenderCreateDrawableMessage; message type 7, id 9)
+	struct RenderCreateDrawableMessage : public IntrusiveMessage
+	{
+		RenderCreateDrawableMessage() : IntrusiveMessage(7, 9)
+		{
+		}
+		virtual ~RenderCreateDrawableMessage()
+		{
+		}
+	};
 }
 
 #endif

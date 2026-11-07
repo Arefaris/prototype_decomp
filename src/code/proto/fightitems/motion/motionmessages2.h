@@ -580,6 +580,18 @@ namespace proto
 		}
 	};
 
+	// RTTI: proto::VariableIntSetMessage: sets the value of an integer variable (the members behind the value are guesses)
+	class VariableIntSetMessage : public VariableIntMessage
+	{
+	public:
+		VariableIntSetMessage(const core::Name<core::CaseSensitiveKey>& newVariable, int newValue, bool newFlag) : VariableIntMessage(1, newVariable, newValue), flag(newFlag)
+		{
+		}
+
+		bool flag;  // +0x20
+		int unknown24;
+	};
+
 	// RTTI: proto::VariableNameMessage: the base of the messages about a name variable
 	class VariableNameMessage : public FightVariablesMessage
 	{
