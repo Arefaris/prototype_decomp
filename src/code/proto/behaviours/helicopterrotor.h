@@ -96,6 +96,34 @@ namespace proto
 		int unknown54;
 	};
 
+	// Turns the rotors on or off (message type 0x31, id 0x17; no destructor of its own in the engine's copy)
+	struct SetTurnOnRotorStateMessage : public engine::Message
+	{
+		explicit SetTurnOnRotorStateMessage(bool newTurnOn) : engine::Message(0x31, 0x17)
+		{
+			turnOn = newTurnOn;
+		}
+		virtual ~SetTurnOnRotorStateMessage()
+		{
+		}
+
+		bool turnOn;  // +0xC
+	};
+
+	// Sets how long the rotors take to change their power (message type 0x31, id 0x18)
+	struct SetRotorPowerChangeTimeMessage : public engine::Message
+	{
+		explicit SetRotorPowerChangeTimeMessage(float newTime) : engine::Message(0x31, 0x18)
+		{
+			time = newTime;
+		}
+		virtual ~SetRotorPowerChangeTimeMessage()
+		{
+		}
+
+		float time;  // +0xC
+	};
+
 	// Turns the rotors of a helicopter
 	class HelicopterRotorAnimationBehaviour : public engine::Behaviour
 	{
@@ -106,10 +134,17 @@ namespace proto
 		static content::ClassInfo* GetClassInfo(); //@0x1030FFC0
 		static content::MemberList* GetMembers();
 
+		// vftable slot 1 (0x10310560) and the update (slot 4, 0x103105F0): left to the engine; slot 6 (0x10310000)
+		// takes the rotor messages; slot 7 is the deleting destructor (0x103117A0)
+		virtual void Slot1();
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnMessage(engine::Message* message);
+		virtual ~HelicopterRotorAnimationBehaviour(); //@0x10311680
+
 		RotorArray rotors;  // +0xC
 		int unknown18;
-		float unknown1C;
-		bool unknown20;
+		float rotorPowerChangeTime;  // +0x1C
+		bool rotorsOn;  // +0x20
 		HelicopterSolverGenericProperties* genericProperties;  // +0x24
 	};
 }
