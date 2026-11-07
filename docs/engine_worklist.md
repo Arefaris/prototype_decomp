@@ -7523,3 +7523,25 @@ Units extended in `src/code/proto/fightitems/motion/` (the action half sits betw
 - `mgraph/nodes.h`, `abstraction.cpp`: `Abstraction` (the contained graph at 0x58, the link in the graph's list at 0x50), `LinkedGraph` (one channel, the abstracted name at 0x60) and `EmbeddedGraph`: attach, detach, channel count, enabled channels, channel reset. `Node::Slot12` is `SetChannelEnabled(unsigned int, bool)`.
 - What the pass taught: (1) the engine's inline helpers that turn a link into the object around it (`link ? link - 4 : 0`) compile to the shape `if (x != 0) r = ...; else r = 0; return r;` in a `__forceinline` function; a ternary or an early return lets the optimiser remove the second test. (2) A pair of list pointers passed as `NodeLink**` (`list[0]` head, `list[1]` tail) gives the engine's address arithmetic for a list that sits inside another object (`add eax, 0x3C` before the first compare). (3) The largest part of the range is dead template copies: the same template instance (`ReadText<audio::BufferLocation>`, `MetaClass<T>::Slot5`, ...) exists at several addresses and only one of them can be bound to the source's instance; the rest cannot be reconstructed.
 - Not done: the Direct sound driver (its class is spread over 0x10ABC000 - 0x10AC0F10, the device code and model are 2.5 KB), `Graph` destructor / `Slot3` .. `Slot8` (the XML and binary reading and writing), `Context::SetNodeLevel` (0x10AC46F0) and the evaluation (0x10AC4A40), the node reflection registration functions (shrink-wrap), the pins' base constructors and destructors (`Pin::Pin` at 0x10B6A600 is outside the range), `Abstraction` destructor / `SetInnerGraph` (0x10ACCF00).
+
+## 0x10840000 - 0x10860000 (sn-dn): the game link, the world stream manager, the render task, the database lists
+- `engine/gamelink.*` (0x108537E0 - 0x10854060): `GameLinkManager` is the RTTI name of what was guessed as the service pump (base
+  `ISimulationTask`, 0x20 bytes: the net library's link at +4, the serializer's Lua reference at +8, the heap, the pending count, the
+  connection and session of the other end, an inline `NetMessageAllocatorDynamic`). Its update, Lua receive, forward, text/packet
+  sends, serializer bind/release, connect/disconnect, destructor, creation and destruction match. The constructor is NONMATCHING
+  (the engine keeps the constant 0x70000 in ebx). The net library's link, packet, session and connection are only declared
+  (`NetLink`, `NetPacket`, `NetSession`, `NetConnection`; names guessed). `ServicePump` / `GetServicePump` were renamed.
+- `engine/system/worldstreammanager.*`: the zone number, the stream driver update (the function at +0x40 is a callback taking 1),
+  the trigger loaded checks and the trigger collection, `StreamMessage` (streamtriggermessages.h also holds the
+  `StreamTriggerInfoMessage` query) and the kept copies of the trigger lists. `IsTriggerLoadedFor` (0x108544E0) is NONMATCHING
+  (43.6 %: the engine keeps the result in bl on its early exits, ours folds them to xor al, al).
+- `engine/render/drawableregistry.cpp`: `RenderTask` (RTTI; IRealTimeTask at +0, ISimulationTask at +4; the old guess
+  `DrawableRegistry` is renamed, midgroundmanager.cpp's local declaration with it): constructor, the step update, Add / Remove and
+  the kept copies of its fixed list of presentation tasks (`ArrayFixed<PresentationTask*, 16>`, which got `Erase`). Not done: its
+  real-time update (0x10849190, 651 bytes).
+- `engine/database/dbsubject.cpp`: eight more kept copies of the observer / change lists (`SList::Iterator::operator->` / `==` /
+  post-increment, `ValueNode(const T&)`, `PopFrontAndFree`, `RemoveAfterAndFree`; slist.h got those members).
+- Blocked in the rest of the range: the unnamed audio mixer / dialogue structures (0x10855xxx - 0x1085AFFF), the OLS services
+  (nine unnamed interfaces at +0x78 - +0xA8), the decal creators, the 24-byte heap sort instances (no named element type), the
+  red-black tree instances per key type, and inline class members the engine emitted without a caller (HealthBehaviour 0x10847E70
+  - 0x10847E90, cannot be emitted from the sources).
