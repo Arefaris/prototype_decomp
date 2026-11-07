@@ -90,6 +90,33 @@ namespace proto
 			void RegisterTokenSetFloatDelayTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ReactionFloatAction (9 vftable slots, 0x48 bytes): lets the object float after the hit
+			class ReactionFloatAction : public fight::Action
+			{
+			public:
+				// 0x10107CF0
+				ReactionFloatAction(ReactionFloatTrack* newTrack, TrackOwner* owner);
+				// 0x10107B00
+				virtual ~ReactionFloatAction();
+
+				// vftable slot 5 (0x10107DE0, the engine's)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10107B50)
+				virtual void Slot6();
+				// vftable slot 7 (0x10108090, the engine's)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				float unknown20;  // +0x20
+				core::IRefCount* event;  // +0x24
+				choreo::Driver* driver;  // +0x28
+				float unknown2C;  // +0x2C
+				core::Link<ReactionFloatTrack> link;  // +0x30
+				float unknown3C;  // +0x3C
+				float unknown40;  // +0x40
+				float unknown44;  // +0x44
+			};
+
 			// RTTI: proto::fightitems::motion::TokenSetFloatDelayAction (9 vftable slots, 0x2C bytes)
 			class TokenSetFloatDelayAction : public fight::Action
 			{

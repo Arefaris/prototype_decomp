@@ -215,6 +215,44 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x10107CF0
+			// NONMATCHING: registers, the engine keeps the owner in ebx and the zero in ebp (best 86 %)
+#ifdef NONMATCHING
+			ReactionFloatAction::ReactionFloatAction(ReactionFloatTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), target(owner->handle), unknown20(0.0f), event(0), driver(0), unknown2C(0.0f), link(newTrack), unknown3C(0.0f), unknown40(0.0f), unknown44(0.0f)
+			{
+				engine::AssignRefCountedCopy3(&event, (owner->kind == 0x21001) ? owner : 0);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10107B00
+			ReactionFloatAction::~ReactionFloatAction()
+			{
+				core::SafeReleaseRefCopy3(&event);
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x10107B50
+			void ReactionFloatAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x101083D0
+			fight::Action* ReactionFloatTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				TrackOwner* actionOwner = AsActionOwner(owner);
+				return new ReactionFloatAction(this, actionOwner);
+			}
+
 			// FUNCTION: ENGINE 0x101082A0
 			TokenSetFloatDelayAction::TokenSetFloatDelayAction(TokenSetFloatDelayTrack* newTrack, TrackOwner* owner) : fight::Action(0xE00), target(owner->handle), link(newTrack)
 			{
