@@ -11,6 +11,16 @@ void* operator new(unsigned int size, int heap);
 
 namespace engine
 {
+	class SyncCommands
+	{
+	public:
+		class SyncCallback;
+	};
+
+	// 0x10838B40 / 0x10838B80 (gamestate.cpp): switch to a state, or put one on top of the current one
+	void RequestGameState(int state, int mode, SyncCommands::SyncCallback* callback);
+	void RequestGameStateOverlay(int state, int mode, SyncCommands::SyncCallback* callback);
+
 	// The game state table's functions (gamestate.cpp)
 	void AddGameState(void* stateObject, int id, int priority, int flag, int mode, int parent);
 	void FreeGameState(int id);
@@ -228,6 +238,81 @@ namespace engine
 			CloseDrive();
 			core::DestroyFiber(&gStorageFiber);
 			gStarted = false;
+		}
+
+		// GLOBAL: ENGINE 0x1131697E
+		// what the drive is asked about when it is asked whether a file of some size can be made (name guess)
+		short gRequestWord7E;
+
+		// 0x108E2D10 (another unit): shows the message of the text to the player and answers the button pressed (names guessed)
+		int ShowMessage(const char* title, const char* text, int buttons, core::Fiber* fiber, void* extra);
+
+		// Whether a file of that many bytes can be made on the drive (always, for none); when it cannot, the request fails and
+		// the player is told why. The size is passed in eax: the function is the unit's own.
+		// FUNCTION: ENGINE 0x10874490
+		// NONMATCHING: the engine lays the shared tail out behind the first case, ours behind the last (80.9 %)
+#ifdef NONMATCHING
+		static bool CheckSpace(int size, const char* title, bool showMessage)
+		{
+			if (size == 0)
+			{
+				return true;
+			}
+			int result;
+			gDrive->CanCreateFile((int)&gRequestWord7E, size, &result);
+			while (!gDrive->IsIdle())
+			{
+				core::SwitchFiber(gCallerFiber);
+			}
+			const char* text;
+			switch (result)
+			{
+			case 0:
+				return true;
+			default:
+				text = "$GeneralFailure";
+				break;
+			case 7:
+				text = "$NoFreeSpace";
+				break;
+			case 0xE:
+				text = "$MemoryQuotaExceeded";
+				break;
+			case 0x11:
+				text = "$NoFreeFiles";
+				break;
+			case 0x12:
+				text = "$FileQuotaExceeded";
+			}
+			gResult = gDefaultResult;
+			if (showMessage)
+			{
+				ShowMessage(title, text, 1, gCallerFiber, 0);
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x10874880
+		// NONMATCHING: calls CheckSpace
+		bool Unknown10874880()
+		{
+			return CheckSpace(0, "$ProfileLoad", true);
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x108741B0
+		void RequestState()
+		{
+			RequestGameState(4, 2, 0);
+		}
+
+		// FUNCTION: ENGINE 0x108741C0
+		void RequestStateOverlay()
+		{
+			if (gState->busy)
+			{
+				RequestGameStateOverlay(4, 2, 0);
+			}
 		}
 
 		// FUNCTION: ENGINE 0x10874800

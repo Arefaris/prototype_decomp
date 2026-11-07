@@ -6,6 +6,15 @@
 
 namespace engine
 {
+	// Whether the texts made for the keyboard are looked for first (0x111D0390, set at start-up; name guessed)
+	extern bool gUseKeyboardTexts;
+
+	// FUNCTION: ENGINE 0x108732E0
+	void SetUseKeyboardTexts(bool value)
+	{
+		gUseKeyboardTexts = value;
+	}
+
 	// FUNCTION: ENGINE 0x10873F30
 	const char* GetLocalizedText(const char* key)
 	{
