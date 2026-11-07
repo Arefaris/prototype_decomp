@@ -949,11 +949,15 @@ namespace proto
 				return result;
 			}
 			// FUNCTION: ENGINE 0x100D8920
+			// NONMATCHING: the engine keeps the track in ecx and addresses the name with lea where ours adds to the loaded pointer (93.8 %)
+#ifdef NONMATCHING
 			void HunterShortRangeHopCornerAction::ActivateNewSupportingLimb(engine::GameObject* object)
 			{
-				if (!link.Get()->newSupportingLimb.IsEmpty())
+				HunterShortRangeHopCornerTrack* track = link.Get();
+				const fight::Name& limbName = track->newSupportingLimb;
+				if (!limbName.IsEmpty())
 				{
-					engine::FindSupportingLimbMessage find(link.Get()->newSupportingLimb);
+					engine::FindSupportingLimbMessage find(limbName);
 					object->SendMessage(&find);
 					if (find.limb != 0)
 					{
@@ -962,6 +966,8 @@ namespace proto
 					}
 				}
 			}
+#endif
+
 
 			// FUNCTION: ENGINE 0x100D89E0
 			void HunterShortRangeHopCornerAction::Slot6()
