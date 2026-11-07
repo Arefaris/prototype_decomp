@@ -7,17 +7,17 @@
 namespace engine
 {
 	// The interface the main loop calls the game through (RTTI engine::IGame: eleven pure virtual functions)
-	class IGame
+	struct IGame
 	{
 	public:
-		virtual void Slot0() = 0;
+		virtual void Slot0(int unused) = 0;
 		virtual void Slot1() = 0;
 		virtual void Slot2() = 0;
 		virtual void Slot3() = 0;
 		virtual void Slot4() = 0;
 		virtual void Slot5() = 0;
-		virtual void Slot6() = 0;
-		virtual void Slot7() = 0;
+		virtual const char* Slot6() = 0;
+		virtual const char* Slot7() = 0;
 		virtual void Slot8() = 0;
 		virtual void Initialize(int unused) = 0;
 		virtual void Slot10() = 0;
@@ -57,16 +57,22 @@ namespace proto
 	class GameEngine : public engine::IGame
 	{
 	public:
-		// The vftable (0x10E19CB0). The first function is declared and never defined, so the vftable stays with the
-		// engine's copy of the unit.
-		virtual void Slot0();
+		// 0x104E1EB0
+		GameEngine();
+
+		// The vftable (0x10E19CB0). Slot 0 is an empty function (0x104E1620), slot 1 makes the heaps (0x104E1ED0),
+		// slot 2 destroys them again (0x104E1630), slots 3 - 5 reset the systems the game states use (0x104E1810,
+		// 0x104E19B0, 0x104E19E0), slot 6 answers the registry key the game keeps its settings under and slot 7 the
+		// name of the language setting (0x104E1A10, 0x104E1A20); slots 8 (0x104E3000) and 10 (0x104E2620, the
+		// shut down) are left to the engine.
+		virtual void Slot0(int unused);
 		virtual void Slot1();
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual void Slot4();
 		virtual void Slot5();
-		virtual void Slot6();
-		virtual void Slot7();
+		virtual const char* Slot6();
+		virtual const char* Slot7();
 		virtual void Slot8();
 		// 0x104E3840: builds the managers and states of the game, the stream slot groups and the front end
 		virtual void Initialize(int unused);

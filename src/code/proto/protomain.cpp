@@ -8,8 +8,10 @@
 #include "code/core/strings.h"
 #include "code/engine/controller/defaultcontrollerhandler.h"
 #include "code/engine/frontend/frontend.h"
+#include "code/engine/fight/fightsystem.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/engine/scenario/scenariolisters.h"
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/simulationdriver.h"
 #include "code/engine/system/streampackage.h"
@@ -49,6 +51,16 @@ namespace engine
 
 	class GameState;
 
+	// 0x10832330: the initialiser of the scenario context (name guess)
+	void MakeScenarioContext();
+	// 0x10811FC0, 0x10811FB0, 0x10811FA0, 0x10811F90, 0x10811F80: empty functions the game state reset calls after the
+	// scenario listers (name guesses)
+	void Unknown10811FC0();
+	void Unknown10811FB0();
+	void Unknown10811FA0();
+	void Unknown10811F90();
+	void Unknown10811F80();
+
 	// 0x10836AB0: makes the driver the one the main loop runs
 	void SetSimulationDriver(SimulationDriver* driver);
 	// 0x10836B40: enters a game state in the table of states under its number (name guess)
@@ -59,6 +71,11 @@ namespace engine
 
 namespace proto
 {
+	// 0x102A2730: resets the systems of the fight classes between two game states (name guess)
+	void ResetFightSystems();
+	// 0x10092AF0 (fightitems/contexts.cpp): registers the fight contexts
+	void RegisterFightContexts();
+
 	// 0x1126EE20: the memory the art heaps may use (IncreaseArtHeaps takes a megabyte off it)
 	extern int gArtMemory;
 	// 0x110A0F24: the front end's data file was found
@@ -119,8 +136,22 @@ namespace proto
 
 namespace proto
 {
+	// FUNCTION: ENGINE 0x104E1EB0
+	GameEngine::GameEngine()
+	{
+		inGameState = 0;
+		frontEndState = 0;
+		pauseState = 0;
+		simulationDriver = 0;
+	}
+
+	// FUNCTION: ENGINE 0x104E1620
+	void GameEngine::Slot0(int unused)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x104E1ED0
-	void CreateGameHeaps()
+	void GameEngine::Slot1()
 	{
 		if (!engine::HasCommandLineOption("DesyncHunt"))
 		{
@@ -180,6 +211,94 @@ namespace proto
 		{
 			engine::render::gTextureLoadFlag = true;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x104E1630
+	void GameEngine::Slot2()
+	{
+		if (!engine::HasCommandLineOption("BatchMode"))
+		{
+			if (!engine::HasCommandLineOption("ExportSchema"))
+			{
+				if (!engine::HasCommandLineOption("ExportHelpFile"))
+				{
+					engine::DestroyHeap(0xB8);
+					engine::DestroyHeap(0xB6);
+					engine::DestroyHeap(0xB7);
+					engine::DestroyHeap(0xB4);
+					engine::DestroyHeap(0xB2);
+					engine::DestroyHeap(0x9F);
+					engine::DestroyHeap(0xA0);
+					engine::DestroyHeap(0x9E);
+					engine::DestroyHeap(0x70);
+					engine::DestroyHeap(0xA8);
+					engine::DestroyHeap(0xA9);
+					engine::DestroyHeap(0xA4);
+					engine::DestroyHeap(0xA2);
+					engine::DestroyHeap(0xA1);
+					engine::DestroyHeap(0xA6);
+					engine::DestroyHeap(0x9C);
+					engine::DestroyHeap(0x85);
+					engine::DestroyHeap(0x77);
+					engine::DestroyHeap(0xB9);
+					engine::DestroyHeap(0x75);
+					engine::DestroyHeap(0x74);
+					engine::DestroyHeap(0x86);
+					engine::DestroyHeap(0x72);
+					engine::DestroyHeap(0x76);
+					engine::DestroyHeap(0xAF);
+					engine::DestroyHeap(0x0C);
+					engine::DestroyHeap(0x6F);
+					engine::DestroyHeap(0x80);
+					engine::DestroyHeap(0x78);
+					engine::DestroyHeap(1);
+				}
+			}
+		}
+		engine::DestroyHeap(0x7A);
+		engine::DestroyHeap(0x0A);
+		engine::DestroyHeap(0xB5);
+		engine::DestroyHeap(0x0B);
+	}
+
+	// FUNCTION: ENGINE 0x104E1810
+	void GameEngine::Slot3()
+	{
+		ResetFightSystems();
+	}
+
+	// FUNCTION: ENGINE 0x104E19B0
+	void GameEngine::Slot4()
+	{
+		engine::MakePropLogicContext();
+		engine::MakePlaybackContext();
+		engine::MakeMotionContext();
+		engine::MakeNISContext();
+		engine::MakeScenarioContext();
+		RegisterFightContexts();
+	}
+
+	// FUNCTION: ENGINE 0x104E19E0
+	void GameEngine::Slot5()
+	{
+		engine::scenario::ResetListers();
+		engine::Unknown10811FC0();
+		engine::Unknown10811FB0();
+		engine::Unknown10811FA0();
+		engine::Unknown10811F90();
+		engine::Unknown10811F80();
+	}
+
+	// FUNCTION: ENGINE 0x104E1A10
+	const char* GameEngine::Slot6()
+	{
+		return "SOFTWARE\\Activision\\Prototype";
+	}
+
+	// FUNCTION: ENGINE 0x104E1A20
+	const char* GameEngine::Slot7()
+	{
+		return "FE_Language";
 	}
 
 	// The script wrappers the registration of the two natives builds (function.h), and the zero-argument
