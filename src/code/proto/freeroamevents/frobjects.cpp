@@ -286,3 +286,11 @@ namespace proto
 	{
 	}
 }
+
+namespace proto
+{
+	engine::GameObjectHandle gPlayerHandles[2];
+}
+
+// The dynamic initialisers and atexit stubs of the unit's names:
+// FUNCTION: ENGINE 0x10D5FF30
