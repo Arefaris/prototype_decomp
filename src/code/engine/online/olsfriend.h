@@ -54,6 +54,10 @@ namespace engine
 	// What the friend list keeps for a user the online service knows (0x38 bytes)
 	struct OLSUserRecord
 	{
+		// 0x108873A0 / 0x10887B70: the destructor lets the values go (FreeValues, 0x10887500)
+		OLSUserRecord();
+		~OLSUserRecord();
+		void FreeValues();
 		// 0x10886BB0: makes the record free again
 		void Reset();
 		// 0x10886BF0: gives the user a name

@@ -23,6 +23,30 @@ namespace engine
 	}
 #pragma inline_depth()
 
+	// FUNCTION: ENGINE 0x108873A0
+	// NONMATCHING: the engine stores the controller before the argument of the name's allocation is pushed (83.8 %)
+#ifdef NONMATCHING
+	OLSUserRecord::OLSUserRecord()
+	{
+		unknown30 = 0;
+		values = 0;
+		unknown14 = 0;
+		unknown18 = 0;
+		invite = 0;
+		flags = 0;
+		unknown24 = 0;
+		valueCount = 0;
+		controller = 0xffffffff;
+		name.Allocate(0x20);
+		Reset();
+	}
+
+	// FUNCTION: ENGINE 0x10887B70
+	OLSUserRecord::~OLSUserRecord()
+	{
+		FreeValues();
+	}
+
 	// FUNCTION: ENGINE 0x10886BB0
 	// EQUIVALENT: scheduling and register allocation (the engine keeps minus one in ecx and loads the memset arguments after
 	// the stores of minus one; 67 %)

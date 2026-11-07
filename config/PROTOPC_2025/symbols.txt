@@ -104214,3 +104214,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?SetInvite@OLSUserList@engine@@QAEHHPAUInvite@OLSUserRecord@2@PBVWideStringBuffer@2@@Z = 0x10887820 ; function size:0x4F | engine::OLSUserList::SetInvite (name guess)
 ?SetSetting@OLSLocalUser@engine@@QAEXHH@Z = 0x10888080 ; function size:0x37 | engine::OLSLocalUser::SetSetting (name guess)
 ?Set@OLSKeyTable@engine@@QAEXHHH@Z = 0x10844450 ; function size:0x1C | engine::OLSKeyTable::Set (another unit) (name guess)
+
+??0OLSUserRecord@engine@@QAE@XZ = 0x108873A0 ; function size:0x44 | engine::OLSUserRecord constructor (name guess)
+??1OLSUserRecord@engine@@QAE@XZ = 0x10887B70 ; function size:0x11 | engine::OLSUserRecord destructor (name guess)
+?FreeValues@OLSUserRecord@engine@@QAEXXZ = 0x10887500 ; function size:0x5D | engine::OLSUserRecord::FreeValues (name guess)
