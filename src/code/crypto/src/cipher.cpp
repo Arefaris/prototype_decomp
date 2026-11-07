@@ -545,3 +545,6 @@ namespace crypto
 		Expand((const char*)key, length);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1093FE90

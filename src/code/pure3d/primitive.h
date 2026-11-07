@@ -257,6 +257,10 @@ namespace pure3d
 		// weight 1 replaces the pose's values, the weight 0 keeps them. previousTime becomes time.
 		void Apply(int unknown, float time, float weight, JointChannels* channels, float* previousTime);
 
+		// 0x107321B0 / 0x107330A0: the pose the controller drives / takes the pose to drive
+		Pose* GetPose();
+		void SetPose(Pose* pose);
+
 		unsigned char unknown10C[4];
 		Pose* mPose;
 		unsigned char unknown114[0x31];

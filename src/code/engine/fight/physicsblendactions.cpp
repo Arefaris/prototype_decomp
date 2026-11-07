@@ -72,3 +72,14 @@ namespace engine
 		return new PhysicsJointBlendFactorAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1092D150
+// FUNCTION: ENGINE 0x1092D190
+// FUNCTION: ENGINE 0x1092D1A0
+// FUNCTION: ENGINE 0x1092D1E0
+// FUNCTION: ENGINE 0x1092D210
+// FUNCTION: ENGINE 0x1092D230
+// FUNCTION: ENGINE 0x1092D490
+// FUNCTION: ENGINE 0x1092D5B0
+// FUNCTION: ENGINE 0x1092D5D0

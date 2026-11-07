@@ -28,7 +28,9 @@ namespace engine
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
 
-			unsigned char unknownC[0xF0];
+			unsigned char unknownC[0xE8];
+			VehiclePhysicsAttributes* basePhysics;  // +0xF4
+			unsigned char unknownF8[4];  // the attribute of the physics object
 		};
 
 		class CarIntentionBehaviour : public VehicleIntentionBehaviour

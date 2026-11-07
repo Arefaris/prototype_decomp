@@ -198,3 +198,8 @@ namespace engine
 		return new SupportingLimbExtraLengthAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x109302B0
+// FUNCTION: ENGINE 0x109304B0
+// FUNCTION: ENGINE 0x10930690

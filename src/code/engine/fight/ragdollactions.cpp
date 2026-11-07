@@ -345,3 +345,16 @@ namespace engine
 		return new PowerRagdollByPuppetAction(this, handle);
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1092E1E0
+// FUNCTION: ENGINE 0x1092E200
+// FUNCTION: ENGINE 0x1092E220
+// FUNCTION: ENGINE 0x1092E260
+// FUNCTION: ENGINE 0x1092E2E0
+// FUNCTION: ENGINE 0x1092E400
+// FUNCTION: ENGINE 0x1092EFB0
+// FUNCTION: ENGINE 0x1092F1C0
+// FUNCTION: ENGINE 0x1092F870
+// FUNCTION: ENGINE 0x1092F9E0
+// FUNCTION: ENGINE 0x1092FAE0
