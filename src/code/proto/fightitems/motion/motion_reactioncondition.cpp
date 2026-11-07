@@ -1749,39 +1749,36 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106700
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (51.4 %)
 			bool ReactionHitFromMuscleMassCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return (hit->muscleMass == muscleMassActive) ? true : false;
+					return false;
 				}
-				return false;
+				return (hit->muscleMass == muscleMassActive) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x10106860
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
 			bool ReactionHitHitTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->hitType == hitType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				return ((hit->hitType == hitType) == doesMatch) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101068A0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
 			bool ReactionThrowHitTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionThrowEvent* thrown = AsThrowEvent(AsEvent(c));
-				if (thrown != 0)
+				if (thrown == 0)
 				{
-					return ((thrown->hitType == hitType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				return ((thrown->hitType == hitType) == doesMatch) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101068E0
@@ -1797,15 +1794,14 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106A50
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.8 %)
 			bool ReactionScriptedSubTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionScriptedEvent* scripted = AsScriptedEvent(AsEvent(c));
-				if (scripted != 0)
+				if (scripted == 0)
 				{
-					return scripted->subType == subType;
+					return false;
 				}
-				return false;
+				return scripted->subType == subType;
 			}
 
 			// FUNCTION: ENGINE 0x101067F0
