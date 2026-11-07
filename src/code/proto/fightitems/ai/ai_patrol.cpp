@@ -1,5 +1,6 @@
 // Fight items of the ai group: HasPatrolPathCondition, PatrolTrack, PathPatrolTrack (unit 0x10243760 - 0x10244160; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_patrol.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 
 namespace proto
 {
@@ -64,6 +65,24 @@ namespace proto
 			{
 				fight::ConditionFactoryCasterTemplate<HasPatrolPathCondition> caster;
 				registry->AddFactory(fight::FindConditionFactory(name, &caster));
+			}
+
+			// FUNCTION: ENGINE 0x102052B0
+			bool HasPatrolPathCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool has = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetPatrolMovementMessage message;
+					object->SendMessage(&message);
+					if (message.path != 0 && message.path->IsValid())
+					{
+						has = true;
+					}
+				}
+				bool same = has == hasPath;
+				return same;
 			}
 
 			fight::Property** gPatrolTrackProperties;  // 0x11255B24

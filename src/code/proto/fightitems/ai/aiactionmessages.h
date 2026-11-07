@@ -176,6 +176,29 @@ namespace proto
 		engine::GameObjectHandle threat;  // +0xC
 	};
 
+	// A patrol path an object follows (name guess): the handle of the object that holds the path; the methods ask that object
+	class PatrolPath
+	{
+	public:
+		// 0x10205260: whether the object of the path exists
+		bool IsValid();
+
+		engine::GameObjectHandle object;  // +0x0
+	};
+
+	// RTTI: proto::GetPatrolMovementMessage: the object answers the handle of the patrol path it follows (null when it follows none)
+	struct GetPatrolMovementMessage : public MovementMessage
+	{
+		GetPatrolMovementMessage() : MovementMessage(10), path(0)
+		{
+		}
+		virtual ~GetPatrolMovementMessage()
+		{
+		}
+
+		PatrolPath* path;  // +0xC
+	};
+
 	// What an object follows (the part the follow target action reads)
 	struct FollowInformation
 	{

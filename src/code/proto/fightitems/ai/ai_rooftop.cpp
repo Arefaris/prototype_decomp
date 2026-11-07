@@ -2,6 +2,17 @@
 #include "code/proto/fightitems/ai/ai_rooftop.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/proto/ai/ambientmanager/ambientmanager.h"
+#include "code/proto/navarea.h"
+#include "code/proto/navmesh.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gTwo;
+	}
+}
 
 namespace proto
 {
@@ -525,6 +536,29 @@ namespace proto
 			{
 				fight::TrackFactoryCasterTemplate<RooftopDestinationFindTrack> caster;
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
+			}
+
+			// FUNCTION: ENGINE 0x10209210
+			bool IsInRooftopCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = object->transform->value;
+				math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+				NavArea* area = 0;
+				NavMesh* mesh = gAmbientManager->unknown20C;
+				math::Vector closest;
+				mesh->Find(&place, engine::driving::gTwo, engine::driving::gTwo, &area, &closest, core::BitField<unsigned short>());
+				bool inRooftop = false;
+				if (area != 0 && area->areaType == 7)
+				{
+					inRooftop = true;
+				}
+				bool same = inRooftop == rooftop;
+				return same;
 			}
 
 			// ---- actions begin
