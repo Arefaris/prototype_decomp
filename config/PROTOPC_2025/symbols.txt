@@ -99112,3 +99112,5 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ??0GetIntersectionBehaviourMessage@proto@@QAE@XZ = 0x10432D40 ; function size:0x1F | public: __thiscall proto::GetIntersectionBehaviourMessage::GetIntersectionBehaviourMessage(void) (name guess)
 ??0GetAlertInfoMessage@proto@@QAE@XZ = 0x10432D80 ; function size:0x30 | public: __thiscall proto::GetAlertInfoMessage::GetAlertInfoMessage(void) (name guess)
 ??0PedAlertReactionTable@proto@@QAE@XZ = 0x10433250 ; function size:0x21 | proto::PedAlertReactionTable constructor (name guess)
+??$MemberOffset@VPedAlertReaction@proto@@@content@@YAHPAVPedAlertReaction@proto@@H@Z = 0x10433DD0 ; function size:0x5 | int __cdecl content::MemberOffset<class proto::PedAlertReaction>(class proto::PedAlertReaction *,int (name guess)
+??0?$PrimitiveMemberGetSetter@VPedAlertReaction@proto@@M@@QAE@P8PedAlertReaction@proto@@BEMXZP812@AEXM@Z@Z = 0x10438740 ; function size:0x19 | public: __thiscall PrimitiveMemberGetSetter<class proto::PedAlertReaction,float>::PrimitiveMemberGet (name guess)
