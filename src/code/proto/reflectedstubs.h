@@ -37,6 +37,7 @@
 #include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/proto/behaviours/wheelconstraint.h"
 #include "code/proto/behaviours/helicopterrotor.h"
+#include "code/proto/behaviours/cloudbehaviour.h"
 #include "code/proto/behaviours/stayonnavmeshbehaviour.h"
 #include "code/proto/behaviours/squadmemberbehaviour.h"
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
@@ -439,16 +440,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class CloudBehaviour : public engine::PropBehaviour
-	{
-	public:
-		explicit CloudBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x10 - sizeof(engine::PropBehaviour)];
 	};
 
 	class SpawnerBehaviour : public engine::Behaviour

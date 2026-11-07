@@ -19,11 +19,19 @@ namespace proto
 		// 0x104E7430
 		~GamePauseState();
 
-		// vftable slots 0, 1, 3 and 4 (0x104E6940, 0x104E6C70, 0x104E7100, 0x104E7110)
+		// vftable slots 0, 1, 3 and 4 (0x104E6940, 0x104E6C70, 0x104E7100, 0x104E7110): slot 3 clears the flag at +0x8F
+		// and does what the pause state does, slot 4 sets it and asks for the game state 5 in mode 2
 		virtual void Enter();
 		virtual void Leave();
 		virtual void Slot3();
 		virtual void Slot4();
+		// 0x104E7130, 0x104E7140, 0x104E7150, 0x104E7160, 0x104E7170: set one flag each (the head-up display and the
+		// in game state call them on the pause state; names guessed)
+		void SetUnknown88();
+		void SetUnknown89();
+		void SetUnknown8B();
+		void SetUnknown8C();
+		void SetUnknown8D();
 		// 0x104E6EC0
 		virtual void Update(engine::UpdateContext context);
 		// 0x104E7280: the user the event concerns is the current user
