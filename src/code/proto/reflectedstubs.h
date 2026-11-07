@@ -29,6 +29,15 @@
 #include "code/proto/characterbudgetpolicy.h"
 #include "code/proto/heightmap.h"
 #include "code/proto/helipathfindingloader.h"
+#include "code/proto/behaviours/addtoheightmapbehaviour.h"
+#include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/scarymonsterbehaviour.h"
+#include "code/proto/behaviours/camerafloorbehaviour.h"
+#include "code/proto/behaviours/stayonnavmeshbehaviour.h"
+#include "code/proto/behaviours/squadmemberbehaviour.h"
+#include "code/proto/behaviours/squadblackboardbehaviour.h"
+#include "code/proto/worldboundary.h"
+#include "code/proto/tunnelvolume.h"
 
 namespace proto
 {
@@ -150,16 +159,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
-	};
-
-	class WorldBoundary : public content::MetaLoadObject
-	{
-	public:
-		WorldBoundary();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
 	};
 
 	class WorldTriggers : public content::MetaLoadObject
@@ -365,16 +364,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x60 - sizeof(content::MetaLoadObject)];
-	};
-
-	struct TunnelVolume : public content::MetaLoadObject
-	{
-	public:
-		TunnelVolume();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x5C - sizeof(content::MetaLoadObject)];
 	};
 
 	struct IntersectionData
@@ -739,16 +728,6 @@ namespace proto
 		unsigned char unknownTail[0xA0 - sizeof(engine::Behaviour)];
 	};
 
-	class SquadMemberBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit SquadMemberBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x10 - sizeof(engine::Behaviour)];
-	};
-
 	class SquadPerceptionBehaviour : public engine::Behaviour
 	{
 	public:
@@ -757,16 +736,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
-	class SquadBlackboardBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit SquadBlackboardBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x154 - sizeof(engine::Behaviour)];
 	};
 
 	class TankSolverBehaviour : public engine::Behaviour
@@ -859,16 +828,6 @@ namespace proto
 		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
 	};
 
-	class ScaryMonsterBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ScaryMonsterBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x14 - sizeof(engine::Behaviour)];
-	};
-
 	class DriverBehaviour : public engine::Behaviour
 	{
 	public:
@@ -949,16 +908,6 @@ namespace proto
 		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
 	};
 
-	class AddToHeightmapBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AddToHeightmapBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
-	};
-
 	class HelicopterRotorAnimationBehaviour : public engine::Behaviour
 	{
 	public:
@@ -969,36 +918,6 @@ namespace proto
 		unsigned char unknownTail[0x28 - sizeof(engine::Behaviour)];
 	};
 
-	class AimBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit AimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
-	};
-
-	class TankAimBehaviour : public proto::AimBehaviour
-	{
-	public:
-		explicit TankAimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(proto::AimBehaviour)];
-	};
-
-	class HelicopterAimBehaviour : public proto::AimBehaviour
-	{
-	public:
-		explicit HelicopterAimBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(proto::AimBehaviour)];
-	};
-
 	class MusicTreeBehaviour : public engine::FightTreeBehaviour
 	{
 	public:
@@ -1007,16 +926,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x70 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class StayOnNavmeshBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit StayOnNavmeshBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x24 - sizeof(engine::Behaviour)];
 	};
 
 	class FadeoutBehaviour : public engine::Behaviour
@@ -1067,16 +976,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
-	};
-
-	class CameraFloorBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit CameraFloorBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 }

@@ -1,6 +1,8 @@
-// content::PrimitiveMetaTypeImpl<T>: the functions the vftable slots of the meta types of the numbers and flags lead
-// to (see primitivemetatype.cpp), with the traits that tell a value of the type apart in the binary stream, in a text and
-// by its name. A class that is never instantiated: the units that hold a copy of the slots instantiate it explicitly.
+// The slots of content::PrimitiveMetaType<T>, the meta types of the numbers and flags, written as members of
+// PrimitiveMetaTypeImpl<T> (a class that is never instantiated: only these functions are used) so that the declared
+// virtual functions of the vftable stay what the engine's callers see. The engine keeps one copy of the slots of each
+// T, in the unit of the first reflected class that uses them: primitivemetatype.cpp (bool, float, int, unsigned int),
+// primitivemetatypechar.cpp, primitivemetatypeshort.cpp and the unit of PrimitiveMetaType<unsigned short>.
 #ifndef CONTENT_PRIMITIVEMETATYPEIMPL_H
 #define CONTENT_PRIMITIVEMETATYPEIMPL_H
 
@@ -164,6 +166,65 @@ namespace content
 			return GetBoolTypeName();
 		}
 	};
+
+	template<> struct PrimitiveTraits<char>
+	{
+		typedef char Stored;
+		__forceinline static void Read(BinaryReader* reader, char* value)
+		{
+			reader->Read(value, 1, 1);
+		}
+		__forceinline static char FromStored(char value)
+		{
+			return value;
+		}
+		__forceinline static char ToStored(char value)
+		{
+			return value;
+		}
+		__forceinline static bool ReadText(TextReadStream* reader, char* value)
+		{
+			return reader->ReadChar(value);
+		}
+		__forceinline static void WriteText(TextWriter* writer, const char* value)
+		{
+			writer->WriteChar(value);
+		}
+		__forceinline static const char* TypeName()
+		{
+			return GetCharTypeName();
+		}
+	};
+
+	template<> struct PrimitiveTraits<short>
+	{
+		typedef short Stored;
+		__forceinline static void Read(BinaryReader* reader, short* value)
+		{
+			reader->Read(value, 1, 2);
+		}
+		__forceinline static short FromStored(short value)
+		{
+			return value;
+		}
+		__forceinline static short ToStored(short value)
+		{
+			return value;
+		}
+		__forceinline static bool ReadText(TextReadStream* reader, short* value)
+		{
+			return reader->ReadShort(value);
+		}
+		__forceinline static void WriteText(TextWriter* writer, const short* value)
+		{
+			writer->WriteShort(value);
+		}
+		__forceinline static const char* TypeName()
+		{
+			return GetShortTypeName();
+		}
+	};
+
 
 	template<class T> class PrimitiveMetaTypeImpl : public PrimitiveMetaType<T>
 	{

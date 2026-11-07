@@ -1,9 +1,7 @@
 // content::PrimitiveMetaType<T>: the slots of the meta types of the numbers and flags (bool, float, int and unsigned
 // int; unit 0x10060700 - 0x10065050 and 0x100713E0 - 0x10071740, the first reflected class that uses them keeps the
 // copies; the file name is guessed). The vftable of the class is declared with slots of no arguments (metatype.h),
-// the functions here are the ones its slots lead to, written as members of PrimitiveMetaTypeImpl<T> (a class that is
-// never instantiated: only these functions are used) so that the declared virtual functions stay what the engine's
-// callers see.
+// the functions are the ones its slots lead to (primitivemetatypeimpl.h).
 #include "code/content/primitivemetatypeimpl.h"
 
 namespace content
