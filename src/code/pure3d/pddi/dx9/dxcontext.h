@@ -374,6 +374,18 @@ namespace pure3d
 
 	// 0x11276D70
 	extern dxRenderStateCache* gRenderStateCache;
+	// 0x10615F20 / 0x10615F40 / 0x10615F50: the back end's device, and the Direct3D device (name guesses)
+	dxContext* GetContext();
+	// 0x11276D30: the driver object the last dxDevice constructor recorded (name guess)
+	extern dxDevice* gCurrentDevice;
+	// 0x1061F1C0 / 0x1061B440 (name guesses)
+	void SetContext(dxContext* context);
+	void SetCurrentDevice(dxDevice* device);
+	void SetD3DDevice(IDirect3DDevice9* device);
+	IDirect3DDevice9* GetD3DDevice();
+	// 0x10615F80 / 0x10615F90: the vertex / pixel constants written from now on are not the ones the registers hold
+	void NextVertexConstantPass();
+	void NextPixelConstantPass();
 	// 0x1061EE70: makes the cache when there is none and starts its constant registers over (name guess)
 	void CreateRenderStateCache();
 	// 0x1061EF40: deletes the cache (name guess)
