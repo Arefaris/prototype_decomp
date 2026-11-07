@@ -111,12 +111,16 @@ namespace proto
 				// 0x100E1260
 				virtual ~JumpToAction();
 
-				// vftable slot 5 (0x100E29A0, not reconstructed)
+				// vftable slot 5 (0x100E29A0)
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x100E12B0)
 				virtual void Slot6();
-				// vftable slot 7 (0x100E2B70, not reconstructed)
+				// vftable slot 7 (0x100E2B70)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x100E2520 / 0x100E22E0 (not reconstructed; names guess): plan the jump from the destination and the charge, then advance it
+				bool PlanJump();
+				void Advance(float elapsed);
 
 				// 0x100E0EF0: a collision happened (the arguments are not known)
 				void OnCollision(int first, int second, int third);
@@ -126,12 +130,10 @@ namespace proto
 				JumpDestination destination;  // +0x2C
 				JumpToCollisionCallback callback;  // +0x3C
 				bool collided;  // +0x54
-				choreo::Driver* driver;  // +0x58
-				float unknown5C;
-				float unknown60;
-				float unknown64;
-				float unknown68;
-				float unknown6C;
+				choreo::RootDriver* driver;  // +0x58
+				math::Vector direction;  // +0x5C
+				float speed;  // +0x68
+				float charge;  // +0x6C
 				bool unknown70;
 			};
 

@@ -104199,3 +104199,5 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Slot7@JumpToAction@motion@fightitems@proto@@UAE_NHM@Z = 0x100E2B70 ; function size:0xEE | proto::fightitems::motion::JumpToAction::Slot7 vftable slot (not reconstructed)
 ??_7JumpToAction@motion@fightitems@proto@@6B@ = 0x10DA3630 ; data size:0x24 | proto::fightitems::motion::JumpToAction vftable
 ??_R0?AVJumpToAction@motion@fightitems@proto@@@8 = 0x10FF6EC0 ; data size:0x8 | proto::fightitems::motion::JumpToAction RTTI type descriptor
+?PlanJump@JumpToAction@motion@fightitems@proto@@QAE_NXZ = 0x100E2520 ; function size:0x399 | proto::fightitems::motion::JumpToAction::PlanJump (name guess)
+?Advance@JumpToAction@motion@fightitems@proto@@QAEXM@Z = 0x100E22E0 ; function size:0x1CB | proto::fightitems::motion::JumpToAction::Advance (name guess)

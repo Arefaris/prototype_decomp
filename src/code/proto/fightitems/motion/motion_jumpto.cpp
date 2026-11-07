@@ -1,5 +1,6 @@
 // Fight items of the motion group: JumpToTrack (unit 0x10185900 - 0x101865E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jumpto.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
 #include "code/engine/physics/physicsmanager.h"
 #include "code/engine/fight/fightsystem.h"
 
@@ -280,7 +281,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100E1680
 			// NONMATCHING: the engine leaves out the vftable store of the intermediate class of the callback, ours keeps it (66.5 %)
 #ifdef NONMATCHING
-			JumpToAction::JumpToAction(JumpToTrack* newTrack, core::IRefCount* ownerObject) : fight::Action(0xE00), link(newTrack), target(engine::GetObjectHandle(ownerObject)), destination(0.0f, 0.0f, 0.0f), collided(false), driver(0), unknown5C(0.0f), unknown60(0.0f), unknown64(0.0f), unknown68(0.0f), unknown6C(0.0f), unknown70(true)
+			JumpToAction::JumpToAction(JumpToTrack* newTrack, core::IRefCount* ownerObject) : fight::Action(0xE00), link(newTrack), target(engine::GetObjectHandle(ownerObject)), destination(0.0f, 0.0f, 0.0f), collided(false), driver(0), direction(0.0f, 0.0f, 0.0f), speed(0.0f), charge(0.0f), unknown70(true)
 			{
 				callback.SetObject(&target);
 				callback.owner = this;
@@ -290,7 +291,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x100E1260
 			JumpToAction::~JumpToAction()
 			{
-				engine::ReleaseDriverCopy2(&driver);
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 			}
 
 			// FUNCTION: ENGINE 0x100E2280
@@ -312,8 +313,84 @@ namespace proto
 					{
 						puppet->RemoveDriver(driver, false);
 					}
-					engine::ReleaseDriverCopy2(&driver);
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
 				}
+			}
+
+			// FUNCTION: ENGINE 0x100E29A0
+			bool JumpToAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ChargeGetMessage message(link.object->chargeType);
+				object->SendMessage(&message);
+				float amount = message.value;
+				if (!(amount >= 0.0f))
+				{
+					amount = 0.0f;
+				}
+				if (0.0f <= amount - engine::driving::gOne)
+				{
+					amount = engine::driving::gOne;
+				}
+				charge = amount;
+				if (!PlanJump())
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet != 0)
+				{
+					driver = new choreo::RootDriver;
+					content::ObjectName driverName("jumpTo", 1);
+					driver->SetName(driverName);
+					driver->SetMask(1);
+					driver->AddRef();
+					puppet->SetDriver(driver, choreo::gMinusOne, link.object->priority, 1.0f, link.object->blendInTime, link.object->blendOutTime, choreo::gMinusOne);
+				}
+				engine::AddPostStepCallback((ravenphysics::PhysicsContextCallBack*)&callback);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100E2B70
+			bool JumpToAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Advance(value);
+				math::Vector velocity;
+				velocity.x = direction.x * speed;
+				velocity.y = direction.y * speed;
+				velocity.z = direction.z * speed;
+				velocity.y = velocity.y - link.object->gravity * value;
+				math::Vector* axis = &direction;
+				axis->x = velocity.x;
+				axis->y = velocity.y;
+				axis->z = velocity.z;
+				speed = axis->Normalize();
+				if (driver != 0)
+				{
+					driver->mDelta.SetVelocity(velocity, object->transform->value);
+				}
+				return true;
 			}
 
 			// ---- actions end
