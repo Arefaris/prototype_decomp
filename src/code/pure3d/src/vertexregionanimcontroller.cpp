@@ -91,6 +91,33 @@ namespace pure3d
 		return new VertexRegionAnimController(*this);
 	}
 
+	// FUNCTION: ENGINE 0x1072EB40
+	VertexDeformRegion::VertexDeformRegion() : RefCounted(NO_BARRIER), mMesh(0), mChanged(true)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1072F0D0
+	VertexDeformRegion::~VertexDeformRegion()
+	{
+		core::SafeRelease(mMesh);
+	}
+
+	// FUNCTION: ENGINE 0x1072F0F0
+	void VertexDeformRegion::SetMesh(Mesh* mesh)
+	{
+		core::RefAssign(mMesh, mesh);
+	}
+
+	// FUNCTION: ENGINE 0x1072F110
+	VertexEllipseRegionDeformation::VertexEllipseRegionDeformation()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1072F120
+	VertexEllipseRegionDeformation::~VertexEllipseRegionDeformation()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1072EB70
 	void VertexDeformRegion::SetUnknown1C(const math::Vector* value)
 	{

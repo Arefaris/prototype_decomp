@@ -314,15 +314,24 @@ namespace pure3d
 
 	// RTTI: pure3d::VertexDeformRegion (base RefCounted, 4 slots; 0x68 bytes with the part the deformations that derive from it
 	// add): the region of a mesh a deformation moves vertices in
+	class Mesh;
+
 	class VertexDeformRegion : public RefCounted
 	{
 	public:
+		// 0x1072EB40; the destructor is 0x1072F0D0 and the scalar deleting destructor 0x1072F880
+		VertexDeformRegion();
+		virtual ~VertexDeformRegion();
+		// Slot 3: pure
+		virtual void Deform(float* weights, const math::Matrix* transform) = 0;
+		// 0x1072F0F0: takes a reference to the mesh the region deforms
+		void SetMesh(Mesh* mesh);
 		// 0x1072EB70: sets the vector at +0x1C (name guess)
 		void SetUnknown1C(const math::Vector* value);
 		// 0x1072EB90: takes the position of a matrix and keeps its inverse
 		void SetTransform(const math::Matrix& transform);
 
-		void* unknown8;
+		Mesh* mMesh;
 		bool mChanged;
 		unsigned char unknownD[3];
 		// The position the region is at, the vector at +0x1C and the inverse of the region's matrix
@@ -427,6 +436,18 @@ namespace pure3d
 
 		VertexDeformRegion* items[16];
 		VertexDeformRegion** end;
+	};
+
+	// RTTI: pure3d::VertexEllipseRegionDeformation (base VertexDeformRegion, 4 slots): the region is an ellipsoid whose
+	// semi-axes are the vector at +0x1C
+	class VertexEllipseRegionDeformation : public VertexDeformRegion
+	{
+	public:
+		// 0x1072F110; the destructor is 0x1072F120 and the scalar deleting destructor 0x1072F8A0
+		VertexEllipseRegionDeformation();
+		virtual ~VertexEllipseRegionDeformation();
+		// Slot 3 (0x1072F980): adds how deep into the region each vertex of the mesh lies to the weights
+		virtual void Deform(float* weights, const math::Matrix* transform);
 	};
 
 	// RTTI: pure3d::VertexRegionAnimController (29 slots; bases SimpleFrameController, AnimationFrameController,
@@ -1680,6 +1701,8 @@ namespace pure3d
 		void SetPalette(MatrixPaletteList* palettes);
 		// 0x1072DF00: the description of the index buffer (name guess)
 		void GetIndexDescription(IndexBufferDescription* description);
+		// 0x1072E3D0: the shader parameters the device is set up with
+		void GetParameters(ShaderParameters* out);
 
 		// The kind of primitive the batch carries
 		unsigned int unknown1C;

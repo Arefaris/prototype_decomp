@@ -101085,3 +101085,17 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??0ParticleTaskManager@pure3d@@QAE@XZ = 0x1073BE50 ; function size:0x90 | pure3d::ParticleTaskManager::ParticleTaskManager
 ??1ParticleTaskManager@pure3d@@QAE@XZ = 0x1073BEE0 ; function size:0x69 | pure3d::ParticleTaskManager::~ParticleTaskManager
 ??_R0?AVTaskCallback@ParticleTaskManager@pure3d@@@8 = 0x111387E4 ; data | data RTTI type descriptor of pure3d::ParticleTaskManager::TaskCallback
+?GetParameters@GpuSkin@pure3d@@QAEXPAVShaderParameters@2@@Z = 0x1072E3D0 ; function size:0x10 | pure3d::GpuSkin::GetParameters (name guess)
+??0VertexDeformRegion@pure3d@@QAE@XZ = 0x1072EB40 ; function size:0x1B | pure3d::VertexDeformRegion::VertexDeformRegion
+??1VertexDeformRegion@pure3d@@UAE@XZ = 0x1072F0D0 ; function size:0x1D | pure3d::VertexDeformRegion::~VertexDeformRegion
+??_GVertexDeformRegion@pure3d@@UAEPAXI@Z = 0x1072F880 ; function size:0x1E | pure3d::VertexDeformRegion::scalar deleting destructor vftable slot 2
+?SetMesh@VertexDeformRegion@pure3d@@QAEXPAVMesh@2@@Z = 0x1072F0F0 ; function size:0x14 | pure3d::VertexDeformRegion::SetMesh (name guess)
+??$SafeRelease@VMesh@pure3d@@@core@@YAXAAPAVMesh@pure3d@@@Z = 0x1072EE10 ; function size:0x1A | core::SafeRelease<pure3d::Mesh>
+??$RefAssign@VMesh@pure3d@@@core@@YAXAAPAVMesh@pure3d@@PAV12@@Z = 0x1072EE30 ; function size:0x28 | core::RefAssign<pure3d::Mesh>
+??_R0?AVVertexDeformRegion@pure3d@@@8 = 0x11137DA0 ; data | data RTTI type descriptor of pure3d::VertexDeformRegion
+
+??0VertexEllipseRegionDeformation@pure3d@@QAE@XZ = 0x1072F110 ; function size:0x10 | pure3d::VertexEllipseRegionDeformation::VertexEllipseRegionDeformation
+??1VertexEllipseRegionDeformation@pure3d@@UAE@XZ = 0x1072F120 ; function size:0xB | pure3d::VertexEllipseRegionDeformation::~VertexEllipseRegionDeformation
+??_GVertexEllipseRegionDeformation@pure3d@@UAEPAXI@Z = 0x1072F8A0 ; function size:0x1E | pure3d::VertexEllipseRegionDeformation::scalar deleting destructor vftable slot 2
+?Deform@VertexEllipseRegionDeformation@pure3d@@UAEXPAMPBVMatrix@math@@@Z = 0x1072F980 ; function size:0x191 | pure3d::VertexEllipseRegionDeformation::Deform vftable slot 3 (name guess)
+??_R0?AVVertexEllipseRegionDeformation@pure3d@@@8 = 0x11137DC8 ; data | data RTTI type descriptor of pure3d::VertexEllipseRegionDeformation
