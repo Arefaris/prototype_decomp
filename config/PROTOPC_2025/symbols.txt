@@ -104169,3 +104169,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?BoolsEqual@fight@@YA_NPB_N0@Z = 0x100C2350 ; function size:0x12 | fight::BoolsEqual (name guess)
 ?CompareBools@fight@@YA_NHPB_N0@Z = 0x100C2430 ; function size:0x3E | fight::CompareBools (name guess)
 ?SetIgnoreFilterBits@IgnoreHitsAction@motion@fightitems@proto@@QAEXPAVPhysicsObject@ravenphysics@@_N@Z = 0x100D1210 ; function size:0x3D | proto::fightitems::motion::IgnoreHitsAction::SetIgnoreFilterBits (name guess)
+??_7SetJumpLandedMovementMessage@proto@@6B@ = 0x10DA243C ; data size:0x4 | proto::SetJumpLandedMovementMessage::vftable
+??_R0?AUSetJumpLandedMovementMessage@proto@@@8 = 0x10FF5FD0 ; data size:0x8 | struct proto::SetJumpLandedMovementMessage RTTI type descriptor
+??_GSetJumpLandedMovementMessage@proto@@UAEPAXI@Z = 0x100D6F20 ; function size:0x1F | public: virtual void * __thiscall proto::SetJumpLandedMovementMessage::`scalar deleting destructor'(unsigned int)
+??_ESetJumpLandedMovementMessage@proto@@UAEPAXI@Z = 0x100D6F20 ; function size:0x1F | public: virtual void * __thiscall proto::SetJumpLandedMovementMessage::`vector deleting destructor'(unsigned int)
