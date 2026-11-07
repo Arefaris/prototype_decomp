@@ -582,7 +582,7 @@ namespace om
 #endif
 
 	// FUNCTION: ENGINE 0x105BF560
-	bool SkipAndConsume(TextScanner* scanner, const char* text)
+	char SkipAndConsume(TextScanner* scanner, const char* text)
 	{
 		SkipWhitespace(scanner);
 		return Consume(scanner, text);

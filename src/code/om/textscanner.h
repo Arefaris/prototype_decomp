@@ -97,7 +97,7 @@ namespace om
 	// 0x105BF4C0: reads up to a character of the set that is not inside quotation marks
 	void ReadUntil(TextScanner* scanner, char* buffer, int size, const char* set);
 	// 0x105BF560: passes white space and the text
-	bool SkipAndConsume(TextScanner* scanner, const char* text);
+	char SkipAndConsume(TextScanner* scanner, const char* text);
 	// 0x105BF580: reads a number that may have a decimal point or a minus sign
 	bool ReadFloat(TextScanner* scanner, float* value);
 }
