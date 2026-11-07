@@ -296,6 +296,13 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BB5B0
+			bool RegisterFactionFactories(fight::TrackRegistry* registry)
+			{
+				RegisterFactionConditionFactory(registry, "faction");
+				RegisterFactionTypeConditionFactory(registry, "factionType");
+				return true;
+			}
 			// FUNCTION: ENGINE 0x100BBC80
 			FactionDefaultAction::FactionDefaultAction(FactionDefaultTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{

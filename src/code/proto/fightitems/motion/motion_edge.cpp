@@ -427,6 +427,19 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B9000
+			void RegisterEdgeNormalFactories(fight::TrackRegistry* registry)
+			{
+				RegisterEdgeNormalConditionFactory(registry, "edgeNormal");
+				RegisterEdgePositionConditionFactory(registry, "edgePosition");
+			}
+
+			// FUNCTION: ENGINE 0x100B9030
+			void RegisterEdgeDetectFactories(fight::TrackRegistry* registry)
+			{
+				RegisterEdgeDetectTrackFactory(registry, "edgeDetect");
+				RegisterEdgeSynchronizeTrackFactory(registry, "edgeSynchronize");
+			}
 
 			// FUNCTION: ENGINE 0x100B8E20
 			math::Vector EdgeNormalCondition::GetNormal() const

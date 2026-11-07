@@ -296,6 +296,31 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100B06C0
+			void RegisterDebugLayerFactories(fight::TrackRegistry* registry)
+			{
+				RegisterDebugLayerConditionFactory(registry, "debugLayer");
+				RegisterDebugSphereTrackFactory(registry, "debugSphere");
+				RegisterDebugAxisTrackFactory(registry, "debugAxis");
+			}
+
+			// FUNCTION: ENGINE 0x100B0700
+			bool DebugLayerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100B0710
+			fight::Action* DebugSphereTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
+
+			// FUNCTION: ENGINE 0x100B0720
+			fight::Action* DebugAxisTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return 0;
+			}
 
 			// ---- actions end
 			template class fight::PropertyString<DebugLayerCondition>;

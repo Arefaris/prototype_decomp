@@ -73,7 +73,7 @@ namespace motion
 	void RegisterGrabTargetClearTrackFactory(fight::TrackRegistry* registry, const char* name);
 	bool RegisterStunnedFactories(fight::TrackRegistry* registry);
 	bool RegisterHasPatsyFactories(fight::TrackRegistry* registry);
-	void RegisterFactionFactories(fight::TrackRegistry* registry);
+	bool RegisterFactionFactories(fight::TrackRegistry* registry);
 	bool RegisterUndergroundStateFactories(fight::TrackRegistry* registry);
 	void RegisterAccumulatedDamageFactories(fight::TrackRegistry* registry);
 	void RegisterSupportingLimbTestSurfaceNormalAngleFactories(fight::TrackRegistry* registry);

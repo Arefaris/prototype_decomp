@@ -195,6 +195,12 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100A5F30
+			void RegisterHitSurfaceFactories(fight::TrackRegistry* registry)
+			{
+				RegisterHitSurfaceConditionFactory(registry, "hitSurface");
+				RegisterDetectObbCollisionConditionFactory(registry, "detectObbCollision");
+			}
 
 			// Two words the unit keeps for the slots that answer a default (file statics of the unit)
 			static int sSlot10Value = -1;  // 0x10FF0EC4
