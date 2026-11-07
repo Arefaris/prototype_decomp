@@ -101085,3 +101085,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?ToSnakeCase@om@@YA?AVString@1@ABV21@@Z = 0x105B45D0 ; function size:0xD7 | om::ToSnakeCase (name guess)
 ?FindEntityTypeByName@TreeHead@om@@QAEPAVEntityTypeBase@2@ABVString@2@@Z = 0x105B53C0 ; function size:0xD8 | om::TreeHead::FindEntityTypeByName (name guess)
 ?FindEntity@TreeHead@om@@QAEPAVEntity@2@ABV?$Name@UCaseSensitive64BitKey@om@@@2@@Z = 0x105B57D0 ; function size:0xAF | om::TreeHead::FindEntity (name guess)
+?Unknown105A4570@Sequencer@fight@@QAE_NPAVBranch@2@PAUIRefCount@core@@@Z = 0x105A4570 ; function size:0x2B | fight::Sequencer::Unknown105A4570 (name unknown)
+?GetUnknown1C@Sequencer@fight@@QBEHXZ = 0x105A43E0 ; function size:0x4 | fight::Sequencer::GetUnknown1C (name unknown)
