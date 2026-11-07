@@ -7730,3 +7730,28 @@ marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to share
 - `engine/fight/playbackset.h`, `playbackbranches.cpp`: `PlaybackSet` and `PlaybackNode` (constructors, properties, slots 10 / 11 / 14, the factories). The destructor of `PlaybackNode` (0x108B1010) stays with the engine: it leaves out the stores of the vftable that ours makes; `PlaybackNode::Slot12` 0x108B0CD0 is not done; `RegisterProperties` of both are NONMATCHING (shrink-wrap).
 - Shared header changes: `inputsystem.h` (the types above), `trackfactory.h` (`PropertyTypePropertyList`'s constructor and type, `PropertyFloat<T>`, `ObjectOf` in three property templates), `monkeycontrollermanager.h`, `defaultcontrollerhandler.cpp` (the view class is gone), `playbackset.h`.
 - Not done and why: `GameDBStorage` (0x108A56C0 - 0x108A5F30: its slots call the profile storage messages and packers of other units), `MessageRouter::InitListeners` (inlined array operations), the stream package states (0x108A6140 - 0x108A6B80: calls into the world stream manager that nothing names), `FMVState` (0x108A0520 - 0x108A0890), the collision enable actions' `FindObject` (0x108ABDE0 / 0x108ABEE0: the engine keeps the loop result in a stack slot), `ShaderAnimationAction`, `HealthAction`, the effect LOD actions, the motion trail (0x108BD650 - 0x108BEFxx) and the online manager (0x108BF430 on). About 780 of the remaining functions are 1 - 20 byte kept copies of container, `om::` and `core::Link` members that no class names.
+
+## engine/triggerbehaviour.cpp (0x1083AD20 - 0x1083B950), gameobject/messagelistenerlist.cpp (0x10832480 - 0x10832890) and small statics of 0x10820000 - 0x10840000 (sn-dw)
+
+- `engine::TriggerBehaviour` (vftable 0x10E6F534, 0xA4 bytes: volume +0xC, targetMode +0x10, targetName `StringC<128>` +0x14, the
+  cached target handle +0x98, the enter / exit messages +0x9C / +0xA0) and `MovingTriggerBehaviour` (vftable 0x10E21E80, no
+  constructor of its own in the unit; its `Update` follows the owner's transform): the class, the three constructors, the
+  destructor, the vftable slots, the `Target` enumeration and the reflection match. `SendTriggerMessage` (0x1083B2B0) is
+  NONMATCHING at 99.7 %: the engine builds the `FindGameObject` result in the dead slot of its first argument. The stub in
+  reflectedclasses2.h is gone. The second `GetObjectMetaType<IntrusiveMessage>` the engine keeps (0x1083B490) and the volume's
+  (0x1083B3F0) are the `GetObjectMetaTypeCopy` instances; the string member's meta type is `GetMemberStringMetaType<1>` (the
+  `<0>` instance is the door trigger's).
+- `MessageListenerList`: `AddHandle` (really a search), `SwapHandles`, `Begin` and the new `DropInvalid` (0x10832660) match.
+  `QueryHandle` and `InvalidateHandle` (the engine leaves the second test after the search loop), the constructor (the heap
+  word is stored before the three zero words) and `RemoveHandle` (really "put the handle in"; register allocation) are
+  NONMATCHING. `messagerouter.h` declares the constructor and `DropInvalid`.
+- Statics and flags: `HasEngineFlags` / `SetEngineFlags` / `ClearEngineFlags` (`gEngineFlags`, 0x1130DC64), the tutorial flag
+  (0x1130D43C), `ScriptOwner::GetPart` / `GetCurrentId` / `SetCurrentId` (`sCurrentId`, 0x1130D3A8; the constructor needs the
+  vftable and stays with the engine), `StreamSlotGroup::GetSlot`, `PhysicsContextCallBack::SetNext`, `GetAspect`,
+  `SetGlobalShadowRangeHack`, `StreamManager::IsBusy` / `SetCurrentPackage` / `Register` / `GetSlotGroupIndex`
+  (`streampackage.h` names the manager's fields at +0xF0 / +0x114 / +0x118). `ViewHandle::IsValid` is NONMATCHING (the engine
+  masks the whole word and answers through eax).
+- Not done: the render event and shader parameter template instances (0x10826970 - 0x1082A250: compiler-generated, a class per
+  event is needed), the stream manager's tree lookups (0x1082E010 / 0x1082E050 / 0x1082E090: the map type is unknown), the
+  attachable behaviour (0x1083B960 - 0x1083E5C0: layout of 0x44 bytes and the physics attachment records are open), the
+  game state functions 0x10837D00 / 0x10838BA0 / 0x10838ED0 and the recorded input functions (0x10833450 - 0x10833790).
