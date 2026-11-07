@@ -570,19 +570,17 @@ namespace content
 	}
 
 	// FUNCTION: ENGINE 0x1060B260
-	// EQUIVALENT: block layout of the early return
-	void LoadStream::Read(void* destination, unsigned int count, unsigned int itemSize, unsigned int option)
+	bool LoadStream::Read(void* destination, unsigned int count, unsigned int itemSize, unsigned int option)
 	{
 		if (!IsOpen())
 		{
-			return;
+			return false;
 		}
 		if (!buffered)
 		{
-			ReadDirect(destination, count, itemSize, option);
-			return;
+			return ReadDirect(destination, count, itemSize, option);
 		}
-		ReadBuffered(destination, count, itemSize, option);
+		return ReadBuffered(destination, count, itemSize, option);
 	}
 
 	// FUNCTION: ENGINE 0x1060B2C0
