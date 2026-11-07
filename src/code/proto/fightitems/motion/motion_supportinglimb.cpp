@@ -1406,6 +1406,21 @@ namespace proto
 				return switchSurfaces == false;
 			}
 
+			// FUNCTION: ENGINE 0x1011A9C0
+			void RegisterSupportingLimbTestSurfaceNormalAngleFactories(fight::TrackRegistry* registry)
+			{
+				RegisterSupportingLimbTestSurfaceNormalAngleConditionFactory(registry, "supportingLimbTestSurfaceNormalAngle");
+				RegisterSupportingLimbSurfaceIntersectionPropertiesConditionFactory(registry, "supportingLimbSurfaceIntersectionProperties");
+				RegisterSupportingLimbTestSurfaceDistanceConditionFactory(registry, "supportingLimbTestSurfaceDistance");
+				RegisterSupportingLimbTestTimeToImpactConditionFactory(registry, "supportingLimbTestTimeToImpact");
+				RegisterSupportingLimbTestSurfaceVelocityAngleConditionFactory(registry, "supportingLimbTestSurfaceVelocityAngle");
+				RegisterSupportingLimbTestSurfaceNormalVelocityArcConditionFactory(registry, "supportingLimbTestSurfaceNormalVelocityArc");
+				RegisterSupportingLimbTestSurfaceConditionGroupConditionFactory(registry, "supportingLimbTestSurfaceConditionGroup");
+				RegisterSupportingLimbTestSwitchSurfacesConditionFactory(registry, "supportingLimbTestSwitchSurfaces");
+				RegisterSupportingSurfaceConditionGroupConditionFactory(registry, "supportingSurfaceConditionGroup");
+				RegisterSupportingSurfaceNormalVelocityArcConditionFactory(registry, "supportingSurfaceNormalVelocityArc");
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<SupportingLimbTestSurfaceNormalVelocityArcCondition>;
 			template class fight::PropertyFloatConstRange<SupportingLimbTestSurfaceNormalVelocityArcCondition>;

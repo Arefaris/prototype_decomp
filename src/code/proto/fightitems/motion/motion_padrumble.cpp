@@ -517,6 +517,14 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x101000D0
+			void RegisterPadRumbleClearFactories(fight::TrackRegistry* registry)
+			{
+				RegisterPadRumbleClearTrackFactory(registry, "padRumbleClear");
+				RegisterPadRumbleSetTrackFactory(registry, "padRumbleSet");
+				RegisterPadRumbleRefTrackFactory(registry, "padRumbleReference");
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<PadRumbleSetTrack>;
 			template class fight::PropertyEnumConstList<PadRumbleSetTrack>;

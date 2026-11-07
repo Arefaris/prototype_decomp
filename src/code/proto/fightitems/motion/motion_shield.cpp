@@ -576,6 +576,14 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x1010F0B0
+			void RegisterShieldHealthFactories(fight::TrackRegistry* registry)
+			{
+				RegisterShieldHealthConditionFactory(registry, "shieldHealth");
+				RegisterShieldProtectingConditionFactory(registry, "shieldProtecting");
+				RegisterShieldStateConditionFactory(registry, "shieldState");
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<ShieldHealthCondition>;
 			template class fight::PropertyFloatConstRange<ShieldHealthCondition>;

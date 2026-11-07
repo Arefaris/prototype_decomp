@@ -1065,6 +1065,29 @@ namespace proto
 				return new CharacterCloudStateAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x10102280
+			void RegisterCharacterCloudStateAt10102280Factories(fight::TrackRegistry* registry)
+			{
+				RegisterCharacterCloudStateConditionFactory(registry, "characterCloudState");
+				RegisterPedestrianAlertStateConditionFactory(registry, "pedestrianAlertState");
+				RegisterPedestrianStateConditionFactory(registry, "pedestrianState");
+				RegisterPedestrianAngleToTargetConditionFactory(registry, "pedestrianAngleToTarget");
+				RegisterPedestrianLowMoraleConditionFactory(registry, "pedestrianLowMorale");
+				RegisterPedestrianFirstFrameUpgradedConditionFactory(registry, "pedestrianFirstFrameUpgraded");
+				RegisterPedestrianRequestDowngradeConditionFactory(registry, "pedestrianRequestDowngrade");
+				RegisterNPCAnimationVersionConditionFactory(registry, "NPCAnimationVersion");
+			}
+
+			// FUNCTION: ENGINE 0x10102300
+			void RegisterCharacterCloudStateFactories(fight::TrackRegistry* registry)
+			{
+				RegisterCharacterCloudStateTrackFactory(registry, "characterCloudState");
+				RegisterSpreadPedestrianAlertStateTrackFactory(registry, "spreadPedestrianAlertState");
+				RegisterSetPedestrianAlertStateTrackFactory(registry, "setPedestrianAlertState");
+				RegisterSetPedestrianStateTrackFactory(registry, "setPedestrianState");
+				RegisterSetPedestrianReadyForDowngradeTrackFactory(registry, "pedestrianDowngrade");
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<NPCAnimationVersionCondition>;
 			template class fight::PropertyIntConstRange<NPCAnimationVersionCondition>;

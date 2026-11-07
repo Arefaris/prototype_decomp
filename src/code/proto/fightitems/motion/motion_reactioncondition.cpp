@@ -1790,6 +1790,35 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x101064F0
+			void RegisterReactionEventConditionGroupFactories(fight::TrackRegistry* registry)
+			{
+				RegisterReactionEventConditionGroupConditionFactory(registry, "reactionEventConditionGroup");
+				RegisterReactionEventConditionFactory(registry, "reactionEvent");
+				RegisterReactionHitAttackTypeConditionFactory(registry, "reactionHitAttackType");
+				RegisterReactionHitHitTypeConditionFactory(registry, "reactionHitHitType");
+				RegisterReactionHitFromMuscleMassConditionFactory(registry, "reactionHitFromMuscleMass");
+				RegisterReactionThrowHitTypeConditionFactory(registry, "reactionThrowHitType");
+				RegisterReactionTargetConditionFactory(registry, "reactionTarget");
+				RegisterReactionHitCollisionFlagConditionFactory(registry, "reactionHitCollisionFlag");
+				RegisterReactionHitDamageConditionFactory(registry, "reactionHitDamage");
+				RegisterReactionHitDamageTypeConditionFactory(registry, "reactionHitDamageType");
+				RegisterReactionHitHeightConditionFactory(registry, "reactionHitHeight");
+				RegisterReactionHitCollisionNormalConditionFactory(registry, "reactionHitNormal");
+				RegisterReactionHitCollisionPositionConditionFactory(registry, "reactionHitPosition");
+				RegisterReactionHitImpulseConditionFactory(registry, "reactionHitImpulse");
+				RegisterReactionHitImpulseDirectionConditionFactory(registry, "reactionHitImpulseDirection");
+				RegisterReactionHitImpulseYAngleConditionFactory(registry, "reactionHitImpulseYAngle");
+				RegisterReactionHitSliceAngleConditionFactory(registry, "reactionHitSliceAngle");
+				RegisterReactionReceiverIsTargetConditionFactory(registry, "reactionReceiverIsTarget");
+				RegisterReactionHitChargeConditionFactory(registry, "reactionHitCharge");
+				RegisterReactionGrabTypeConditionFactory(registry, "reactionGrabType");
+				RegisterReactionScriptedSubTypeConditionFactory(registry, "reactionScriptedSubType");
+				RegisterReactionGiverIsBeingGrabbedConditionFactory(registry, "reactionGiverIsBeingGrabbed");
+				RegisterReactionHitOriginatorIsPlayerConditionFactory(registry, "reactionHitOriginatorIsPlayer");
+				RegisterReactionHitOriginatorDistanceConditionFactory(registry, "reactionHitOriginatorDistance");
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<ReactionEventConditionGroupCondition>;
 			template class fight::PropertyConditionGroup<ReactionEventConditionGroupCondition>;

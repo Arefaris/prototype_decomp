@@ -207,6 +207,9 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// 0x101000D0
+			void RegisterPadRumbleClearFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

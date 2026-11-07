@@ -333,6 +333,9 @@ namespace proto
 				core::IRefCount* owner;  // +0x2C
 			};
 
+			// 0x10100D10
+			bool RegisterHasPatsyFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

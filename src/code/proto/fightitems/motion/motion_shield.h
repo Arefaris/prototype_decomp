@@ -234,6 +234,9 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// 0x1010F0B0
+			void RegisterShieldHealthFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

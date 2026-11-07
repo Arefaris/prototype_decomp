@@ -827,6 +827,18 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x10100D10
+			bool RegisterHasPatsyFactories(fight::TrackRegistry* registry)
+			{
+				RegisterHasPatsyConditionFactory(registry, "hasPatsy");
+				RegisterIsPatsyConditionFactory(registry, "isPatsy");
+				RegisterHasFailedPatsyConditionFactory(registry, "hasFailedPatsy");
+				RegisterIsFailedPatsyConditionFactory(registry, "isFailedPatsy");
+				RegisterPatsyConditionGroupConditionFactory(registry, "patsyConditionGroup");
+				RegisterPatsyDeadConditionFactory(registry, "patsyDead");
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<HasFailedPatsyCondition>;
 			template class fight::ConditionFactoryTemplate<HasFailedPatsyCondition>;

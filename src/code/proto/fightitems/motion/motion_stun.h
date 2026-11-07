@@ -99,6 +99,9 @@ namespace proto
 				unsigned char unknown2D[0x3];
 			};
 
+			// 0x1011A030
+			bool RegisterStunnedFactories(fight::TrackRegistry* registry);
+
 			// ---- actions end
 		}
 	}

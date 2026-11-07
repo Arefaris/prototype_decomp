@@ -196,6 +196,13 @@ namespace proto
 				return false;
 			}
 
+			// FUNCTION: ENGINE 0x1011A030
+			bool RegisterStunnedFactories(fight::TrackRegistry* registry)
+			{
+				RegisterStunnedConditionFactory(registry, "stunned");
+				return true;
+			}
+
 			// ---- actions end
 			template class fight::PropertyBool<StunnedCondition>;
 			template class fight::ConditionFactoryTemplate<StunnedCondition>;
