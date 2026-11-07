@@ -64,6 +64,47 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x108F1120
+	// NONMATCHING: registers (the engine keeps the action in edi and the controller in esi, ours the other way round, and it tests the name comparison with test al, al; 92 %)
+#ifdef NONMATCHING
+	void NISAnimationAction::Slot6()
+	{
+		GameObject* object = target.Get();
+		if (object != 0 && link.object != 0)
+		{
+			bool send = !link.object->toBeContinued;
+			if (!send)
+			{
+				Attribute<pure3d::PoseAnimationController*>* attribute =
+					(Attribute<pure3d::PoseAnimationController*>*)object->FindAttribute(gPoseAnimationControllerName);
+				if (attribute != 0 && attribute->GetPointer() != 0)
+				{
+					pure3d::PoseAnimationController* controller = attribute->value;
+					send = controller == 0 || controller->Unknown20();
+					if (!send)
+					{
+						const fight::Name& wanted = link.object->animation;
+						pure3d::Animation* current = controller->GetAnimation();
+						send = current->mName == wanted;
+					}
+				}
+			}
+			if (send)
+			{
+				SetAnimationMessage stop;
+				object->SendMessage(&stop);
+				NISMessage message(6, fight::Name());
+				object->SendMessage(&message);
+				StopSignal signal;
+				signal.type = 0x17;
+				signal.unknown8 = 2;
+				signal.unknownB = true;
+				object->behaviours.HandleMessage((Message*)&signal);
+			}
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x108F1270
 	fight::Action* NISAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 	{
@@ -134,6 +175,38 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x108F1AD0
+	void LightAnimationAction::Slot6()
+	{
+		LightAnimationTrack* track = link.object;
+		GameObject* object = target.Get();
+		if (track != 0 && object != 0)
+		{
+			bool send = !((ExplicitLightAnimationTrack*)track)->toBeContinued;
+			if (!send)
+			{
+				Attribute<pure3d::SimpleFrameController*>* attribute =
+					(Attribute<pure3d::SimpleFrameController*>*)object->FindAttribute(gLightControllerName);
+				if (attribute != 0 && attribute->GetPointer() != 0)
+				{
+					pure3d::SimpleFrameController* controller = attribute->value;
+					send = controller == 0 || controller->Unknown20();
+				}
+			}
+			if (send)
+			{
+				SetAnimationMessage stop;
+				object->SendMessage(&stop);
+				if (ownerHandle.IsValid())
+				{
+					NISMessage message(6, fight::Name());
+					object->SendMessage(&message);
+				}
+			}
+			ReleaseNISRef(&owner);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x108F1FC0
 	fight::Action* ExplicitLightAnimationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 	{
@@ -169,3 +242,7 @@ namespace engine
 // FUNCTION: ENGINE 0x108F0DD0
 // FUNCTION: ENGINE 0x108F0DF0
 // FUNCTION: ENGINE 0x108F16B0
+// FUNCTION: ENGINE 0x108F0C80
+// FUNCTION: ENGINE 0x108F0C60
+// FUNCTION: ENGINE 0x108F13B0
+// FUNCTION: ENGINE 0x108EDAB0

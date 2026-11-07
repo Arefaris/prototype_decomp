@@ -8,15 +8,63 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/nisactions.h"
 
+#include "code/engine/message.h"
+
 namespace content
 {
 	class LoadInventory;
+}
+namespace pure3d
+{
+	class Animation;
 }
 
 namespace engine
 {
 	// 0x108A8210: the inventory of an owner that is a game object (null for any other owner)
 	content::LoadInventory* GetOwnerInventory(core::IRefCount* owner);
+
+	// RTTI: engine::SetAnimationMessage (type 10, id 0, size 0x28): tells the pose animation behaviour of an object to play
+	// an animation (all zero stops it); the member names are guesses
+	struct SetAnimationMessage : public IntrusiveMessage
+	{
+		SetAnimationMessage() : IntrusiveMessage(10, 0)
+		{
+			animation = 0;
+			speed = 0.0f;
+			frame = 0.0f;
+			startFrame = 0.0f;
+			endFrame = 0.0f;
+			cyclic = 0;
+			numCycles = 0;
+		}
+		virtual ~SetAnimationMessage()
+		{
+		}
+
+		pure3d::Animation* animation;  // +0xC
+		float speed;  // +0x10
+		float frame;  // +0x14
+		float startFrame;  // +0x18
+		float endFrame;  // +0x1C
+		int cyclic;  // +0x20
+		int numCycles;  // +0x24
+	};
+
+	// What the animation actions hand the object's behaviours to make them stop (type 0x17; a plain struct whose first
+	// word is the type, built by 0x108A08D0; the member names are guesses)
+	struct StopSignal
+	{
+		// 0x108A08D0 (another unit)
+		StopSignal();
+
+		int type;
+		int unknown4;
+		unsigned char unknown8;
+		bool unknown9;
+		bool unknownA;
+		bool unknownB;
+	};
 
 	// RTTI: engine::NISAnimationAction (9 vftable slots, size 0x40): plays an animation on an object through its pose
 	// animation controller
