@@ -50,7 +50,8 @@ namespace om
 	}
 
 	// FUNCTION: ENGINE 0x104624B0
-	bool ReadBinary(BinaryStream* stream, Vector* vector)
+	// (inline: the mgraph reflection unit expands its own inline copy)
+	inline bool ReadBinary(BinaryStream* stream, Vector* vector)
 	{
 		return ReadBinary(stream, &vector->values[0]) && ReadBinary(stream, &vector->values[1])
 			&& ReadBinary(stream, &vector->values[2]);
