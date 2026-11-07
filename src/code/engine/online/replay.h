@@ -10,6 +10,7 @@
 #include "code/content/streams.h"
 #include "code/engine/gamestate.h"
 #include "code/engine/online/onlinemanager.h"
+#include "code/engine/system/desynchunter.h"
 #include "code/engine/system/simulationdriver.h"
 
 namespace engine
@@ -20,13 +21,27 @@ namespace engine
 	void LoadRecordedInputs(void* stream);
 	void SaveRecordedInputs(void* stream);
 
+	// A reader of a recording (a file read through a buffer; another unit's class, only deleted here): 0x108C3B60
+	class ReplayReader
+	{
+	public:
+		~ReplayReader();
+	};
+
+	// The object at +0xB0 of the driver (another unit's class, only deleted here): 0x109337A0
+	class ReplayExtra
+	{
+	public:
+		~ReplayExtra();
+	};
+
 	// What the replay driver tells about the simulation steps (the objects it keeps five of; the class is another
 	// unit's and the names are guesses)
 	struct IReplayListener
 	{
 		// Whether the step is allowed to go on
-		virtual bool CheckStep(int step) = 0;
-		virtual void OnStep(int step) = 0;
+		virtual bool CheckStep(ReplayReader* reader) = 0;
+		virtual void OnStep(content::SaveStream* writer) = 0;
 		virtual void OnReset() = 0;
 	};
 
@@ -43,7 +58,7 @@ namespace engine
 		// 0x108C27E0 / 0x108C27F0 / 0x108C2800 / 0x108C2810 / 0x108C2820
 		bool HasRecording() const
 		{
-			return recording != 0;
+			return inputWriter != 0;
 		}
 		bool GetPlaybackFlagA4() const
 		{
@@ -91,14 +106,16 @@ namespace engine
 		virtual void Slot9();
 
 		IReplayListener* listeners[5];  // +0x70
-		int mode;  // +0x84
-		int unknown88;
-		int unknown8C;
-		content::SaveStream* recording;  // +0x90
-		int unknown94;
-		content::SaveStream* checksumStream;  // +0x98
-		int unknown9C;
-		ISimulationDriver* inner;  // +0xA0
+		// Three pairs of a reader (playback) and a writer (recording): the events the listeners see, the inputs and
+		// the checksums
+		ReplayReader* eventReader;  // +0x84
+		content::SaveStream* eventWriter;  // +0x88
+		ReplayReader* inputReader;  // +0x8C
+		content::SaveStream* inputWriter;  // +0x90
+		ReplayReader* checksumReader;  // +0x94
+		content::SaveStream* checksumWriter;  // +0x98
+		DesyncHunter* hunter;  // +0x9C
+		SimulationDriver* inner;  // +0xA0
 		bool playbackFlagA4;
 		bool playbackFlagA5;
 		bool flagA6;
@@ -106,7 +123,7 @@ namespace engine
 		bool unknownA8;
 		bool flagA9;
 		int stepCount;  // +0xAC
-		int unknownB0;
+		ReplayExtra* extra;  // +0xB0
 	};
 
 	// The tasks the replay registers itself as (the base of the simulation tasks; one virtual function)

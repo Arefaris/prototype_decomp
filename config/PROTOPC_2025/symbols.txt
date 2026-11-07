@@ -96527,3 +96527,5 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?VerifyChecksum@ReplaySimDriver@engine@@QAEXXZ = 0x10900690 ; function size:0x12C | engine::ReplaySimDriver::VerifyChecksum (name guess)
 ?RecordChecksum@ReplaySimDriver@engine@@QAEXXZ = 0x109007C0 ; function size:0x91 | engine::ReplaySimDriver::RecordChecksum (name guess)
 ?Slot1@ReplaySimDriver@engine@@UAEXXZ = 0x109002F0 ; function size:0x41 | public: virtual void __thiscall engine::ReplaySimDriver::Slot1(void) (name guess)
+??1ReplayReader@engine@@QAE@XZ = 0x108C3B60 ; function size:0x34 | engine::ReplayReader::~ReplayReader (name guess)
+??1ReplayExtra@engine@@QAE@XZ = 0x109337A0 ; function size:0x44 | engine::ReplayExtra::~ReplayExtra (name guess)

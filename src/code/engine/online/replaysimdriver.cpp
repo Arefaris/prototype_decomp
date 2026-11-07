@@ -3,9 +3,9 @@
 namespace engine
 {
 	// FUNCTION: ENGINE 0x10900260
-	ReplaySimDriver::ReplaySimDriver() : mode(0), unknown88(0), unknown8C(0), recording(0), unknown94(0),
-		checksumStream(0), unknown9C(0), inner(0), playbackFlagA4(false), playbackFlagA5(false), flagA6(false),
-		unknownA7(false), unknownA8(false), flagA9(false), stepCount(0), unknownB0(0)
+	ReplaySimDriver::ReplaySimDriver() : eventReader(0), eventWriter(0), inputReader(0), inputWriter(0), checksumReader(0),
+		checksumWriter(0), hunter(0), inner(0), playbackFlagA4(false), playbackFlagA5(false), flagA6(false),
+		unknownA7(false), unknownA8(false), flagA9(false), stepCount(0), extra(0)
 	{
 		for (int i = 0; i < 5; i++)
 		{
@@ -34,14 +34,76 @@ namespace engine
 		flagA9 = false;
 	}
 
+	// FUNCTION: ENGINE 0x10900D40
+	void ReplaySimDriver::Stop()
+	{
+		if (inner != 0)
+		{
+			SetSimulationDriver(inner);
+			inner = 0;
+		}
+		if (eventReader != 0)
+		{
+			delete eventReader;
+			eventReader = 0;
+		}
+		if (eventWriter != 0)
+		{
+			eventWriter->Flush();
+			delete eventWriter;
+			eventWriter = 0;
+		}
+		if (inputReader != 0)
+		{
+			delete inputReader;
+			inputReader = 0;
+		}
+		if (inputWriter != 0)
+		{
+			inputWriter->Flush();
+			delete inputWriter;
+			inputWriter = 0;
+		}
+		if (checksumReader != 0)
+		{
+			delete checksumReader;
+			checksumReader = 0;
+		}
+		if (checksumWriter != 0)
+		{
+			checksumWriter->Flush();
+			delete checksumWriter;
+			checksumWriter = 0;
+		}
+		if (extra != 0)
+		{
+			delete extra;
+			extra = 0;
+		}
+		playbackFlagA4 = false;
+		playbackFlagA5 = false;
+	}
+
+	// FUNCTION: ENGINE 0x10900E80
+	ReplaySimDriver::~ReplaySimDriver()
+	{
+		Stop();
+		if (hunter != 0)
+		{
+			delete hunter;
+			DesyncHunter::SetInstance(0);
+			hunter = 0;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10900350
 	bool ReplaySimDriver::Slot4()
 	{
-		if (unknown8C == 0 || RecordedInputsReady())
+		if (inputReader == 0 || RecordedInputsReady())
 		{
-			if (mode == 0 || stepCount < 1)
+			if (eventReader == 0 || stepCount < 1)
 			{
-				if (mode == 0)
+				if (eventReader == 0)
 				{
 					unknownA8 = inner->Slot4();
 				}
@@ -82,7 +144,7 @@ namespace engine
 			{
 				if (listeners[i] != 0)
 				{
-					listeners[i]->OnStep(unknown88);
+					listeners[i]->OnStep(eventWriter);
 				}
 			}
 		}
@@ -97,18 +159,18 @@ namespace engine
 			{
 				if (listeners[i] != 0)
 				{
-					playbackFlagA5 = playbackFlagA5 || listeners[i]->CheckStep(mode);
+					playbackFlagA5 = playbackFlagA5 || listeners[i]->CheckStep(eventReader);
 				}
 			}
 			if (playbackFlagA5)
 			{
-				if (recording != 0)
+				if (inputWriter != 0)
 				{
-					recording->Flush();
+					inputWriter->Flush();
 				}
-				if (checksumStream != 0)
+				if (checksumWriter != 0)
 				{
-					checksumStream->Flush();
+					checksumWriter->Flush();
 				}
 			}
 		}
@@ -120,19 +182,19 @@ namespace engine
 		stepCount = 0;
 		inner->Slot3();
 		unknownA8 = false;
-		if (mode != 0)
+		if (eventReader != 0)
 		{
 			while (inner->Slot4())
 			{
 				unknownA8 = true;
 			}
 		}
-		if (unknownA7 && !flagA6 && mode != 0)
+		if (unknownA7 && !flagA6 && eventReader != 0)
 		{
 			PollListeners();
-			if (unknown8C != 0)
+			if (inputReader != 0)
 			{
-				LoadRecordedInputs((void*)unknown8C);
+				LoadRecordedInputs(inputReader);
 			}
 			unknownA7 = false;
 		}
@@ -143,15 +205,15 @@ namespace engine
 	void ReplaySimDriver::Slot6()
 	{
 		ISimulationDriver::Slot6();
-		if (unknown88 != 0)
+		if (eventWriter != 0)
 		{
 			NotifyListeners();
 		}
-		if (recording != 0)
+		if (inputWriter != 0)
 		{
-			SaveRecordedInputs(recording);
+			SaveRecordedInputs(inputWriter);
 		}
-		if (unknown9C != 0 && !flagA6)
+		if (hunter != 0 && !flagA6)
 		{
 			VerifyChecksum();
 			RecordChecksum();
