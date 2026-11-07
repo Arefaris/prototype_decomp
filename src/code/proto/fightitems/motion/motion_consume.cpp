@@ -1,5 +1,6 @@
 // Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_consume.h"
+#include "code/proto/fightitems/motion/motionactionmessages.h"
 
 namespace proto
 {
@@ -728,6 +729,98 @@ namespace proto
 				return new ConsumeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100AC870
+			bool ConsumeGrabberAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					engine::Attribute<engine::GameObjectHandle>* attribute = (engine::Attribute<engine::GameObjectHandle>*)object->FindAttribute(engine::gAttachmentState);
+					if (attribute != 0 && &attribute->value != 0)
+					{
+						engine::GameObjectHandle grabber = attribute->value;
+						if (grabber.Get() != 0)
+						{
+							ConsumeObject(target, grabber, link.object->stealthy);
+						}
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100AC6B0
+			bool ConsumeMeAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::AttachmentGetAttachmentStateMessage stateMessage;
+					object->PostMessage(&stateMessage);
+					if (stateMessage.parent != 0)
+					{
+						engine::GameObjectHandle parent = *stateMessage.parent;
+						engine::GameObject* parentObject = parent.Get();
+						if (parentObject != 0)
+						{
+							ReleaseGrabbedObjectMessage releaseMessage(target);
+							parentObject->SendMessage(&releaseMessage);
+						}
+						ConsumeObject(parent, target, link.object->stealthy);
+					}
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100AC540
+			bool ConsumeAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					core::Name<core::CaseSensitiveKey> slot(link.object->grabSlot);
+					GetGrabbedObjectMessage message(&slot);
+					object->SendMessage(&message);
+					ConsumeObject(target, message.grabbed, link.object->stealthy);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100AD140
+			bool ScaleJointForConsumeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				jointIndex = FindDrawablePart(object, &link.object->jointToScale);
+				ScaleJointForConsumeMessage message(jointIndex, link.object->scaleRate, link.object->desiredScale);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100AD240
+			void ScaleJointForConsumeAction::Slot6()
+			{
+				if (link.object != 0 && target.IsValid())
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						StopScalingJointForConsumeMessage message(jointIndex);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConsumeGrabberTrack>;
 			template class fight::PropertyBool<ConsumeGrabberTrack>;
@@ -871,3 +964,13 @@ namespace proto
 // FUNCTION: ENGINE 0x100AC840
 // FUNCTION: ENGINE 0x100AC9B0
 // FUNCTION: ENGINE 0x100AD110
+// FUNCTION: ENGINE 0x100A2F10
+// FUNCTION: ENGINE 0x100AB020
+// FUNCTION: ENGINE 0x100AB080
+// FUNCTION: ENGINE 0x100AB3C0
+// FUNCTION: ENGINE 0x100A6BC0
+// FUNCTION: ENGINE 0x100AB090
+// FUNCTION: ENGINE 0x100AB0C0
+// FUNCTION: ENGINE 0x100AB150
+// FUNCTION: ENGINE 0x100AB4A0
+// FUNCTION: ENGINE 0x100AB4D0
