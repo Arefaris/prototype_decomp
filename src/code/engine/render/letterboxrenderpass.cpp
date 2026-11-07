@@ -2,6 +2,8 @@
 // the frame's bars with, together with the two debug managers whose trivial constructors this unit is the first to
 // need.
 #include "code/engine/render/letterboxrenderpass.h"
+#include "code/engine/render/async/canvas.h"
+#include "code/pure3d/context.h"
 
 namespace engine
 {
@@ -17,6 +19,26 @@ namespace engine
 		float Letterbox::GetAspectRatio() const
 		{
 			return gDisplay->GetAspectRatio();
+		}
+
+		// FUNCTION: ENGINE 0x108BCA00
+		void Canvas::Unknown108BCA00(bool value)
+		{
+		}
+
+		// FUNCTION: ENGINE 0x108BCE10
+		void Canvas::SetCurrentContext(core::Name<core::CaseSensitiveKey> name)
+		{
+			pure3d::context->SetCurrentContext(name.GetHash());
+		}
+
+		// FUNCTION: ENGINE 0x108BCE40
+		void Canvas::Unknown108BCE40(core::Name<core::CaseSensitiveKey> name, bool value)
+		{
+			if (parameters != 0)
+			{
+				parameters->SetBool(&name, value);
+			}
 		}
 	}
 }

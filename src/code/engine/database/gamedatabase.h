@@ -231,11 +231,16 @@ namespace engine
 			}
 		};
 
+		// 0x108A5BB0 / 0x108A56C0
 		GameDBStorage();
 		~GameDBStorage();
+		// 0x108A5880
 		void SetCallback(GameDBStorageCallback* callback);
+		// 0x108A5870
 		bool IsOperationInProgress();
 		void SlotA(int a);
+		// 0x108A5EF0: watches the profile's time stamp until it was seen once
+		void ObserveTimestamp();
 		// 0x108A5BE0: writes the values of player of subject at buffer, returns the bytes written
 		int WriteSubject(unsigned int player, DBSubject* subject, void* buffer);
 
@@ -248,7 +253,15 @@ namespace engine
 		virtual bool Slot6(int a, int b, int c);
 		virtual bool Slot7(int a, int b);
 
-		int unknown4[7];
+		GameDBStorageCallback* callback;  // +4
+		DBSubject* timestampSubject;  // +8: the observer of the profile's time stamp, made on first use
+		bool timestampObserved;  // +0xC
+		int state;  // +0x10: the operation in progress (0 for none)
+		void* unknown14;
+		void* data;  // +0x18: the profile data of the operation
+		int player;  // +0x1C
+		unsigned int profileSize;  // +0x20
+		unsigned int bufferSize;  // +0x24
 	};
 
 	// The online database helper (another unit, RTTI engine::OnlineGameDBHelper; 0x64 bytes)
@@ -401,8 +414,6 @@ namespace engine
 		unsigned char mode;
 		OnlineGameDBHelper onlineHelper;
 		GameDBStorage storage;
-		unsigned int profileSize;
-		int bufferSize;
 		GameDBStorageListener* storageListener;
 		int categoryA[4];
 		int categoryB[4];

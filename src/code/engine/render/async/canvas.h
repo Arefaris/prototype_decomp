@@ -6,6 +6,7 @@
 #define ENGINE_RENDER_ASYNC_CANVAS_H
 
 #include "code/core/name.h"
+#include "code/pure3d/parameterhandler.h"
 
 namespace engine
 {
@@ -14,6 +15,8 @@ namespace engine
 		class Canvas
 		{
 		public:
+			unsigned char unknown0[0xC];
+			pure3d::ParameterHandlerTypeless* parameters;  // +0xC
 			// The members the game thread queues
 			void Unknown108BCA00(bool value);
 			void Unknown108BCA10(float a, bool b, float c, bool d, float e, bool f, bool g);

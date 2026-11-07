@@ -104165,3 +104165,5 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?ApplyDeadZones@PlayerInput@controller@engine@@QAEXXZ = 0x108A1720 ; function size:0xBE | engine::controller::PlayerInput::ApplyDeadZones (name guess)
 ??1LightBehaviour@engine@@UAE@XZ = 0x108A0520 ; function size:0x8F | engine::LightBehaviour destructor
 ??_GLightBehaviour@engine@@UAEPAXI@Z = 0x108A05B0 ; function size:0x1E | engine::LightBehaviour scalar deleting destructor vftable slot 0
+?OnDBSlot1@GameDBStorage@engine@@UAEXHH@Z = 0x108A5E10 ; function size:0x5C | engine::GameDBStorage::OnDBSlot1 vftable slot 1 (name guess)
+?ObserveTimestamp@GameDBStorage@engine@@QAEXXZ = 0x108A5EF0 ; function size:0x3F | engine::GameDBStorage::ObserveTimestamp (name guess)
