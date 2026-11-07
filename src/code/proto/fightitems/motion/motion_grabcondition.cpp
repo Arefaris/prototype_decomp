@@ -1707,6 +1707,83 @@ namespace proto
 				return fight::CompareNames(compare, &grabbedName, &className);
 			}
 
+			// FUNCTION: ENGINE 0x100C3FC0
+			// NONMATCHING: the engine loads the compared constant with mov eax, 1 / xor eax, eax where ours has mov al, 1 (71.4 %)
+#ifdef NONMATCHING
+			bool IsGrabbableCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					AttemptGrabMessage message(handle);
+					object->SendMessage(&message);
+					bool grabbable;
+					if (message.canGrab && message.allowed)
+					{
+						grabbable = true;
+					}
+					else
+					{
+						grabbable = false;
+					}
+					result = grabbable == is;
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100C3E40
+			bool TargetIsGrabTargetCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetTargetMessage targetMessage;
+					object->SendMessage(&targetMessage);
+					GetGrabTargetGrabMessage grabMessage;
+					object->SendMessage(&grabMessage);
+					engine::GameObject* target = targetMessage.target.Get();
+					engine::GameObject* grabTarget = grabMessage.target.Get();
+					if (target != 0 && grabTarget != 0)
+					{
+						bool same = target == grabTarget;
+						result = same == is;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x100C3500
+			// NONMATCHING: the engine merges the tails of the two message branches and builds the comparison result in a temporary (88.9 %)
+#ifdef NONMATCHING
+			bool HaveGrabTargetCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				int ignoreValue = ignore;
+				if (useStoredProperties)
+				{
+					FindGrabTargetGrabMessage message(true, ignoreValue, validGrabbableClass, true, 0, 0.0f);
+					object->SendMessage(&message);
+					bool matches = (message.target.Get() != 0) == have;
+					return matches;
+				}
+				else
+				{
+					FindGrabTargetGrabMessage message(true, ignoreValue, validGrabbableClass, false, collideWith, range);
+					object->SendMessage(&message);
+					bool matches = (message.target.Get() != 0) == have;
+					return matches;
+				}
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x100C2640
 			bool GrabbedByPlayerCondition::Evaluate(int a, int b, int c, int d)
 			{
@@ -1812,7 +1889,16 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	// FUNCTION: ENGINE 0x100C2370
+	FindGrabTargetGrabMessage::FindGrabTargetGrabMessage(bool vC, int v14, core::Name<core::CaseSensitiveKey> newClassName, bool vD, int v10, float v18) : GrabMessage(7), unknownC(vC), unknownD(vD), unknown10(v10), unknown14(v14), unknown18(v18), className(newClassName), target()
+	{
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C21F0
 // FUNCTION: ENGINE 0x100C23F0
 // FUNCTION: ENGINE 0x100C2480
 // FUNCTION: ENGINE 0x10164A40

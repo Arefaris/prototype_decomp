@@ -8,6 +8,7 @@
 #include "code/core/name.h"
 #include "code/proto/fightitems/motion/motionmessages2.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -150,6 +151,55 @@ namespace proto
 		}
 
 		bool canHop;  // +0xC
+	};
+
+	// RTTI: proto::AttemptGrabMessage: asks the object whether a grab by the given object would take
+	class AttemptGrabMessage : public GrabbableMessage
+	{
+	public:
+		explicit AttemptGrabMessage(engine::GameObjectHandle newGrabber) : GrabbableMessage(0), grabber(newGrabber), grabbed(), allowed(true), canGrab(false), unknown16(false)
+		{
+		}
+		virtual ~AttemptGrabMessage()
+		{
+		}
+
+		engine::GameObjectHandle grabber;  // +0xC
+		engine::GameObjectHandle grabbed;  // +0x10
+		bool allowed;  // +0x14
+		bool canGrab;  // +0x15
+		bool unknown16;
+	};
+
+	// RTTI: proto::GetGrabTargetGrabMessage: the object answers the object it means to grab
+	struct GetGrabTargetGrabMessage : public GrabMessage
+	{
+		GetGrabTargetGrabMessage() : GrabMessage(9), target()
+		{
+		}
+		virtual ~GetGrabTargetGrabMessage()
+		{
+		}
+
+		engine::GameObjectHandle target;  // +0xC
+	};
+
+	// RTTI: proto::FindGrabTargetGrabMessage: the object answers the object it would grab (the engine's constructor is out of line, 0x100C2370)
+	struct FindGrabTargetGrabMessage : public GrabMessage
+	{
+		FindGrabTargetGrabMessage(bool vC, int v14, core::Name<core::CaseSensitiveKey> newClassName, bool vD, int v10, float v18);
+		virtual ~FindGrabTargetGrabMessage()
+		{
+		}
+
+		bool unknownC;  // +0xC
+		bool unknownD;  // +0xD
+		int unknown10;
+		int unknown14;
+		float unknown18;
+		int unknown1C;
+		core::Name<core::CaseSensitiveKey> className;  // +0x20
+		engine::GameObjectHandle target;  // +0x28
 	};
 }
 
