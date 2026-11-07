@@ -35,6 +35,7 @@ namespace proto
 		virtual bool WriteEvent();
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
+		int unknown1C;  // +0x1C: the number
 		core::Name<core::CaseSensitiveKey> first;  // +0x20
 		core::Name<core::CaseSensitiveKey> second;  // +0x28
 		core::Name<core::CaseSensitiveKey> third;  // +0x30
