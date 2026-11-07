@@ -23,7 +23,27 @@ namespace engine
 	public:
 		// 0x10853BA0
 		NetMessageAllocator();
+		// The form the derived allocators' inline constructors use (the engine's constructor is inline there; 0x10853BA0 is
+		// its out-of-line copy)
+		explicit NetMessageAllocator(int)
+		{
+		}
 		virtual void Slot1() = 0;
+	};
+
+	// The allocator that takes its messages from the heap (RTTI: engine::NetMessageAllocatorDynamic; the slots are
+	// the net library's, 0x108D5860 and 0x108D5830)
+	class NetMessageAllocatorDynamic : public NetMessageAllocator
+	{
+	public:
+		NetMessageAllocatorDynamic() : NetMessageAllocator(0)
+		{
+		}
+		~NetMessageAllocatorDynamic()
+		{
+		}
+		virtual void Slot0();
+		virtual void Slot1();
 	};
 }
 
