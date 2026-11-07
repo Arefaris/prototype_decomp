@@ -194,7 +194,7 @@ namespace engine
 	// The name of the mix event that lowers the audio while the window has no focus ("nofocus"; the statics unit's)
 	extern core::Name<core::CaseSensitiveKey> gNofocus;
 	// 0x111CA914: whether the window has the focus; 0x1131558C: 3 while it has, 1 while it has not (names guessed)
-	bool gWindowFocused;
+	bool gWindowFocused = true;
 	int gFocusState;
 }
 
