@@ -98814,3 +98814,6 @@ _EngineWindowFocus = 0x1085E6D0 ; function size:0x8C | EngineWindowFocus (export
 ?ShowElements@FrontEndHud@proto@@QAEXH@Z = 0x104B10D0 ; function size:0x31 | proto::FrontEndHud::ShowElements (name guess)
 ?SetVisible@FrontEndHud@proto@@QAEX_N@Z = 0x104B1090 ; function size:0x28 | proto::FrontEndHud::SetVisible (name guess)
 ?Get@?$Link@VHideHUDTrack@motion@fightitems@proto@@@core@@QBEPAVHideHUDTrack@motion@fightitems@proto@@XZ = 0x100C0BB0 ; function size:0x3 | kept template or inline copy of this unit
+?AssignRefCountedFreezescale@motion@fightitems@proto@@YAXAAPAUIRefCount@core@@PAU45@@Z = 0x100C0610 ; function size:0x28 | proto::fightitems::motion::AssignRefCountedFreezescale (name guess)
+?AssignDriverFreezescale@motion@fightitems@proto@@YAXAAPAVDriver@choreo@@PAV45@@Z = 0x100C0650 ; function size:0x25 | proto::fightitems::motion::AssignDriverFreezescale (name guess)
+?Get@?$Link@VFreezeScaleTrack@motion@fightitems@proto@@@core@@QBEPAVFreezeScaleTrack@motion@fightitems@proto@@XZ = 0x100C06A0 ; function size:0x3 | kept template or inline copy of this unit
