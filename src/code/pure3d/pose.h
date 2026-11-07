@@ -62,6 +62,9 @@ namespace pure3d
 		void GetRestMatrix(unsigned int joint, math::Matrix* out);
 		// 0x106DDC80: the partition of that name (null when there is none; the empty names get a static empty one)
 		Partition* FindPartition(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x106DDD20: the limb of that name (null when there is none); 0x106DD970: a partition by index (names guessed)
+		SkeletonLimb* FindLimb(const core::Name<core::CaseSensitiveKey>& name);
+		Partition* GetPartition(unsigned int index);
 		// 0x106DDA60: the index of the joint of that name (looked up in the joint data)
 		int FindJoint(const core::Name<core::CaseSensitiveKey>& name) const;
 

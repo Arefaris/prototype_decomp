@@ -11,6 +11,40 @@ namespace pure3d
 	// of its own this unit sets up besides the name and the joint mask below)
 	extern Skeleton::Partition gRootPartition;
 
+	// FUNCTION: ENGINE 0x106DD8F0
+	void JointMask::SetAll()
+	{
+		unsigned int count = (jointCount + 31) >> 5;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			words[i] = 0xFFFFFFFF;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106DD910
+	void JointMask::SetWord(unsigned int index, unsigned int value)
+	{
+		words[index] = value;
+	}
+
+	// FUNCTION: ENGINE 0x106DD950
+	math::Quaternion* SkeletonData::GetLimbRotation(unsigned int index)
+	{
+		return mLimbRotations + index;
+	}
+
+	// FUNCTION: ENGINE 0x106DD960
+	math::Vector4* SkeletonData::GetLimbTranslation(unsigned int index)
+	{
+		return mLimbTranslations + index;
+	}
+
+	// FUNCTION: ENGINE 0x106DD970
+	Skeleton::Partition* Skeleton::GetPartition(unsigned int index)
+	{
+		return partitions + index;
+	}
+
 	// FUNCTION: ENGINE 0x106DD9A0
 	SkeletonDebugInfo::~SkeletonDebugInfo()
 	{
@@ -111,6 +145,28 @@ namespace pure3d
 		return 0;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106DDD20
+	SkeletonLimb* Skeleton::FindLimb(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unsigned int count = mData.mLimbCount;
+		unsigned int i = 0;
+		if (i < count)
+		{
+			SkeletonLimb* limb = mData.mLimbs;
+			do
+			{
+				if (limb->name == name)
+				{
+					return limb;
+				}
+				i++;
+				limb++;
+			}
+			while (i < count);
+		}
+		return 0;
+	}
 
 	// FUNCTION: ENGINE 0x106DDF20
 	// NONMATCHING: register allocation: the engine moves this to ebx and keeps the partition count in esi (15.3 %)

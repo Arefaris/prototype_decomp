@@ -18,6 +18,10 @@ namespace pure3d
 	{
 		unsigned int jointCount;
 		unsigned int words[1];
+
+		// 0x106DD8F0: sets the bit of every joint; 0x106DD910: sets a word of the mask (names guessed)
+		void SetAll();
+		void SetWord(unsigned int index, unsigned int value);
 	};
 
 	// A group of up to three joints of a skeleton (0x20 bytes): the joints are the bits a file sets in a mask
@@ -54,6 +58,9 @@ namespace pure3d
 		void Finish();
 		// 0x1072D7D0: the index of the joint of that name, or 0xFFFF
 		unsigned int FindJoint(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x106DD950 / 0x106DD960: the rest rotation and translation of a limb (names guessed)
+		math::Quaternion* GetLimbRotation(unsigned int index);
+		math::Vector4* GetLimbTranslation(unsigned int index);
 		// 0x1072D620: the limb count and the word at +0x48 (the skeleton's own data after this part)
 		void GetLimbInfo(SkeletonLimbInfo* out) const;
 
