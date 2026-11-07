@@ -53,11 +53,6 @@ void engine::SafeReleaseRefCopy4(core::IRefCount** slot)
 
 namespace proto
 {
-	WorldTriggerCollisionCallback* gWorldTriggerCollisionCallback;  // 0x11264740 (another unit defines it)
-}
-
-namespace proto
-{
 	namespace fightitems
 	{
 		namespace motion
