@@ -11,9 +11,36 @@ namespace mgraph
 
 	class __declspec(align(8)) Delay : public Node
 	{
-		MGRAPH_NODE_BODY(Delay, Node, 0x58);
+	public:
+		Delay(Graph* newGraph, const om::ClassName& newName);
+		virtual ~Delay();
+		virtual void SetNumChannels(unsigned int newCount);
+		virtual void Slot16(EvaluationFrame* frame);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
+
+		// What the node keeps for each channel (name guessed; 16 bytes)
+		struct Channel
+		{
+			Channel();
+			float unknown0;
+			float unknown4;
+			int unknown8;
+			int unknownC;
+		};
+		om::DynamicArray<Channel, unsigned short> channels;  // 0x50
 	};
 
+
 }
+
+namespace om
+{
+	// The loops that fill and copy the elements are the engine's
+	template<> void DynamicArray<mgraph::Delay::Channel, unsigned short>::FillElements(mgraph::Delay::Channel* destination, unsigned short count, const mgraph::Delay::Channel& value);
+	template<> void DynamicArray<mgraph::Delay::Channel, unsigned short>::CopyElements(mgraph::Delay::Channel* destination, const mgraph::Delay::Channel* source, unsigned short count);
+}
+
 
 #endif

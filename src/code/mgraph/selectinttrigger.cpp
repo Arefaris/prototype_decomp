@@ -17,6 +17,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B75280
+	inline void* SelectIntFromTrigger::operator new(size_t)
+	{
+		return Allocate(SelectIntFromTrigger::AllocationTag(), sizeof(SelectIntFromTrigger), __alignof(SelectIntFromTrigger));
+	}
+
+	inline void SelectIntFromTrigger::operator delete(void* memory)
+	{
+		Release(memory, sizeof(SelectIntFromTrigger), __alignof(SelectIntFromTrigger));
+	}
+
 	// FUNCTION: ENGINE 0x10B75740
 	template<> Node* NodeType<SelectIntFromTrigger>::CreateNode(void* graph, const ClassName* nodeName)
 	{

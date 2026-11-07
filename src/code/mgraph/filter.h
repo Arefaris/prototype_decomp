@@ -14,7 +14,9 @@ namespace mgraph
 	{
 	public:
 		Filter(Graph* newGraph, const om::ClassName& newName);
-		OM_ALLOCATION(Filter);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The properties "Frequency", "Q" and "FilterType" (not reconstructed)
 		void SetFrequency(float newFrequency);

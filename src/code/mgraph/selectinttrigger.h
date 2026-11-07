@@ -14,7 +14,9 @@ namespace mgraph
 	{
 	public:
 		SelectIntFromTrigger(Graph* newGraph, const om::ClassName& newName);
-		OM_ALLOCATION(SelectIntFromTrigger);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The property "NumInputs" (not reconstructed)
 		void SetNumInputs(unsigned int newCount);

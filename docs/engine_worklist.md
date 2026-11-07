@@ -7893,3 +7893,32 @@ Of 2257 open functions about 1940 have no name; the rest are dead copies of 1 - 
   `DynamicArray<Packet<T>>::FillElements / CopyElements / Resize` (82 % / 70 %: the engine strength-reduces the source pointer), and the roughly 300 second copies of template instances.
 - Shared header changes: `mgraph/nodes.h` (`InletBase`, `OutletBase`, `Inlet`, `Outlet`, `Abstraction::Refresh`, `PropertyNodeBase` / `PropertyNode` constructors, `PropertyValueAccess<Vector>`),
   `mgraph/pins.h` (the abstract pin constructors, `AddSource`, `AddTarget`), `mgraph/listnodes.h`, `mgraph/throw.h`.
+## sn-ds: the range 0x10B60000 - 0x10B80000 (mgraph envelope-array property node, node allocation functions and per-channel state, the Lua string library, Pluto)
+789 functions of the range were open at the start; about 175 are reconstructed now (all 100 % matches except the NONMATCHING ones named below).
+- `mgraph/propertynode.cpp`, `methods.cpp` (0x10B627D0 - 0x10B63E00): the property node of the `DynamicArray<EnvelopeData>` packets (events, channels, delegates, `PostInputEvent` / `SetChannelValue` / `SetNumChannels` /
+  `Slot16`, the `Update` of the channel, `MetaMethod1<..>::Invoke`). The family was generated from the instances of the other array packets (`DynamicArray<bool>` / `Complex`) with a probe that substitutes the element type
+  and binds the compiled symbols to the engine's addresses by byte match. Still engine's: the scalar `TriggerData` property node (0x10B6AC40 - 0x10B6BB90) is a different class from the template (channels of a
+  target and flags, a 232-byte `Slot16`), the deleting destructor of the input event (92 against 87 bytes) and `DynamicArray<PropertyChannel<..>>::Resize`'s helper (171 against 208 bytes).
+- `lua/src/lstrlib.cpp` (0x10B7BDD0 - 0x10B7D8F0, 42 functions): the Lua 5.1.1 string library. The engine's copy is the 5.1.0/5.1.1 one: `posrelat` does not clamp, `match_class` has the `'z'` class and
+  ends with `islower(cl) ? res : !res`, `str_gsub` has no argument check but `add_value` has a `default:` that calls `luaL_argerror`, `str_format` has no `no value` check, `MAX_FORMAT` is 20, `scanformat`'s
+  loop is `while (strchr(FLAGS, *p))` and `LUA_COMPAT_GFIND` is defined. `str_format` keeps the format string's length right below the item's format in its frame (the local struct `frame`).
+  functions.tsv cuts `str_gsub` / `add_value` / `addquoted` / `scanformat` short (jump tables): their symbols.txt sizes are the real ones.
+- `lua/src/pluto.cpp` (0x10B77640 - 0x10B7A0C0, 47 functions): Pluto, the persistence library (`persist` / `unpersist` of tables, functions, protos, upvalues, threads and userdata), with the engine's
+  `LuaSerialize` / `LuaDeserialize` wrappers and the Lua functions `pluto.persist` / `pluto.unpersist`. The unit is compiled **without optimisation** (`// CFLAGS: !/arch !/O2 !/Ob1 /Od`).
+  Findings for /Od code (these cost the most time): the compiler lays out the locals by a hash of the **variable names** (function level: the name, nested blocks: name and a serial number), not by the order of
+  declaration, use or size; a mismatch of the frame is a mismatch of every offset. `local/scratch/sn-ds/t/lsearch.py` (random search of names per block against the compiled `/FAs` listing) and `fnorder.py`
+  (the order of candidate names in the real function) found names for each block (`persistthread`, `unpersistthread`: names like `stackfunc`, `codepos`, `numci`, `k2` are the ones the search found).
+  The engine's `verify(x)` is `{ int v = (int)(x); v = v; }` (a load and store of the same local); `stacktop = stacktop;` after `lua_gettop` is the same idiom. The order of the `case` blocks follows the source (the
+  userdata case comes last), `if (x) { return; } else { ... }` and an empty then-block with an else produce the doubled `jmp`s, and `p ? a : b` branches are inverted from the obvious.
+- Node classes (`chooser`, `delay`, `fade`, `filter`, `meter`, `minmaxdistance`, `selectinttrigger`, `smoother`, `systemnode`, `castnodes`): the allocation functions (`operator new` / `operator delete`) are
+  declared in the class and defined as inline functions in the node's source (`MGRAPH_NODE_BODY_OUT` in `nodes.h`), so that each carries its annotation. `Delay`, `Fade`, `MinMaxDistance` and `Smoother` have their
+  per-channel state (`Channel`: 16, 4, 12 and 8 bytes) with its constructor, `SetNumChannels` (`channels.Resize(newCount, Channel(..)); Node::SetNumChannels(newCount)`), destructor where the engine has one, and the
+  `DynamicArray<Channel>` instances (`Resize`, `Allocate`, `AllocationTag`, ...). The `FillElements` / `CopyElements` of these arrays are the engine's (the loops differ: the count stays in cx, the copy uses a
+  base-plus-offset form): the header declares the explicit specialisations and symbols.txt maps them. `SystemNode`: destructor, `SetNumChannels`.
+- NONMATCHING: `SystemNode::SystemNode` (99.5 %: the allocation tag of the output pin is the engine's folded copy at 0x10B06F60) and `SystemNode::Slot16` (81.6 %: the engine keeps the frame's id in edi).
+- Not done and why: the constructors of the node classes (the pins' allocation tags lead to folded copies, as for the cast nodes), `Chooser` (its channel holds a list of 12-byte nodes), `Filter` (channel of 0x104
+  bytes), `SelectIntFromTrigger` (the channel has a vftable), the `Switch` and `Throw` instances of the envelope packets, the ten property node registrations at 0x10B601F0 - 0x10B62600 and the nine per-packet registrations
+  (0x10B63ED0 - 0x10B681D0, 2133 bytes each), 0x10B68D70, the pin bases (0x10B698F0 - 0x10B6A130: the connection list loops need the connections' link offsets), `math_random` (0x10B7BBF0: the engine's `fight::gFightRandom`),
+  the async task list class (0x10B7F700 - 0x10B7F8C0, 0x10B7FD90 on: no class name).
+- Shared header changes: `mgraph/nodes.h` (`MGRAPH_NODE_BODY_OUT`), `lua/lua.h` (`lua_equal`), the node headers `chooser.h`, `delay.h`, `fade.h`, `filter.h`, `meter.h`, `minmaxdistance.h`, `selectinttrigger.h`, `smoother.h`,
+  `systemnode.h`, `castnodes.h` (the allocation functions are declared, `Delay` / `Fade` / `MinMaxDistance` / `Smoother` have members). symbols.txt: the `str_*` / `pluto` statics, the allocation functions, the instances above.
