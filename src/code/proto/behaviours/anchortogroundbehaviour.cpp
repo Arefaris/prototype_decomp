@@ -1,4 +1,6 @@
 #include "code/proto/behaviours/anchortogroundbehaviour.h"
+#include "code/ravenphysics/constraints/constraints.h"
+#include "code/ravenphysics/context.h"
 
 namespace engine
 {
@@ -23,6 +25,62 @@ namespace proto
 		Listen(2, true);
 		Listen(0x1a, true);
 	}
+
+	// FUNCTION: ENGINE 0x100605E0
+	// NONMATCHING: the engine ends with a jump to SetPointA that reuses the incoming argument; ours pushes the argument
+	// before the lookup of the constraint and calls (60.5 %)
+#ifdef NONMATCHING
+	void AnchorToGroundBehaviour::SetAnchorPoint(const math::Vector* point)
+	{
+		if (ballInSocketHandle.IsValid())
+		{
+			ravenphysics::ConstraintBallInSocket* ball = static_cast<ravenphysics::ConstraintBallInSocket*>(ballInSocketHandle.GetObject());
+			ball->SetPointA(point);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10060450
+	// NONMATCHING: the engine keeps the handle in esi and the context in edi in all three blocks, ours swaps them in the
+	// second and the third (91.1 %)
+#ifdef NONMATCHING
+	void AnchorToGroundBehaviour::ReleaseConstraints()
+	{
+		ravenphysics::CollisionHandle* handle = &alignHandleA;
+		if (handle->IsValid())
+		{
+			ravenphysics::Context* context = ravenphysics::gContext;
+			if (context)
+			{
+				ravenphysics::CollisionHandle copy = *handle;
+				context->RemoveCollisionObject(copy.GetObject());
+			}
+			handle->Destroy();
+		}
+		handle = &alignHandleB;
+		if (handle->IsValid())
+		{
+			ravenphysics::Context* context = ravenphysics::gContext;
+			if (context)
+			{
+				ravenphysics::CollisionHandle copy = *handle;
+				context->RemoveCollisionObject(copy.GetObject());
+			}
+			handle->Destroy();
+		}
+		handle = &ballInSocketHandle;
+		if (handle->IsValid())
+		{
+			ravenphysics::Context* context = ravenphysics::gContext;
+			if (context)
+			{
+				ravenphysics::CollisionHandle copy = *handle;
+				context->RemoveCollisionObject(copy.GetObject());
+			}
+			handle->Destroy();
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x100610C0
 	AnchorToGroundBehaviour::~AnchorToGroundBehaviour()

@@ -63,6 +63,8 @@ namespace proto
 
 		// 0x10060450 (name guess): destroys the constraints of the anchor
 		void ReleaseConstraints();
+		// 0x100605E0 (name guess): moves the anchor point of the ball in socket constraint
+		void SetAnchorPoint(const math::Vector* point);
 		// 0x10061900: anchors the object to the ground (or to the joint) or lets it go
 		void ApplyAnchor(bool anchor, bool zeroHeight);
 

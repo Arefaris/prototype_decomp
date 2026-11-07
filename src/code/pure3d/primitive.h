@@ -88,6 +88,8 @@ namespace pure3d
 		void SetMatrix(int kind, const char* name, const float* value);
 		// 0x106139F0: a sampler
 		void SetSampler(int kind, const char* name, const SamplerSetting* value);
+		// 0x106132C0 (name guess): the four float input of the name (the name is the 32-bit hash the others make of their text)
+		void SetVector4Named(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
 		// 0x10613870: the default value
 		void SetDefault(int kind, const char* name);
 
