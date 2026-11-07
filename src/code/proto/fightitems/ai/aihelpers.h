@@ -74,6 +74,9 @@ namespace proto
 		BaseAlert* baseAlert;  // +0x20
 		unsigned char unknown24[4];
 		Heightmap* heightmap;  // +0x28
+
+		// 0x10360C80: looks a point up for a position through the object at +0x30 (false when there is none; name guess)
+		bool Unknown10360C80(const math::Vector* position, math::Vector* result);
 	};
 
 	// 0x11263AB0

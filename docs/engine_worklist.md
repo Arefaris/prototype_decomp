@@ -7770,3 +7770,24 @@ Units extended in `src/code/proto/fightitems/motion/` (jump animation, laser, mo
 - Matched: `JumpAnimationAction` (constructor, destructor, stop, the range helpers and `UpdatePhase`, `CreateAction`), the five track getters it calls, `NoPushbackAction` begin / stop, `SprintVelocityClearAction` begin, `MoveAtVelocityAction` begin / stop, `MoveChargedAction` / `OrientAction` stop, `WorldOrientAction` begin, `LaserAction` (destructor, stop, begin), the four magnetic boots test actions (constructor, destructor, `CreateAction`, empty stop, begin), `MagneticBootsResetInfoAction` update, `UsingHunterShortRangeCondition`, the destructors and `CreateAction` of the jump, turn corner, stick to wall and detach actions (their constructors stay with the engine), the detach action's stop.
 - NONMATCHING (reasons in the sources): `JumpAnimationAction::Slot5` (24 %: the engine keeps the object in ebx and the animation in ebp, its early exits pop fewer registers) and `Slot7` (99 %: the engine tests the puppet pointer with `cmp [eax], 0` and loads it again), `MoveAtVelocityAction::Slot7`, `MoveChargedAction::Slot5` / `Slot7`, `WorldOrientAction::Slot7`, `MagneticBootsNextSurfaceNormalCondition::Evaluate`, `OrientationNormalAngleCondition::Evaluate`, `MagneticBootsJumpAction` constructor (85 %), `LaserAction` constructor (92 %).
 - Not done: the jump to action (physics callbacks), the big update slots of the locomotion and magnetic boots actions, the obstacle actions (0x7000-byte embedded tables), `OrientAction::Slot5` (unnamed helpers 0x103B9520 / 0x10127360), the second `Link<T>` pair each action unit has in front of its action constructor and destructor (its type is unknown).
+
+## sn-dm: the range 0x10080000 - 0x100A0000 (animation blend, boundary and whip fist actions)
+- `proto/fightitems/motion/motion_animationblend.cpp` (+ `.h`): `Slot5` / `Slot7` of `AnimationBlendSimpleAction` and `AnimationBlendDirectionalAction`
+  (with the directional helpers `GetInput`, `ChooseDirection`, `Blend`, `AdjustWeights`, the table of the four allowed-transitions getters
+  `_sAllowedTransitionsGetters` at 0x10D9C08C) and `Slot5` of `AnimationBlendVerticalAimAction`; the track getters the actions use are kept copies
+  (in the order of the properties, defined in the track classes: a getter is emitted only when compiled code uses it, so the getters that only the
+  `Slot7` of the vertical aim and strafe actions use stay open). Left to the engine: 0x10095190 (`GetQuadrant`: the engine keeps the constant 1
+  in another register), 0x100956D0 (the weight variable message: the engine drops the base vftable stores), `Slot7` of the vertical aim action and
+  `Slot5` / `Slot7` of the strafe action (they need the static helpers 0x10095B00, 0x10095D40, 0x10095610 that take xmm0 / esi / edi).
+  A pointer into the object's transform must be taken as `const math::Matrix& matrix = object->transform->value;` (then the engine's leftover
+  `add eax, 4` appears); an early return per condition gives the engine's shared failure return.
+- `proto/fightitems/motion/motion_boundary.cpp` (+ `.h`): `FromWaterSetJumpToAction`, `IgnoreWaterReactionAction`, `OrientTowardsJumpInPositionAction::Slot5`,
+  four of the six `JumpFromWaterAction` helpers, the helpers of this unit (`AssignRefCountedCopy4` 0x1009E210, `SafeReleaseRefCopy4` 0x1009E250),
+  the message `GetJumpDestinationMovementMessage` (`JumpToMovementMessage` and `ChargeEatMessage` are declared for the NONMATCHING `JumpFromWaterAction::Slot5` only). NONMATCHING: `FromWaterSetJumpToAction::Slot5` 94.7 %
+  and `OrientTowardsJumpInPositionAction::Slot7` 88.6 % (frame offsets / x87 stack), `JumpFromWaterAction::Slot5` 64.1 % (the engine knows that its
+  helpers keep ecx; two of them, 0x1009F2C0 and 0x1009F390, do not reach 100 % and are left to the engine). The engine's classes
+  `proto::WorldTriggerCollisionCallback` (0x11264740) and the jump destination (`Update` 0x103C5C60) are declared with the members seen.
+- `proto/fightitems/motion/motion_autotarget.cpp`: `AssignRefCountedCopy3` / `SafeReleaseRefCopy3` and `AutoTargetPositionAction::Slot5`.
+- `proto/powers/whipfistpower.cpp` (+ `.h`): the layout of `WhipFistPower` (0x130 bytes), its segment and chain structs, the destructor, `Clone`.
+  NONMATCHING: both constructors (87.7 % and 95.4 %, the engine zeroes the floats with two registers and schedules the handle's address later).
+  Shared header change: `ai/aihelpers.h` (`AISystem::Unknown10360C80`).
