@@ -96373,3 +96373,4 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ?AllocateTracked@om@@YAPAXPBDII@Z = 0x105B7530 ; function size:0x1E | om::AllocateTracked (name guess)
 ?gAllocator@om@@3PAVAllocator@1@A = 0x110B6444 ; data size:0x4 | om::gAllocator (name guess)
 ?gDefaultAllocator@om@@3VDefaultAllocator@1@A = 0x110B6448 ; data size:0x4 | om::gDefaultAllocator (name guess)
+??0BufferStringReader@fight@@QAE@PBD0@Z = 0x105AB780 ; function size:0x35 | fight::BufferStringReader::BufferStringReader(char const *,char const *) (name guess)

@@ -35,6 +35,8 @@ namespace fight
 	public:
 		// 0x105AB040
 		BufferStringReader(const char* newBuffer, unsigned int newSize, const char* newName);
+		// 0x105AB780: the whole text (its size is the length of the text)
+		BufferStringReader(const char* text, const char* newName);
 		virtual ~BufferStringReader();
 		virtual const char* GetName();
 		virtual char Peek();
