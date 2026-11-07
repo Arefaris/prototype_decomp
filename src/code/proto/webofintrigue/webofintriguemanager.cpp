@@ -7,6 +7,12 @@
 #include "code/container/arrayc.h"
 #include "code/proto/scenariomessages.h"
 
+namespace proto
+{
+	// 0x10D977EC
+	extern const float gTen;
+}
+
 namespace engine
 {
 	extern core::Name<core::CaseSensitiveKey> gMale;
@@ -36,8 +42,16 @@ namespace proto
 			AMBIENT_COP_MALE
 		};
 
+		// 0x1055C810
+		Node();
+		// 0x1055C8E0 (the deleting destructor is 0x1055DFF0)
+		virtual ~Node();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// vftable slots 3 (0x105613F0, another unit) and 4 (0x1055B770)
+		virtual void Slot3(int unused);
+		virtual bool IsReady();
 
 		int id;  // +8
 		int links[6];  // +0xC ("strands")
@@ -59,8 +73,8 @@ namespace proto
 		engine::NISTransform transformB;  // +0xA0
 		bool useTransformB;  // +0xE0
 		unsigned char unknownE1[3];
-		int unknownE4;
-		int unknownE8;
+		float unknownE4;
+		float unknownE8;
 		int unknownEC;
 
 		// 0x1055B780: stores the state of the node in the database and tells the scenario
@@ -97,6 +111,33 @@ namespace proto
 			return -1;
 		}
 	};
+
+	// FUNCTION: ENGINE 0x1055C810
+	// NONMATCHING: the engine's scheduling of the member stores and of the constants differs (54 %)
+#ifdef NONMATCHING
+	WebOfIntrigueManager::Node::Node() : id(-1), kinds(TYPE_AMBIENT), episode(0), x(0.0f), y(0.0f), unknown38(), name(),
+		type(AMBIENT_HUMAN_MALE), flags(0), unknown50(20.0f), unknown54(gTen), unknown98(false), target(),
+		useTransformB(false), unknownE4(0.0f), unknownE8(0.0f)
+	{
+		links[0] = -1;
+		links[1] = -1;
+		links[2] = -1;
+		links[3] = -1;
+		links[4] = -1;
+		links[5] = -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1055C8E0
+	WebOfIntrigueManager::Node::~Node()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1055B770
+	bool WebOfIntrigueManager::Node::IsReady()
+	{
+		return true;
+	}
 
 	// FUNCTION: ENGINE 0x1055B5B0
 	bool WebOfIntrigueManager::Node::GetAutoplay() const
