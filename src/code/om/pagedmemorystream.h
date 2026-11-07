@@ -39,6 +39,7 @@ namespace om
 		virtual ~PagedMemoryStream();
 		// Slot 8 (0x105BF680)
 		virtual String GetDescription();
+		OM_ALLOCATION(PagedMemoryStream);
 		// 0x105BFA90: the page that holds an address, and the place of the address in it
 		char* GetPage(unsigned int address, unsigned int* offset);
 		// 0x105BFC70: the same, the page comes into being (zeroed) when the stream has not reached it yet
