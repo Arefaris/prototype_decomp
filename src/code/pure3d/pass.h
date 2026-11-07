@@ -7,6 +7,7 @@
 #define PURE3D_PASS_H
 
 #include "code/container/arrayfixed.h"
+#include "code/core/name.h"
 #include "code/pure3d/view.h"
 
 namespace pure3d
@@ -67,7 +68,10 @@ namespace pure3d
 		CameraData* camera;
 		CameraData* shadowCamera;
 		Scene* scene;
-		unsigned char unknown10[0x14];
+		unsigned char unknown10[0xC];
+		// The size of the picture (names guessed)
+		int width;
+		int height;
 		container::ArrayFixed<PassView, 8> views;
 	};
 
@@ -139,7 +143,8 @@ namespace pure3d
 		// 0x10754810: the lighting inputs the passes upload (the global at 0x11282AB0; the pass is not used)
 		LightingInputs* GetLightingInputs();
 
-		unsigned char unknown4[0xc];
+		unsigned char unknown4[4];
+		core::Name<core::CaseSensitiveKey> name; // +8
 		// The groups of render states Run saves (RenderStateBackup groups)
 		unsigned int stateGroups; // +0x10
 		Pass* parent;         // +0x14

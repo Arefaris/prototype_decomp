@@ -95,7 +95,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10714F50
-	void* AllocPoolBlockEC(unsigned int size)
+	void* AllocateParticleAligned(unsigned int size)
 	{
 		core::IMemoryAllocator* pool = gParticleControllerPool;
 		core::IMemoryAllocator* allocator;
@@ -111,7 +111,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10714FA0
-	void* AllocPoolBlockF0(unsigned int size)
+	void* AllocateParticle(unsigned int size)
 	{
 		core::IMemoryAllocator* pool = gParticleGeneratorPool;
 		core::IMemoryAllocator* allocator;
@@ -143,7 +143,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x10715060
-	void FreePoolBlockEC(void* block)
+	void FreeParticleAligned(void* block)
 	{
 		core::IMemoryAllocator* pool = gParticleControllerPool;
 		if (pool != 0)
@@ -160,7 +160,7 @@ namespace pure3d
 	}
 
 	// FUNCTION: ENGINE 0x107150B0
-	void FreePoolBlockF0(void* block)
+	void FreeParticle(void* block)
 	{
 		core::IMemoryAllocator* pool = gParticleGeneratorPool;
 		if (pool != 0)

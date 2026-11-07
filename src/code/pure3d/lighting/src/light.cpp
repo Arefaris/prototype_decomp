@@ -6,6 +6,7 @@
 #include "code/pure3d/light.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/visibility.h"
 
 // This unit's copies of the reference helpers for the user data and the shadow parameters of a light
 // FUNCTION: ENGINE 0x10758BE0
@@ -665,5 +666,102 @@ namespace pure3d
 				}
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10756220
+	bool Light::HasRegion()
+	{
+		return unknown214 != 0xFFFF;
+	}
+
+	// FUNCTION: ENGINE 0x10756230
+	// NONMATCHING: the engine reads the dirty bit and the decay kind before it branches, ours calls GetKind only when the bit is set (27.3 %)
+#ifdef NONMATCHING
+	bool Light::Unknown10756230()
+	{
+		bool flag = unknownDirty4;
+		bool limited = decay.GetKind() == 1;
+		return flag && limited;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10758A90
+	void Light::SetClient(visibility::Client* client)
+	{
+		if (client->IsRegistered())
+		{
+			unknown214 = (unsigned short)client->GetRegionIndex();
+		}
+		else
+		{
+			unknown214 = 0xFFFF;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10758EA0
+	void Light::SetUnknown12C(Texture* texture, float value)
+	{
+		core::RefAssign(unknown134, texture);
+		unknown12C = value;
+	}
+
+	// FUNCTION: ENGINE 0x10758ED0
+	void Light::SetShadow(RenderParams* params)
+	{
+		core::RefAssign(shadow, params);
+	}
+
+	// FUNCTION: ENGINE 0x10758F50
+	void Light::SetUnknown138(Texture* texture)
+	{
+		core::RefAssign(unknown138, texture);
+	}
+
+	// FUNCTION: ENGINE 0x1075B310
+	Light::~Light()
+	{
+		core::SafeRelease(userData);
+		core::SafeRelease(unknown138);
+		if (shadow != 0)
+		{
+			context->FreeRenderParams(shadow);
+			core::SafeRelease(shadow);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1075B370
+	math::AABB* Light::GetBounds()
+	{
+		if (boundsDirty)
+		{
+			UpdateBounds();
+		}
+		return &bounds;
+	}
+
+	// FUNCTION: ENGINE 0x1075B390
+	math::Sphere* Light::GetSphere()
+	{
+		if (sphereDirty)
+		{
+			UpdateSphere();
+		}
+		return &sphere;
+	}
+
+	// FUNCTION: ENGINE 0x1075B3B0
+	void* Light::GetPlanes(unsigned int* count)
+	{
+		if (type == TYPE_SPOT && decay.GetKind() != 0)
+		{
+			if (planesDirty)
+			{
+				UpdatePlanes();
+			}
+			*count = 9;
+			return planes;
+		}
+		*count = 0;
+		return 0;
 	}
 }

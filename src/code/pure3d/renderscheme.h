@@ -20,7 +20,11 @@ namespace pure3d
 		{
 		}
 
-		unsigned char unknown4[0x10];
+		unsigned char unknown4[4];
+		core::Name<core::CaseSensitiveKey> name; // +8
+		// The flag the pass starts enabled with (+0x10)
+		unsigned char flag;
+		unsigned char unknown11[3];
 		// The Z pass's description keeps a number here
 		unsigned int unknown14;
 	};

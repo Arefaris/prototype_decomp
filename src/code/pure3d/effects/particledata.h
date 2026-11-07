@@ -60,6 +60,8 @@ namespace pure3d
 		// 0x1079CE80 (called with the update data, which it does not read): applies the scale and offset arrays
 		// to the current values when the flag is set
 		void Apply(ParticleUpdateData* data);
+		// 0x10748BF0: gives the arrays after the first their starting values
+		void ResetValues();
 
 		ParticleArray values;
 		ParticleArray unknown3C;

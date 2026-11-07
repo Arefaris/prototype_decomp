@@ -330,6 +330,8 @@ namespace pure3d
 		bool SetParameterEnable(bool value);
 		// 0x107721C0: the settings
 		void SetValues(float x, float y, float z, float newRadius, float newIntensity, float newSize, float newFalloff);
+		// 0x107725E0: blurs the source texture away from the centre into the picture of that size (name guess)
+		void Blur(int width, int height, dxTexture* source, int unknown);
 
 		float radius;           // +0xE8
 		float unknownEC;

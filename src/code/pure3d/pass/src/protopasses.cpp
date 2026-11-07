@@ -264,6 +264,25 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10774D30
+	void SlowZPass::Render(PassContext* context)
+	{
+		PartList* list = GetParts(context->scene);
+		for (DrawablePart** it = list->begin; it != list->end; it++)
+		{
+			DrawablePart* part = *it;
+			const PrimStreamParameters* parameters = &((PartBindingSource*)part->primitive->unknown18)->parameters;
+			if (part->renderBits.Test(9))
+			{
+				pddi->DrawBatch(&gShaderZFill, &part->batch, parameters);
+			}
+			else
+			{
+				part->primitive->Draw(&gShaderZFill, part->state, &part->worldMatrix, parameters, part->binding);
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10766170
 	// EQUIVALENT: the engine lays the key and scratch arrays out in the other order and reloads the list pointer in the last loop
 	void ProtoOpaquePass::SortParts(PartList* parts)

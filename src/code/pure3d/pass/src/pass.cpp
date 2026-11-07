@@ -7,6 +7,7 @@
 #include "code/pure3d/pass/rendertargetmanager.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/renderscheme.h"
 #include "code/pure3d/scene.h"
 
 namespace pure3d
@@ -14,6 +15,28 @@ namespace pure3d
 	// The lighting inputs and the part list the passes share (0x11282AB0 / 0x11282AB4; names guessed)
 	LightingInputs* gPassLightingInputs;
 	PartList* gPassParts;
+
+	// FUNCTION: ENGINE 0x10754A40
+	PassDesc::PassDesc(const void* newName, int newFlag) : name(*(const core::Name<core::CaseSensitiveKey>*)newName)
+	{
+		flag = (unsigned char)newFlag;
+		unknown14 = 0xFFFFFFFF;
+	}
+
+	// FUNCTION: ENGINE 0x10754A70
+	// NONMATCHING: the engine constructs the part filter after the flag words, ours before them (50.7 %)
+#ifdef NONMATCHING
+	Pass::Pass(const PassDesc* desc) : name(desc->name)
+	{
+		stateGroups = desc->unknown14;
+		parent = 0;
+		firstChild = 0;
+		nextSibling = 0;
+		enabled = desc->flag;
+		begun = 0;
+		unknown24Bit1 = 0;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10754540
 	bool Pass::IsBegun()
