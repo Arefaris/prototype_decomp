@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -74,6 +76,86 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x10359530
+				math::Vector GetOffset() const;
+
+				// The accessors the engine keeps out of line
+				// 0x10359510
+				bool GetParent() const;
+				// 0x10359520
+				const fight::Name& GetGrabSlot() const;
+				// 0x10359550
+				bool GetTrackCharacter() const;
+				// 0x10359560
+				bool GetAbortWhenInterrupted() const;
+				// 0x10359570
+				float GetFirstFrameHoldTime() const;
+				// 0x10359580
+				float GetLastFrameHoldTime() const;
+				// 0x10359590
+				float GetBlendInTime() const;
+				// 0x103595A0
+				float GetBlendOutTime() const;
+				// 0x103595B0
+				float GetNoCameraWeight() const;
+				// 0x103595C0
+				const fight::Name& GetAnimation1() const;
+				// 0x103595D0
+				float GetStartFrame1() const;
+				// 0x103595E0
+				float GetEndFrame1() const;
+				// 0x103595F0
+				float GetSpeed1() const;
+				// 0x10359600
+				bool GetEnableNormal1() const;
+				// 0x10359610
+				bool GetEnableMirror1() const;
+				// 0x10359620
+				float GetAnimationWeight1() const;
+				// 0x10359630
+				const fight::Name& GetAnimation2() const;
+				// 0x10359640
+				float GetStartFrame2() const;
+				// 0x10359650
+				float GetEndFrame2() const;
+				// 0x10359660
+				float GetSpeed2() const;
+				// 0x10359670
+				bool GetEnableNormal2() const;
+				// 0x10359680
+				bool GetEnableMirror2() const;
+				// 0x10359690
+				float GetAnimationWeight2() const;
+				// 0x103596A0
+				const fight::Name& GetAnimation3() const;
+				// 0x103596B0
+				float GetStartFrame3() const;
+				// 0x103596C0
+				float GetEndFrame3() const;
+				// 0x103596D0
+				float GetSpeed3() const;
+				// 0x103596E0
+				bool GetEnableNormal3() const;
+				// 0x103596F0
+				bool GetEnableMirror3() const;
+				// 0x10359700
+				float GetAnimationWeight3() const;
+				// 0x10359710
+				const fight::Name& GetAnimation4() const;
+				// 0x10359720
+				float GetStartFrame4() const;
+				// 0x10359730
+				float GetEndFrame4() const;
+				// 0x10359740
+				float GetSpeed4() const;
+				// 0x10359750
+				bool GetEnableNormal4() const;
+				// 0x10359760
+				bool GetEnableMirror4() const;
+				// 0x10359770
+				float GetAnimationWeight4() const;
+
 					fight::Name animation1;  // +0x10
 					fight::Name animation2;  // +0x18
 					fight::Name animation3;  // +0x20
@@ -121,6 +203,29 @@ namespace proto
 			fight::TrackFactory* CreateDramaticCameraTrackFactory(const char* name);
 			void RegisterDramaticCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::DramaticCameraAction (9 vftable slots, 0x2C bytes)
+			class DramaticCameraAction : public fight::Action
+			{
+			public:
+				// 0x103598F0
+				DramaticCameraAction(DramaticCameraTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10359850
+				virtual ~DramaticCameraAction();
+
+				// vftable slot 5 (0x10359A40)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10359E20)
+				virtual void Slot6();
+				// vftable slot 7 (0x10359780)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<DramaticCameraTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

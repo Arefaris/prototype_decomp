@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -40,6 +41,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x10358BE0
+				int GetHint() const;
+
 					float timeBegin;  // +0x10
 					float timeEnd;  // +0x14
 					int hint;  // +0x18
@@ -49,6 +54,25 @@ namespace proto
 			fight::TrackFactory* CreateCameraHintTrackFactory(const char* name);
 			void RegisterCameraHintTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::CameraHintAction (9 vftable slots, 0x2C bytes)
+			class CameraHintAction : public fight::Action
+			{
+			public:
+				// 0x10358D40
+				CameraHintAction(CameraHintTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10358CA0
+				virtual ~CameraHintAction();
+
+				// vftable slot 7 (0x10358DE0)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<CameraHintTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

@@ -263,6 +263,174 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x1035A4E0
+			bool ScriptedCameraTrack::GetAutoEnd() const
+			{
+				return autoEnd;
+			}
+
+			// FUNCTION: ENGINE 0x1035A4F0
+			bool ScriptedCameraTrack::GetParent() const
+			{
+				return parent;
+			}
+
+			// FUNCTION: ENGINE 0x1035A500
+			const fight::Name& ScriptedCameraTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x1035A510
+			const fight::Name& ScriptedCameraTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x1035A540
+			bool ScriptedCameraTrack::GetTrackObject() const
+			{
+				return trackObject;
+			}
+
+			// FUNCTION: ENGINE 0x1035A550
+			const fight::Name& ScriptedCameraTrack::GetAnimation() const
+			{
+				return animation;
+			}
+
+			// FUNCTION: ENGINE 0x1035A560
+			bool ScriptedCameraTrack::GetRotateY() const
+			{
+				return rotateY;
+			}
+
+			// FUNCTION: ENGINE 0x1035A570
+			bool ScriptedCameraTrack::GetMirrorX() const
+			{
+				return mirrorX;
+			}
+
+			// FUNCTION: ENGINE 0x1035A580
+			float ScriptedCameraTrack::GetStartFrame() const
+			{
+				return startFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1035A590
+			float ScriptedCameraTrack::GetEndFrame() const
+			{
+				return endFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5A0
+			float ScriptedCameraTrack::GetSpeed() const
+			{
+				return speed;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5B0
+			int ScriptedCameraTrack::GetCyclic() const
+			{
+				return cyclic;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5C0
+			float ScriptedCameraTrack::GetDofNear() const
+			{
+				return dofNear;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5D0
+			float ScriptedCameraTrack::GetDofFar() const
+			{
+				return dofFar;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5E0
+			float ScriptedCameraTrack::GetDofRange() const
+			{
+				return dofRange;
+			}
+
+			// FUNCTION: ENGINE 0x1035A5F0
+			float ScriptedCameraTrack::GetDofAperture() const
+			{
+				return dofAperture;
+			}
+
+			// FUNCTION: ENGINE 0x1035A600
+			float ScriptedCameraTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x1035A610
+			float ScriptedCameraTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x1035A520
+			math::Vector ScriptedCameraTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1035A770
+			ScriptedCameraAction::ScriptedCameraAction(ScriptedCameraTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1035A6D0
+			ScriptedCameraAction::~ScriptedCameraAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1035ABD0
+			fight::Action* ScriptedCameraTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ScriptedCameraAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1035AB20
+			bool ScriptedCameraAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (link.object->autoEnd)
+				{
+					return !gCameraManager->IsScriptedCameraFinished(cameraIndex);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1035AB60
+			void ScriptedCameraAction::Slot6()
+			{
+				CameraManager* manager = gCameraManager;
+				if (manager != 0)
+				{
+					engine::camera::ScriptedCamera* camera = manager->GetScriptedCamera(cameraIndex);
+					if (camera != 0)
+					{
+						camera->ReleaseAnimation();
+					}
+					float blendTime = 0.0f;
+					if (link.object != 0)
+					{
+						blendTime = link.object->blendOutTime;
+					}
+					manager->EndScriptedCamera(blendTime);
+				}
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<ScriptedCameraTrack>;
 			template class fight::PropertyBool<ScriptedCameraTrack>;
 			template class fight::PropertyNameList<ScriptedCameraTrack>;

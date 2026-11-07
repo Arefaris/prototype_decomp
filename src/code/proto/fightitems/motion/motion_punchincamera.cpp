@@ -146,6 +146,89 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x1035A100
+			float PunchinCameraTrack::GetInTime() const
+			{
+				return inTime;
+			}
+
+			// FUNCTION: ENGINE 0x1035A110
+			float PunchinCameraTrack::GetOutTime() const
+			{
+				return outTime;
+			}
+
+			// FUNCTION: ENGINE 0x1035A120
+			float PunchinCameraTrack::GetDolly() const
+			{
+				return dolly;
+			}
+
+			// FUNCTION: ENGINE 0x1035A130
+			float PunchinCameraTrack::GetZoom() const
+			{
+				return zoom;
+			}
+
+			// FUNCTION: ENGINE 0x1035A140
+			bool PunchinCameraTrack::GetReAim() const
+			{
+				return reAim;
+			}
+
+			// FUNCTION: ENGINE 0x1035A150
+			math::Vector PunchinCameraTrack::GetAimPoint() const
+			{
+				return aimPoint;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1035A2F0
+			PunchinCameraAction::PunchinCameraAction(PunchinCameraTrack* newTrack, engine::GameObjectHandle unused) : fight::Action(0xE00), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1035A250
+			PunchinCameraAction::~PunchinCameraAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1035A490
+			fight::Action* PunchinCameraTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PunchinCameraAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1035A170
+			void PunchinCameraAction::Slot6()
+			{
+				if (gCameraManager != 0)
+				{
+					ChaseCamera* camera = gCameraManager->GetChaseCamera();
+					if (camera != 0)
+					{
+						camera->Unknown10341FF0();
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1035A460
+			bool PunchinCameraAction::Slot7(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					ChaseCamera* camera = gCameraManager->GetChaseCamera();
+					if (camera != 0)
+					{
+						return camera->Unknown1033A3D0();
+					}
+				}
+				return false;
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<PunchinCameraTrack>;
 			template class fight::PropertyBool<PunchinCameraTrack>;
 			template class fight::PropertyVector<PunchinCameraTrack>;

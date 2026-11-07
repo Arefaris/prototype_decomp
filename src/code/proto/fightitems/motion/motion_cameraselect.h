@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -40,6 +41,14 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// The accessors the engine keeps out of line
+				// 0x10358570
+				int GetCameraType() const;
+				// 0x10358580
+				bool GetParent() const;
+				// 0x10358590
+				const fight::Name& GetGrabSlot() const;
 
 					fight::Name grabSlot;  // +0x10
 					float timeBegin;  // +0x18
@@ -78,6 +87,12 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x103585A0
+				int GetCameraType() const;
+				// 0x103585B0
+				float GetCameraBlendTime() const;
+
 					float cameraBlendTime;  // +0x10
 					float timeBegin;  // +0x14
 					int cameraType;  // +0x18
@@ -87,6 +102,39 @@ namespace proto
 			fight::TrackFactory* CreateCameraTypeSelectTrackFactory(const char* name);
 			void RegisterCameraTypeSelectTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::CameraAvatarSelectAction (9 vftable slots, 0x2C bytes)
+			class CameraAvatarSelectAction : public fight::Action
+			{
+			public:
+				// 0x10358890
+				CameraAvatarSelectAction(CameraAvatarSelectTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10358730
+				virtual ~CameraAvatarSelectAction();
+
+				// vftable slot 5 (0x10358940)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CameraAvatarSelectTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+			};
+
+			// RTTI: proto::fightitems::motion::CameraTypeSelectAction (9 vftable slots, 0x28 bytes)
+			class CameraTypeSelectAction : public fight::Action
+			{
+			public:
+				// 0x10358A80
+				explicit CameraTypeSelectAction(CameraTypeSelectTrack* newTrack);
+				// 0x10358780
+				virtual ~CameraTypeSelectAction();
+
+				// vftable slot 5 (0x10358B20)
+				virtual bool Slot5(int arg, float value);
+
+				core::Link<CameraTypeSelectTrack> link;  // +0x1C
+			};
+			// ---- actions end
 		}
 	}
 }

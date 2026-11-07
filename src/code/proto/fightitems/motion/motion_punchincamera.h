@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/chasecamera.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -42,6 +44,22 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x1035A150
+				math::Vector GetAimPoint() const;
+
+				// The accessors the engine keeps out of line
+				// 0x1035A100
+				float GetInTime() const;
+				// 0x1035A110
+				float GetOutTime() const;
+				// 0x1035A120
+				float GetDolly() const;
+				// 0x1035A130
+				float GetZoom() const;
+				// 0x1035A140
+				bool GetReAim() const;
+
 					math::Vector aimPoint;  // +0x10
 					float dolly;  // +0x1C
 					float inTime;  // +0x20
@@ -57,6 +75,28 @@ namespace proto
 			fight::TrackFactory* CreatePunchinCameraTrackFactory(const char* name);
 			void RegisterPunchinCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::PunchinCameraAction (9 vftable slots, 0x28 bytes)
+			class PunchinCameraAction : public fight::Action
+			{
+			public:
+				// 0x1035A2F0
+				PunchinCameraAction(PunchinCameraTrack* newTrack, engine::GameObjectHandle unused);
+				// 0x1035A250
+				virtual ~PunchinCameraAction();
+
+				// vftable slot 5 (0x1035A390)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1035A170)
+				virtual void Slot6();
+				// vftable slot 7 (0x1035A460)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PunchinCameraTrack> link;  // +0x1C
+			};
+
+			// ---- actions end
 		}
 	}
 }

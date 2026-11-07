@@ -101,6 +101,38 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x10358E80
+			float CameraResetTrack::GetBlendTime() const
+			{
+				return blendTime;
+			}
+
+			// FUNCTION: ENGINE 0x10358E60
+			math::Vector CameraResetTrack::GetDirection() const
+			{
+				return direction;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10358FE0
+			CameraResetAction::CameraResetAction(CameraResetTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358F40
+			CameraResetAction::~CameraResetAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10359150
+			fight::Action* CameraResetTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CameraResetAction(this, handle);
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<CameraResetTrack>;
 			template class fight::PropertyVector<CameraResetTrack>;
 			template class fight::TrackFactoryTemplate<CameraResetTrack>;

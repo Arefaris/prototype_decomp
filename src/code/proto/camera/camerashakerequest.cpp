@@ -97,10 +97,98 @@ namespace proto
 			registry->AddFactory(fight::FindTrackFactory(name, &caster));
 		}
 
+			// FUNCTION: ENGINE 0x103591A0
+			int CameraShakeRequestTrack::GetSize() const
+			{
+				return size;
+			}
+
+			// FUNCTION: ENGINE 0x103591B0
+			int CameraShakeRequestTrack::GetRange() const
+			{
+				return range;
+			}
+
+		// ---- actions begin
+		// FUNCTION: ENGINE 0x10359320
+		CameraShakeRequestAction::CameraShakeRequestAction(CameraShakeRequestTrack* newTrack, const math::Vector& newPosition) : fight::Action(0x200), link(newTrack)
+		{
+			position.x = newPosition.x;
+			position.y = newPosition.y;
+			position.z = newPosition.z;
+		}
+
+		// FUNCTION: ENGINE 0x10359290
+		CameraShakeRequestAction::~CameraShakeRequestAction()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x10359410
+		// NONMATCHING: the engine reads the translation into three registers before storing it and writes the position of the second owner kind before the allocation (best 46.4 %)
+#ifdef NONMATCHING
+		fight::Action* CameraShakeRequestTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+		{
+			if (owner == 0)
+			{
+				return 0;
+			}
+			fightitems::motion::TrackOwner* trackOwner = (fightitems::motion::TrackOwner*)owner;
+			math::Vector position;
+			if (trackOwner->kind - 0x10000 <= 0x1ffff)
+			{
+				engine::GameObjectHandle handle = trackOwner->handle;
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return 0;
+				}
+				math::Matrix* matrix = object->transform->GetPointer();
+				position.Set(matrix->m[3][0], matrix->m[3][1], matrix->m[3][2]);
+			}
+			else if (trackOwner->kind == 0x40000)
+			{
+				ShakeOwnerPoint* point = (ShakeOwnerPoint*)owner;
+				position.x = point->position.x;
+				position.y = point->position.y;
+				position.z = point->position.z;
+			}
+			else
+			{
+				return 0;
+			}
+			return new CameraShakeRequestAction(this, position);
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x103593D0
+		bool CameraShakeRequestAction::Slot5(int arg, float value)
+		{
+			CameraShakeRequestTrack* track = link.object;
+			CameraManager::ShakeArgument size = (CameraManager::ShakeArgument)track->size;
+			CameraManager::ShakeArgument range = (CameraManager::ShakeArgument)track->range;
+			gCameraManager->RequestShake(position, size, range);
+			return true;
+		}
+		// ---- actions end
+
 		template class fight::PropertyFloatConstRange<CameraShakeRequestTrack>;
 		template class fight::PropertyEnumConstList<CameraShakeRequestTrack>;
 		template class fight::TrackFactoryTemplate<CameraShakeRequestTrack>;
 		template class fight::TrackFactoryCasterTemplate<CameraShakeRequestTrack>;
+	}
+}
+
+
+namespace proto
+{
+	namespace fightitems
+	{
+		// FUNCTION: ENGINE 0x103591C0
+		bool RegisterAt103591C0Factories(fight::TrackRegistry* registry)
+		{
+			camera::RegisterCameraShakeRequestTrackFactory(registry, "cameraShakeRequest");
+			return true;
+		}
 	}
 }
 

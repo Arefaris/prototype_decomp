@@ -434,6 +434,273 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x10359510
+			bool DramaticCameraTrack::GetParent() const
+			{
+				return parent;
+			}
+
+			// FUNCTION: ENGINE 0x10359520
+			const fight::Name& DramaticCameraTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x10359550
+			bool DramaticCameraTrack::GetTrackCharacter() const
+			{
+				return trackCharacter;
+			}
+
+			// FUNCTION: ENGINE 0x10359560
+			bool DramaticCameraTrack::GetAbortWhenInterrupted() const
+			{
+				return abortWhenInterrupted;
+			}
+
+			// FUNCTION: ENGINE 0x10359570
+			float DramaticCameraTrack::GetFirstFrameHoldTime() const
+			{
+				return firstFrameHoldTime;
+			}
+
+			// FUNCTION: ENGINE 0x10359580
+			float DramaticCameraTrack::GetLastFrameHoldTime() const
+			{
+				return lastFrameHoldTime;
+			}
+
+			// FUNCTION: ENGINE 0x10359590
+			float DramaticCameraTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x103595A0
+			float DramaticCameraTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x103595B0
+			float DramaticCameraTrack::GetNoCameraWeight() const
+			{
+				return noCameraWeight;
+			}
+
+			// FUNCTION: ENGINE 0x103595C0
+			const fight::Name& DramaticCameraTrack::GetAnimation1() const
+			{
+				return animation1;
+			}
+
+			// FUNCTION: ENGINE 0x103595D0
+			float DramaticCameraTrack::GetStartFrame1() const
+			{
+				return startFrame1;
+			}
+
+			// FUNCTION: ENGINE 0x103595E0
+			float DramaticCameraTrack::GetEndFrame1() const
+			{
+				return endFrame1;
+			}
+
+			// FUNCTION: ENGINE 0x103595F0
+			float DramaticCameraTrack::GetSpeed1() const
+			{
+				return speed1;
+			}
+
+			// FUNCTION: ENGINE 0x10359600
+			bool DramaticCameraTrack::GetEnableNormal1() const
+			{
+				return enableNormal1;
+			}
+
+			// FUNCTION: ENGINE 0x10359610
+			bool DramaticCameraTrack::GetEnableMirror1() const
+			{
+				return enableMirror1;
+			}
+
+			// FUNCTION: ENGINE 0x10359620
+			float DramaticCameraTrack::GetAnimationWeight1() const
+			{
+				return animationWeight1;
+			}
+
+			// FUNCTION: ENGINE 0x10359630
+			const fight::Name& DramaticCameraTrack::GetAnimation2() const
+			{
+				return animation2;
+			}
+
+			// FUNCTION: ENGINE 0x10359640
+			float DramaticCameraTrack::GetStartFrame2() const
+			{
+				return startFrame2;
+			}
+
+			// FUNCTION: ENGINE 0x10359650
+			float DramaticCameraTrack::GetEndFrame2() const
+			{
+				return endFrame2;
+			}
+
+			// FUNCTION: ENGINE 0x10359660
+			float DramaticCameraTrack::GetSpeed2() const
+			{
+				return speed2;
+			}
+
+			// FUNCTION: ENGINE 0x10359670
+			bool DramaticCameraTrack::GetEnableNormal2() const
+			{
+				return enableNormal2;
+			}
+
+			// FUNCTION: ENGINE 0x10359680
+			bool DramaticCameraTrack::GetEnableMirror2() const
+			{
+				return enableMirror2;
+			}
+
+			// FUNCTION: ENGINE 0x10359690
+			float DramaticCameraTrack::GetAnimationWeight2() const
+			{
+				return animationWeight2;
+			}
+
+			// FUNCTION: ENGINE 0x103596A0
+			const fight::Name& DramaticCameraTrack::GetAnimation3() const
+			{
+				return animation3;
+			}
+
+			// FUNCTION: ENGINE 0x103596B0
+			float DramaticCameraTrack::GetStartFrame3() const
+			{
+				return startFrame3;
+			}
+
+			// FUNCTION: ENGINE 0x103596C0
+			float DramaticCameraTrack::GetEndFrame3() const
+			{
+				return endFrame3;
+			}
+
+			// FUNCTION: ENGINE 0x103596D0
+			float DramaticCameraTrack::GetSpeed3() const
+			{
+				return speed3;
+			}
+
+			// FUNCTION: ENGINE 0x103596E0
+			bool DramaticCameraTrack::GetEnableNormal3() const
+			{
+				return enableNormal3;
+			}
+
+			// FUNCTION: ENGINE 0x103596F0
+			bool DramaticCameraTrack::GetEnableMirror3() const
+			{
+				return enableMirror3;
+			}
+
+			// FUNCTION: ENGINE 0x10359700
+			float DramaticCameraTrack::GetAnimationWeight3() const
+			{
+				return animationWeight3;
+			}
+
+			// FUNCTION: ENGINE 0x10359710
+			const fight::Name& DramaticCameraTrack::GetAnimation4() const
+			{
+				return animation4;
+			}
+
+			// FUNCTION: ENGINE 0x10359720
+			float DramaticCameraTrack::GetStartFrame4() const
+			{
+				return startFrame4;
+			}
+
+			// FUNCTION: ENGINE 0x10359730
+			float DramaticCameraTrack::GetEndFrame4() const
+			{
+				return endFrame4;
+			}
+
+			// FUNCTION: ENGINE 0x10359740
+			float DramaticCameraTrack::GetSpeed4() const
+			{
+				return speed4;
+			}
+
+			// FUNCTION: ENGINE 0x10359750
+			bool DramaticCameraTrack::GetEnableNormal4() const
+			{
+				return enableNormal4;
+			}
+
+			// FUNCTION: ENGINE 0x10359760
+			bool DramaticCameraTrack::GetEnableMirror4() const
+			{
+				return enableMirror4;
+			}
+
+			// FUNCTION: ENGINE 0x10359770
+			float DramaticCameraTrack::GetAnimationWeight4() const
+			{
+				return animationWeight4;
+			}
+
+			// FUNCTION: ENGINE 0x10359530
+			math::Vector DramaticCameraTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x103598F0
+			DramaticCameraAction::DramaticCameraAction(DramaticCameraTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10359850
+			DramaticCameraAction::~DramaticCameraAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10359E70
+			fight::Action* DramaticCameraTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DramaticCameraAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10359780
+			bool DramaticCameraAction::Slot7(int arg, float value)
+			{
+				return gCameraManager->IsDramaticCameraEnabled();
+			}
+
+			// FUNCTION: ENGINE 0x10359E20
+			void DramaticCameraAction::Slot6()
+			{
+				if (link.object != 0 && link.object->abortWhenInterrupted)
+				{
+					CameraManager* manager = gCameraManager;
+					if (manager != 0 && manager->IsDramaticCameraEnabled())
+					{
+						manager->EndDramaticCamera(choreo::gMinusOne);
+					}
+				}
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<DramaticCameraTrack>;
 			template class fight::PropertyBool<DramaticCameraTrack>;
 			template class fight::PropertyNameList<DramaticCameraTrack>;

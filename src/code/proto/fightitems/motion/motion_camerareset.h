@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/chasecamera.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -37,6 +39,14 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x10358E60
+				math::Vector GetDirection() const;
+
+				// The accessors the engine keeps out of line
+				// 0x10358E80
+				float GetBlendTime() const;
+
 					math::Vector direction;  // +0x10
 					float blendTime;  // +0x1C
 					float timeBegin;  // +0x20
@@ -46,6 +56,25 @@ namespace proto
 			fight::TrackFactory* CreateCameraResetTrackFactory(const char* name);
 			void RegisterCameraResetTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::CameraResetAction (9 vftable slots, 0x2C bytes)
+			class CameraResetAction : public fight::Action
+			{
+			public:
+				// 0x10358FE0
+				CameraResetAction(CameraResetTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10358F40
+				virtual ~CameraResetAction();
+
+				// vftable slot 5 (0x10359080)
+				virtual bool Slot5(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<CameraResetTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

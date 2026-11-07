@@ -200,6 +200,88 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x10358570
+			int CameraAvatarSelectTrack::GetCameraType() const
+			{
+				return cameraType;
+			}
+
+			// FUNCTION: ENGINE 0x10358580
+			bool CameraAvatarSelectTrack::GetParent() const
+			{
+				return parent;
+			}
+
+			// FUNCTION: ENGINE 0x10358590
+			const fight::Name& CameraAvatarSelectTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x103585A0
+			int CameraTypeSelectTrack::GetCameraType() const
+			{
+				return cameraType;
+			}
+
+			// FUNCTION: ENGINE 0x103585B0
+			float CameraTypeSelectTrack::GetCameraBlendTime() const
+			{
+				return cameraBlendTime;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10358890
+			CameraAvatarSelectAction::CameraAvatarSelectAction(CameraAvatarSelectTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x200), link(newTrack), target(newTarget)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358730
+			CameraAvatarSelectAction::~CameraAvatarSelectAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358B50
+			fight::Action* CameraAvatarSelectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CameraAvatarSelectAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10358A80
+			CameraTypeSelectAction::CameraTypeSelectAction(CameraTypeSelectTrack* newTrack) : fight::Action(0x200), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358780
+			CameraTypeSelectAction::~CameraTypeSelectAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358BA0
+			fight::Action* CameraTypeSelectTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				return new CameraTypeSelectAction(this);
+			}
+			// FUNCTION: ENGINE 0x10358B20
+			bool CameraTypeSelectAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					gCameraManager->SwitchCamera(link.object->cameraType, link.object->cameraBlendTime);
+				}
+				return false;
+			}
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<CameraAvatarSelectTrack>;
 			template class fight::PropertyEnumConstList<CameraAvatarSelectTrack>;
 			template class fight::PropertyBool<CameraAvatarSelectTrack>;
@@ -210,6 +292,21 @@ namespace proto
 			template class fight::PropertyEnumConstList<CameraTypeSelectTrack>;
 			template class fight::TrackFactoryTemplate<CameraTypeSelectTrack>;
 			template class fight::TrackFactoryCasterTemplate<CameraTypeSelectTrack>;
+		}
+	}
+}
+
+
+namespace proto
+{
+	namespace fightitems
+	{
+		// FUNCTION: ENGINE 0x103585C0
+		bool RegisterAt103585C0Factories(fight::TrackRegistry* registry)
+		{
+			motion::RegisterCameraAvatarSelectTrackFactory(registry, "cameraAvatarSelect");
+			motion::RegisterCameraTypeSelectTrackFactory(registry, "cameraTypeSelect");
+			return true;
 		}
 	}
 }

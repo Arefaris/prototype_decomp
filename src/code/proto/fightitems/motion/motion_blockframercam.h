@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/framercam.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -44,6 +46,27 @@ namespace proto
 			fight::TrackFactory* CreateBlockFramerCamTrackFactory(const char* name);
 			void RegisterBlockFramerCamTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::BlockFramerCamAction (9 vftable slots, 0x2C bytes)
+			class BlockFramerCamAction : public fight::Action
+			{
+			public:
+				// 0x1035A010
+				BlockFramerCamAction(BlockFramerCamTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10359F90
+				virtual ~BlockFramerCamAction();
+
+				// vftable slot 5 (0x10359EC0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10359EE0)
+				virtual void Slot6();
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<BlockFramerCamTrack> link;  // +0x20
+			};
+
+			// ---- actions end
 		}
 	}
 }

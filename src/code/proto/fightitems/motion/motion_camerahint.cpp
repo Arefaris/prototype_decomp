@@ -99,6 +99,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// FUNCTION: ENGINE 0x10358BE0
+			int CameraHintTrack::GetHint() const
+			{
+				return hint;
+			}
+
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x10358D40
+			CameraHintAction::CameraHintAction(CameraHintTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x800), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358CA0
+			CameraHintAction::~CameraHintAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10358E10
+			fight::Action* CameraHintTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new CameraHintAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10358DE0
+			bool CameraHintAction::Slot7(int arg, float value)
+			{
+				if (arg == 0 && link.object != 0)
+				{
+					gCameraManager->SendCameraHint(target, link.object->hint);
+				}
+				return true;
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<CameraHintTrack>;
 			template class fight::PropertyEnumConstList<CameraHintTrack>;
 			template class fight::TrackFactoryTemplate<CameraHintTrack>;

@@ -4,6 +4,8 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/camera/scriptedcamera.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -57,6 +59,48 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x1035A520
+				math::Vector GetOffset() const;
+
+				// The accessors the engine keeps out of line
+				// 0x1035A4E0
+				bool GetAutoEnd() const;
+				// 0x1035A4F0
+				bool GetParent() const;
+				// 0x1035A500
+				const fight::Name& GetGrabSlot() const;
+				// 0x1035A510
+				const fight::Name& GetJoint() const;
+				// 0x1035A540
+				bool GetTrackObject() const;
+				// 0x1035A550
+				const fight::Name& GetAnimation() const;
+				// 0x1035A560
+				bool GetRotateY() const;
+				// 0x1035A570
+				bool GetMirrorX() const;
+				// 0x1035A580
+				float GetStartFrame() const;
+				// 0x1035A590
+				float GetEndFrame() const;
+				// 0x1035A5A0
+				float GetSpeed() const;
+				// 0x1035A5B0
+				int GetCyclic() const;
+				// 0x1035A5C0
+				float GetDofNear() const;
+				// 0x1035A5D0
+				float GetDofFar() const;
+				// 0x1035A5E0
+				float GetDofRange() const;
+				// 0x1035A5F0
+				float GetDofAperture() const;
+				// 0x1035A600
+				float GetBlendInTime() const;
+				// 0x1035A610
+				float GetBlendOutTime() const;
+
 					fight::Name animation;  // +0x10
 					fight::Name grabSlot;  // +0x18
 					fight::Name joint;  // +0x20
@@ -85,6 +129,30 @@ namespace proto
 			fight::TrackFactory* CreateScriptedCameraTrackFactory(const char* name);
 			void RegisterScriptedCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ScriptedCameraAction (9 vftable slots, 0x30 bytes)
+			class ScriptedCameraAction : public fight::Action
+			{
+			public:
+				// 0x1035A770
+				ScriptedCameraAction(ScriptedCameraTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x1035A6D0
+				virtual ~ScriptedCameraAction();
+
+				// vftable slot 5 (0x1035A810)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1035AB60)
+				virtual void Slot6();
+				// vftable slot 7 (0x1035AB20)
+				virtual bool Slot7(int arg, float value);
+
+				engine::GameObjectHandle target;  // +0x1C
+				core::Link<ScriptedCameraTrack> link;  // +0x20
+				int cameraIndex;  // +0x2C
+			};
+
+			// ---- actions end
 		}
 	}
 }

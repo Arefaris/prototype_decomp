@@ -307,3 +307,7 @@ template void engine::LuaScriptManager::RegisterMethod<CameraManager, bool, int,
 // FUNCTION: ENGINE 0x103319F0
 // FUNCTION: ENGINE 0x10331A60
 // FUNCTION: ENGINE 0x10331AC0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1032C650
+// FUNCTION: ENGINE 0x1032C6A0

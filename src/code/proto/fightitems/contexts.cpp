@@ -597,7 +597,7 @@ namespace fightitems
 {
 	void RegisterAt102061F0Factories(fight::TrackRegistry* registry);
 	bool RegisterAt10502080Factories(fight::TrackRegistry* registry);
-	void RegisterAt103591C0Factories(fight::TrackRegistry* registry);
+	bool RegisterAt103591C0Factories(fight::TrackRegistry* registry);
 	bool RegisterPhysicsLODAndDoorsFactories(fight::TrackRegistry* registry);
 	void RegisterAt104F3900Factories(fight::TrackRegistry* registry);
 	bool RegisterAt104FB8A0Factories(fight::TrackRegistry* registry);
@@ -606,15 +606,18 @@ namespace fightitems
 	void RegisterAt101D7500Factories(fight::TrackRegistry* registry);
 	void RegisterAt101D6DA0Factories(fight::TrackRegistry* registry);
 	void RegisterAt101D8B60Factories(fight::TrackRegistry* registry);
-	void RegisterPunchinCameraFactory(fight::TrackRegistry* registry, const char* name);
 	void RegisterAt1048FCE0Factories(fight::TrackRegistry* registry);
 	void RegisterAccelerationFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterBlockFramerCamFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterCameraHintFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterCameraResetFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterAt103585C0Factories(fight::TrackRegistry* registry);
-	void RegisterDramaticCameraFactory(fight::TrackRegistry* registry, const char* name);
-	void RegisterScriptedCameraFactory(fight::TrackRegistry* registry, const char* name);
+	bool RegisterAt103585C0Factories(fight::TrackRegistry* registry);
+	namespace motion
+	{
+		void RegisterPunchinCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
+		void RegisterBlockFramerCamTrackFactory(fight::TrackRegistry* registry, const char* name);
+		void RegisterCameraHintTrackFactory(fight::TrackRegistry* registry, const char* name);
+		void RegisterCameraResetTrackFactory(fight::TrackRegistry* registry, const char* name);
+		void RegisterDramaticCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
+		void RegisterScriptedCameraTrackFactory(fight::TrackRegistry* registry, const char* name);
+	}
 	void RegisterPhysicsSetIntersectionPropertiesFactory(fight::TrackRegistry* registry, const char* name);
 }
 }
@@ -1297,7 +1300,7 @@ namespace proto
 		engine::framebufferfx::RegisterColourMatrixTrackFactory(registry, "FX_colourMatrix");
 		proto::fightitems::render::RegisterTimeOfDayBlendTrackFactory(registry, "FX_TimeOfDayBlend");
 		proto::fightitems::motion::RegisterSlowMotionTrackFactory(registry, "slowMotion");
-		proto::fightitems::RegisterPunchinCameraFactory(registry, "punchinCamera");
+		proto::fightitems::motion::RegisterPunchinCameraTrackFactory(registry, "punchinCamera");
 		proto::RegisterNISExcludeVolumeTrackFactory(registry, "excludeVolume");
 		proto::fightitems::scenario::RegisterStateMachineStartTrackFactory(registry, "stateMachine_Start");
 		proto::fightitems::scenario::RegisterStateMachineTransitionTrackFactory(registry, "stateMachine_Transition");
@@ -1327,9 +1330,9 @@ namespace proto
 		proto::fightitems::motion::RegisterAutoTargetClearTrackFactory(registry, "autoTargetClear");
 		proto::fightitems::motion::RegisterAutoTargetPlayerTrackFactory(registry, "autoTargetPlayer");
 		proto::fightitems::motion::RegisterBloodSplatterTrackFactory(registry, "bloodSplatter");
-		proto::fightitems::RegisterBlockFramerCamFactory(registry, "blockFramerCam");
-		proto::fightitems::RegisterCameraHintFactory(registry, "cameraHint");
-		proto::fightitems::RegisterCameraResetFactory(registry, "cameraReset");
+		proto::fightitems::motion::RegisterBlockFramerCamTrackFactory(registry, "blockFramerCam");
+		proto::fightitems::motion::RegisterCameraHintTrackFactory(registry, "cameraHint");
+		proto::fightitems::motion::RegisterCameraResetTrackFactory(registry, "cameraReset");
 		proto::fightitems::RegisterAt103591C0Factories(registry);
 		proto::fightitems::RegisterAt103585C0Factories(registry);
 		proto::fightitems::motion::RegisterChargeSetTrackFactory(registry, "chargeSet");
@@ -1360,7 +1363,7 @@ namespace proto
 		proto::fightitems::motion::RegisterInsidePlaneConditionFactory(registry, "insidePlane");
 		proto::fightitems::motion::RegisterDisablePlayerControlTrackFactory(registry, "disableplayercontrol");
 		proto::fightitems::motion::RegisterDisableTimeWithNoDamageCounterTrackFactory(registry, "disableTimeWithNoDamageCounter");
-		proto::fightitems::RegisterDramaticCameraFactory(registry, "dramaticCamera");
+		proto::fightitems::motion::RegisterDramaticCameraTrackFactory(registry, "dramaticCamera");
 		proto::fightitems::motion::RegisterDriftTrackFactory(registry, "drift");
 		proto::fightitems::motion::RegisterEdgeNormalFactories(registry);
 		proto::fightitems::motion::RegisterEdgeDetectFactories(registry);
@@ -1433,7 +1436,7 @@ namespace proto
 		proto::fightitems::proplogic::RegisterOnCollisionTrackFactory(registry, "onCollision");
 		proto::fightitems::motion::RegisterOrientTrackFactory(registry, "orient");
 		proto::fightitems::motion::RegisterWorldOrientTrackFactory(registry, "worldOrient");
-		proto::fightitems::RegisterPunchinCameraFactory(registry, "punchinCamera");
+		proto::fightitems::motion::RegisterPunchinCameraTrackFactory(registry, "punchinCamera");
 		proto::fightitems::motion::RegisterRadialBlurTrackFactory(registry, "radialBlur");
 		proto::fightitems::motion::RegisterReactionFloatTrackFactory(registry, "reactionFloat");
 		proto::fightitems::motion::RegisterReactionHitApplyImpulseTrackFactory(registry, "reactionHitApplyImpulse");
@@ -1448,7 +1451,7 @@ namespace proto
 		proto::fightitems::motion::RegisterReactionThrowSpinAngleFactories(registry);
 		proto::fightitems::motion::RegisterReactionThrowTrackFactory(registry, "reactionThrow");
 		proto::fightitems::motion::RegisterScaleJointForConsumeTrackFactory(registry, "scaleJointForConsume");
-		proto::fightitems::RegisterScriptedCameraFactory(registry, "scriptedCamera");
+		proto::fightitems::motion::RegisterScriptedCameraTrackFactory(registry, "scriptedCamera");
 		proto::fightitems::motion::RegisterScrubberTrackFactory(registry, "scrubber");
 		proto::fightitems::motion::RegisterSetVisibilityTrackFactory(registry, "setVisibility");
 		proto::fightitems::motion::RegisterShoulderConFixupTrackFactory(registry, "shoulderConFixup");

@@ -90,6 +90,42 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x1035A010
+			BlockFramerCamAction::BlockFramerCamAction(BlockFramerCamTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), target(newTarget), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10359F90
+			BlockFramerCamAction::~BlockFramerCamAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1035A0B0
+			fight::Action* BlockFramerCamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new BlockFramerCamAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x10359EC0
+			bool BlockFramerCamAction::Slot5(int arg, float value)
+			{
+				gCameraManager->GetFramerCam()->AddBlock();
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10359EE0
+			void BlockFramerCamAction::Slot6()
+			{
+				if (gCameraManager != 0)
+				{
+					gCameraManager->GetFramerCam()->RemoveBlock();
+				}
+			}
+
+			// ---- actions end
+
 			template class fight::PropertyFloatConstRange<BlockFramerCamTrack>;
 			template class fight::TrackFactoryTemplate<BlockFramerCamTrack>;
 			template class fight::TrackFactoryCasterTemplate<BlockFramerCamTrack>;

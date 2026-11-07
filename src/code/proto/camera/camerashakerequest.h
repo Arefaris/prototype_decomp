@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -38,6 +39,12 @@ namespace proto
 			static void RegisterProperties();
 			static void ClearProperties();
 
+				// The accessors the engine keeps out of line
+				// 0x103591A0
+				int GetSize() const;
+				// 0x103591B0
+				int GetRange() const;
+
 					float timeBegin;  // +0x10
 					int range;  // +0x14
 					int size;  // +0x18
@@ -47,6 +54,32 @@ namespace proto
 		fight::TrackFactory* CreateCameraShakeRequestTrackFactory(const char* name);
 		void RegisterCameraShakeRequestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+
+		// ---- actions begin
+		// What a track owner of kind 0x40000 holds: a position (the other kinds carry a game object handle)
+		struct ShakeOwnerPoint : fightitems::motion::TrackOwner
+		{
+			unsigned char unknown10[0x30];
+			math::Vector position;  // +0x40
+		};
+
+		// RTTI: proto::camera::CameraShakeRequestAction (9 vftable slots, 0x38 bytes)
+		class CameraShakeRequestAction : public fight::Action
+		{
+		public:
+			// 0x10359320
+			CameraShakeRequestAction(CameraShakeRequestTrack* newTrack, const math::Vector& newPosition);
+			// 0x10359290
+			virtual ~CameraShakeRequestAction();
+
+			// vftable slot 5 (0x103593D0)
+			virtual bool Slot5(int arg, float value);
+
+			core::Link<CameraShakeRequestTrack> link;  // +0x1C
+			math::Vector position;  // +0x28
+			float unknown34;
+		};
+		// ---- actions end
 	}
 }
 
