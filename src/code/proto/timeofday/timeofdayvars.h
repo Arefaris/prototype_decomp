@@ -188,6 +188,13 @@ namespace proto
 		virtual bool Slot3();
 		virtual bool Slot4();
 
+		// The lengths of the day (the engine's order)
+		float GetDawnTime();
+		float GetDuskTime();
+		float GetRenderDawnTime();
+		float GetRenderDuskTime();
+		float GetDayLength();
+		pure3d::Texture* GetCloudCover();
 		// The number of names of day groups and the name at an index
 		int GetDayGroupCount();
 		core::Name<core::CaseSensitiveKey>* GetDayGroupName(int index);

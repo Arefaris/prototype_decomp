@@ -241,6 +241,43 @@ namespace proto
 	}
 
 
+
+	// FUNCTION: ENGINE 0x10521730
+	float TimeOfDayVars::GetDawnTime()
+	{
+		return dawnTime;
+	}
+
+	// FUNCTION: ENGINE 0x10521740
+	float TimeOfDayVars::GetDuskTime()
+	{
+		return duskTime;
+	}
+
+	// FUNCTION: ENGINE 0x10521750
+	float TimeOfDayVars::GetRenderDawnTime()
+	{
+		return renderDawnTime;
+	}
+
+	// FUNCTION: ENGINE 0x10521760
+	float TimeOfDayVars::GetRenderDuskTime()
+	{
+		return renderDuskTime;
+	}
+
+	// FUNCTION: ENGINE 0x10521770
+	float TimeOfDayVars::GetDayLength()
+	{
+		return dayLength;
+	}
+
+	// FUNCTION: ENGINE 0x10521780
+	pure3d::Texture* TimeOfDayVars::GetCloudCover()
+	{
+		return cloudCover;
+	}
+
 	// FUNCTION: ENGINE 0x10521E40
 	int TimeOfDayVars::GetDayGroupCount()
 	{
@@ -834,3 +871,21 @@ namespace proto
 // FUNCTION: ENGINE 0x10522FC0
 // FUNCTION: ENGINE 0x105217B0
 // FUNCTION: ENGINE 0x10521850
+// FUNCTION: ENGINE 0x105263B0
+// FUNCTION: ENGINE 0x10525B80
+// FUNCTION: ENGINE 0x10527280
+// FUNCTION: ENGINE 0x10529660
+// FUNCTION: ENGINE 0x105263D0
+// FUNCTION: ENGINE 0x105272A0
+// FUNCTION: ENGINE 0x10525BA0
+// FUNCTION: ENGINE 0x105264F0
+// FUNCTION: ENGINE 0x10526500
+// FUNCTION: ENGINE 0x105273F0
+// FUNCTION: ENGINE 0x10527400
+// FUNCTION: ENGINE 0x10525C80
+// FUNCTION: ENGINE 0x10525C90
+// FUNCTION: ENGINE 0x105254B0
+// FUNCTION: ENGINE 0x10525490
+// FUNCTION: ENGINE 0x10525450
+// FUNCTION: ENGINE 0x10525470
+// FUNCTION: ENGINE 0x10526710
