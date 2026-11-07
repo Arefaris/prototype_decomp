@@ -663,6 +663,10 @@ namespace proto
 				// vftable slot 7 (0x100F4D20)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x100EF890 / 0x100EFEC0 (not reconstructed; names guess): look for the wall in front of the object, then report what was found
+				bool FindSurface(engine::GameObject* object, math::Vector& position, math::Vector& direction, math::Vector& normal);
+				void ReportSurface(const math::Vector& position, const math::Vector& direction, const math::Vector& normal);
+
 				core::Link<MagneticBootsTestWallTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				engine::TrackWatch watch;  // +0x2C
@@ -686,6 +690,10 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x100F4E20)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x100F01F0 / 0x100F0860 (not reconstructed; names guess): look for the corner of the wall, then report what was found
+				bool FindCorner(engine::GameObject* object, math::Vector& position, math::Vector& direction, math::Vector& normal, math::Vector& edge);
+				void ReportCorner(const math::Vector& position, const math::Vector& direction, const math::Vector& normal, const math::Vector& edge);
 
 				core::Link<MagneticBootsTestCornerTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
@@ -733,6 +741,9 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x100F52C0)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x100F0E30 (not reconstructed; name guess): reports the surface the object is detaching from
+				void ReportSurface(const math::Vector& normal, const math::Vector& position, const math::Vector& direction);
 
 				core::Link<MagneticBootsTestDetachTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
@@ -788,7 +799,10 @@ namespace proto
 				core::Link<MagneticBootsTurnCornerTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				core::IRefCount* event;  // +0x2C
-				unsigned char unknown30[0xD0 - 0x30];
+				unsigned char unknown30[0xC4 - 0x30];
+				float savedLength;  // +0xC4
+				bool savedFollowsNormal;  // +0xC8
+				int savedOrientation;  // +0xCC
 				choreo::Driver* driver;  // +0xD0
 			};
 
@@ -813,7 +827,9 @@ namespace proto
 				core::IRefCount* event;  // +0x2C
 				unsigned char unknown30[4];
 				choreo::Driver* driver;  // +0x34
-				unsigned char unknown38[0xB8 - 0x38];
+				unsigned char unknown38[0xB5 - 0x38];
+				bool savedFollowsNormal;  // +0xB5
+				unsigned char unknownB6[0xB8 - 0xB6];
 			};
 
 			// RTTI: proto::fightitems::motion::MagneticBootsDetachAction (9 vftable slots, 0xC0 bytes)
