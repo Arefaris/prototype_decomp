@@ -127,7 +127,7 @@ namespace proto
 			// FUNCTION: ENGINE 0x1010E390
 			bool ScrubberAction::Slot5(int arg, float value)
 			{
-				return engine::GetPuppet(target.Get()) != 0;
+				return engine::GetPuppet(target.Get()) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x1010E3F0
