@@ -101097,3 +101097,8 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ?Reset@EntityReference@om@@QAEXXZ = 0x105B5A70 ; function size:0x2D | om::EntityReference::Reset (name guess)
 ??4EntityReference@om@@QAEAAU01@ABU01@@Z = 0x105B5AA0 ; function size:0x4D | om::EntityReference::operator= (name guess)
 ??4EntityReference@om@@QAEPAVEntity@1@PAV21@@Z = 0x105B5AF0 ; function size:0x4C | om::EntityReference::operator=(Entity *) (name guess)
+?InsertMetaTypeByName@TreeHead@om@@QAE_NPAVMetaTypeBase@2@@Z = 0x105B7140 ; function size:0x19A | om::TreeHead::InsertMetaTypeByName (name guess)
+?InsertMetaTypeByType@TreeHead@om@@QAE_NPAVMetaTypeBase@2@@Z = 0x105B6470 ; function size:0x1B3 | om::TreeHead::InsertMetaTypeByType (name guess)
+?FindMetaType@TreeHead@om@@QAEPAVMetaTypeBase@2@ABVtype_info@@@Z = 0x105B67A0 ; function size:0xA6 | om::TreeHead::FindMetaType (name guess)
+??_7MetaTypeBase@om@@6B@ = 0x10E2E484 ; data size:0x1C | const om::MetaTypeBase::`vftable'
+??_GMetaTypeBase@om@@UAEPAXI@Z = 0x105B72F0 ; function size:0x1E | om::MetaTypeBase::scalar deleting destructor(unsigned int) vftable slot 0
