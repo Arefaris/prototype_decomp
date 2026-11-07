@@ -5,45 +5,11 @@
 #define ENGINE_REFLECTEDCLASSES2_H
 
 #include "code/content/loadinventory.h"
+#include "code/engine/contentmanager.h"
 #include "code/engine/gameobject/behaviour.h"
 
 namespace engine
 {
-	// The content manager's nested definitions (RTTI: engine::ContentManager::...)
-	class ContentManager
-	{
-	public:
-		// ContentPackageDefinition: constructor 0x108E7910, reflection 0x108E6940 / 0x108E7490
-		class ContentPackageDefinition : public content::MetaLoadObject
-		{
-		public:
-			ContentPackageDefinition();
-			static content::ClassInfo* GetClassInfo();
-			static content::MemberList* GetMembers();
-
-			unsigned char unknown8[0x34];
-		};
-
-		// ContentPackageKey: constructor 0x108E77F0, reflection 0x108E6980 / 0x108E7290
-		class ContentPackageKey : public content::MetaLoadObject
-		{
-		public:
-			ContentPackageKey();
-			static content::ClassInfo* GetClassInfo();
-			static content::MemberList* GetMembers();
-
-			unsigned char unknown8[0x18];
-		};
-
-		// ContentCementFileDefinition: reflection 0x108E4560 / 0x108E5A70 (only its meta type is made here)
-		class ContentCementFileDefinition : public content::MetaLoadObject
-		{
-		public:
-			static content::ClassInfo* GetClassInfo();
-			static content::MemberList* GetMembers();
-		};
-	};
-
 	namespace animation
 	{
 		// AttachableBehaviour: constructor 0x1083E5C0, reflection 0x1083BBA0 / 0x1083CB80
