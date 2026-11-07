@@ -305,6 +305,8 @@ namespace proto
 	{
 	public:
 		PedBehaviourTunables();
+		// 0x10434640: releases the factories and templates the object holds
+		~PedBehaviourTunables();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 	

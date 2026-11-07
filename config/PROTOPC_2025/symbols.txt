@@ -89859,3 +89859,7 @@ __imp___HUGE = 0x11331E44 ; data size:0x4 | __imp___HUGE (another unit; name gue
 ??__EgMaskEFlags@engine@@YAXXZ = 0x10D54B50 ; function size:0x10 | engine::gMaskEFlags dynamic initializer
 ??__EgAngleSine@engine@@YAXXZ = 0x10D54A60 ; function size:0xF | engine::gAngleSine dynamic initializer
 ??__EgRatio@engine@@YAXXZ = 0x10D5F880 ; function size:0x19 | engine::gRatio dynamic initializer
+?gPedBehaviourTunables@proto@@3VPedBehaviourTunables@1@A = 0x112681A8 ; data size:0x548 | proto::gPedBehaviourTunables: the tunables of the pedestrian behaviour (name guess)
+??__EgPedBehaviourTunables@proto@@YAXXZ = 0x10D594C0 ; function size:0x16 | proto::gPedBehaviourTunables dynamic initializer
+??__FgPedBehaviourTunables@proto@@YAXXZ = 0x10D844E0 ; function size:0xA | proto::gPedBehaviourTunables atexit stub
+??1PedBehaviourTunables@proto@@UAE@XZ = 0x10434640 ; function size:0x7E | proto::PedBehaviourTunables destructor (name guess)
