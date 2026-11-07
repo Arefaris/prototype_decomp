@@ -207,6 +207,12 @@ namespace engine
 			return fight::FindTrackFactory(name, &caster);
 		}
 
+		// FUNCTION: ENGINE 0x108BAE30
+		int FadeTrack::GetTypeCount()
+		{
+			return 6;
+		}
+
 		// FUNCTION: ENGINE 0x10817420
 		void RegisterFadeTrackFactory(fight::TrackRegistry* registry, const char* name)
 		{
