@@ -2,7 +2,10 @@
 #ifndef PROTO_HITEFFECTMANAGER_HITEFFECT_DECAL_H
 #define PROTO_HITEFFECTMANAGER_HITEFFECT_DECAL_H
 
+#include "code/core/linklist.h"
+#include "code/core/refptr.h"
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/proto/hiteffects/hiteffectparams.h"
 #include "code/proto/hiteffects/hiteffectdata.h"
 
 namespace proto
@@ -51,6 +54,23 @@ namespace proto
 			bool cullOffscreen;  // +0x30
 			bool scaleByDamage;  // +0x31
 			unsigned char unknown32[0x6];
+		};
+
+		// RTTI: proto::HitEffectManager::DecalAction (the action half of the unit 0x104FB8A0 - 0x104FBEA0; the fight node
+		// that puts the decal on the surface the hit touched). The hit's parameters are kept for the damage scale.
+		class DecalAction : public fight::Action
+		{
+		public:
+			// 0x104FBA20
+			DecalAction(DecalTrack* newTrack, HitEffectParams* newParams);
+			// 0x104FB980 (the deleting destructor is 0x104FBAA0)
+			virtual ~DecalAction();
+
+			// vftable slot 5 (0x104FBAD0): left to the engine
+			virtual bool Slot5(int arg, float value);
+
+			core::Link<DecalTrack> link;  // +0x1C
+			HitEffectParams* params;  // +0x28
 		};
 
 		extern fight::Property** gDecalTrackProperties;
