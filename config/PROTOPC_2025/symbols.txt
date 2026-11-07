@@ -104225,3 +104225,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?SetGraphName@Patch@mgraph@@QAEXV?$Name@UCaseSensitive64BitKey@om@@@om@@@Z = 0x105BA0B0 ; function size:0x2A | mgraph::Patch::SetGraphName (name guess)
 ?UpdateFromGraph@Patch@mgraph@@QAEXPAVGraph@2@@Z = 0x105B9BA0 ; function size:0x127 | mgraph::Patch::UpdateFromGraph (name guess)
 ?FindGraph@mgraph@@YAPAVGraph@1@ABV?$Name@UCaseSensitive64BitKey@om@@@om@@@Z = 0x105B9740 ; function size:0x53 | mgraph::FindGraph (name guess)
+?GetFirstAttribute@MetaClassBase@om@@QAEPAVMetaAttribBase@2@XZ = 0x105B6850 ; function size:0x13 | om::MetaClassBase::GetFirstAttribute (name guess)
+?GetNextAttribute@MetaClassBase@om@@QAEPAVMetaAttribBase@2@PAV32@@Z = 0x105B6870 ; function size:0x27 | om::MetaClassBase::GetNextAttribute (name guess)
+?GetFirstProperty@MetaClassBase@om@@QAEPAVMetaPropertyBase@2@XZ = 0x105B68A0 ; function size:0x13 | om::MetaClassBase::GetFirstProperty (name guess)
+?GetNextProperty@MetaClassBase@om@@QAEPAVMetaPropertyBase@2@PAV32@@Z = 0x105B68C0 ; function size:0x27 | om::MetaClassBase::GetNextProperty (name guess)
