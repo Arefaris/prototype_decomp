@@ -37,6 +37,64 @@ namespace fight
 		slot = value;
 	}
 
+	// FUNCTION: ENGINE 0x105A5C90
+	// NONMATCHING: the engine loads both halves of the key before it stores the first (85.9 %)
+#ifdef NONMATCHING
+	bool TrackRegistry::AddFactory(BranchFactory* factory)
+	{
+		unsigned __int64 key = factory->name.GetHash();
+		factory->AddRef();
+		branchFactories.Insert(key, factory);
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105A5CD0
+	// NONMATCHING: the engine loads both halves of the key before it stores the first (88.9 %)
+#ifdef NONMATCHING
+	bool TrackRegistry::AddFactory(ConditionFactory* factory)
+	{
+		unsigned __int64 key;
+		key = factory->name.GetHash();
+		factory->AddRef();
+		conditionFactories.Insert(key, factory);
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105A5D10
+	// NONMATCHING: the engine loads both halves of the key before it stores the first (88.9 %)
+#ifdef NONMATCHING
+	bool TrackRegistry::AddFactory(TrackFactory* factory)
+	{
+		unsigned __int64 key = factory->name.GetHash();
+		factory->AddRef();
+		trackFactories.Insert(key, factory);
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105A5950
+	BranchFactory* TrackRegistry::FindBranchFactory(const Name& key)
+	{
+		FactoryMap::Iterator iterator(&branchFactories);
+		return (BranchFactory*)iterator.Find(key.GetHash());
+	}
+
+	// FUNCTION: ENGINE 0x105A5990
+	ConditionFactory* TrackRegistry::FindConditionFactory(const Name& key)
+	{
+		FactoryMap::Iterator iterator(&conditionFactories);
+		return (ConditionFactory*)iterator.Find(key.GetHash());
+	}
+
+	// FUNCTION: ENGINE 0x105A59D0
+	TrackFactory* TrackRegistry::FindTrackFactory(const Name& key)
+	{
+		FactoryMap::Iterator iterator(&trackFactories);
+		return (TrackFactory*)iterator.Find(key.GetHash());
+	}
+
 	// FUNCTION: ENGINE 0x105A5500
 	void TrackRegistry::SetNext(TrackRegistry* following)
 	{
@@ -406,4 +464,3 @@ namespace engine
 		return 0;
 	}
 }
-

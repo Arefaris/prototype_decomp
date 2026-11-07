@@ -1046,6 +1046,50 @@ namespace fight
 	};
 
 
+	// The map of the factories of a kind by the hash of their name: the same code as proto::MidgroundMap, which the linker
+	// merged (0x102DD6F0 / 0x102DDAD0; names guessed). Open addressing over the 64-bit hash; the probe step is
+	// ((key >> 9) & 0xFE) | 1.
+	class FactoryMap
+	{
+	public:
+		// A search position: seven words built on the caller's stack, of which +4 is left uninitialised
+		struct Iterator
+		{
+			explicit Iterator(FactoryMap* newMap)
+			{
+				map = newMap;
+				key = 0;
+				index = 0;
+				current = 0;
+				step = 0;
+			}
+
+			// The value the key is stored under, null when the map has no such key
+			void* Find(const unsigned __int64& newKey);
+
+			FactoryMap* map;
+			int unknown4;
+			unsigned __int64 key;
+			int index;
+			int current;
+			int step;
+		};
+
+		// Stores the value under the key (the key is copied)
+		void Insert(const unsigned __int64& key, void* value);
+
+		unsigned int capacity;  // +0x00: the number of slots (a power of two)
+		int count;  // +0x04: the number of live entries
+		int unknown8;
+		int unknownC;
+		int unknown10;
+		int unknown14;
+		int unknown18;  // the heap the tables come from
+		void** buckets;  // +0x1C
+		unsigned __int64* keys;  // +0x20
+		void* sentinel;  // +0x24: the value of an empty slot
+	};
+
 	// The factories one fight context knows (RTTI: fight::Context, 0xD8 bytes, a load object; the class name here is a
 	// guess from its use; another unit's class, only what the fight system's set-up calls is declared)
 	class TrackRegistry : public Entity
@@ -1054,11 +1098,11 @@ namespace fight
 		// 0x105A5DB0
 		TrackRegistry();
 		// 0x105A5D10
-		void AddFactory(TrackFactory* factory);
+		bool AddFactory(TrackFactory* factory);
 		// 0x105A5CD0
-		void AddFactory(ConditionFactory* factory);
+		bool AddFactory(ConditionFactory* factory);
 		// 0x105A5C90
-		void AddFactory(BranchFactory* factory);
+		bool AddFactory(BranchFactory* factory);
 		// 0x105A51C0 / 0x105A51D0 (empty bodies): called once all the factories are in
 		void Prepare();
 		void Complete();
@@ -1097,7 +1141,10 @@ namespace fight
 		BranchFactory* FindBranchFactory(const Name& key);
 
 		TrackRegistry* next;  // +0x10: the next context of the load listeners' list
-		unsigned char unknown14[0x78];
+		// The factories by the hash of their name: the branch factories, the condition factories and the track factories
+		FactoryMap branchFactories;  // +0x14
+		FactoryMap conditionFactories;  // +0x3C
+		FactoryMap trackFactories;  // +0x64
 		// The root branch of the context's tree
 		Branch* branches;  // +0x8C
 		unsigned char lockA[0x18];  // +0x90
