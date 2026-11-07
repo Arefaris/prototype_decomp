@@ -7730,3 +7730,21 @@ marker list, disguise action pop-up, `GetFrontEndHud`). Small additions to share
 - `engine/fight/playbackset.h`, `playbackbranches.cpp`: `PlaybackSet` and `PlaybackNode` (constructors, properties, slots 10 / 11 / 14, the factories). The destructor of `PlaybackNode` (0x108B1010) stays with the engine: it leaves out the stores of the vftable that ours makes; `PlaybackNode::Slot12` 0x108B0CD0 is not done; `RegisterProperties` of both are NONMATCHING (shrink-wrap).
 - Shared header changes: `inputsystem.h` (the types above), `trackfactory.h` (`PropertyTypePropertyList`'s constructor and type, `PropertyFloat<T>`, `ObjectOf` in three property templates), `monkeycontrollermanager.h`, `defaultcontrollerhandler.cpp` (the view class is gone), `playbackset.h`.
 - Not done and why: `GameDBStorage` (0x108A56C0 - 0x108A5F30: its slots call the profile storage messages and packers of other units), `MessageRouter::InitListeners` (inlined array operations), the stream package states (0x108A6140 - 0x108A6B80: calls into the world stream manager that nothing names), `FMVState` (0x108A0520 - 0x108A0890), the collision enable actions' `FindObject` (0x108ABDE0 / 0x108ABEE0: the engine keeps the loop result in a stack slot), `ShaderAnimationAction`, `HealthAction`, the effect LOD actions, the motion trail (0x108BD650 - 0x108BEFxx) and the online manager (0x108BF430 on). About 780 of the remaining functions are 1 - 20 byte kept copies of container, `om::` and `core::Link` members that no class names.
+
+## 0x108E0000 - 0x10900000 (sn-dr): NIS and light animation actions, the letterbox fade helper
+- `src/code/engine/fight/nisanimationactions.cpp` (unit 0x108F0C10 - 0x108F2000): `NISAnimationAction` (constructor, the compiler's
+  destructors and `NISAnimationTrack::CreateAction`), `LightAnimationAction` (the named-object constructor, `Slot6`, both track
+  `CreateAction`s), `SequenceNISNodeAction` (destructor, `Slot7`, the track's `CreateAction`), the file-local-looking leaf name helper
+  0x108F12E0 (external linkage, arguments on the stack), `SetAnimationMessage` (type 10, size 0x28) and the Link copies. NONMATCHING: the
+  two `Slot7` (shrink-wrap), `NISAnimationAction::Slot6` (92 %, registers), the light action's first constructor and destructor
+  (88 % / 95 %, store scheduling), the named-object constructor of the light action (83.6 %, `add eax, 0xFFFEFFFB` against `sub edx,
+  0x10005`), `SequenceNISNodeAction`'s constructor (94.9 %, registers) and `Slot5` (block layout of the shared return-false tail).
+  Not done: `NISAnimationAction::Slot5`, `LightAnimationAction::Slot5` (they build the animation message from the track and the
+  controller's animation; 605 and 512 bytes), `NISBeginMessage`.
+- `src/code/engine/render/fadehelper.cpp` (unit 0x108FD0A0 - 0x108FD8C0): `FadeValue` (a float that slides to a target: flag +0, value
+  +4, target +8, step +0xC) and `FadeHelper` (0x38 bytes: two fade values at +0x14 / +0x24 and the "unlit" shader at +0x10). The
+  engine folded `FadeValue::GetValue` with `pure3d::FrameTime::GetFloat` (0x108FD140). `GetBars` is NONMATCHING (the engine multiplies
+  the display height by a half before the call that answers the amount; 45.8 %).
+- `src/code/engine/online/olsfriend.cpp`: `OnProfileSelected` and `SendGameInvite`.
+- Shared header changes: `engine/nismessages.h` gained the three-argument `NISPlayMessage` constructor (the engine's copy 0x105736B0),
+  `engine/nis/nisnodes.h` gained `NISNode::Unknown108A7CE0`.
