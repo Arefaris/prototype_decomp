@@ -6688,6 +6688,8 @@ namespace om
 	template Complex& DynamicArray<Complex,unsigned short>::operator[](unsigned short);
 	// FUNCTION: ENGINE 0x10AE8BC0
 	template mgraph::EnvelopeData& DynamicArray<mgraph::EnvelopeData,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AF6E20
+	template void om::WriteText(TextValue*, DynamicArray<Vector,unsigned short> const&);
 	// FUNCTION: ENGINE 0x10AF5B90
 	template void om::WriteText(TextValue*, DynamicArray<bool,unsigned short> const&);
 }
