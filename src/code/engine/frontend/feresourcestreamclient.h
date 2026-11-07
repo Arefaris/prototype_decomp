@@ -8,12 +8,16 @@
 
 #include "code/content/chunkhandler.h"
 #include "code/content/loadinventory.h"
+#include "code/core/name.h"
 
 namespace engine
 {
 	class FEResourceStreamClient
 	{
 	public:
+		// 0x10873BB0 (not reconstructed): the text of the key, a placeholder when the bible has none (name guessed)
+		const char* GetText(const core::Name<core::CaseSensitiveKey>& key);
+
 		// The memory the texts of the bible are copied into: a block of the size the bible needs and the position the
 		// next text goes to
 		class TextBibleStorage : public content::LoadObject
@@ -63,6 +67,9 @@ namespace engine
 			char* text;  // +8
 		};
 	};
+
+	// The stream client of the frontend's resources (made at start-up, 0x113166F0)
+	extern FEResourceStreamClient* gFEResourceStreamClient;
 }
 
 #endif

@@ -6,6 +6,19 @@
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x10873F30
+	const char* GetLocalizedText(const char* key)
+	{
+		core::Name<core::CaseSensitiveKey> name(key, 1);
+		return gFEResourceStreamClient->GetText(name);
+	}
+
+	// FUNCTION: ENGINE 0x10873F60
+	const char* GetSpeakerText(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		return gFEResourceStreamClient->GetText(name);
+	}
+
 	// FUNCTION: ENGINE 0x108733D0
 	// NONMATCHING: the engine pushes the size for the allocation behind the store of the reference count, ours before it, 90 %
 #ifdef NONMATCHING
