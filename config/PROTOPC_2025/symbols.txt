@@ -102702,3 +102702,5 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_GNISParams@engine@@UAEPAXI@Z = 0x108A71B0 ; function size:0x1E | engine::NISParams::scalar deleting destructor vftable slot 2
 ??_7NISParams@engine@@6B@ = 0x10E791D4 ; data size:0xC | engine::NISParams vftable
 ??_R0?AVNISParams@engine@@@8 = 0x111D50D0 ; data size:0x8 | engine::NISParams RTTI type descriptor
+??1NISParams@engine@@UAE@XZ = 0x108A82A0 ; function size:0x1D | engine::NISParams::~NISParams (name guess)
+??$SafeRelease@VAction@fight@@@core@@YAXAAPAVAction@fight@@@Z = 0x108A8250 ; function size:0x1A | void core::SafeRelease<fight::Action>(fight::Action * &) (kept copy of the NIS player unit)

@@ -7,6 +7,7 @@
 #define ENGINE_NISPLAYERBEHAVIOUR_H
 
 #include "code/content/metatype.h"
+#include "code/core/refptr.h"
 #include "code/core/name.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/gameobject/gameobjectparams.h"
@@ -42,6 +43,11 @@ namespace engine
 		{
 			unknown18 = 0;
 			action = 0;
+		}
+		// 0x108A82A0 (deleting destructor 0x108A71B0)
+		virtual ~NISParams()
+		{
+			core::SafeRelease(action);
 		}
 
 		int unknown18;  // +0x18: the load inventory of the sequence's stream package
