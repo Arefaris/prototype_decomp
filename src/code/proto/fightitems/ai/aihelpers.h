@@ -100,6 +100,8 @@ namespace proto
 	bool Unknown103BA7F0(engine::GameObject* object, engine::GameObjectHandle target);
 	// 0x103BB590: forces the emotional state of the object (name guess)
 	void Unknown103BB590(engine::GameObject* object, core::Name<core::CaseSensitiveKey> state);
+	// 0x103B84B0: whether the movement of the object is in state 5 or 6 (name guess)
+	bool Unknown103B84B0(engine::GameObject* object);
 	// 0x103B8630: sets how an object moves (the sprint and the maximum speed flags; name guess)
 	void Unknown103B8630(engine::GameObject* object, bool sprint, bool useMaxSpeed);
 	// 0x10078F70: whether the object is the player's
