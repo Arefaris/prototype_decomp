@@ -1217,6 +1217,48 @@ namespace engine
 			return true;
 		}
 
+		// Takes a block for that many values (an empty list that has no storage when there is none to take)
+		static __forceinline void ReserveList(ConfigList& list, unsigned int count)
+		{
+			list.begin = (unsigned int*)operator new[](count * sizeof(unsigned int));
+			if (list.begin != 0)
+			{
+				list.end = list.begin;
+				list.capacity = list.begin + count;
+			}
+			else
+			{
+				list.end = 0;
+				list.capacity = 0;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081C7B0
+		EffectManagerConfig::EffectManagerConfig()
+		{
+			heap = 10;
+			attachedHeap = 0x77;
+			resetCallback = 0;
+			resetCallbackArgument = 0;
+			startCallback = 0;
+			unknown14 = 0;
+			startLimit = 4;
+			lightCount = 0x40;
+			waitingCount = 8;
+			effectSuspendCount = 4;
+			ReserveList(effectKeys, 16);
+			ReserveList(effectCounts, 16);
+			ReserveList(attachedKeys, 4);
+			ReserveList(attachedCounts, 4);
+		}
+
+		// FUNCTION: ENGINE 0x1081C4C0
+		void* HashTable::Find(const unsigned int* key)
+		{
+			HashLookup lookup(this);
+			return lookup.Find(key);
+		}
+
 		// FUNCTION: ENGINE 0x10819A80
 		bool DrawableRing::Allocate(unsigned int count)
 		{
@@ -1279,6 +1321,15 @@ namespace engine
 		{
 			unsigned int copy = key;
 			return !GetList(&copy)->HasRoom();
+		}
+
+		// FUNCTION: ENGINE 0x1081CFE0
+		bool EffectManager::IsAttachedRingFull(unsigned int key)
+		{
+			unsigned int copy = key;
+			HashLookup lookup(&attachedTable);
+			AttachedRing* ring = (AttachedRing*)lookup.Find(&copy);
+			return !(ring->tail < ring->end);
 		}
 
 		// FUNCTION: ENGINE 0x1081C410

@@ -101026,3 +101026,6 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??$RefAssign@VLoadInventory@content@@@core@@YAXAAPAVLoadInventory@content@@PAV12@@Z = 0x102D2440 ; function size:0x28 | core::RefAssign<content::LoadInventory> (name guess)
 ??$SafeRelease@VLoadInventory@content@@@core@@YAXAAPAVLoadInventory@content@@@Z = 0x102D2420 ; function size:0x1A | core::SafeRelease<content::LoadInventory> (name guess)
 ?Allocate@DrawableRing@render@engine@@QAE_NI@Z = 0x10819A80 ; function size:0x56 | engine::render::DrawableRing::Allocate (name guess)
+??0EffectManagerConfig@render@engine@@QAE@XZ = 0x1081C7B0 ; function size:0xC8 | engine::render::EffectManagerConfig::EffectManagerConfig (name guess)
+?Find@HashTable@render@engine@@QAEPAXPBI@Z = 0x1081C4C0 ; function size:0x2C | engine::render::HashTable::Find (name guess)
+?IsAttachedRingFull@EffectManager@render@engine@@QAE_NI@Z = 0x1081CFE0 ; function size:0x42 | engine::render::EffectManager::IsAttachedRingFull (name guess)
