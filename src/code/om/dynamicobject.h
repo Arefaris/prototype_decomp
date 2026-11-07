@@ -23,8 +23,28 @@ namespace om
 	class PropertyFactories
 	{
 	public:
+		// 0x105C1370 / 0x105C1390
+		PropertyFactories()
+		{
+		}
+		~PropertyFactories()
+		{
+		}
 		// 0x105BA0A0: the factory registered under the name, null when there is none
 		FactoryBase<DynamicPropertyBase>* Find(const ClassName& name);
+		// 0x105C1660: makes the registry the engine uses; 0x105C1770 deletes it
+		static void Create();
+		static void Destroy();
+		// 0x105C15C0 / 0x105C1220 / 0x105C1290
+		static void* operator new(size_t)
+		{
+			return Allocate(AllocationTag(), sizeof(PropertyFactories), __alignof(PropertyFactories));
+		}
+		static void operator delete(void* memory)
+		{
+			Release(memory, sizeof(PropertyFactories), __alignof(PropertyFactories));
+		}
+		static const char* AllocationTag();
 
 		TreeHead byName;
 		TreeHead byType;

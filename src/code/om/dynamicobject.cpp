@@ -5,6 +5,25 @@
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x105C1290
+	const char* PropertyFactories::AllocationTag()
+	{
+		return "";
+	}
+
+	// FUNCTION: ENGINE 0x105C1660
+	void PropertyFactories::Create()
+	{
+		gPropertyFactories = new PropertyFactories;
+	}
+
+	// FUNCTION: ENGINE 0x105C1770
+	void PropertyFactories::Destroy()
+	{
+		delete gPropertyFactories;
+		gPropertyFactories = 0;
+	}
+
 	// FUNCTION: ENGINE 0x105C13B0
 	DynamicObject::DynamicObject(ClassName newName) :
 		name(newName),
