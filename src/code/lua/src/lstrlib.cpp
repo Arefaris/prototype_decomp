@@ -9,8 +9,8 @@
 #include "code/lua/lua.h"
 #include "code/lua/lauxlib.h"
 
-// The dump of a function is not declared in the library's header (the engine's definition has C++ linkage)
-int lua_dump(lua_State* L, lua_Writer writer, void* data);
+// The dump of a function is not declared in the library's header
+extern "C" int lua_dump(lua_State* L, lua_Writer writer, void* data);
 
 #define LUA_QL(x) "'" x "'"
 #define luaL_checkint(L, n) ((int)luaL_checkinteger(L, (n)))
