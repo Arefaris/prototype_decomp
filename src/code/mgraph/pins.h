@@ -361,9 +361,6 @@ namespace mgraph
 			AbstractInputPinBase(newNode, 1, newName, newIndex)
 		{
 		}
-		virtual ~AbstractInputPin()
-		{
-		}
 		virtual om::MetaTypeBase* GetPacketType()
 		{
 			return om::FindMetaType(typeid(P));
@@ -409,9 +406,6 @@ namespace mgraph
 	public:
 		AbstractOutputPin(const om::ClassName* newName, void* newNode, int newIndex) :
 			AbstractOutputPinBase(newNode, newName, newIndex)
-		{
-		}
-		virtual ~AbstractOutputPin()
 		{
 		}
 		virtual om::MetaTypeBase* GetPacketType()
