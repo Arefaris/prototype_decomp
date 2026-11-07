@@ -221,10 +221,25 @@ namespace pure3d
 		FreeParticle(pointer);
 	}
 
+	// FUNCTION: ENGINE 0x10742720
+	void ParticleGenerator::Unknown10742720()
+	{
+		indices.Clear();
+		for (int i = particleCount - 1; i >= 0; i--)
+		{
+			unsigned int index = i;
+			indices.PushBack(index);
+		}
+		unknown10.Identity();
+		transform.Identity();
+		unknown50.Identity();
+		unknown292 = false;
+	}
+
 	// FUNCTION: ENGINE 0x10741080
 	bool ParticleGenerator::Unknown10741080()
 	{
-		return unknown2F4 != unknown2F8;
+		return indices.end != indices.capacity;
 	}
 
 	// FUNCTION: ENGINE 0x107407A0

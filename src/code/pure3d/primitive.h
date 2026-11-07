@@ -881,6 +881,37 @@ namespace pure3d
 	class ParticleGridGenerator;
 	class ParticleMeshGenerator;
 
+	// A list of indices that keeps room for 68 of them inside itself (0x120 bytes: begin, end and capacity pointers, a
+	// word and the storage; the name is a guess)
+	class ParticleIndexList
+	{
+	public:
+		// Appends the index when there is room
+		void PushBack(const unsigned int& value)
+		{
+			if (end < capacity)
+			{
+				unsigned int* p = end;
+				end = p + 1;
+				if (p != 0)
+				{
+					*p = value;
+				}
+			}
+		}
+
+		void Clear()
+		{
+			end = begin;
+		}
+
+		unsigned int* begin;
+		unsigned int* end;
+		unsigned int* capacity;
+		int unknownC;
+		unsigned int storage[68];
+	};
+
 	class ParticleGenerator : public Entity
 	{
 	public:
@@ -913,7 +944,7 @@ namespace pure3d
 		void Unknown10741120(float time);
 		// 0x10740460: the emitter transform, handed on to the generator
 		void SetTransform(const math::Matrix& newTransform);
-		// 0x10742720: forgets the particles it made (name guess)
+		// 0x10742720: forgets the particles it made (name guess; all the indices become free, in descending order)
 		void Unknown10742720();
 		// 0x10741080: whether the two counts at +0x2F4 / +0x2F8 differ (name guess)
 		bool Unknown10741080();
@@ -947,7 +978,10 @@ namespace pure3d
 		unsigned char unknown258[8];
 		float unknown260;
 		float unknown264;
-		unsigned char unknown268[0x18];
+		unsigned char unknown268[0x10];
+		// The most particles the generator keeps alive
+		int particleCount;
+		unsigned char unknown27C[4];
 		float unknown280;
 		unsigned char unknown284[0xD];
 		bool unknown291;
@@ -956,10 +990,9 @@ namespace pure3d
 		float unknown294;
 		unsigned char unknown298[8];
 		math::Matrix transform;
-		unsigned char unknown2E0[0x14];
-		int unknown2F4;
-		int unknown2F8;
-		unsigned char unknown2FC[0x114];
+		unsigned char unknown2E0[0x10];
+		// The indices of the particles that are free
+		ParticleIndexList indices;
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
