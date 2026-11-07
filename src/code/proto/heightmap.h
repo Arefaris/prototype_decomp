@@ -26,6 +26,14 @@ namespace container
 
 namespace proto
 {
+	// The heights of a window of 6 by 6 cells around the cells being worked on (0x98 bytes; names guessed)
+	struct HeightWindow
+	{
+		int originX;  // +0
+		int originY;  // +4
+		float values[36];  // +8
+	};
+
 	class Heightmap : public content::MetaLoadObject
 	{
 	public:
@@ -34,6 +42,22 @@ namespace proto
 		Heightmap();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// 0x103937F0: stores the height of a cell (cells outside the grid are ignored)
+		void SetHeight(int x, int y, float height);
+		// 0x10393D90: the height of a cell (stored values behind the range of the heights are answered as they are, a cell
+		// outside the grid gives 20001)
+		float GetHeight(int x, int y);
+
+		// 0x10394640: fills the window with the heights of the cells around a cell (size cells wide and margin more
+		// around them; cells outside the grid or behind the range of the heights count as the highest or as 0)
+		void FillWindow(int x, int y, unsigned int size, int margin, bool outsideHigh);
+		// 0x1038C160: the height the window holds for a cell
+		float GetWindowHeight(int x, int y);
+		// 0x1038C180: the corner of a cell in the world, at the height of the window
+		void GetWindowPoint(math::Vector* out, int x, int y);
+		// 0x1038C1F0: the same moved by half a cell
+		void GetWindowCellCenter(math::Vector* out, int x, int y);
 
 		// Vftable slot 3 (0x103951D0): ignores the name
 		virtual void SetName(const content::ObjectName& name);
@@ -53,7 +77,9 @@ namespace proto
 		math::AABB aabb;  // +0x38
 		int halfRows;  // +0x50
 		HeightArray data;  // +0x54
-		unsigned char unknown60[0x190 - 0x60];
+		unsigned char unknown60[4];
+		HeightWindow window;  // +0x64
+		unsigned char unknownFC[0x190 - 0xFC];
 	};
 }
 

@@ -58,6 +58,110 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x103937F0
+	void Heightmap::SetHeight(int x, int y, float height)
+	{
+		if (x >= 0 && x < sizeX && y >= 0 && y < sizeY)
+		{
+			data[sizeY * x + y] = (unsigned short)(int)((height - minHeight) / quantum);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10393D90
+	float Heightmap::GetHeight(int x, int y)
+	{
+		if (x >= 0 && x < sizeX && y >= 0 && y < sizeY)
+		{
+			float stored = (float)data[sizeY * x + y];
+			if (stored > 20000.0f)
+			{
+				return stored;
+			}
+			return quantum * stored + minHeight;
+		}
+		return 20001.0f;
+	}
+
+	// FUNCTION: ENGINE 0x10394640
+	// NONMATCHING: ours unrolls the inner loop four times, the engine's does not (3.9 %)
+#ifdef NONMATCHING
+	void Heightmap::FillWindow(int x, int y, unsigned int size, int margin, bool outsideHigh)
+	{
+		int firstX;
+		int firstY;
+		int count;
+		if ((size & 1) == 0)
+		{
+			size = size >> 1;
+			firstY = (y - size) - margin;
+			firstX = ((x - size) - margin) + 1;
+			count = (margin + size) * 2;
+		}
+		else
+		{
+			unsigned int half = (size - 1) >> 1;
+			firstX = (x - half) - margin;
+			firstY = (y - half) - margin;
+			count = (half + margin) * 2 + 1;
+		}
+		window.originX = firstX;
+		window.originY = firstY;
+		for (int j = 0; j < count; j++)
+		{
+			int cellX = firstX;
+			for (int i = 0; i < count; i++)
+			{
+				float height;
+				if (cellX < 0 || cellX >= sizeX || j + firstY < 0 || j + firstY >= sizeY ||
+					(height = (float)data[cellX * sizeY + j + firstY]) > 20000.0f)
+				{
+					height = outsideHigh ? 65535.0f : 0.0f;
+				}
+				else
+				{
+					height = quantum * height + minHeight;
+				}
+				window.values[(((j - window.originY) + firstY) * 6 - window.originX) + i + firstX] = height;
+				cellX++;
+			}
+		}
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x1038C160
+	float Heightmap::GetWindowHeight(int x, int y)
+	{
+		return window.values[(y - window.originY) * 6 - window.originX + x];
+	}
+
+	// FUNCTION: ENGINE 0x1038C180
+	// NONMATCHING: the engine computes the cell index first and keeps the output in eax (61.1 %)
+#ifdef NONMATCHING
+	void Heightmap::GetWindowPoint(math::Vector* out, int x, int y)
+	{
+		float size = gridSize;
+		out->x = (float)x * size + minVec.x;
+		out->y = window.values[(y - window.originY) * 6 - window.originX + x] + minVec.y;
+		out->z = (float)y * size + minVec.z;
+	}
+
+#endif
+
+	// FUNCTION: ENGINE 0x1038C1F0
+	// NONMATCHING: the same order of the index and the output registers (best 10.9 %)
+#ifdef NONMATCHING
+	void Heightmap::GetWindowCellCenter(math::Vector* out, int x, int y)
+	{
+		float size = gridSize;
+		float half = size * engine::driving::gHalf;
+		out->x = (float)x * size + minVec.x + half;
+		out->y = window.values[(y - window.originY) * 6 - window.originX + x] + minVec.y;
+		out->z = ((float)y * size - half) + minVec.z;
+	}
+
+#endif
+
 	// FUNCTION: ENGINE 0x103951D0
 	void Heightmap::SetName(const content::ObjectName& name)
 	{
@@ -74,6 +178,7 @@ namespace proto
 	}
 #endif
 }
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x103931F0
