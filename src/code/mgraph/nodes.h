@@ -26,6 +26,12 @@ namespace om
 			values[1] = 0.0f;
 			values[0] = 0.0f;
 		}
+		Vector(float x, float y, float z)
+		{
+			values[0] = x;
+			values[1] = y;
+			values[2] = z;
+		}
 
 		float values[3];
 	};

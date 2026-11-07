@@ -18,10 +18,26 @@ namespace om
 {
 	using namespace mgraph;
 
+	// The text and binary forms of the vector (the library's functions of another unit, names guessed)
+	bool ReadText(const TextValue* text, Vector* value);
+	void WriteText(TextValue* text, const Vector& value);
+	bool WriteBinary(BinaryStream* stream, const Vector& value);
+	inline bool ReadBinary(BinaryStream* stream, Vector* value)
+	{
+		return ReadBinary(stream, &value->values[0]) && ReadBinary(stream, &value->values[1]) && ReadBinary(stream, &value->values[2]);
+	}
+
 	// Left to the engine: the text and binary slots of the colour property (the engine merges the paths of the cached type found
 	// and not found)
 	template<> bool MetaProperty<mgraph::NodeColour const&>::SetText(TextValue const*, void*);
 	template<> bool MetaProperty<mgraph::NodeColour const&>::SetBinary(BinaryStream*, void*);
+	// Left to the engine: the binary forms of the boolean and the sixty-four bit properties (the engine normalises the boolean
+	// it writes, and orders its register copies of the stream differently) and the text form of the envelope property
+	template<> bool MetaProperty<bool const&>::SetBinary(BinaryStream*, void*);
+	template<> bool MetaProperty<bool const&>::GetBinary(BinaryStream*, void*);
+	template<> bool MetaProperty<unsigned __int64 const&>::SetBinary(BinaryStream*, void*);
+	template<> bool MetaProperty<unsigned __int64 const&>::GetBinary(BinaryStream*, void*);
+	template<> void MetaProperty<mgraph::EnvelopeData const&>::GetText(TextValue*, void*);
 
 	// FUNCTION: ENGINE 0x10AC2850
 	template MetaClass<audio::XAudio2RendererDriver>::MetaClass(Name<CaseSensitive64BitKey> const&, MetaClassBase*);
@@ -6470,4 +6486,98 @@ namespace mgraph
 	template void mgraph::Packet<String>::Assign(mgraph::Packet<String> const&, int, om::Allocator*);
 	// FUNCTION: ENGINE 0x10AF75D0
 	template void mgraph::Packet<Complex>::Assign(mgraph::Packet<Complex> const&, int, om::Allocator*);
+}
+
+namespace om
+{
+	using namespace mgraph;
+	// FUNCTION: ENGINE 0x10AF22A0
+	template DelegateMetaProperty<DynamicArray<bool,unsigned short> const&>::DelegateMetaProperty(void*, MetaProperty<DynamicArray<bool,unsigned short> const&>*);
+	// FUNCTION: ENGINE 0x10AF24A0
+	template DelegateMetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::DelegateMetaProperty(void*, MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>*);
+	// FUNCTION: ENGINE 0x10AF2520
+	template DelegateMetaProperty<Vector const&>::DelegateMetaProperty(void*, MetaProperty<Vector const&>*);
+	// FUNCTION: ENGINE 0x10AF25A0
+	template DelegateMetaProperty<DynamicArray<Vector,unsigned short> const&>::DelegateMetaProperty(void*, MetaProperty<DynamicArray<Vector,unsigned short> const&>*);
+	// FUNCTION: ENGINE 0x10AF2620
+	template DelegateMetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::DelegateMetaProperty(void*, MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>*);
+	// FUNCTION: ENGINE 0x10AFD560
+	template void MetaProperty<bool const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,bool const&>*, MetaMethod0Base<bool const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFD640
+	template void MetaProperty<DynamicArray<bool,unsigned short> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<bool,unsigned short> const&>*, MetaMethod0Base<DynamicArray<bool,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFDC20
+	template void MetaProperty<unsigned __int64 const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,unsigned __int64 const&>*, MetaMethod0Base<unsigned __int64 const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFDD00
+	template void MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<unsigned __int64,unsigned short> const&>*, MetaMethod0Base<DynamicArray<unsigned __int64,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFE0A0
+	template void MetaProperty<Vector const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,Vector const&>*, MetaMethod0Base<Vector const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFE180
+	template void MetaProperty<DynamicArray<Vector,unsigned short> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<Vector,unsigned short> const&>*, MetaMethod0Base<DynamicArray<Vector,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFE2E0
+	template void MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,DynamicArray<mgraph::TriggerData,unsigned short> const&>*, MetaMethod0Base<DynamicArray<mgraph::TriggerData,unsigned short> const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFE440
+	template void MetaProperty<Complex const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,Complex const&>*, MetaMethod0Base<Complex const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFE680
+	template void MetaProperty<mgraph::EnvelopeData const&>::Create(MetaClassBase*, Name<CaseSensitive64BitKey> const&, MetaMethod1Base<void,mgraph::EnvelopeData const&>*, MetaMethod0Base<mgraph::EnvelopeData const&>*, unsigned int);
+	// FUNCTION: ENGINE 0x10AFEFE0
+	template DelegatePropertyBase* MetaProperty<DynamicArray<bool,unsigned short> const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AFF120
+	template DelegatePropertyBase* MetaProperty<DynamicArray<unsigned __int64,unsigned short> const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AFF170
+	template DelegatePropertyBase* MetaProperty<Vector const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AFF1C0
+	template DelegatePropertyBase* MetaProperty<DynamicArray<Vector,unsigned short> const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AFF210
+	template DelegatePropertyBase* MetaProperty<DynamicArray<mgraph::TriggerData,unsigned short> const&>::CreateDelegate(void*);
+	// FUNCTION: ENGINE 0x10AFF260
+	template bool MetaProperty<Complex const&>::SetText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AFF390
+	template bool MetaProperty<Complex const&>::SetBinary(BinaryStream*, void*);
+	// The property of a vector starts from the zero vector with the components in order
+	// FUNCTION: ENGINE 0x10AF2000
+	template<> bool MetaProperty<Vector const&>::SetText(const TextValue* text, void* object)
+	{
+		MetaTypeBase*& cache = MetaTypeCache<Vector>::type;
+		if (cache == 0)
+		{
+			cache = FindMetaType(typeid(Vector));
+		}
+		MetaTypeBase* type = cache;
+		bool ok;
+		if (type == 0)
+		{
+			Vector value(0.0f, 0.0f, 0.0f);
+			ok = ReadText(text, &value);
+			if (ok)
+			{
+				GetSetter()->Call(object, value);
+			}
+		}
+		else
+		{
+			Vector value(0.0f, 0.0f, 0.0f);
+			ok = type->ReadText(text, &value);
+			if (ok)
+			{
+				GetSetter()->Call(object, value);
+			}
+		}
+		return ok;
+	}
+	// FUNCTION: ENGINE 0x10AF2150
+	template<> bool MetaProperty<Vector const&>::SetBinary(BinaryStream* stream, void* object)
+	{
+		Vector value(0.0f, 0.0f, 0.0f);
+		bool ok = ReadBinary(stream, &value);
+		if (ok)
+		{
+			GetSetter()->Call(object, value);
+		}
+		return ok;
+	}
+
+	// FUNCTION: ENGINE 0x10AF20C0
+	template void MetaProperty<Vector const&>::GetText(TextValue*, void*);
+	// FUNCTION: ENGINE 0x10AF21E0
+	template bool MetaProperty<Vector const&>::GetBinary(BinaryStream*, void*);
 }
