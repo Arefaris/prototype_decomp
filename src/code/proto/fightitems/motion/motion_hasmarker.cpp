@@ -1,6 +1,7 @@
 // Fight items of the motion group: HasMarkerCondition, HideHUDTrack (unit 0x10161F50 - 0x10162970; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_hasmarker.h"
 #include "code/proto/frontendhud.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
 {
@@ -206,6 +207,19 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100C0C10
+			bool HasMarkerCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetMarkerIconTypeMessage message;
+				object->SendMessage(&message);
+				return message.iconType == type;
+			}
+
 			// FUNCTION: ENGINE 0x100C0D80
 			HideHUDAction::HideHUDAction(HideHUDTrack* newTrack) : fight::Action(0x600), link(newTrack)
 			{
@@ -302,6 +316,12 @@ namespace proto
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100C0AA0
+// FUNCTION: ENGINE 0x100C0AD0
+// FUNCTION: ENGINE 0x100C0AE0
+// FUNCTION: ENGINE 0x100C0B10
+// FUNCTION: ENGINE 0x100C0B30
+// FUNCTION: ENGINE 0x100C0B60
 // FUNCTION: ENGINE 0x100C0B90
 // FUNCTION: ENGINE 0x100C0BB0
 // FUNCTION: ENGINE 0x100C0BC0
