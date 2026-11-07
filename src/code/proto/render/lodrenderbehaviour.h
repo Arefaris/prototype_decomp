@@ -60,15 +60,28 @@ namespace proto
 	// 0x11075120: a multiplier on every level's fade distance (name guess)
 	extern float gLODDistanceScale;
 
-	// One level of the object: the drawable shown for it (8 bytes; the two words after the handle are unknown)
+	// One level of the object: the drawable shown for it (8 bytes). The two counts say how many times the level is used as
+	// the first and as the last one of the range that is shown (the level is on screen while either is not zero)
 	struct LODLevel
 	{
+		// 0x102D9250 (a level of a drawable that is not used yet), 0x102D9980 (a copy), 0x102D9270 (the assignment)
+		explicit LODLevel(engine::render::Drawable newDrawable);
+		LODLevel(const LODLevel& other);
+		LODLevel& operator=(const LODLevel& other);
+		// 0x102D9450: lets the drawable go off the screen and forgets the uses
+		void Hide();
+		// 0x102D92A0: destroys the drawable
+		void Destroy();
+		// 0x102D92D0 / 0x102D93A0: a use as the first and/or as the last level of the range begins / ends; the drawable is
+		// registered with the first use and unregistered with the last one
+		void Acquire(bool asFirst, bool asLast);
+		void Release(bool asFirst, bool asLast);
 		// 0x102D9470: gives the drawable the shader inputs of one entry of the shader palette
 		void ApplyPalette(ShaderPaletteData* data);
 
 		engine::render::Drawable drawable;
-		unsigned short unknown4;
-		unsigned short unknown6;
+		unsigned short firstUses;
+		unsigned short lastUses;
 	};
 
 	// One drawable that is ready to be shown (0x10 bytes: the source the instance is made from, then unknown words)
@@ -125,6 +138,9 @@ namespace proto
 		void UpdateForced(float dt);
 		// 0x102DB9F0: makes the level of a ready drawable and adds it to the table
 		void AddLevel(const LODReady* ready);
+		// 0x102D9500 / 0x102D9540: the levels from the first to the last begin / stop being used (the behaviour is not read)
+		void ShowLevels(const LODLevel* first, const LODLevel* last);
+		void HideLevels(const LODLevel* first, const LODLevel* last);
 
 		// +0x0C: the source of the pose handed to the drawables
 		LODPoseSource* poseSource;
@@ -159,7 +175,7 @@ namespace proto
 		// +0x6C / +0x70: the fade in position and its target (both 1 once it is done)
 		float fadeInPosition;
 		float fadeInTarget;
-		unsigned char unknown74[4];
+		float fadeInScale;
 		// +0x78: a multiplier on this behaviour's fade distance
 		float fadeScale;
 		unsigned char unknown7C[0x90 - 0x7C];

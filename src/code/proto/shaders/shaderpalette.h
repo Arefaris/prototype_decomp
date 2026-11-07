@@ -13,6 +13,14 @@ namespace pure3d
 	class pddiShaderInputInitData;
 }
 
+namespace engine
+{
+	namespace render
+	{
+		class Drawable;
+	}
+}
+
 namespace proto
 {
 	// One entry of the palette (0x10 bytes): the text it holds is freed with the entry when the entry owns it
@@ -34,6 +42,8 @@ namespace proto
 		~ShaderPaletteData();
 		// 0x102E5CB0: adds the shader inputs of the entry's objects to the description (name guess)
 		void FillShaderInputs(pure3d::pddiShaderInputInitData* data);
+		// 0x102E5D30: gives a drawable what the entry's objects hold (name guess)
+		void Apply(engine::render::Drawable drawable);
 
 		unsigned char unknown0[0x20];
 	};

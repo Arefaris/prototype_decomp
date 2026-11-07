@@ -4,6 +4,7 @@
 #include "code/engine/camera/director.h"
 #include "code/pure3d/camera.h"
 #include "code/core/heap.h"
+#include "code/engine/attributemessage.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/random.h"
 #include "code/pure3d/primitive.h"
@@ -30,6 +31,152 @@ namespace proto
 		sInfo.name = "LODRenderBehaviour";
 		sInfo.code = "p";
 		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102D9250
+	LODLevel::LODLevel(engine::render::Drawable newDrawable) : drawable(newDrawable), firstUses(0), lastUses(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x102D9980
+	LODLevel::LODLevel(const LODLevel& other)
+	{
+		*this = other;
+	}
+
+	// FUNCTION: ENGINE 0x102D9270
+	LODLevel& LODLevel::operator=(const LODLevel& other)
+	{
+		drawable = other.drawable;
+		firstUses = other.firstUses;
+		lastUses = other.lastUses;
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x102D9450
+	void LODLevel::Hide()
+	{
+		drawable.SetRegistered(false);
+		firstUses = 0;
+		lastUses = 0;
+	}
+
+	// FUNCTION: ENGINE 0x102D92A0
+	void LODLevel::Destroy()
+	{
+		engine::render::Drawable::Destroy(&drawable, 0);
+		firstUses = 0;
+		lastUses = 0;
+	}
+
+	// FUNCTION: ENGINE 0x102D92D0
+	void LODLevel::Acquire(bool asFirst, bool asLast)
+	{
+		int usedAsFirst = firstUses;
+		int usedAsLast = lastUses;
+		if (asFirst)
+		{
+			firstUses = firstUses + 1;
+		}
+		if (asLast)
+		{
+			lastUses = lastUses + 1;
+		}
+		bool unused;
+		if (usedAsFirst == 0 && usedAsLast == 0)
+		{
+			unused = true;
+		}
+		else
+		{
+			unused = false;
+			if (usedAsFirst != 0 && usedAsLast != 0)
+			{
+				return;
+			}
+		}
+		if (firstUses > 0 && lastUses > 0)
+		{
+			if (unused)
+			{
+				drawable.SetRegistered(true);
+			}
+			else
+			{
+				if (asFirst)
+				{
+					drawable.SetPartAnimations(0x1F, false);
+				}
+				else
+				{
+					drawable.SetPartAnimations(0x1E, false);
+				}
+			}
+		}
+		else if (unused)
+		{
+			drawable.SetRegistered(true);
+			if (firstUses > 0)
+			{
+				drawable.SetPartAnimations(0x1E, true);
+			}
+			else
+			{
+				drawable.SetPartAnimations(0x1F, true);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102D93A0
+	void LODLevel::Release(bool asFirst, bool asLast)
+	{
+		if (asFirst && firstUses > 0)
+		{
+			firstUses--;
+		}
+		if (asLast && lastUses > 0)
+		{
+			lastUses--;
+		}
+		if (firstUses == 0 && lastUses == 0)
+		{
+			drawable.SetRegistered(false);
+		}
+		else if (firstUses == 0 && asFirst)
+		{
+			drawable.SetPartAnimations(0x1F, true);
+		}
+		else if (lastUses == 0 && asLast)
+		{
+			drawable.SetPartAnimations(0x1E, true);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102D9470
+	void LODLevel::ApplyPalette(ShaderPaletteData* data)
+	{
+		engine::render::Drawable copy = drawable;
+		data->Apply(copy);
+	}
+
+	// FUNCTION: ENGINE 0x102D9500
+	void LODRenderBehaviour::ShowLevels(const LODLevel* first, const LODLevel* last)
+	{
+		const_cast<LODLevel*>(first)->Acquire(true, first == last);
+		if (first != last)
+		{
+			const_cast<LODLevel*>(last)->Acquire(false, true);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102D9540
+	void LODRenderBehaviour::HideLevels(const LODLevel* first, const LODLevel* last)
+	{
+		const_cast<LODLevel*>(first)->Release(true, first == last);
+		if (first != last)
+		{
+			const_cast<LODLevel*>(last)->Release(false, true);
+		}
 	}
 
 	inline float LengthOf(const math::Vector& v)
