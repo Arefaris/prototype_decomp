@@ -1,11 +1,51 @@
 // pure3d::CompDrawVisibilityAnimationController (unit around 0x107347B0 - 0x10734C60; file name guessed from the
 // class). Names are guesses.
+#include <new>
+
 #include "code/pure3d/channel.h"
 #include "code/pure3d/drawable.h"
 #include "code/pure3d/primitive.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x10734A50
+	CompDrawVisibilityAnimationController::~CompDrawVisibilityAnimationController()
+	{
+		mDrawable = 0;
+	}
+
+	// FUNCTION: ENGINE 0x107347F0
+	Drawable* CompDrawVisibilityAnimationController::GetDrawable()
+	{
+		return mDrawable;
+	}
+
+	// FUNCTION: ENGINE 0x10734BF0
+	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other) : SimpleFrameController(other), mDrawable(0)
+	{
+		SetDrawable(const_cast<CompDrawVisibilityAnimationController&>(other).GetDrawable());
+	}
+
+	// FUNCTION: ENGINE 0x10734BE0
+	void CompDrawVisibilityAnimationController::SetDrawable(Drawable* drawable)
+	{
+		mDrawable = drawable;
+		FindChannels();
+	}
+
+	// FUNCTION: ENGINE 0x10734BB0
+	void CompDrawVisibilityAnimationController::SetAnimation(Animation* animation, float a, float b)
+	{
+		SimpleFrameController::SetAnimation(animation, a, b);
+		FindChannels();
+	}
+
+	// FUNCTION: ENGINE 0x10734C50
+	void CompDrawVisibilityAnimationController::SetTarget(Entity* target)
+	{
+		SetDrawable(dynamic_cast<Drawable*>(target));
+	}
+
 	// FUNCTION: ENGINE 0x107347B0
 	bool CompDrawVisibilityAnimationController::Unknown25()
 	{

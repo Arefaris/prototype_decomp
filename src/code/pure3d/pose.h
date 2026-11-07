@@ -75,6 +75,8 @@ namespace pure3d
 		virtual void Release();
 		// 0x106E2A30: takes a reference and a lock (the skinning job holds its pose this way while it runs)
 		void Lock();
+		// 0x106E2A50: gives the lock and the reference back
+		void Unlock();
 
 		int mLock;
 		int mRefCount;

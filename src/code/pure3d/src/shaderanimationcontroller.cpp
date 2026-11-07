@@ -1,10 +1,24 @@
 // pure3d::ShaderAnimationController (unit around 0x1072E570 - 0x1072EA40; file name guessed from the class). Names are
 // guesses.
+#include "code/core/refptr.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1072E5F0
+	ShaderAnimationController::~ShaderAnimationController()
+	{
+		core::SafeRelease(mShader);
+	}
+
+	// FUNCTION: ENGINE 0x1072E9B0
+	ShaderAnimationController::ShaderAnimationController(const ShaderAnimationController& other) : SimpleFrameController(other)
+	{
+		mShader = 0;
+		SetBindingSource(const_cast<ShaderAnimationController&>(other).GetShader());
+	}
+
 	// FUNCTION: ENGINE 0x1072E590
 	bool ShaderAnimationController::Unknown25()
 	{

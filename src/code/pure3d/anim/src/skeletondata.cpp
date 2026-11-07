@@ -13,6 +13,13 @@ namespace pure3d
 		return mLimbCount * 0x40 + mJointCount * 0x12F;
 	}
 
+	// FUNCTION: ENGINE 0x1072D620
+	void SkeletonData::GetLimbInfo(SkeletonLimbInfo* out) const
+	{
+		out->mLimbCount = mLimbCount;
+		out->mUnknown = (unsigned int)mMemory;
+	}
+
 	// FUNCTION: ENGINE 0x1072D5F0
 	unsigned int SkeletonData::SetJointArrays(unsigned int memory)
 	{

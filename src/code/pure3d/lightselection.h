@@ -39,6 +39,9 @@ namespace pure3d
 		float GetIntensityScale(Light* light, int scaleMode);
 		// 0x10718170: uploads the five nearest vertex lights (and clears the others)
 		void UploadVertexLights();
+		// 0x10717C60 (646 bytes): puts the light, or the default for none, into the constants of a vertex light slot
+		// (name guess)
+		void UploadLight(Light* light, unsigned int slot, int unknown);
 
 		int mode;
 		LightList candidates;

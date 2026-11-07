@@ -176,6 +176,8 @@ namespace pure3d
 	class VertexOffsetExpressionMixer : public Entity
 	{
 	public:
+		// 0x10731AA0
+		virtual ~VertexOffsetExpressionMixer();
 		// 0x107316F0: recomputes the mix when it changed
 		void Update();
 		// 0x10731700: prepares the expression and mixes the state into it
@@ -183,12 +185,43 @@ namespace pure3d
 		// 0x10731630
 		void Mix(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 
+		// A reference to a reference counted object that is let go of with the owner
+		template<class T> struct OwnedReference
+		{
+			~OwnedReference()
+			{
+				if (pointer != 0)
+				{
+					T* object = pointer;
+					pointer = 0;
+					object->Release();
+				}
+			}
+			operator T*() const
+			{
+				return pointer;
+			}
+			T* operator->() const
+			{
+				return pointer;
+			}
+
+			T* pointer;
+		};
+
 		// The expressions the weights are for, one weight for each of them (+0x14, to +0x18), the weights the last
 		// mix used (+0x20, to +0x24; entries of 0x18 bytes) and whether the weights changed since
-		ExpressionGroup* mExpressions;
+		OwnedReference<ExpressionGroup> mExpressions;
 		// The weights (a growing array of floats: begin, end, end of the storage)
 		struct WeightArray
 		{
+			~WeightArray()
+			{
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+			}
 			int Size()
 			{
 				return end - begin;
@@ -198,7 +231,21 @@ namespace pure3d
 			float* end;
 			float* capacity;
 		} mWeights;
-		unsigned char unknown20[0xC];
+		// The weights the last mix used (entries of 0x18 bytes: begin, end, end of the storage)
+		struct MixArray
+		{
+			~MixArray()
+			{
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+			}
+
+			unsigned char* begin;
+			unsigned char* end;
+			unsigned char* capacity;
+		} mMixEntries;
 		bool mChanged;
 	};
 
@@ -213,6 +260,8 @@ namespace pure3d
 			bool changed;
 		};
 
+		// 0x10731BE0
+		virtual ~ExpressionPose();
 		// 0x10730C10: gives the mixer (a VertexOffsetExpressionMixer) the weights that changed
 		void Unknown10730C10(void* target);
 		// 0x10730BA0: all weights zero and unchanged
@@ -222,8 +271,21 @@ namespace pure3d
 		// 0x10730C00
 		bool GetChanged(int index);
 
-		Weight* mWeights;
-		Weight* mWeightsEnd;
+		// The weights (begin and end; the storage goes back with the array)
+		struct WeightArray
+		{
+			~WeightArray()
+			{
+				end = begin;
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+			}
+
+			Weight* begin;
+			Weight* end;
+		} mArray;
 	};
 
 	class VertexDeformRegion : public RefCounted
@@ -261,9 +323,17 @@ namespace pure3d
 		Pose* GetPose();
 		void SetPose(Pose* pose);
 
+		// 0x10734460's clone runs the copy constructor 0x107343D0
+		PoseAnimationController(const PoseAnimationController& other);
+		// 0x10732D40: takes the frame times of the animations for the pose's joints (when mUseFrameTimes)
+		void UpdateFrameTimes();
+
 		unsigned char unknown10C[4];
 		Pose* mPose;
-		unsigned char unknown114[0x31];
+		unsigned char unknown114[0x1C];
+		// The time each animation was last applied at, for the root motion of the next application (name guess)
+		float mPreviousTimes[5];
+		bool mAnimationChanged;
 		bool mUseFrameTimes;
 		unsigned char unknown146[2];
 		float* mFrameTimes;
@@ -280,6 +350,9 @@ namespace pure3d
 	// The regions a controller follows: room for 16 pointers and the end of the used ones (name guess)
 	struct VertexDeformRegionList
 	{
+		VertexDeformRegionList() : end(items)
+		{
+		}
 		bool IsFull()
 		{
 			return end - items == 16;
@@ -305,8 +378,9 @@ namespace pure3d
 	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x107302C0: a copy of another controller
+		// 0x107302C0: a copy of another controller; 0x107303F0: the destructor
 		VertexRegionAnimController(const VertexRegionAnimController& other);
+		virtual ~VertexRegionAnimController();
 
 		// Slot 3 (0x1072EC20: nothing), slots 24 (0x1072EBE0) and 25 (0x1072EBD0)
 		virtual void SetTarget(Entity* target);
@@ -348,8 +422,9 @@ namespace pure3d
 	class VertexAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x1073E3F0: a copy of another controller
+		// 0x1073E3F0: a copy of another controller; 0x1073E450: the destructor
 		VertexAnimController(const VertexAnimController& other);
+		virtual ~VertexAnimController();
 
 		// Slot 3 (0x1073E380: nothing), slots 24 (0x1073E350) and 25 (0x1073E340)
 		virtual void SetTarget(Entity* target);
@@ -386,8 +461,9 @@ namespace pure3d
 	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x1072E9B0: a copy of another controller
+		// 0x1072E9B0: a copy of another controller; 0x1072E5F0: the destructor
 		ShaderAnimationController(const ShaderAnimationController& other);
+		virtual ~ShaderAnimationController();
 
 		// Slot 3 (0x1072EA10: takes the target if it is a shader), slots 24 (0x1072E5A0) and 25 (0x1072E590); slot 26
 		// makes a new controller (0x1072E9F0, 0x48 bytes)
@@ -415,8 +491,9 @@ namespace pure3d
 	class ExpressionAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734750: a copy of another controller (it takes the same mixer)
+		// 0x10734750: a copy of another controller (it takes the same mixer); 0x10734580: the destructor
 		ExpressionAnimationController(const ExpressionAnimationController& other);
+		virtual ~ExpressionAnimationController();
 
 		// Slot 3 (0x10734520: nothing), slot 5 (0x10734690: the weights of the animation's expressions at the
 		// current frame), slots 24 (0x107345B0: an expression animation whose expressions the mixer's group has) and
@@ -444,8 +521,9 @@ namespace pure3d
 	class CompDrawVisibilityAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734BF0: a copy of another controller (it takes the same drawable)
+		// 0x10734BF0: a copy of another controller (it takes the same drawable); 0x10734A50: the destructor
 		CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other);
+		virtual ~CompDrawVisibilityAnimationController();
 
 		// Slot 3 (0x10734C50), slot 5 (0x107348B0: the segments' visibility at the current frame), slots 24 (0x107347C0)
 		// and 25 (0x107347B0), slot 26 (0x10734C30)
@@ -454,14 +532,42 @@ namespace pure3d
 		virtual bool IsSupported(Animation* animation);
 		virtual bool Unknown25();
 		virtual CompDrawVisibilityAnimationController* Clone();
+		// Slot 22 (0x10734BB0): the animation and the lookup of its segments and channels
+		virtual void SetAnimation(Animation* animation, float a, float b);
+
+		// 0x107347F0 / 0x10734BE0: the drawable whose segments the controller shows and hides
+		Drawable* GetDrawable();
+		void SetDrawable(Drawable* drawable);
+		// 0x10734AD0: finds the segment and the visibility channel of every group of the animation
+		void FindChannels();
+
+		// An array that goes back with its owner: begin and end of the elements
+		template<class T> struct OwnedArray
+		{
+			OwnedArray() : begin(0), end(0)
+			{
+			}
+			~OwnedArray()
+			{
+				if (begin != 0)
+				{
+					delete[] begin;
+				}
+			}
+			T& operator[](int index)
+			{
+				return begin[index];
+			}
+
+			T* begin;
+			T* end;
+		};
 
 		Drawable* mDrawable;
 		// One visibility channel and one segment number for each group of the animation
-		BoolChannel** mChannels;
-		BoolChannel** mChannelsEnd;
+		OwnedArray<BoolChannel*> mChannels;
 		unsigned char unknown4C[4];
-		unsigned short* mSegments;
-		unsigned short* mSegmentsEnd;
+		OwnedArray<unsigned short> mSegments;
 		unsigned char unknown58[8];
 	};
 
@@ -1191,6 +1297,8 @@ namespace pure3d
 		void Unknown10720CF0();
 		// 0x1071EAE0: submits the skinning task
 		void SubmitTask();
+		// 0x1071F8A0: the skinning task is done: gives the pose back, unlocks the buffer and signals the event at +0x14
+		void FinishTask(int result);
 		// 0x1071F840: takes a reference to the key frame list at +0x78 (the expression the skin's vertices follow)
 		void SetExpressionState(VertexAnimKeyFrameList* list);
 		// 0x1071F860 / 0x1071F880: take a reference to the state's controller at +0x2DC / +0x2E0
@@ -1262,6 +1370,8 @@ namespace pure3d
 		// the mesh's and the state's when the group animates some; argument names guessed)
 		Skin(const ShaderParameters* parameters, const ShaderParameters* meshParameters,
 			const ShaderParameters* stateParameters, const IndexBufferDescription* indices, int unknown);
+		// 0x1071F940
+		virtual ~Skin();
 		// 0x1071EFE0: unlocks the vertex buffer when there is one
 		void UnlockBuffer();
 		// 0x1071EFC0: does nothing (name unknown)

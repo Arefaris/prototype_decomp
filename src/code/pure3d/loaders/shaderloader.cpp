@@ -12,6 +12,28 @@
 
 namespace pure3d
 {
+	// Whether the shader module's tables are made (name guess)
+	// GLOBAL: ENGINE 0x11281338
+	bool gShaderModuleStarted = false;
+
+	// 0x10704B70, 0x107052A0: make the shader module's tables (names guessed)
+	void Unknown10704B70();
+	void Unknown107052A0();
+
+	// FUNCTION: ENGINE 0x10704B60
+	void Unknown10704B60()
+	{
+		gShaderModuleStarted = false;
+	}
+
+	// FUNCTION: ENGINE 0x107063A0
+	void Unknown107063A0()
+	{
+		Unknown10704B70();
+		Unknown107052A0();
+		gShaderModuleStarted = true;
+	}
+
 	// The shader's methods share the unit with its loader (0x107062D0 - 0x10707260): with SetParameters compiled here
 	// the compiler knows it only reads through its reference, so the loader keeps the draw parameters in registers
 	// across the other calls, as the engine's loader does.
