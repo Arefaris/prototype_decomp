@@ -7,6 +7,7 @@
 #define PROTO_SCENARIO_SCENARIOMANAGER_H
 
 #include "code/container/arraydynamicnew.h"
+#include "code/container/arrayfixed.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/system/streampackage.h"

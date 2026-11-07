@@ -489,3 +489,21 @@ namespace proto
 		}
 	}
 }
+
+template class container::ArrayDynamicNew<proto::scenario::DeferredDeactivation>;
+template class container::ArrayFixed<proto::scenario::ScenarioTimer, 16>;
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x104894A0
+// FUNCTION: ENGINE 0x104894B0
+// FUNCTION: ENGINE 0x104894C0
+// FUNCTION: ENGINE 0x104894E0
+// FUNCTION: ENGINE 0x10489510
+// FUNCTION: ENGINE 0x10489530
+// FUNCTION: ENGINE 0x10489580
+// FUNCTION: ENGINE 0x10489600
+// FUNCTION: ENGINE 0x10489B70
+// FUNCTION: ENGINE 0x10489B80
+// FUNCTION: ENGINE 0x10489BE0
+// FUNCTION: ENGINE 0x1048A540
+// FUNCTION: ENGINE 0x1048AEF0
