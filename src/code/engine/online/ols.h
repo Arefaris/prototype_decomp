@@ -64,8 +64,10 @@ namespace engine
 
 	struct OLSGameMessage : public OLSMessage
 	{
-		// 0x10887D20
-		explicit OLSGameMessage(short newId);
+		// 0x10887D20 (the engine kept an out-of-line copy as well, olsmessages.cpp)
+		explicit OLSGameMessage(short newId) : OLSMessage(3, newId)
+		{
+		}
 		virtual ~OLSGameMessage()
 		{
 		}

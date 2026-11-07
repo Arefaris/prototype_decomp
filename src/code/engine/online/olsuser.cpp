@@ -140,7 +140,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10886D80
-	// NONMATCHING: the message locals get a second store of the common word that the engine keeps (60.2 %)
+	// NONMATCHING: the engine addresses the id of the record with the offset as the base register (99.5 %)
 #ifdef NONMATCHING
 	OLSUserRecord* OLSUserList::AddUser(int userId)
 	{
@@ -163,6 +163,7 @@ namespace engine
 			records[freeIndex].id = userId;
 			OLSUserMessage message(0);
 			message.user = records[freeIndex].index;
+			message.unknownC = 0;
 			OLS::Get()->SendMessage(&message);
 			return &records[freeIndex];
 		}
@@ -171,21 +172,18 @@ namespace engine
 #endif
 
 	// FUNCTION: ENGINE 0x10886E60
-	// NONMATCHING: the message locals get a second store of the common word that the engine keeps (38.7 %)
-#ifdef NONMATCHING
 	void OLSUserList::Release(int index)
 	{
-		OLSUserRecord* record = &records[index];
-		if (record->flags == 0)
+		if (records[index].flags == 0)
 		{
-			record->Reset();
+			records[index].Reset();
 			activeCount--;
 			OLSUserMessage message(1);
 			message.user = records[index].index;
+			message.unknownC = 0;
 			OLS::Get()->SendMessage(&message);
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10886EF0
 	void OLSUserList::SetRecordId(int index, int newId)
@@ -268,8 +266,6 @@ namespace engine
 #endif
 
 	// FUNCTION: ENGINE 0x108870C0
-	// NONMATCHING: the engine stores the common word after the vftable of the message, ours before it (93.1 %)
-#ifdef NONMATCHING
 	void OLSUserList::OnNotify(int a, int b, int c)
 	{
 		int index = FindIndexByController(a);
@@ -277,11 +273,11 @@ namespace engine
 		{
 			records[index].unknown2C = c;
 			OLSUserMessage message(5);
+			message.unknownC = 0;
 			message.user = index;
 			OLS::Get()->SendMessage(&message);
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10887130
 	void OLSUserList::SetSettingKey(int index, const OLSKeyTable::Entry* key)

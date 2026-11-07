@@ -13,10 +13,13 @@ namespace engine
 	}
 #pragma inline_depth()
 
-	// FUNCTION: ENGINE 0x10887D20
-	OLSGameMessage::OLSGameMessage(short newId) : OLSMessage(3, newId)
+	// The same for the game message (0x10887D20)
+#pragma inline_depth(0)
+	void KeepGameMessageCopies()
 	{
+		OLSGameMessage message(0);
 	}
+#pragma inline_depth()
 
 	// FUNCTION: ENGINE 0x1088ACA0
 	OLSProfileStorageMessage::OLSProfileStorageMessage(short newId) : OLSMessageWords(0xB, newId)
@@ -28,6 +31,7 @@ namespace engine
 // FUNCTION: ENGINE 0x10886A30
 // FUNCTION: ENGINE 0x10886A60
 // FUNCTION: ENGINE 0x10887320
+// FUNCTION: ENGINE 0x10887D20
 // FUNCTION: ENGINE 0x10887D50
 // FUNCTION: ENGINE 0x10888190
 // FUNCTION: ENGINE 0x1088ACE0

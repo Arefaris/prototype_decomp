@@ -104226,3 +104226,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Update@OLSGame@engine@@UAEXXZ = 0x10888280 ; function size:0xC | engine::OLSGame::Update (name guess)
 ?RequestState@OLSGame@engine@@QAEX_N@Z = 0x10888290 ; function size:0x2B | engine::OLSGame::RequestState (name guess)
 ?Unknown108E7F60@OLSUserTable@engine@@QAE_NXZ = 0x108E7F60 ; function size:0x32 | engine::OLSUserTable::Unknown108E7F60 (name unknown)
+?Unknown10887EF0@OLSGame@engine@@QAE_NXZ = 0x10887EF0 ; function size:0x70 | engine::OLSGame::Unknown10887EF0 (name unknown)
