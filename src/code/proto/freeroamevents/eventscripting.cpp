@@ -8,9 +8,22 @@
 #include "code/core/report.h"
 #include "code/core/strings.h"
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/gameobject/messagerouter.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/lua/lua.h"
 #include <string.h>
+
+namespace engine
+{
+	// 0x108024C0: reads a name argument of a script function; the scenario message listeners of the free roam events
+	void LuaGetNameArgument(lua_State* L, int index, core::Name<core::CaseSensitiveKey>* name);
+	extern MessageListeners gScenario12;
+}
+
+namespace core
+{
+	int SNPrintfCount(char* destination, int size, const char* format, ...);
+}
 
 namespace math
 {
@@ -72,9 +85,23 @@ namespace proto
 	bool GetNumber(lua_State* L, float* value);
 	bool GetBoolean(lua_State* L, bool* value);
 	void GetStringField(lua_State* L, const char* key, char* buffer, int size);
+	// 0x10590390 / 0x10590440 / 0x105904B0 / 0x10590500 / 0x10590540: the readers of the string and game object
+	// values, a check for a table field and the removal of the value on top (names guessed)
+	bool ReadStringValue(lua_State* L, char* buffer, int size);
+	bool GetHandleValue(lua_State* L, engine::GameObjectHandle* handle);
+	bool GetHandleField(lua_State* L, const char* key, engine::GameObjectHandle* handle);
+	bool IsTableField(lua_State* L, const char* key);
+	void PopValue(lua_State* L);
 
 	// The game database's text of the unlock keys received so far (the name at 0x1126E4B8)
 	core::Name<core::CaseSensitiveKey> gUnlockKeysName("Proto_Save_EventKeys", 0);
+
+	// The texts the manager's constructor sets for the six kinds of event (0x11274F38 the descriptions, 0x11274F78 the
+	// tutorials, 0x11274F60 the labels of the best score, 0x11274F90 the labels of the current score)
+	extern const char* gCategoryDescriptionStrings[];
+	extern const char* gCategoryTutorialStrings[];
+	extern const char* gCategoryBestScoreLabels[];
+	extern const char* gCategoryCurrentScoreLabels[];
 
 	// The text of the category event description the script asks for ("$" and the event's name)
 	static char sCategoryEventDescription[8] = "$freXXX";
@@ -588,6 +615,176 @@ namespace proto
 				name, 0);
 		}
 		return 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x1058F440
+	bool FREventManager::UnlockEventsByKey(core::Name<core::CaseSensitiveKey> key)
+	{
+		bool unlocked = false;
+		for (FREvent* event = events; event != 0; event = event->next)
+		{
+			if (event->Unlock(key))
+			{
+				unlocked = true;
+			}
+		}
+		return unlocked;
+	}
+
+	// FUNCTION: ENGINE 0x1058F650
+	void FREventManager::SetLastEvent(const char* name, bool remember)
+	{
+		FREvent* event = FindEvent(core::Name<core::CaseSensitiveKey>(name, 1));
+		if (event != 0)
+		{
+			lastEvent = remember ? event : 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1058F830
+	int fre_GetCategoryDescriptionString(lua_State* L)
+	{
+		FREventInfo* info = gFREventManager->GetInfoFromArguments(L);
+		lua_pushstring(L, gCategoryDescriptionStrings[info->category]);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1058F870
+	int fre_GetCategoryTutorialString(lua_State* L)
+	{
+		FREventInfo* info = gFREventManager->GetInfoFromArguments(L);
+		lua_pushstring(L, gCategoryTutorialStrings[info->category]);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1058F900
+	int fre_GetCategoryEventAvailability(lua_State* L)
+	{
+		FREventInfo* info = gFREventManager->GetInfoFromArguments(L);
+		FREventManager* manager = gFREventManager;
+		FREvent* event = manager->FindEvent(core::Name<core::CaseSensitiveKey>(info->name, 1));
+		lua_pushboolean(L, event->Unknown105865D0(1));
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1058FA00
+	int fre_GetCategoryBestScoreLabel(lua_State* L)
+	{
+		FREventInfo* info = gFREventManager->GetInfoFromArguments(L);
+		lua_pushstring(L, gCategoryBestScoreLabels[info->category]);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1058FA40
+	int fre_GetCategoryCurrentScoreLabel(lua_State* L)
+	{
+		FREventInfo* info = gFREventManager->GetInfoFromArguments(L);
+		lua_pushstring(L, gCategoryCurrentScoreLabels[info->category]);
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x10590390
+	bool ReadStringValue(lua_State* L, char* buffer, int size)
+	{
+		const char* text = lua_tolstring(L, -1, 0);
+		bool found = true;
+		if (text == 0)
+		{
+			found = false;
+		}
+		else
+		{
+			core::SNPrintfCount(buffer, size, "%s", text);
+		}
+		lua_settop(L, -2);
+		return found;
+	}
+
+	// FUNCTION: ENGINE 0x10590400
+	void GetStringField(lua_State* L, const char* key, char* buffer, int size)
+	{
+		lua_pushstring(L, key);
+		lua_rawget(L, -2);
+		ReadStringValue(L, buffer, size);
+	}
+
+	// FUNCTION: ENGINE 0x10590440
+	bool GetHandleValue(lua_State* L, engine::GameObjectHandle* handle)
+	{
+		if (handle != 0)
+		{
+			if (lua_gettop(L) != 0 && lua_type(L, -1) == 2)
+			{
+				engine::LuaGOH object;
+				object.value = (unsigned int)lua_touserdata(L, -1);
+				*handle = engine::DeserializeHandle(object);
+				return true;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105904B0
+	bool GetHandleField(lua_State* L, const char* key, engine::GameObjectHandle* handle)
+	{
+		lua_pushstring(L, key);
+		lua_rawget(L, -2);
+		bool found = GetHandleValue(L, handle);
+		lua_settop(L, -2);
+		return found;
+	}
+
+	// FUNCTION: ENGINE 0x10590500
+	bool IsTableField(lua_State* L, const char* key)
+	{
+		lua_pushstring(L, key);
+		lua_rawget(L, -2);
+		bool isTable = lua_type(L, -1) == 5;
+		return isTable;
+	}
+
+	// FUNCTION: ENGINE 0x10590540
+	void PopValue(lua_State* L)
+	{
+		lua_settop(L, -2);
+	}
+
+	// FUNCTION: ENGINE 0x1058F1D0
+	int fre_PostEventMessage(lua_State* L)
+	{
+		core::Name<core::CaseSensitiveKey> first;
+		core::Name<core::CaseSensitiveKey> third;
+		if (lua_gettop(L) == 3)
+		{
+			engine::LuaGetNameArgument(L, 1, &first);
+			int number = luaL_checkinteger(L, 2);
+			engine::LuaGetNameArgument(L, 3, &third);
+			core::Name<core::CaseSensitiveKey> second((const char*)0, 1);
+			FreeRoamEventScenarioMessage message(number, first, second, third);
+			engine::SendMessage(&message, &engine::gScenario12);
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1058F2C0
+	int fre_PostEventMessageLocal(lua_State* L)
+	{
+		core::Name<core::CaseSensitiveKey> first;
+		core::Name<core::CaseSensitiveKey> third;
+		if (lua_gettop(L) == 3)
+		{
+			engine::LuaGetNameArgument(L, 1, &first);
+			int number = luaL_checkinteger(L, 2);
+			engine::LuaGetNameArgument(L, 3, &third);
+			FREventManager* manager = gFREventManager;
+			FREvent* event = manager->FindEvent(first);
+			if (event != 0)
+			{
+				event->PostMessage(number, third, 0);
+			}
+		}
+		return 0;
 	}
 }
 

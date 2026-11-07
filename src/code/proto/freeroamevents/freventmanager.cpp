@@ -9,6 +9,8 @@
 #include "code/engine/scenariomessage.h"
 #include "code/lua/lua.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/luascriptmanager.h"
+#include "code/proto/smarthint/smarthintmanager.h"
 
 namespace proto
 {
@@ -18,6 +20,114 @@ namespace proto
 	extern int gFREventLastIndex;
 	// 0x104DF2C0: tells the stats unit that the free roam state changed (name guess)
 	void NotifyFreeRoamChanged();
+
+	// Words of the manager's state that live outside of it (0x11274F10, 0x11274F14, 0x11274F0C; names unknown)
+	extern int gFREventUnknown11274F10;
+	extern bool gFREventUnknown11274F14;
+	extern int gFREventUnknown11274F0C;
+
+	// The name of the game database entry of the received unlock keys (0x1126E4B8)
+	extern core::Name<core::CaseSensitiveKey> gUnlockKeysName;
+
+	// FUNCTION: ENGINE 0x105878D0
+	void CollectibleLog::Clear()
+	{
+		log->ClearAll();
+	}
+
+	// FUNCTION: ENGINE 0x1058D0D0
+	void CollectibleLog::Add(const core::Name<core::CaseSensitiveKey>* name)
+	{
+		log->Set(FindIndex(name));
+	}
+
+	// FUNCTION: ENGINE 0x10587BB0
+	void FREventManager::ResetFreeRoamEvents()
+	{
+		CollectibleLog* collectibleLog = &hintLog;
+		for (int i = 2; i != 0; i--)
+		{
+			collectibleLog->Clear();
+			collectibleLog++;
+		}
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		if (manager != 0)
+		{
+			lua_State* L = manager->state;
+			lua_getfield(L, LUA_GLOBALSINDEX, "ResetFreeRoamEvents");
+			lua_pcall(L, 0, 0, 0);
+		}
+		engine::gGameDatabase->SetString(gUnlockKeysName, 0, "", 0);
+	}
+
+	// FUNCTION: ENGINE 0x10588770
+	FREvent* FREventManager::GetSelectedEvent()
+	{
+		if (!selectedName.IsEmpty())
+		{
+			return FindEvent(selectedName);
+		}
+		return lastEvent;
+	}
+
+	// FUNCTION: ENGINE 0x1058F610
+	core::Name<core::CaseSensitiveKey> FREventManager::GetSelectedEventName()
+	{
+		FREvent* event = GetSelectedEvent();
+		if (event != 0)
+		{
+			return event->name;
+		}
+		return core::Name<core::CaseSensitiveKey>((const char*)0, 1);
+	}
+
+	// FUNCTION: ENGINE 0x105884E0
+	core::Name<core::CaseSensitiveKey> FREventManager::GetCurrentEventName()
+	{
+		if (currentEvent != 0)
+		{
+			return currentEvent->name;
+		}
+		return core::Name<core::CaseSensitiveKey>((const char*)0, 1);
+	}
+
+	// FUNCTION: ENGINE 0x10587FA0
+	void FREventManager::SetFlag(int index, bool value)
+	{
+		flags[index] = value;
+	}
+
+	// FUNCTION: ENGINE 0x10587AF0
+	void FREventManager::Unknown10587AF0()
+	{
+		timers.Unknown10587920();
+		for (FREvent* event = events; event != 0; event = event->next)
+		{
+			event->Unknown10587140();
+		}
+		lastEvent = 0;
+		unknown14 = 0;
+		active = false;
+		gFREventUnknown11274F10 = 0;
+		gFREventUnknown11274F14 = false;
+		gFREventUnknown11274F0C = -1;
+		gFREventLastIndex = -1;
+		flags[1] = false;
+		flags[0] = true;
+	}
+
+	// FUNCTION: ENGINE 0x10587C30
+	void DestroyFreeRoamEvents()
+	{
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		if (manager != 0)
+		{
+			lua_State* L = manager->state;
+			lua_getfield(L, LUA_GLOBALSINDEX, "DestroyFreeRoamEvents");
+			lua_pcall(L, 0, 0, 0);
+		}
+		engine::gGameDatabase->ReleaseSubject(gUnlockKeysName);
+	}
 
 	// True when the two handles are the same word
 	static inline bool SameHandle(const engine::GameObjectHandle& a, const engine::GameObjectHandle& b)
@@ -123,7 +233,7 @@ namespace proto
 		engine::StringMessage message(name);
 		engine::SendMessage(&message, &gFREventListeners);
 		gFREventLastIndex = -1;
-		unknown160 = 0;
+		currentEvent = 0;
 		NotifyFreeRoamChanged();
 	}
 
@@ -210,3 +320,7 @@ namespace proto
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D65490
 // FUNCTION: ENGINE 0x10D86320
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10588160
+// FUNCTION: ENGINE 0x105883C0

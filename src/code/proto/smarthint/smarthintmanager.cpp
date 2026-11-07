@@ -5,6 +5,10 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/scenariomessage.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/fmv/fmvplayer.h"
+#include "code/core/heap.h"
+#include "code/engine/frontend/frontend.h"
+#include "code/engine/luascriptmanager.h"
 
 namespace proto
 {
@@ -14,6 +18,126 @@ namespace proto
 
 	// The listeners of the smart hint scenario messages (0x11275A70)
 	engine::MessageListeners gSmartHintListeners("scenario", 0);
+
+	// 0x10575B30: the game mode word
+	int* GetGameMode();
+
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateBits;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintStateInts;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveSmartHintTimersEnabled;
+
+	// FUNCTION: ENGINE 0x1059ABE0
+	void SmartHintManager::ResetDatabaseEntries()
+	{
+		log->ClearAll();
+		engine::GameDatabase* database = engine::gGameDatabase;
+		for (unsigned int i = 0; i < 0x10; i++)
+		{
+			database->SetInt(gProtoSaveSmartHintStateInts, 0, 0, i);
+		}
+		for (unsigned int i = 0; i < 0x20; i++)
+		{
+			database->SetFloat(gSmartHintTimersName, 0, 0.0f, i);
+		}
+		timerLog->Unknown104DF380();
+	}
+
+	// FUNCTION: ENGINE 0x1059D250
+	void SmartHintManager::Initialise()
+	{
+		ResetDatabaseEntries();
+		enabled = true;
+		active = true;
+		if (engine::HasCommandLineOption("NoSmartHints"))
+		{
+			enabled = false;
+		}
+		mode = 0;
+		flag2C = false;
+		setting = -1;
+		queues.Clear();
+		unknownA6BC = true;
+		ResetState();
+	}
+
+	// FUNCTION: ENGINE 0x1059E870
+	void CreateSmartHintManager()
+	{
+		core::HeapScope scope(0);
+		gSmartHintManager = new SmartHintManager;
+	}
+
+	// FUNCTION: ENGINE 0x1059ABC0
+	void SmartHintManager::UnregisterNatives()
+	{
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		manager->Unregister(this);
+	}
+
+	// FUNCTION: ENGINE 0x1059AC50
+	bool SmartHintManager::GetHintFlag(int index)
+	{
+		return log->Get(index);
+	}
+
+	// FUNCTION: ENGINE 0x1059ACE0
+	void SmartHintManager::SetTimerEnabled(int index, bool enabled)
+	{
+		if (enabled)
+		{
+			timerLog->Set(index);
+			return;
+		}
+		timerLog->Clear(index);
+	}
+
+	// FUNCTION: ENGINE 0x1059B1E0
+	bool SmartHintManager::Unknown1059B1E0()
+	{
+		if (shown.state != 2 || shown.kind != 1)
+		{
+			return false;
+		}
+		if (*GetGameMode() == 0 && !engine::IsMoviePlaying())
+		{
+			return false;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x1059B4D0
+	void SmartHintManager::ResetState()
+	{
+		shown.Reset();
+		unknown1C = 0.0f;
+		unknown20 = 5.0f;
+		flags.Reset();
+	}
+
+	// FUNCTION: ENGINE 0x1059B5A0
+	void SmartHintManager::CreateLogs()
+	{
+		log = new SmartHintLog(gProtoSaveSmartHintStateBits, 0x12c);
+		engine::GameDatabase* database = engine::gGameDatabase;
+		engine::DBSubjectInfo info(true, 1, -1);
+		info.a = 0x10;
+		database->AddIntSubject(gProtoSaveSmartHintStateInts, 0, 0, info);
+		info.a = 0x20;
+		database->AddFloatSubject(gSmartHintTimersName, 0, 0.0f, info);
+		timerLog = new SmartHintLog(gProtoSaveSmartHintTimersEnabled, 0x20);
+	}
+
+	// FUNCTION: ENGINE 0x1059B6C0
+	void SmartHintManager::DestroyLogs()
+	{
+		delete log;
+		log = 0;
+		engine::GameDatabase* database = engine::gGameDatabase;
+		database->ReleaseSubject(gProtoSaveSmartHintStateInts);
+		database->ReleaseSubject(gSmartHintTimersName);
+		delete timerLog;
+		timerLog = 0;
+	}
 
 	// FUNCTION: ENGINE 0x1059B2D0
 	void SmartHintEntry::CopyText(const char* source, char* destination)

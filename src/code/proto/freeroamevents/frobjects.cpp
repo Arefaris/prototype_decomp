@@ -3,6 +3,16 @@
 #include "code/engine/controller/inputsystem.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/gameobject/gameobjectspawner.h"
+#include "code/math/matrix.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
 
 namespace proto
 {
@@ -93,12 +103,12 @@ namespace proto
 		float newZ, float newDirectionX, float newDirectionY, float newDirectionZ) : FREventObjectBase(newName),
 		templateName(newTemplateName)
 	{
-		x = newX;
-		y = newY;
-		z = newZ;
-		directionX = newDirectionX;
-		directionY = newDirectionY;
-		directionZ = newDirectionZ;
+		position.x = newX;
+		position.y = newY;
+		position.z = newZ;
+		direction.x = newDirectionX;
+		direction.y = newDirectionY;
+		direction.z = newDirectionZ;
 	}
 
 	// FUNCTION: ENGINE 0x105913C0
@@ -128,6 +138,31 @@ namespace proto
 		return 2;
 	}
 
+	// FUNCTION: ENGINE 0x10592110
+	void FREventObjectDef::Spawn()
+	{
+		math::Matrix matrix;
+		matrix.Identity();
+		matrix.SetTranslation(position);
+		math::Vector up;
+		up.x = 0.0f;
+		up.y = engine::driving::gOne;
+		up.z = 0.0f;
+		matrix.SetBasis(direction, up);
+		content::LoadInventory* inventory = content::gRootInventory;
+		content::MetaObjectTemplate* tmpl = inventory->Find<content::MetaObjectTemplate>(templateName);
+		if (tmpl != 0)
+		{
+			core::HeapScope scope(0xb5);
+			engine::GameObject* object = engine::GameObjectSpawner::Create(tmpl, name, inventory, 0, true);
+			if (object != 0)
+			{
+				object->SetTransform(matrix);
+				handle = engine::GetHandle(object);
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10591F90
 	FREventObjectDef::~FREventObjectDef()
 	{
@@ -135,6 +170,11 @@ namespace proto
 		{
 			handle.DeferUpdate(false);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10590860
+	FREventTriggerBase::FREventTriggerBase(ObjectName newName) : FREventObjectBase(newName)
+	{
 	}
 
 	// FUNCTION: ENGINE 0x105908B0
@@ -174,6 +214,12 @@ namespace proto
 		{
 			handle.DeferUpdate(false);
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10590F40
+	FREventLocator::FREventLocator(ObjectName newName) : FREventObjectBase(newName)
+	{
+		handle = engine::FindGameObject(newName, *(const content::ObjectName*)"");
 	}
 
 	// FUNCTION: ENGINE 0x10590FC0
@@ -286,3 +332,17 @@ namespace proto
 	{
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10585440
+// FUNCTION: ENGINE 0x10585470
+// FUNCTION: ENGINE 0x10585480
+// FUNCTION: ENGINE 0x10585490
+// FUNCTION: ENGINE 0x105908C0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10590FE0
+// FUNCTION: ENGINE 0x10591450
+// FUNCTION: ENGINE 0x105918F0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
