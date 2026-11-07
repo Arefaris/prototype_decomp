@@ -9,6 +9,7 @@
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/proto/messages/airequestmessages.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 
 namespace proto
 {
@@ -62,6 +63,19 @@ namespace proto
 		}
 
 		engine::GameObjectHandle patsy;  // +0xC
+	};
+
+	// RTTI: proto::SetStunnedMovementMessage: stuns the movement of the object or lets it move again
+	struct SetStunnedMovementMessage : public MovementMessage
+	{
+		explicit SetStunnedMovementMessage(bool newStunned) : MovementMessage(0x45), stunned(newStunned)
+		{
+		}
+		virtual ~SetStunnedMovementMessage()
+		{
+		}
+
+		bool stunned;  // +0xC
 	};
 
 	// RTTI: proto::SetFloatDelayTokenMsg: sets the delay of the object's token

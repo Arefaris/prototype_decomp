@@ -93,6 +93,9 @@ namespace proto
 				// vftable slot 6 (0x1011A440)
 				virtual void Slot6();
 
+				// 0x10119FE0: stuns the movement of an object or lets it move again
+				void SetStunned(engine::GameObject* object, bool stunned);
+
 				core::Link<StunTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				bool unknown2C;  // +0x2C
