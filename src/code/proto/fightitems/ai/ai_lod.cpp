@@ -1640,7 +1640,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101FBEF0
-			// EQUIVALENT: block order; the engine puts the failure return of the library test in front of the body, ours behind it; the same instructions (63.0 %)
 			bool UnDowngradableAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -1648,7 +1647,11 @@ namespace proto
 					return false;
 				}
 				engine::GameObject* object = target.Get();
-				if (object == 0 || Unknown103B8DC0(object) == -2)
+				if (object == 0)
+				{
+					return false;
+				}
+				if (Unknown103B8DC0(object) == -2)
 				{
 					return false;
 				}

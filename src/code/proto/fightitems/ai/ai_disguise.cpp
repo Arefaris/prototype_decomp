@@ -1205,18 +1205,31 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101EB900
-			// EQUIVALENT: block order and constant selection (the engine puts the failure exit first and returns the constants in al, ours in eax); the same tests (best 17.9 %)
 			bool AdjustHydraMovementAction::Slot5(int arg, float value)
 			{
-				return link.object != 0 && target.IsValid();
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101E9A60
-			// EQUIVALENT: block order and constant selection (the engine returns the failure first and the constants in al, ours in eax); the same tests (best 68.0 %)
+			// NONMATCHING: the engine lays the true exit after the false one (jne to mov al, 1), ours the other way round, 85 %
+#ifdef NONMATCHING
 			bool HelicopterStrafeModeAction::Slot5(int arg, float value)
 			{
-				return target.IsValid();
+				if (target.IsValid())
+				{
+					return true;
+				}
+				return false;
 			}
+#endif
 
 			// ---- actions begin
 			// FUNCTION: ENGINE 0x101EA6A0

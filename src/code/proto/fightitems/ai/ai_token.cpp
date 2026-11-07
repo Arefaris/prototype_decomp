@@ -2257,10 +2257,10 @@ namespace proto
 
 
 			// FUNCTION: ENGINE 0x101E44B0
-			// EQUIVALENT: scheduling and register choice (the engine loads the float constant and the manager first, ours the handle first); the same call with the same arguments (best 38.7 %)
 			bool RefreshStrafeRunTokenAction::Slot5(int arg, float value)
 			{
-				return proto::gAISystem->strafeRunTokens->Unknown10383FF0(target, 2.0f);
+				StrafeRunTokens* tokens = proto::gAISystem->strafeRunTokens;
+				return tokens->Unknown10383FF0(target, 2.0f);
 			}
 
 			// FUNCTION: ENGINE 0x101E7A30
@@ -2275,15 +2275,18 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101E7740
-			// EQUIVALENT: block order (the engine puts the failure exit first and jumps back to it, ours puts it last); the same tests, the same store (best 21.7 %)
 			bool DrawDebugAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0 && target.IsValid())
+				if (link.object == 0)
 				{
-					unknown2C = 0;
-					return true;
+					return false;
 				}
-				return false;
+				if (target.Get() == 0)
+				{
+					return false;
+				}
+				unknown2C = 0;
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101E77A0
