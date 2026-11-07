@@ -9,6 +9,7 @@
 #include "code/engine/fight/nisactions.h"
 
 #include "code/engine/message.h"
+#include "code/engine/fight/nisspawnaction.h"
 
 namespace content
 {
@@ -21,6 +22,14 @@ namespace pure3d
 
 namespace engine
 {
+	// What an owner that is a game object keeps the sequences it plays in (another unit; names guessed)
+	class NISHandler
+	{
+	public:
+		// 0x108A7450: takes a sequence node
+		void Unknown108A7450(fight::Branch* node);
+	};
+
 	// 0x108A8210: the inventory of an owner that is a game object (null for any other owner)
 	content::LoadInventory* GetOwnerInventory(core::IRefCount* owner);
 

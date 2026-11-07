@@ -102723,3 +102723,7 @@ _sSlot11Value = 0x112536C0 ; data size:0x4 | the collision action unit's file st
 ??_GSetAnimationMessage@engine@@UAEPAXI@Z = 0x108EDAB0 ; function size:0x1F | engine::SetAnimationMessage::scalar deleting destructor vftable slot 0
 ??_R0?AUSetAnimationMessage@engine@@@8 = 0x111E2620 ; data size:0x8 | engine::SetAnimationMessage RTTI type descriptor
 ??0StopSignal@engine@@QAE@XZ = 0x108A08D0 ; function size:0x17 | engine::StopSignal::StopSignal (name guess)
+?GetOwnerNISHandler@engine@@YAPAVNISHandler@1@PAUIRefCount@core@@@Z = 0x108A8230 ; function size:0x1E | engine::GetOwnerNISHandler: the sequence handler of an owner that is a game object (name guess)
+?Unknown108A7450@NISHandler@engine@@QAEXPAVBranch@fight@@@Z = 0x108A7450 ; function size:0x11 | engine::NISHandler::Unknown108A7450 (name guess)
+?GetLeafName@engine@@YAPADPAVBranchHolder@fight@@PADI@Z = 0x108F12E0 ; function size:0x38 | engine::GetLeafName: the part of a branch holder's path behind its last slash (file-local, name guess)
+??0NISPlayMessage@engine@@QAE@ABV?$Name@UCaseSensitiveKey@core@@@core@@M_N@Z = 0x105736B0 ; function size:0x47 | engine::NISPlayMessage::NISPlayMessage (the engine's out-of-line copy)

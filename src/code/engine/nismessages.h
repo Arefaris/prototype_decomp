@@ -73,6 +73,13 @@ namespace engine
 			unknown1C = false;
 		}
 
+		// 0x105736B0 (the engine's out-of-line copy)
+		NISPlayMessage(const core::Name<core::CaseSensitiveKey>& newName, float newTime, bool newFlag) : NISMessage(1, newName)
+		{
+			time = newTime;
+			unknown1C = newFlag;
+		}
+
 		float time;  // +0x18
 		bool unknown1C;
 	};

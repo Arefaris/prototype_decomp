@@ -5,6 +5,10 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/nismessages.h"
 #include "code/core/refptr.h"
+#include "code/core/strings.h"
+#include "code/math/worldbounds.h"
+#include "code/engine/nis/nisnodes.h"
+#include "code/engine/system/streampackage.h"
 #include "code/pure3d/animation.h"
 #include "code/pure3d/framecontroller.h"
 #include "code/pure3d/primitive.h"
@@ -21,6 +25,11 @@ namespace engine
 	class MessageListeners;
 	void SendMessage(Message* message, MessageListeners* listeners);
 	extern MessageListeners gNISListeners;
+
+	void AssignRefCounted(core::IRefCount** slot, core::IRefCount* value);
+	// 0x108A8230: the sequence handler of an owner that is a game object (null for any other owner)
+	NISHandler* GetOwnerNISHandler(core::IRefCount* owner);
+	extern content::ObjectName gUndefinedSlotGroup85;
 
 	extern content::ObjectName gPoseAnimationControllerName;
 	extern content::ObjectName gLightControllerName;
@@ -175,6 +184,57 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x108F16D0
+	// NONMATCHING: block layout (the engine places the shared return-false tail behind the handler call, ours before it; every instruction is the engine's; 35 %)
+#ifdef NONMATCHING
+	bool SequenceNISNodeAction::Slot5(int arg, float value)
+	{
+		NISNode* node = (NISNode*)link.Get()->branch.GetBranch();
+		if (node == 0)
+		{
+			return false;
+		}
+		StreamPackage* package = GetNISNodeStreamPackage(node);
+		if (package != 0)
+		{
+			sequence = fight::Name();
+			if (package->instance != 0 && package->instance->IsLoaded())
+			{
+				if (dynamic_cast<NISRootNode*>(node) != 0)
+				{
+					NISPlayMessage message(node->name, value, false);
+					SendMessage(&message, &gNISListeners);
+					return false;
+				}
+				if (GetOwnerNISHandler(owner) == 0)
+				{
+					return false;
+				}
+				node->Unknown108A7CE0(effect, owner, math::WORLD_MIN - value);
+				return false;
+			}
+			else
+			{
+				GameObject* object = GetObjectHandle(owner).Get();
+				if (object != 0)
+				{
+					fight::Name empty("", 1);
+					NISMessage message(2, empty);
+					object->SendMessage(&message);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x108F1830
+	fight::Action* SequenceNISNodeTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return new SequenceNISNodeAction(listener, this, (int)effect, owner);
+	}
+
 	// FUNCTION: ENGINE 0x108F1AD0
 	void LightAnimationAction::Slot6()
 	{
@@ -219,6 +279,72 @@ namespace engine
 		GameObjectHandle handle = GetObjectHandle(owner);
 		return new LightAnimationAction(this, handle);
 	}
+
+	// FUNCTION: ENGINE 0x108F12E0
+	// Copies the path of a branch holder and answers the part behind its last slash (null for none)
+	char* GetLeafName(fight::BranchHolder* holder, char* buffer, unsigned int size)
+	{
+		holder->CopyPath(buffer, size);
+		char* leaf = buffer + core::StrLen(buffer);
+		while (leaf > buffer)
+		{
+			if (*leaf == '/')
+			{
+				return leaf + 1;
+			}
+			leaf--;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x108F14A0
+	// NONMATCHING: registers (the engine addresses the track's branch holder through eax and reuses edi for its second path copy, ours uses ecx and edx; 94.9 %)
+#ifdef NONMATCHING
+	SequenceNISNodeAction::SequenceNISNodeAction(fight::Track* listener, SequenceNISNodeTrack* newTrack, int newEffect,
+		core::IRefCount* newOwner) : fight::Action(0xA00), link(newTrack), watch(listener), effect(newEffect), owner(0)
+	{
+		AssignRefCounted(&owner, newOwner);
+		NISNode* node = (NISNode*)link.object->branch.GetBranch();
+		if (node == 0)
+		{
+			char path[0x100];
+			char* leaf = GetLeafName(&link.object->branch, path, 0x100);
+			if (leaf != 0)
+			{
+				{
+					fight::Name name(leaf, 1);
+					NISMessage message(0, name);
+					SendMessage(&message, &gNISListeners);
+				}
+				{
+					fight::Name name(leaf, 1);
+					sequence = name;
+				}
+			}
+			return;
+		}
+		if (dynamic_cast<NISRootNode*>(node) != 0)
+		{
+			NISMessage message(0, node->name);
+			SendMessage(&message, &gNISListeners);
+			sequence = node->name;
+			return;
+		}
+		NISHandler* handler = GetOwnerNISHandler(owner);
+		if (handler == 0)
+		{
+			char path[0x100];
+			link.object->branch.CopyPath(path, 0x100);
+			return;
+		}
+		StreamPackage* package = GetNISNodeStreamPackage(node);
+		if (package != 0)
+		{
+			package->Load(0, 0xFFFF, gUndefinedSlotGroup85, false);
+			handler->Unknown108A7450(node);
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x108F13C0
 	SequenceNISNodeAction::~SequenceNISNodeAction()
