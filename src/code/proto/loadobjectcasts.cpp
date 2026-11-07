@@ -2,16 +2,13 @@
 // text or the name of an object). The engine keeps one out-of-line copy of each; the classes whose layout is not
 // recovered yet are declared in reflectedstubs.h or below.
 #include "code/engine/gameobject/gameobjectspawner.h"
+#include "code/proto/behaviours/tokenbehaviour.h"
 #include "code/proto/reflectedstubs.h"
 
 namespace proto
 {
 	// Reflected load objects whose layout is not recovered (RTTI structs, base content::MetaLoadObject)
 	struct TargetSelectionWeights : public content::MetaLoadObject
-	{
-	};
-
-	struct TokenWeights : public content::MetaLoadObject
 	{
 	};
 }

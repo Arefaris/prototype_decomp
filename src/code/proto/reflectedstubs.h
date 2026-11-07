@@ -25,6 +25,7 @@
 #include "code/proto/behaviours/testwalkbehaviour.h"
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
+#include "code/proto/behaviours/tokenbehaviour.h"
 #include "code/proto/behaviours/watertowerbehaviour.h"
 #include "code/proto/characterbudgetpolicy.h"
 #include "code/proto/heightmap.h"
@@ -797,15 +798,6 @@ namespace proto
 		unsigned char unknownTail[0x5F4 - sizeof(proto::MovementBehaviour)];
 	};
 
-	class TokenBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit TokenBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x58 - sizeof(engine::Behaviour)];
-	};
 
 	class DriverBehaviour : public engine::Behaviour
 	{
