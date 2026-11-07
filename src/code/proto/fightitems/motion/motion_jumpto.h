@@ -4,6 +4,10 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/engine/physics/collisioncallback.h"
+#include "code/choreo/rootdriver.h"
 
 namespace proto
 {
@@ -82,6 +86,56 @@ namespace proto
 			extern fight::Property** gJumpToTrackProperties;
 			fight::TrackFactory* CreateJumpToTrackFactory(const char* name);
 			void RegisterJumpToTrackFactory(fight::TrackRegistry* registry, const char* name);
+
+			// ---- actions begin
+			// RTTI: proto::fightitems::motion::JumpToAction (9 vftable slots, 0x74 bytes)
+			class JumpToAction : public fight::Action
+			{
+			public:
+				// RTTI: proto::fightitems::motion::JumpToAction::JumpToCollisionCallback (0x18 bytes): tells the action that the object collided
+				class JumpToCollisionCallback : public engine::CollisionResponseCallback
+				{
+				public:
+					JumpToCollisionCallback() : owner(0)
+					{
+					}
+					// vftable slot 0 (0x100E1140): the compiler's destructor
+					// vftable slot 1 (0x100E1170)
+					virtual void OnCollision(int first, int second, int third);
+
+					JumpToAction* owner;  // +0x14
+				};
+
+				// 0x100E1680
+				JumpToAction(JumpToTrack* newTrack, core::IRefCount* owner);
+				// 0x100E1260
+				virtual ~JumpToAction();
+
+				// vftable slot 5 (0x100E29A0, not reconstructed)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100E12B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100E2B70, not reconstructed)
+				virtual bool Slot7(int arg, float value);
+
+				// 0x100E0EF0: a collision happened (the arguments are not known)
+				void OnCollision(int first, int second, int third);
+
+				core::Link<JumpToTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				JumpDestination destination;  // +0x2C
+				JumpToCollisionCallback callback;  // +0x3C
+				bool collided;  // +0x54
+				choreo::Driver* driver;  // +0x58
+				float unknown5C;
+				float unknown60;
+				float unknown64;
+				float unknown68;
+				float unknown6C;
+				bool unknown70;
+			};
+
+			// ---- actions end
 
 		}
 	}

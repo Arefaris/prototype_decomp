@@ -1,5 +1,6 @@
 // Fight items of the motion group: ObstacleDistanceCondition, ObstacleTimeToObstacleCondition, ObstacleSlopeCondition, ObstacleFaceHeightSlopeCondition, ObstacleFaceHeightCondition, ObstacleColliderTypeCondition, ObstacleVelocityCondition, ObstacleLengthCondition, ObstacleWidthCondition, ObstacleHeightCondition, ObstacleAvoidExitTrack, ObstacleAvoidTrack, PushFromObstacleTrack, ObstacleTestTrack (unit 0x10193D60 - 0x10198800; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_obstacle.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
 
 namespace core
 {
@@ -1414,6 +1415,31 @@ namespace proto
 			{
 				core::SafeReleaseRefCopy6(&event);
 				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100F70C0
+			int GetObstacleIntersection(engine::GameObject* object)
+			{
+				engine::GetIntersectionPropertiesMessage message;
+				object->PostMessage(&message);
+				return message.result;
+			}
+
+			// FUNCTION: ENGINE 0x100F7600
+			void ObstacleTestAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F9850
+			bool ObstacleTestAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				intersection = GetObstacleIntersection(object);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x100F9A30

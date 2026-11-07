@@ -1,5 +1,7 @@
 // Fight items of the motion group: JumpToTrack (unit 0x10185900 - 0x101865E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jumpto.h"
+#include "code/engine/physics/physicsmanager.h"
+#include "code/engine/fight/fightsystem.h"
 
 namespace proto
 {
@@ -260,6 +262,61 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E0EF0
+			void JumpToAction::OnCollision(int first, int second, int third)
+			{
+				collided = true;
+			}
+
+			// FUNCTION: ENGINE 0x100E1170
+			void JumpToAction::JumpToCollisionCallback::OnCollision(int first, int second, int third)
+			{
+				int heap = core::SetCurrentHeap(fight::GetHeapId(2));
+				owner->OnCollision(first, second, third);
+				core::SetCurrentHeap(heap);
+			}
+
+			// FUNCTION: ENGINE 0x100E1680
+			// NONMATCHING: the engine leaves out the vftable store of the intermediate class of the callback, ours keeps it (66.5 %)
+#ifdef NONMATCHING
+			JumpToAction::JumpToAction(JumpToTrack* newTrack, core::IRefCount* ownerObject) : fight::Action(0xE00), link(newTrack), target(engine::GetObjectHandle(ownerObject)), destination(0.0f, 0.0f, 0.0f), collided(false), driver(0), unknown5C(0.0f), unknown60(0.0f), unknown64(0.0f), unknown68(0.0f), unknown6C(0.0f), unknown70(true)
+			{
+				callback.SetObject(&target);
+				callback.owner = this;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100E1260
+			JumpToAction::~JumpToAction()
+			{
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100E2280
+			fight::Action* JumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				core::IRefCount* actionOwner = AsActionOwner(owner);
+				return new JumpToAction(this, actionOwner);
+			}
+
+			// FUNCTION: ENGINE 0x100E12B0
+			void JumpToAction::Slot6()
+			{
+				engine::RemovePostStepCallback((ravenphysics::PhysicsContextCallBack*)&callback);
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+				}
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<JumpToTrack>;
 			template class fight::PropertyBool<JumpToTrack>;
 			template class fight::PropertyEnumConstList<JumpToTrack>;

@@ -511,6 +511,9 @@ namespace proto
 			fight::TrackFactory* CreateObstacleTestTrackFactory(const char* name);
 			void RegisterObstacleTestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// 0x100F70C0: asks the object for its intersection properties and answers the result (name guess)
+			int GetObstacleIntersection(engine::GameObject* object);
+
 			// ---- actions begin
 			// RTTI: proto::fightitems::motion::ObstacleTestAction (9 vftable slots, 0x7044 bytes)
 			class ObstacleTestAction : public fight::Action
@@ -528,7 +531,10 @@ namespace proto
 				virtual bool Slot7(int arg, float value);
 
 				core::Link<ObstacleTestTrack> link;  // +0x1C
-				unsigned char unknown28[0x7044 - 0x28];
+				unsigned char unknown28[0x38 - 0x28];
+				engine::GameObjectHandle target;  // +0x38
+				int intersection;  // +0x3C
+				unsigned char unknown40[0x7044 - 0x40];
 			};
 
 			// RTTI: proto::fightitems::motion::ObstacleAvoidAction (9 vftable slots, 0x709C bytes)
