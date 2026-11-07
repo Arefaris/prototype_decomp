@@ -103,16 +103,16 @@ namespace proto
 	struct TemporaryRegenerationDamageMessage : public engine::IntrusiveMessage
 	{
 	public:
-		TemporaryRegenerationDamageMessage(int vC, int v10, int v14) : engine::IntrusiveMessage(20, 27), unknownC(vC), unknown10(v10), unknown14(v14)
+		TemporaryRegenerationDamageMessage(float newExpiry, float newRegenMaxHealthPercentage, float newRegenRate) : engine::IntrusiveMessage(20, 27), regenRate(newRegenRate), regenMaxHealthPercentage(newRegenMaxHealthPercentage), expiry(newExpiry)
 		{
 		}
 		virtual ~TemporaryRegenerationDamageMessage()
 		{
 		}
 
-		int unknownC;  // +0xC
-		int unknown10;  // +0x10
-		int unknown14;  // +0x14
+		float regenRate;  // +0xC
+		float regenMaxHealthPercentage;  // +0x10
+		float expiry;  // +0x14
 	};
 
 }

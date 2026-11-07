@@ -2,6 +2,9 @@
 #include "code/proto/fightitems/motion/motion_accumulateddamage.h"
 #include "code/engine/healthmessages.h"
 #include "code/proto/fightitems/motion/motionmessages3.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 
 namespace proto
 {
@@ -758,7 +761,87 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100D1760
+			bool AccumulatedDamageResetAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetAccumDamageDamageMessage message(0.0f);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100D1880
+			bool TempRegenAbortAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					proto::TemporaryRegenerationDamageMessage message(0.0f, 0.0f, 0.0f);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
+			// FUNCTION: ENGINE 0x100D2120
+			bool HealthSetMultiplierAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetDamageScaleMessage getMessage;
+				object->PostMessage(&getMessage);
+				engine::SetDamageScaleMessage setMessage(link.Get()->multiplier);
+				object->SendMessage(&setMessage);
+				unknown2C = getMessage.scale;
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100D2210
+			void HealthSetMultiplierAction::Slot6()
+			{
+				if (link.Get() != 0 && link.Get()->restoreOriginalOnEnd)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::SetDamageScaleMessage message(unknown2C);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100D2400
+			bool TempRegenerationAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					proto::TemporaryRegenerationDamageMessage message(link.Get()->expiry, link.Get()->regenMaxHealthPercentage, link.Get()->regenRate);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
 			// ---- actions end
+			// FUNCTION: ENGINE 0x100D1CF0
+			bool AccumulatedDamageCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetAccumDamageDamageMessage message;
+				object->SendMessage(&message);
+				float wanted = value;
+				return fight::CompareFloats(compare, &message.damage, &wanted);
+			}
+
 			// FUNCTION: ENGINE 0x100D1DC0
 			bool IsUndamageableCondition::Evaluate(int a, int b, int c, int d)
 			{
@@ -802,11 +885,19 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100D1000
 // FUNCTION: ENGINE 0x100D1040
 // FUNCTION: ENGINE 0x100D1050
 // FUNCTION: ENGINE 0x100D1090
+// FUNCTION: ENGINE 0x100D10A0
 // FUNCTION: ENGINE 0x100D10E0
+// FUNCTION: ENGINE 0x100D10F0
+// FUNCTION: ENGINE 0x100D1120
 // FUNCTION: ENGINE 0x100D1130
+// FUNCTION: ENGINE 0x100D1160
+// FUNCTION: ENGINE 0x100D11C0
+// FUNCTION: ENGINE 0x100D1260
+// FUNCTION: ENGINE 0x100D1280
 // FUNCTION: ENGINE 0x100D12B0
 // FUNCTION: ENGINE 0x100D13A0
 // FUNCTION: ENGINE 0x100D1400
@@ -827,6 +918,9 @@ namespace proto
 // FUNCTION: ENGINE 0x100D2520
 // FUNCTION: ENGINE 0x100D25D0
 // FUNCTION: ENGINE 0x100D2680
+// FUNCTION: ENGINE 0x100D29B0
+// FUNCTION: ENGINE 0x100D2A60
+// FUNCTION: ENGINE 0x100D2AB0
 // FUNCTION: ENGINE 0x10178580
 // FUNCTION: ENGINE 0x101785B0
 // FUNCTION: ENGINE 0x101785E0

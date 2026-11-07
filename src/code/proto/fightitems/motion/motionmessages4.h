@@ -112,6 +112,32 @@ namespace proto
 
 		bool allow;  // +0xC
 	};
+
+	// RTTI: proto::SetAccumDamageDamageMessage: sets the accumulated damage of the object
+	struct SetAccumDamageDamageMessage : public engine::IntrusiveMessage
+	{
+		explicit SetAccumDamageDamageMessage(float newDamage) : engine::IntrusiveMessage(0x14, 0xF), damage(newDamage)
+		{
+		}
+		virtual ~SetAccumDamageDamageMessage()
+		{
+		}
+
+		float damage;  // +0xC
+	};
+
+	// RTTI: proto::GetAccumDamageDamageMessage: the object answers its accumulated damage
+	struct GetAccumDamageDamageMessage : public engine::IntrusiveMessage
+	{
+		GetAccumDamageDamageMessage() : engine::IntrusiveMessage(0x14, 0x10), damage(0.0f)
+		{
+		}
+		virtual ~GetAccumDamageDamageMessage()
+		{
+		}
+
+		float damage;  // +0xC
+	};
 }
 
 #endif
