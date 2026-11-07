@@ -47,6 +47,11 @@ namespace proto
 		// 0x1032F560
 		CameraManager();
 
+		// 0x1032BAB0: takes the natives out of the script context
+		void UnregisterNatives();
+		// 0x1032C6E0
+		~CameraManager();
+
 		// 0x1032BAD0: the chase camera (the game camera of type 0)
 		ChaseCamera* GetChaseCamera();
 		// 0x1032BAE0
@@ -55,6 +60,9 @@ namespace proto
 		FramerCam* GetFramerCam();
 		// 0x1032BB20: hands a hint to the current camera
 		void SendCameraHint(engine::GameObjectHandle object, int hint);
+		// 0x1032BB40 / 0x1032BB80: values for the chase camera (name guesses)
+		void ChaseCameraVector(int first, float second, float third, float fourth);
+		void ChaseCameraValue(int value, float time);
 		// 0x1032BBB0: the type of the current game camera
 		int GetCurrentCameraType() const;
 		// 0x1032BBD0 / 0x1032BBF0 and 0x1032BC20 / 0x1032BC40: the lowest and the highest height the cameras keep
@@ -65,10 +73,18 @@ namespace proto
 		// 0x1032BC70 / 0x1032BC90: turn the chase / vehicle camera behind its avatar over the time
 		void ResetChaseCamBehind(float time);
 		void ResetVehicleCamBehind(float time);
+		// 0x1032BCB0 / 0x1032BCE0 / 0x1032BD10: turn the chase camera to face / look along / face in 3D along a direction
+		void ResetChaseCamFacing(math::Vector direction, float time);
+		void ResetChaseCamLooking(math::Vector direction, float time);
+		void ResetChaseCamFacing3D(math::Vector direction, float time);
+		// 0x1032BD60
+		void ChaseCameraPair(float first, float second);
 		// 0x1032BD40: the field of view of the chase camera (-1 without one)
 		float GetChaseCamFOV();
 		// 0x1032BF00: the spline of the scripted cameras is complete
 		bool IsSplineComplete();
+		// 0x1032BF20: the active scripted camera is busy
+		bool IsActiveScriptedCameraBusy();
 		// 0x1032BF90 / 0x1032BFA0: the camera shake is enabled
 		bool IsShakeEnabled();
 		void SetShakeEnabled(bool value);
@@ -184,6 +200,10 @@ namespace proto
 		bool unknown78;
 		unsigned char unknown79[3];
 	};
+
+	// 0x1032F5A0 / 0x1032F600: make and free the global
+	void CreateCameraManager();
+	void DestroyCameraManager();
 
 	// 0x11263108
 	extern CameraManager* gCameraManager;

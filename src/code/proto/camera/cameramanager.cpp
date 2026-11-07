@@ -5,6 +5,8 @@
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/dramaticcamera.h"
 #include "code/engine/camera/scriptedcamera.h"
+#include "code/core/heap.h"
+#include "code/engine/luascriptmanager.h"
 #include "code/math/spline.h"
 #include "code/proto/camera/chasecamera.h"
 #include "code/proto/camera/framercam.h"
@@ -694,4 +696,103 @@ namespace proto
 		return 1;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x1032BAB0
+	void CameraManager::UnregisterNatives()
+	{
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		manager->Unregister(this);
+	}
+
+	// FUNCTION: ENGINE 0x1032C6E0
+	CameraManager::~CameraManager()
+	{
+		UnregisterNatives();
+		delete spline;
+	}
+
+	// FUNCTION: ENGINE 0x1032F5A0
+	void CreateCameraManager()
+	{
+		core::HeapScope scope(0);
+		gCameraManager = new CameraManager();
+	}
+
+	// FUNCTION: ENGINE 0x1032F600
+	void DestroyCameraManager()
+	{
+		CameraManager* manager = gCameraManager;
+		delete manager;
+		gCameraManager = 0;
+	}
+
+	// FUNCTION: ENGINE 0x1032BB40
+	void CameraManager::ChaseCameraVector(int first, float second, float third, float fourth)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->Unknown1033F3A0(first, second, third, fourth);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BB80
+	void CameraManager::ChaseCameraValue(int value, float time)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->Unknown1033F5B0(value, time);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BCB0
+	void CameraManager::ResetChaseCamFacing(math::Vector direction, float time)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->FaceDirection(&direction, time);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BCE0
+	void CameraManager::ResetChaseCamLooking(math::Vector direction, float time)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->LookAlongDirection(&direction, time);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BD10
+	void CameraManager::ResetChaseCamFacing3D(math::Vector direction, float time)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->ResetFacing3D(&direction, time);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BD60
+	void CameraManager::ChaseCameraPair(float first, float second)
+	{
+		ChaseCamera* camera = (ChaseCamera*)cameras[0];
+		if (camera != 0)
+		{
+			camera->Unknown1033A300(first, second);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1032BF20
+	bool CameraManager::IsActiveScriptedCameraBusy()
+	{
+		if (activeScriptedCamera >= 0)
+		{
+			return scriptedBusy[activeScriptedCamera];
+		}
+		return false;
+	}
 }
