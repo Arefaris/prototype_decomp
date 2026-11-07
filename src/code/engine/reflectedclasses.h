@@ -10,6 +10,7 @@
 #include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/engine/poseanimationbehaviour.h"
 #include "code/engine/tagbehaviour.h"
 #include "code/engine/touchbehaviour.h"
 #include "code/ravenphysics/constraints/sharedproperties.h"
@@ -139,17 +140,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// PoseAnimationBehaviour: constructor 0x10921260, reflection 0x109208B0 / 0x10920AF0
-	class PoseAnimationBehaviour : public engine::Behaviour
-	{
-	public:
-		PoseAnimationBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x10];
 	};
 
 	// PhysicsBehaviour: constructor 0x10924520, reflection 0x10921A10 / 0x109239B0

@@ -6889,3 +6889,33 @@ No assert path names any unit; the file names are guesses.
   offset (thunks followed) and fixes the symbols.txt lines. The code string of a member is `"p"` or `"pn"` (0x10D94FF4 / 0x10D94E7C), read from the push in front of the getter call.
 - Not started: `TargetableBehaviour` / `PropTargetableByAIBehaviour` (read: the targeters list, the filter accessors of `TargetPoint`, the enumeration getter 0x102B1770 is mapped through `AutoTargetPriorityList`), `AutoTargetingBehaviour`, `LockOnTargetingBehaviour`,
   `BaseHealthBehaviour` / `HunterHealthBehaviour` / `MotherHealthBehaviour` / `PrototypeHealthBehaviour` (their tables are 7 and 34 floats), the fog channel, `EffectsPropSpawner`, the time bubble manager and the large update functions.
+
+## sn-bx: the range 0x10920000 - 0x10940000 (behaviours, joint driver interface, kept copies)
+1182 functions of the range were not reconstructed at the start (about 950 are left). Done:
+- The kept copies of the units that already existed (template instances of the driving attributes' reflection, the casters, deleting destructors and
+  `PrimitiveMemberGetSetter` copies of the fight action units, the bounded graphs, the vehicle intention behaviour): 124 bare annotations in the
+  trailer of each unit (found with the objects: every mapped function the unit's object defines under its name and that matches).
+- `engine/tagbehaviour.{h,cpp}`: `TagBehaviour` with its element struct `TagWrapper` (an `ArrayDynamic<TagWrapper, AllocatorCoreStatic<1, 16>>`, "tags"),
+  slot 1 (hands the tags to the message router, `GameObjectHandle::RouterRemove` is the router's add) and the 31 kept copies (all 37 functions).
+  The member name of the wrapper is "tag", the code strings "pn" (0x10D94E7C) and "p" (0x10D94FF4).
+- `engine/touchbehaviour.{h,cpp}`: `TouchBehaviour` (a `trigger::Volume` in "volume"; slot 0 makes a `SphereVolume` of radius `camera::gThousandth`
+  when there is none, slot 1 sets it up, slot 3 adds it to / removes it from the world with `trigger::AddVolume` / `RemoveVolume` (0x10899FB0 /
+  0x1089A030, another unit), `Update` and `OnMessage` follow the owner's transform). The stand-in classes `trigger::SphereVolume` / `OBBVolume` of
+  reflectedclasses.h were removed (volume.h has the real ones). The sphere is built in a struct whose constructor runs after operator new (as the engine's code).
+- `engine/poseanimationbehaviour.{h,cpp}` (28 functions): `PoseAnimationBehaviour` (controller at +0xC, a pending time, a pause flag and the handle of the
+  object that controls it); messages of type 10 start an animation (id 0), change the playback (1), resume (2) and pause (3); `GameObject::SetAttributeAndGet<pure3d::PoseAnimationController*>`
+  (0x10920F10) as in the prop behaviour; the constants are literals (`dt * 1000.0f` takes its operands in the engine's order only as a literal, not through the extern
+  `ravenphysics::gDefaultMaxForce`). Shared headers: `pure3d::Pose::UpdateLocal` (0x106DD700), `PoseAnimationController::GetPose` / `SetPose` (0x107321B0 / 0x107330A0)
+  declared in pure3d/pose.h and primitive.h. The 8-byte forwarder 0x10921250 is not done.
+- `engine/driving/vehiclephysicsbehaviour.cpp`: class info and member list ("basePhysics" at +0xF4) of `VehiclePhysicsBehaviour` and the kept copies; the constructor
+  (0x10938B70), `Update` and the large slot functions are not done (vehiclebehaviours.h names the member).
+- `engine/driving/wheeldata.cpp`: `WheelData` class info and member list (the constructor is NONMATCHING: the engine stores 0xFFFF between the name's vftable and its
+  first byte, 80 %).
+- `engine/secondaryphysicsjoints.cpp` got the interface `SecondaryPhysicsJointDriver` (class info, empty member list, destructor, the five empty slots, 0x10937750 - 0x10937810),
+  `engine/ipath.cpp` the constructor and destructor of `IPath` (own unit: in `splinepath.cpp` the compiler inlines the constructor into `SplinePath`'s), `engine/moremetafactories.cpp` the empty
+  `RegisterMoreMetaObjectFactories` (own unit, for the same reason).
+Not done (read, dependencies missing): `SecondaryPhysicsBehaviour` (the driver data element of 0x18 bytes at 0x10927FA0 and the handle holder 0x1093B7E0 - 0x1093C280 are unreconstructed classes),
+`PhysicsBehaviour` (property getter/setter pairs, `PhysicsProperties`), `RagdollBehaviour` / `RagdollLODBehaviour` (the ragdoll units of 0x1085C5xx), `TrackedMotionToExpressionBehaviour` (its two arrays
+of 0x74 and 0x40 byte elements and the apply functions 0x10911FA0 / 0x10912AE0), `AudioEmitterBehaviour` / `AudioZoneBehaviour` / `AudioUDOBehaviour` (0x1093C290 - 0x1093CE00, with the registration
+0x1092B450), `NetSystemLinkPublish` / `NetSystemLinkDiscovery` (0x1092B520 - 0x1092CF40: packet classes), `ControllerInputLogManager` (0x109337A0 - 0x10933E00), the NIS player's remaining members
+(0x109201C0 - 0x10920720, they call members of the previous range), the car attribute groups 3 and 4 (constants without names) and the large action slots.
