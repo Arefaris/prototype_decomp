@@ -1,5 +1,6 @@
 // The cell player's enumeration of states, reflected as an om meta enumeration (a template instance of the om library).
 #include "code/music/cellplayer.h"
+#include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 
 namespace music
@@ -183,4 +184,28 @@ namespace om
 	template void MetaEnum<music::CellPlayer::State>::WriteText(TextValue*, const void*);
 	// FUNCTION: ENGINE 0x105D4690
 	template bool MetaEnum<music::CellPlayer::State>::ReadText(const TextValue*, void*);
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E3870
+	template<> int MetaClass<music::MGraphCellPlayer>::Slot5()
+	{
+		return reinterpret_cast<int>(new music::MGraphCellPlayer);
+	}
+
+	// FUNCTION: ENGINE 0x105E2C90
+	template<> void MetaClass<music::MGraphCellPlayer>::Slot6(void* object)
+	{
+		delete static_cast<music::MGraphCellPlayer*>(object);
+	}
+
+	// FUNCTION: ENGINE 0x105E2C30
+	template MetaClass<music::MGraphCellPlayer>::MetaClass(const ClassName&, MetaClassBase*);
+	// FUNCTION: ENGINE 0x105E2C80
+	template const type_info* MetaClass<music::MGraphCellPlayer>::GetType();
+	// FUNCTION: ENGINE 0x105E2D20
+	template const char* MetaClass<music::MGraphCellPlayer>::AllocationTag();
+	// FUNCTION: ENGINE 0x105E2FE0
+	template void* MetaClass<music::MGraphCellPlayer>::operator new(size_t);
 }

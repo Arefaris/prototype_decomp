@@ -8,6 +8,7 @@
 #include "code/om/invoke.h"
 #include "code/om/metaproperty.h"
 #include "code/om/reflection.h"
+#include "code/om/textvalue.h"
 
 #pragma warning(disable: 4661)
 
@@ -477,4 +478,81 @@ namespace om
 	template MetaClassBase* GetCachedClass<audio::RendererDriver>();
 	// FUNCTION: ENGINE 0x105E60F0
 	template MetaClassBase* GetCachedClass<audio::FoldDownType>();
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x105E6410
+	bool ReadText(const TextValue* text, FixedArray<unsigned int, 8>* value)
+	{
+		TextValue* node = text->FindChild("Items");
+		if (node == 0)
+		{
+			return true;
+		}
+		node = node->FindChild("Item");
+		unsigned int* item = value->items;
+		while (node != 0 && node->text == String::Wrap("Item"))
+		{
+			ReadText(node, item);
+			node = node->parent->children.Next(node);
+			item++;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105E6500
+	void WriteText(TextValue* text, const FixedArray<unsigned int, 8>& value)
+	{
+		TextNode* items = new TextNode(text, String::Wrap("Items"));
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			WriteText(new TextNode(items, String::Wrap("Item")), value.items[i]);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105E61A0
+	bool ReadBinary(BinaryStream* stream, FixedArray<unsigned int, 8>* value)
+	{
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			if (!ReadBinary(stream, &value->items[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x105E61E0
+	bool WriteBinary(BinaryStream* stream, const FixedArray<unsigned int, 8>& value)
+	{
+		for (unsigned int i = 0; i < 8; i++)
+		{
+			if (!WriteBinary(stream, value.items[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+namespace audio
+{
+	// FUNCTION: ENGINE 0x105E5680
+	void RendererDriver::SetSurroundChannelMap(const om::FixedArray<unsigned int, 8>& newSurroundChannelMap)
+	{
+		for (int i = 0; i < 8; i++)
+		{
+			if (newSurroundChannelMap.items[i] >= maxNumberOfChannels)
+			{
+				surroundChannelMap.items[i] = 0xFFFFFFFF;
+			}
+			else
+			{
+				surroundChannelMap.items[i] = newSurroundChannelMap.items[i];
+			}
+		}
+	}
 }
