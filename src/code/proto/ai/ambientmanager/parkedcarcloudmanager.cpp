@@ -62,7 +62,7 @@ namespace proto
 			CloudSpawnerBase* spawner = ((CloudSpawnerBase**)list9C)[index];
 
 			unsigned char answer[3];
-			spawner->Rank(contextE8, positionDC, positionD0, distance60, table1C[spawner->flagsB9 >> 4],
+			spawner->Rank(contextE8, positionDC, positionD0, distance60, table1C[spawner->startPriority],
 				distance48, distance4C, 0, pausedByte, answer);
 
 			if (answer[0] != 0)

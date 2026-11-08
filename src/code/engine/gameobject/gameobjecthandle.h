@@ -94,6 +94,8 @@ namespace engine
 		{
 			return *(const unsigned int*)this == *(const unsigned int*)&other;
 		}
+		// 0x1006B210 (another unit): IsValid, as the engine's callers that do not inline it call it (name guess)
+		bool Exists() const;
 		bool IsValid() const
 		{
 			return index != 0xffff && GetGameObjectEntries()[index].serial == serial && GetGameObjectEntries()[index].object != 0;
