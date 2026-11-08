@@ -207,6 +207,7 @@ namespace mgraph
 	template<class Op> class __declspec(align(8)) CommutativeMath : public Node
 	{
 		MGRAPH_NODE_BODY_PLAIN(CommutativeMath);
+		virtual void Slot16(EvaluationFrame* frame);
 	};
 	template<class Op> const char* CommutativeMath<Op>::AllocationTag()
 	{

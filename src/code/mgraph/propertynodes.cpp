@@ -3,6 +3,14 @@
 
 #pragma warning(disable: 4661)
 
+namespace om
+{
+	// Left to the engine (mapped): see propertynode.cpp
+	template<> void DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::FillElements(mgraph::PropertyChannel<bool>*, unsigned short, const mgraph::PropertyChannel<bool>&);
+	template<> void DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::FillElements(mgraph::PropertyChannel<float>*, unsigned short, const mgraph::PropertyChannel<float>&);
+	template<> void DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::FillElements(mgraph::PropertyChannel<Vector>*, unsigned short, const mgraph::PropertyChannel<Vector>&);
+}
+
 namespace mgraph
 {
 	using namespace om;

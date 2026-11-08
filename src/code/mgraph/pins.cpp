@@ -8,6 +8,17 @@ namespace mgraph
 {
 	using namespace om;
 
+#ifdef NONMATCHING
+	// The constructor of the output pins is out of line in the engine; only the instances this unit holds are compiled
+	template<class P> OutputPin<P>::OutputPin(void* newNode, const om::ClassName* newName, int newIndex, const P& initial) :
+		ConcreteOutputPinBase(newName, newNode, newIndex, sizeof(P)),
+		value(initial),
+		channels()
+	{
+	}
+#endif
+
+
 	// FUNCTION: ENGINE 0x10B02460
 	template void mgraph::OutputPin<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B01220
@@ -1314,10 +1325,22 @@ namespace mgraph
 	template mgraph::GraphConnectionBase* mgraph::InputPin<mgraph::Packet<Vector> >::MakeConnection(mgraph::Pin*);
 	// FUNCTION: ENGINE 0x10AD4BE0
 	template char const* mgraph::OutputPin<mgraph::Packet<Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10B2EEF0
+	// NONMATCHING: 94.0 %, the address of the packet is computed at another place among the stores of the base class
+#ifdef NONMATCHING
+	template mgraph::OutputPin<mgraph::Packet<Vector> >::OutputPin(void*, Name<CaseSensitive64BitKey> const*, int, mgraph::Packet<Vector> const&);
+#endif
+	// FUNCTION: ENGINE 0x10B2EF70
+	template void mgraph::OutputPin<mgraph::Packet<Vector> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B2EFE0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<Vector> >::GetPacketType();
 	// FUNCTION: ENGINE 0x10B2EFF0
 	template MetaTypeBase* mgraph::OutputPin<mgraph::Packet<Vector> >::GetPacketTypeCached();
+	// FUNCTION: ENGINE 0x10B302C0
+	// NONMATCHING: 90.2 %, the address of the packet is computed at another place among the stores of the base class
+#ifdef NONMATCHING
+	template mgraph::OutputPin<mgraph::Packet<bool> >::OutputPin(void*, Name<CaseSensitive64BitKey> const*, int, mgraph::Packet<bool> const&);
+#endif
 	// FUNCTION: ENGINE 0x10B30330
 	template void mgraph::OutputPin<mgraph::Packet<bool> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B00DD0
@@ -1540,6 +1563,18 @@ namespace mgraph
 	template mgraph::Packet<DynamicArray<float,unsigned short> >::Packet();
 	// FUNCTION: ENGINE 0x10B59D90
 	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B30900
+	template mgraph::ContextConnection<mgraph::Packet<bool> >* mgraph::ContextConnection<mgraph::Packet<bool> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B30960
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<bool> >::Slot4(mgraph::ConnectionOwner*, void*);
+	// FUNCTION: ENGINE 0x10B2EE70
+	template mgraph::ContextConnection<mgraph::Packet<Vector> >* mgraph::ContextConnection<mgraph::Packet<Vector> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B2EED0
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<Vector> >::Slot4(mgraph::ConnectionOwner*, void*);
+	// FUNCTION: ENGINE 0x10B2E9E0
+	template mgraph::ContextConnection<mgraph::Packet<TriggerData> >* mgraph::ContextConnection<mgraph::Packet<TriggerData> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B2EA40
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<TriggerData> >::Slot4(mgraph::ConnectionOwner*, void*);
 	// FUNCTION: ENGINE 0x10B0BA60
 	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
 	// FUNCTION: ENGINE 0x10B0C440
@@ -1566,6 +1601,8 @@ namespace mgraph
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x10B2EFD0
+	template char const* DynamicArray<mgraph::Packet<Vector>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B00E10
 	template void DynamicArray<mgraph::Packet<bool>,unsigned short>::ReleaseElements(mgraph::Packet<bool>*, unsigned short);
 	// FUNCTION: ENGINE 0x10B01260
