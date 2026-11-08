@@ -315,6 +315,18 @@ namespace engine
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10911A30
+	pure3d::ExpressionGroup* Map::GetExpressionGroup() const
+	{
+		return expressionGroup;
+	}
+
+	// FUNCTION: ENGINE 0x10911F80
+	int Map::GetJointCount() const
+	{
+		return jointData.Size();
+	}
+
 	// FUNCTION: ENGINE 0x109146F0
 	Map::TrackedMotionToExpressionMap() : skeleton(0), expressionGroup(0)
 	{

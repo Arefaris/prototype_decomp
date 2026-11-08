@@ -26,6 +26,10 @@ namespace content
 	class MetaObjectTemplate : public MetaLoadObject
 	{
 	public:
+		// 0x106069D0 / 0x10606A10
+		static ClassInfo* GetClassInfo();
+		static MemberList* GetMembers();
+
 		// 0x10606B60
 		MetaObjectTemplate();
 		// 0x10606B30 (the scalar deleting destructor is 0x10606B90): destroys the object it holds

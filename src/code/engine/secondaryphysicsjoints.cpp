@@ -1,6 +1,7 @@
 #include "code/engine/secondaryphysicsjoints.h"
 #include "code/math/random.h"
 #include "code/ravenphysics/collision/collisionobject.h"
+#include "code/ravenphysics/constraints/constraints.h"
 
 namespace ravenphysics
 {
@@ -9,6 +10,13 @@ namespace ravenphysics
 	CollisionHandle CreateBallInSocketConstraint();
 	CollisionHandle CreateMotorConstraint();
 	CollisionHandle CreateLimitConstraint();
+
+	// The three axes of an untransformed box (0x111BBAA8, another unit)
+	struct Axes3
+	{
+		math::Vector axes[3];
+	};
+	extern const Axes3 gBoxAxes;
 }
 
 namespace engine
@@ -270,6 +278,37 @@ namespace engine
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10916B10
+	// NONMATCHING: the engine sets the loop's index and the counter up in another order (91.6 %)
+#ifdef NONMATCHING
+	void SecondaryPhysicsPoweredJoint::Slot3(const SecondaryPhysicsHandleRange* range)
+	{
+		int count = GetHandleCount();
+		ravenphysics::ConstraintPoweredConstraint* motor =
+			(ravenphysics::ConstraintPoweredConstraint*)range->begin[0].GetObject();
+		motor->SetMaxAngularVelocity(maxAngularVelocity);
+		if (count == 4)
+		{
+			const math::Vector* axis;
+			int remaining;
+			int i = 0;
+			axis = ravenphysics::gBoxAxes.axes;
+			remaining = 3;
+			do
+			{
+				ravenphysics::ConstraintAngularVelocity* limit =
+					(ravenphysics::ConstraintAngularVelocity*)range->begin[i + 1].GetObject();
+				limit->SetAngularVelocity(0.0f);
+				limit->SetAxis(axis);
+				i++;
+				axis++;
+				remaining--;
+			}
+			while (remaining != 0);
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10916B90
 	// EQUIVALENT: the engine keeps the previous point in esi and ours in ecx (so its frame and the loop entry differ), the
 	// operations are the same, 21.9 %
@@ -417,3 +456,8 @@ namespace container
 // FUNCTION: ENGINE 0x10916460
 // FUNCTION: ENGINE 0x109179D0
 // FUNCTION: ENGINE 0x10917880
+// FUNCTION: ENGINE 0x10916820
+// FUNCTION: ENGINE 0x109169A0
+// FUNCTION: ENGINE 0x109169B0
+// FUNCTION: ENGINE 0x10916A20
+// FUNCTION: ENGINE 0x10916DA0

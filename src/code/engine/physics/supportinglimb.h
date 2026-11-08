@@ -97,6 +97,8 @@ namespace engine
 		float smoothMaxRestingLength;
 		unsigned int numRandomRays;
 		float randomRayCircleRadius;
+		// The word behind the last member (the factory allocates 0x90 bytes; never touched)
+		int unknown8C;
 	};
 
 	// A struct in the original (the RTTI name is .?AU...): the game's dynamic_cast compares type names, so the class key
@@ -110,6 +112,8 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		container::ArrayDynamicNew<SupportingLimbDefinition*> limbDefs;
+		// The word behind the array (the factory allocates 0x18 bytes; never touched)
+		int unknown14;
 	};
 
 	// One limb of a character: its definition and the state of its cast

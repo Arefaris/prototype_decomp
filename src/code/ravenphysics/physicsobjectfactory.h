@@ -144,6 +144,11 @@ namespace ravenphysics
 			// Marks the object's shape as keyframed when the description says so (0x1066CB40; name guess)
 			void ApplyCollisionType(CollisionObject* object) const;
 
+			// Makes room for the volumes (0x1066DFB0) and adds one that the description owns from then on, answering
+			// its index (0x1066E000); names guessed
+			void ReserveVolumes(int count);
+			int AddVolume(CollisionVolumeFactory* factory);
+
 			// A collision object around the volumes (0x1066D2F0), the volumes set on an object (0x1066D3C0), and the
 			// bounds of the volumes (0x1066D420)
 			CollisionObject* CreateCollisionObject();
@@ -191,6 +196,9 @@ namespace ravenphysics
 		void MapJoints();
 		// The box around all the volumes (0x1066D620)
 		void GetBounds(float* bounds);
+		// Makes room for the objects (0x1066E230) and adds a default one, answering it (0x1066F100); names guessed
+		void ReserveObjects(int count);
+		ObjectDescription* AddObject();
 
 		pure3d::Skeleton* skeleton;            // 0x10
 		ObjectArray objects;                   // 0x14

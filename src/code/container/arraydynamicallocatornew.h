@@ -300,7 +300,9 @@ namespace container
 		// Removes [first, last) by moving the elements behind it down (they are not destroyed)
 		void Erase(T* first, T* last)
 		{
-			end = AssignRange(last, end, first);
+			T* newEnd = AssignRange(last, end, first);
+			Destroy(newEnd, end);
+			end = newEnd;
 		}
 		// Grows by copies of value or shrinks to count elements
 		void Resize(unsigned int count, const T& value)
@@ -312,7 +314,13 @@ namespace container
 			unsigned int size = Size();
 			if (size < count)
 			{
-				Insert(end, count - size, value);
+				unsigned int extra = count - Size();
+				T* position = end;
+				if (position + extra <= capacity)
+				{
+					ShiftUp(position, extra);
+					ConstructFill(position, extra, value);
+				}
 			}
 			else if (count < size)
 			{
@@ -321,8 +329,7 @@ namespace container
 		}
 		void Resize(unsigned int count)
 		{
-			T blank;
-			Resize(count, blank);
+			Resize(count, T());
 		}
 		// Makes room for count elements, keeping the ones that fit
 		void Reserve(int count)

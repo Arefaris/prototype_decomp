@@ -28,6 +28,11 @@ namespace engine
 		Listen2(4, true);
 	}
 
+	// FUNCTION: ENGINE 0x1091ED10
+	KnockBehaviour::~KnockBehaviour()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1091F230
 	content::MemberList* KnockBehaviour::GetMembers()
 	{
@@ -55,7 +60,7 @@ namespace engine
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1091ED10
+// FUNCTION: ENGINE 0x1091ED80
 // FUNCTION: ENGINE 0x1091ED40
 // FUNCTION: ENGINE 0x1091ED50
 // FUNCTION: ENGINE 0x1091F0F0
