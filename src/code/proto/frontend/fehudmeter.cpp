@@ -226,9 +226,11 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x104CC470
+	// NONMATCHING: the engine shares the tail that sets the bar variable between the two positions and writes its fields in another order (97.2 %)
+#ifdef NONMATCHING
 	void FEHudMeter::UpdateWarPercentage(EPositions position, float percentage)
 	{
-		if (percentage < 0.0f)
+		if (!(percentage >= 0.0f))
 		{
 			percentage = 0.0f;
 		}
@@ -236,7 +238,8 @@ namespace proto
 		{
 			percentage = gHundred;
 		}
-		float scaled = sBarScale * percentage * engine::driving::gHalf;
+		float scaled = sBarScale * percentage;
+		scaled = scaled * engine::driving::gHalf;
 		switch (position)
 		{
 		case 0:
@@ -251,4 +254,5 @@ namespace proto
 		cap1X.Set(FlashValue((double)(sBarScale * gFifty)));
 		flareX.Set(FlashValue((double)(sBarScale * gFifty)));
 	}
+#endif
 }
