@@ -37,8 +37,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101F16D0
-			// NONMATCHING: the member holding the comparison sits in edx in ours, in esi in the engine, 96.4 %
-#ifdef NONMATCHING
 			bool FixedDestinationDistanceCondition::Evaluate(int a, int b, int c, int d)
 			{
 				bool result = false;
@@ -57,11 +55,12 @@ namespace proto
 					math::Vector offset;
 					offset.Sub(target, position);
 					int selector = direction;
-					result = fight::CompareVectorMeasure(compare, &offset, selector, distance);
+					float limit = distance;
+					int op = compare;
+					result = fight::CompareVectorMeasure(op, &offset, selector, limit);
 				}
 				return result;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10230870
 			fight::Property* FixedDestinationDistanceCondition::GetProperty(int index)
