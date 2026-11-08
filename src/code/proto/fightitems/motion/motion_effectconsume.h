@@ -50,6 +50,19 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetSpreadRate() const;
+				float GetGrowthThreshold() const;
+				int GetConsumeMode() const;
+				float GetTimeReverse() const;
+				bool GetUseTimeReveal() const;
+				float GetTimeReveal() const;
+				int GetRevealMode() const;
+				const fight::Name& GetStartJoint1() const;
+				math::Vector GetStartOffset1() const;
+				bool GetUseSecondStartPoint() const;
+				const fight::Name& GetStartJoint2() const;
+
 					fight::Name shader;  // +0x10
 					fight::Name startJoint1;  // +0x18
 					fight::Name startJoint2;  // +0x20

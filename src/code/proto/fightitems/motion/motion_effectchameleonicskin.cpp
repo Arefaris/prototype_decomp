@@ -184,6 +184,48 @@ namespace proto
 				return new EffectChameleonicSkinAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BA7B0
+			int EffectChameleonicSkinTrack::GetActionOnBegin() const
+			{
+				return actionOnBegin;
+			}
+
+			// FUNCTION: ENGINE 0x100BA7C0
+			int EffectChameleonicSkinTrack::GetActionOnEnd() const
+			{
+				return actionOnEnd;
+			}
+
+			// FUNCTION: ENGINE 0x100BA7D0
+			float EffectChameleonicSkinTrack::GetWarpingFactor() const
+			{
+				return warpingFactor;
+			}
+
+			// FUNCTION: ENGINE 0x100BA7E0
+			float EffectChameleonicSkinTrack::GetWarpOffsetScale() const
+			{
+				return warpOffsetScale;
+			}
+
+			// FUNCTION: ENGINE 0x100BA7F0
+			int EffectChameleonicSkinTrack::GetColourType() const
+			{
+				return colourType;
+			}
+
+			// FUNCTION: ENGINE 0x100BA800
+			float EffectChameleonicSkinTrack::GetColourMix() const
+			{
+				return colourMix;
+			}
+
+			// FUNCTION: ENGINE 0x100BA810
+			float EffectChameleonicSkinTrack::GetBlurRadius() const
+			{
+				return blurRadius;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectChameleonicSkinTrack>;
 			template class fight::PropertyEnumConstList<EffectChameleonicSkinTrack>;

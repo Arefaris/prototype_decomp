@@ -175,6 +175,18 @@ namespace proto
 				return fight::CompareNames(compare, className, &value);
 			}
 
+			// FUNCTION: ENGINE 0x100A1ED0
+			int ClassNameCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100A1EE0
+			const fight::Name& ClassNameCondition::GetValue() const
+			{
+				return value;
+			}
+
 			// ---- actions end
 			template class fight::PropertyEnumConstList<ClassNameCondition>;
 			template class fight::PropertyName<ClassNameCondition>;

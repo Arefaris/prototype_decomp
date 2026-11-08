@@ -1,6 +1,7 @@
 // Fight items of the motion group: ConsumeGrabberTrack, ConsumeByParentTrack, NISConsumeByParentTrack, ScaleJointForConsumeTrack, ConsumeMeTrack, ConsumeTrack (unit 0x1014D220 - 0x1014F4D0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_consume.h"
 #include "code/proto/fightitems/motion/motionactionmessages.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 
 namespace proto
 {
@@ -683,6 +684,18 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x100AC9E0
+			ConsumeByParentAction::ConsumeByParentAction(ConsumeByParentTrack* newTrack, fight::Name objectName) : fight::Action(0xE00), link(newTrack), consumeTime(0.0f), consumed(false)
+			{
+				target = engine::FindGameObject(objectName, *(const content::ObjectName*)"");
+			}
+
+			// FUNCTION: ENGINE 0x100AD3E0
+			fight::Action* NISConsumeByParentTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ConsumeByParentAction(this, object);
+			}
+
 			// FUNCTION: ENGINE 0x100ABB50
 			ConsumeByParentAction::~ConsumeByParentAction()
 			{
@@ -878,6 +891,120 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100AADC0
+			bool ConsumeGrabberTrack::GetStealthy() const
+			{
+				return stealthy;
+			}
+
+			// FUNCTION: ENGINE 0x100AADD0
+			const fight::Name& ConsumeByParentTrack::GetRagdollIfNeeded() const
+			{
+				return ragdollIfNeeded;
+			}
+
+			// FUNCTION: ENGINE 0x100AADE0
+			bool ConsumeByParentTrack::GetSwitchToRagdollMode() const
+			{
+				return switchToRagdollMode;
+			}
+
+			// FUNCTION: ENGINE 0x100AADF0
+			const fight::Name& ConsumeByParentTrack::GetParentObjectName() const
+			{
+				return parentObjectName;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE00
+			const fight::Name& ConsumeByParentTrack::GetParentDestinationJoint() const
+			{
+				return parentDestinationJoint;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE10
+			math::Vector ConsumeByParentTrack::GetParentPositionOffset() const
+			{
+				return parentPositionOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE30
+			bool ConsumeByParentTrack::GetConsumeUpwards() const
+			{
+				return consumeUpwards;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE40
+			float ConsumeByParentTrack::GetBoneSweepConstant() const
+			{
+				return boneSweepConstant;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE50
+			bool ConsumeByParentTrack::GetTransformationConsume() const
+			{
+				return transformationConsume;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE60
+			float ConsumeByParentTrack::GetTransformationConsumeTime() const
+			{
+				return transformationConsumeTime;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE70
+			bool ConsumeByParentTrack::GetStealthy() const
+			{
+				return stealthy;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE80
+			const fight::Name& ConsumeByParentTrack::GetConsumableProperties() const
+			{
+				return consumableProperties;
+			}
+
+			// FUNCTION: ENGINE 0x100AAE90
+			const fight::Name& NISConsumeByParentTrack::GetObject() const
+			{
+				return object;
+			}
+
+			// FUNCTION: ENGINE 0x100AAEA0
+			const fight::Name& ScaleJointForConsumeTrack::GetJointToScale() const
+			{
+				return jointToScale;
+			}
+
+			// FUNCTION: ENGINE 0x100AAEB0
+			float ScaleJointForConsumeTrack::GetDesiredScale() const
+			{
+				return desiredScale;
+			}
+
+			// FUNCTION: ENGINE 0x100AAEC0
+			float ScaleJointForConsumeTrack::GetScaleRate() const
+			{
+				return scaleRate;
+			}
+
+			// FUNCTION: ENGINE 0x100AAED0
+			bool ConsumeMeTrack::GetStealthy() const
+			{
+				return stealthy;
+			}
+
+			// FUNCTION: ENGINE 0x100AAEE0
+			const fight::Name& ConsumeTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x100AAEF0
+			bool ConsumeTrack::GetStealthy() const
+			{
+				return stealthy;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ConsumeGrabberTrack>;
 			template class fight::PropertyBool<ConsumeGrabberTrack>;
@@ -1037,3 +1164,6 @@ namespace proto
 // FUNCTION: ENGINE 0x100AB210
 // FUNCTION: ENGINE 0x100AB220
 // FUNCTION: ENGINE 0x100AB230
+// FUNCTION: ENGINE 0x100A2580
+// FUNCTION: ENGINE 0x100AAFB0
+// FUNCTION: ENGINE 0x100AAFF0

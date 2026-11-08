@@ -402,6 +402,108 @@ namespace proto
 				return link.Get()->considerPlatformAsTarget;
 			}
 
+			// FUNCTION: ENGINE 0x100A6870
+			const fight::Name& CollisionGrabTrack::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x100A6880
+			const fight::Name& CollisionGrabTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x100A6890
+			math::Vector CollisionGrabTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x100A68B0
+			float CollisionGrabTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x100A68C0
+			bool CollisionGrabTrack::GetUseMotion() const
+			{
+				return useMotion;
+			}
+
+			// FUNCTION: ENGINE 0x100A68D0
+			int CollisionGrabTrack::GetCollideWith() const
+			{
+				return collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100A68E0
+			bool CollisionGrabTrack::GetCheckForObstruction() const
+			{
+				return checkForObstruction;
+			}
+
+			// FUNCTION: ENGINE 0x100A68F0
+			bool CollisionGrabTrack::GetGrabOnlyPowerTarget() const
+			{
+				return grabOnlyPowerTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100A6900
+			bool CollisionGrabTrack::GetConsiderPlatformAsTarget() const
+			{
+				return considerPlatformAsTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100A6910
+			bool CollisionGrabTrack::GetReverseAttachOnMountable() const
+			{
+				return reverseAttachOnMountable;
+			}
+
+			// FUNCTION: ENGINE 0x100A6920
+			const fight::BranchHolder& CollisionGrabTrack::GetGiverBranch() const
+			{
+				return giverBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100A6930
+			const fight::BranchHolder& CollisionGrabTrack::GetReceiverBranch() const
+			{
+				return receiverBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100A6940
+			int CollisionGrabTrack::GetInterruptPriority() const
+			{
+				return interruptPriority;
+			}
+
+			// FUNCTION: ENGINE 0x100A6950
+			bool CollisionGrabTrack::GetDevastatorGrab() const
+			{
+				return devastatorGrab;
+			}
+
+			// FUNCTION: ENGINE 0x100A6960
+			int CollisionGrabTrack::GetPhysicsMode() const
+			{
+				return physicsMode;
+			}
+
+			// FUNCTION: ENGINE 0x100A6F10
+			float CollisionGrabTrack::GetArcOffset() const
+			{
+				return arcOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100A6F20
+			float CollisionGrabTrack::GetArcRange() const
+			{
+				return arcRange;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CollisionGrabTrack>;
 			template class fight::PropertyNameList<CollisionGrabTrack>;
@@ -461,3 +563,7 @@ namespace proto
 // FUNCTION: ENGINE 0x100A6CE0
 // FUNCTION: ENGINE 0x100A6CF0
 // FUNCTION: ENGINE 0x100A6D20
+// FUNCTION: ENGINE 0x100A6970
+// FUNCTION: ENGINE 0x100A6A80
+// FUNCTION: ENGINE 0x100A69B0
+// FUNCTION: ENGINE 0x100A6AD0

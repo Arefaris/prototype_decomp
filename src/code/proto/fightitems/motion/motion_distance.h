@@ -36,6 +36,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetJoint() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10
 					fight::Name joint;  // +0x18
@@ -72,6 +75,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetGrabSlot() const;
+				int GetCompare() const;
+				float GetDistance() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name grabSlot;  // +0x10

@@ -209,6 +209,30 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100B79B0
+			const fight::Name& InsidePlaneCondition::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x100B79C0
+			const fight::Name& DistanceToJointCondition::GetGrabSlot() const
+			{
+				return grabSlot;
+			}
+
+			// FUNCTION: ENGINE 0x100B79D0
+			int DistanceToJointCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100B79E0
+			float DistanceToJointCondition::GetDistance() const
+			{
+				return distance;
+			}
+
 			// ---- actions end
 			template class fight::PropertyNameList<InsidePlaneCondition>;
 			template class fight::PropertyBool<InsidePlaneCondition>;

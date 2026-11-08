@@ -178,6 +178,54 @@ namespace proto
 				return new FlyingBrakeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BE0D0
+			float FlyingBrakeTrack::GetVelocityXZ() const
+			{
+				return velocityXZ;
+			}
+
+			// FUNCTION: ENGINE 0x100BE0E0
+			float FlyingBrakeTrack::GetGravity() const
+			{
+				return gravity;
+			}
+
+			// FUNCTION: ENGINE 0x100BE0F0
+			float FlyingBrakeTrack::GetGravityUp() const
+			{
+				return gravityUp;
+			}
+
+			// FUNCTION: ENGINE 0x100BE100
+			float FlyingBrakeTrack::GetTerminalVelocity() const
+			{
+				return terminalVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100BE110
+			float FlyingBrakeTrack::GetVelocityUp() const
+			{
+				return velocityUp;
+			}
+
+			// FUNCTION: ENGINE 0x100BE120
+			int FlyingBrakeTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100BE130
+			float FlyingBrakeTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100BE140
+			float FlyingBrakeTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100BE240
 			void FlyingBrakeAction::Slot6()

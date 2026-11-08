@@ -3,9 +3,13 @@
 #include "code/proto/fightitems/motion/motioncommon.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/engine/fight/coreactions.h"
+#include "code/content/loadinventory.h"
 
 namespace engine
 {
+	// 0x10126290 (another unit): the animation of that name in the inventory (the root inventory when none is given)
+	pure3d::Animation* FindAnimationByName(const core::Name<core::CaseSensitiveKey>* context, const core::Name<core::CaseSensitiveKey>* name, content::LoadInventory** inventory);
+
 	// FUNCTION: ENGINE 0x100A0C40
 	void ReleaseDriver(choreo::Driver*& driver)
 	{
@@ -740,6 +744,58 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100A1A00
+			bool AnimationChargeAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				float startFrame;
+				float endFrame;
+				float frame;
+				{
+					pure3d::Animation* animation = engine::FindAnimationByName(&link.Get()->GetAnimation(), &link.Get()->GetAnimation(), 0);
+					if (animation == 0)
+					{
+						return false;
+					}
+					pure3d::Skeleton* skeleton = puppet->GetSkeleton();
+					ChargeGetMessage message(link.Get()->GetType());
+					object->SendMessage(&message);
+					float first = message.value;
+					float charge = (first >= 0.0f) ? first : 0.0f;
+					if (0.0f <= charge - engine::driving::gOne)
+					{
+						charge = engine::driving::gOne;
+					}
+					startFrame = link.Get()->GetStartFrame();
+					endFrame = link.Get()->GetEndFrame();
+					frame = (endFrame - startFrame) * charge + startFrame;
+					engine::AssignDriver(driver, new choreo::AnimationDriver(skeleton, animation));
+				}
+				{
+					fight::Name driverName("animationCharge", 1);
+					driver->SetName(driverName);
+					((choreo::AnimationDriver*)driver)->mUnknown55 = true;
+					((choreo::AnimationDriver*)driver)->SetRange(choreo::gMinusOne, 0.0f, startFrame, endFrame);
+					((choreo::AnimationDriver*)driver)->SetUnknownE4(frame);
+					((choreo::AnimationDriver*)driver)->SetPartitionByName(link.Get()->GetPartition());
+					puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->GetPriority(), 1.0f, link.Get()->GetBlendInTime(), link.Get()->GetBlendOutTime(), choreo::gMinusOne);
+				}
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x100A1C70
 			bool AnimationChargeAction::Slot7(int arg, float value)
 			{
@@ -957,3 +1013,8 @@ namespace proto
 // FUNCTION: ENGINE 0x100A0C10
 // FUNCTION: ENGINE 0x100A0C20
 // FUNCTION: ENGINE 0x100A0C30
+// FUNCTION: ENGINE 0x100A0B00
+// FUNCTION: ENGINE 0x100A0B50
+// FUNCTION: ENGINE 0x100A0B60
+// FUNCTION: ENGINE 0x100A0B70
+// FUNCTION: ENGINE 0x100A0B80

@@ -33,6 +33,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetCompare() const;
+				int GetFactionType() const;
+
 					int compare;  // +0xC
 					int factionType;  // +0x10
 			};
@@ -61,6 +65,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetCompare() const;
+				const fight::Name& GetFaction() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name faction;  // +0x10
@@ -97,6 +105,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetFaction() const;
+				bool GetNotifyAI() const;
 
 					fight::Name faction;  // +0x10
 					float timeBegin;  // +0x18

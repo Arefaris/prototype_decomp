@@ -39,6 +39,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetMinVelocity() const;
+				float GetMaxVelocity() const;
+
 					float maxVelocity;  // +0x10
 					float minVelocity;  // +0x14
 					float timeBegin;  // +0x18
