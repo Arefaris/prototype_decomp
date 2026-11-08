@@ -184,16 +184,16 @@ namespace proto
 		case 0x20:
 			switch ((unsigned short)message->id)
 			{
-			case 3:
+			case 5:
 				OnGetAutoTarget(message);
 				break;
-			case 4:
+			case 6:
 				OnSetAutoTarget(message);
 				break;
-			case 5:
+			case 3:
 				GetLastTarget((GetAutoTargetMessage*)message);
 				break;
-			case 6:
+			case 4:
 				SetLastTarget((SetAutoTargetMessage*)message);
 				break;
 			case 7:
