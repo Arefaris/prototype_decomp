@@ -327,7 +327,7 @@ namespace proto
 			}
 			if (mask & 0x100)
 			{
-				meter->Show(show);
+				meter->FEHudElement::Show(show);
 			}
 			if (mask & 0x200)
 			{

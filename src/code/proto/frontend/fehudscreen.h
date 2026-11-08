@@ -25,6 +25,7 @@
 #include "code/proto/frontend/fehudevolutionpoints.h"
 #include "code/proto/frontend/fehudhealth.h"
 #include "code/proto/frontend/fehudkeycard.h"
+#include "code/proto/frontend/fehudmeter.h"
 #include "code/proto/frontend/fehudtextlog.h"
 #include "code/proto/frontend/fehudvehiclehealth.h"
 
@@ -93,21 +94,6 @@ namespace proto
 		void Unknown104CAEA0();
 
 		unsigned char unknownC[0x2538 - 0xC];
-	};
-
-	class FEHudMeter : public FEHudElement, public engine::ISimulationTask
-	{
-	public:
-		// 0x104CDE60
-		FEHudMeter();
-		// 0x104CC990
-		~FEHudMeter();
-
-		virtual void Update(bool force);
-		virtual void OnShow(bool shown);
-		virtual void UpdateSimulation(engine::UpdateContext context);
-
-		unsigned char unknown10[0xB58 - 0x10];
 	};
 
 	// The typewriter of the subtitles and texts of the head-up display (not an element)
