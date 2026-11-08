@@ -8749,8 +8749,8 @@ Added by this pass (match unless listed):
 - `engine/cementloader.cpp` (new, 0x108E45A0 - 0x108E5B00): the cement loader of the content manager's cement definition: `HasCement`,
   `PollCement`, `ShutdownCement`, `GetCementResult` match; `StartCement` is NONMATCHING (77 %: one unused word in the engine's frame).
   The thread function (0x108E56E0) and the library open / read helpers (0x108E47F0, 0x108E48C0, 0x108E4E20, 0x108E4F60) are not done.
-- `engine/attributecreators.cpp` (new): the eight `MetaInstanceCreatorImpl<Attribute<T>>::Create` of bool, int, float and `Pose*`
-  (0x108E07F0 - 0x108E0930), declared without a body in metafactories.cpp. The default values the engine inlines are statics of
+- `engine/attributecreators.cpp` (new): seven `MetaInstanceCreatorImpl<Attribute<T>>::Create` of bool, int and float
+  (0x108E07F0 - 0x108E0930; the `Pose*` one at 0x108E0910 stays the engine's), declared without a body in metafactories.cpp. The default values the engine inlines are statics of
   another unit (`gDefaultBoolAttribute` 0x11261111, `gDefaultIntAttribute` 0x1125E03C, `gDefaultFloatAttribute` 0x112750C8). The
   creators of Name, GenericScriptValue, Matrix and Vector (0x108E0950 - 0x108E0C30) jump to out-of-line constructors (0x108E0AE0,
   0x108E0B30) that are not done. Shared header: `Attribute<T>` got `explicit Attribute(T newValue)` (gameobject.h).
