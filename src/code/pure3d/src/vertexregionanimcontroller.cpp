@@ -61,6 +61,17 @@ namespace pure3d
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x10730270
+	VertexRegionAnimController::VertexRegionAnimController() : mRegions()
+	{
+		mKeyFrames = 0;
+		mPrimitive = 0;
+		mMeshState = 0;
+		mExpression = 0;
+		mOffsets = 0;
+		((math::Matrix*)unknown98)->Identity();
+	}
+
 	// FUNCTION: ENGINE 0x1072EBD0
 	bool VertexRegionAnimController::Unknown25()
 	{
@@ -195,6 +206,33 @@ namespace pure3d
 			}
 		}
 	}
+
+	// FUNCTION: ENGINE 0x1072FEF0
+	void VertexRegionAnimController::Unknown27()
+	{
+		VertexDeformRegionList* regions = &mRegions;
+		mFrame = 0.0f;
+		mChanged = true;
+		int count = regions->end - regions->items;
+		for (int i = 0; i != count; i++)
+		{
+			core::SafeRelease(regions->items[i]);
+		}
+		regions->end = regions->items;
+		SetFromKey(0, true);
+	}
+
+	// FUNCTION: ENGINE 0x1072F700
+	// NONMATCHING: the engine truncates the difference with an inline x87 conversion straight from the register that holds
+	// it (the control word is switched around the fistp), ours stores it and converts with cvttss2si (20.9 %)
+#ifdef NONMATCHING
+	void VertexRegionAnimController::Unknown28()
+	{
+		int key = (int)(mFrame = Unknown9() - engine::driving::gOne);
+		mChanged = true;
+		SetFromKey(key, true);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10730490
 	void VertexRegionAnimController::Unknown5()

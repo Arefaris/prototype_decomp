@@ -181,6 +181,7 @@ namespace pure3d
 		ColourOffset* colourOffsets[2];
 	};
 
+	class Expression;
 	class ExpressionGroup;
 	class dxVertexDeclaration;
 	class dxIndexBufferState;
@@ -205,6 +206,11 @@ namespace pure3d
 		void Apply(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
 		// 0x10731630
 		void Mix(VertexOffsetList* expression, VertexAnimKeyFrameList* state);
+		// 0x10730C80: finds, for the weight of every expression, the two keys it lies between and how much of each
+		void UpdateMixEntries();
+		// 0x107315F0: adds the target of the key at index of the expression, scaled by weight, to the offsets (when the
+		// weight is not near zero)
+		static void MixTarget(Expression* expression, int index, float weight, VertexOffsetList* offsets, VertexAnimKeyFrameList* state);
 
 		// A reference to a reference counted object that is let go of with the owner
 		template<class T> struct OwnedReference
@@ -252,6 +258,17 @@ namespace pure3d
 			float* end;
 			float* capacity;
 		} mWeights;
+		// What the mix takes from an expression: the key it starts at, and either only that key (with its scale) or the
+		// key behind it too (with the shares of both)
+		struct MixEntry
+		{
+			bool blended;
+			int first;
+			int second;
+			float firstShare;
+			float secondShare;
+			float scale;
+		};
 		// The weights the last mix used (entries of 0x18 bytes: begin, end, end of the storage)
 		struct MixArray
 		{
@@ -263,9 +280,9 @@ namespace pure3d
 				}
 			}
 
-			unsigned char* begin;
-			unsigned char* end;
-			unsigned char* capacity;
+			MixEntry* begin;
+			MixEntry* end;
+			MixEntry* capacity;
 		} mMixEntries;
 		bool mChanged;
 	};
@@ -455,7 +472,8 @@ namespace pure3d
 	class VertexRegionAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x107302C0: a copy of another controller; 0x107303F0: the destructor
+		// 0x10730270: a controller without regions; 0x107302C0: a copy of another controller; 0x107303F0: the destructor
+		VertexRegionAnimController();
 		VertexRegionAnimController(const VertexRegionAnimController& other);
 		virtual ~VertexRegionAnimController();
 
@@ -505,7 +523,8 @@ namespace pure3d
 	class VertexAnimController : public SimpleFrameController
 	{
 	public:
-		// 0x1073E3F0: a copy of another controller; 0x1073E450: the destructor
+		// 0x1073E300: a controller without key frames; 0x1073E3F0: a copy of another controller; 0x1073E450: the destructor
+		VertexAnimController();
 		VertexAnimController(const VertexAnimController& other);
 		virtual ~VertexAnimController();
 
@@ -547,7 +566,8 @@ namespace pure3d
 	class ShaderAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x1072E9B0: a copy of another controller; 0x1072E5F0: the destructor
+		// 0x1072E570: a controller without a shader; 0x1072E9B0: a copy of another controller; 0x1072E5F0: the destructor
+		ShaderAnimationController();
 		ShaderAnimationController(const ShaderAnimationController& other);
 		virtual ~ShaderAnimationController();
 
@@ -577,7 +597,9 @@ namespace pure3d
 	class ExpressionAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734750: a copy of another controller (it takes the same mixer); 0x10734580: the destructor
+		// 0x107344F0: a controller without a mixer; 0x10734750: a copy of another controller (it takes the same mixer);
+		// 0x10734580: the destructor
+		ExpressionAnimationController();
 		ExpressionAnimationController(const ExpressionAnimationController& other);
 		virtual ~ExpressionAnimationController();
 
@@ -607,7 +629,9 @@ namespace pure3d
 	class CompDrawVisibilityAnimationController : public SimpleFrameController
 	{
 	public:
-		// 0x10734BF0: a copy of another controller (it takes the same drawable); 0x10734A50: the destructor
+		// 0x10734A20: a controller without a drawable; 0x10734BF0: a copy of another controller (it takes the same
+		// drawable); 0x10734A50: the destructor
+		CompDrawVisibilityAnimationController();
 		CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other);
 		virtual ~CompDrawVisibilityAnimationController();
 
