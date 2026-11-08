@@ -109261,3 +109261,11 @@ _sOutputMeter = 0x112768E0 ; data size:0x4 | audio outputmeter.cpp: the one mete
 ??0Decompressor_Zlib@compress@@QAE@PAV01@@Z = 0x106DC700 ; function size:0x33 | compress::Decompressor_Zlib constructor (copy of the block at another address) (name guess)
 ?SetUnknown80@Drawable@pure3d@@QAEXPAVFrameController@2@@Z = 0x106DFF90 ; function size:0x32 | pure3d::Drawable::SetUnknown80 (name guess)
 ?GetRenderFlag3@DrawablePart@pure3d@@QAE_NXZ = 0x106DEB80 ; function size:0x5B | pure3d::DrawablePart::GetRenderFlag3 (name guess)
+??1Client@visibility@pure3d@@UAE@XZ = 0x1071A6D0 ; function size:0x7 | pure3d::visibility::Client destructor (name guess)
+??0PartBatch@pure3d@@QAE@XZ = 0x10612070 ; function size:0x51 | pure3d::PartBatch constructor (name guess)
+??0?$BitField@G@core@@QAE@XZ = 0x101E0500 ; function size:0x8 | core::BitField<unsigned short>::BitField (COMDAT copy; names guessed)
+??4DrawablePart@pure3d@@QAEAAV01@ABV01@@Z = 0x106DEC50 ; function size:0x261 | pure3d::DrawablePart::operator= (name guess)
+??4?$ArrayFixed@PAX$04@container@@QAEAAV01@ABV01@@Z = 0x106DEF80 ; function size:0x7E | container::ArrayFixed<void *, 5>::operator= (the copy of the words a drawable part keeps; name guess)
+??_R0?AVClient@visibility@pure3d@@@8 = 0x11089B70 ; data | data RTTI type descriptor of ?AVClient@visibility@pure3d@@
+??_7Client@visibility@pure3d@@6B@ = 0x10E018D8 ; data size:0x4 | pure3d::visibility::Client vftable
+??_GClient@visibility@pure3d@@UAEPAXI@Z = 0x104094D0 ; function size:0x1E | pure3d::visibility::Client scalar deleting destructor

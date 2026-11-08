@@ -8,6 +8,7 @@
 #define PURE3D_DRAWABLE_H
 
 #include "code/container/arraydynamic.h"
+#include "code/container/arrayfixed.h"
 #include "code/core/bitfield.h"
 #include "code/core/name.h"
 #include "code/math/aabb.h"
@@ -20,6 +21,9 @@
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
 #include "code/pure3d/visibility.h"
+
+// The engine's copy of the words kept with a part is not the template's code: it stays with the engine (0x106DEF80)
+template<> container::ArrayFixed<void*, 5>& container::ArrayFixed<void*, 5>::operator=(const container::ArrayFixed<void*, 5>& other);
 
 namespace pure3d
 {
@@ -63,14 +67,6 @@ namespace pure3d
 		void Detach(DrawablePart* part);
 	};
 
-	// The data the device draws a part with (0x2C bytes; the second word is part of the sort key)
-	struct PartBatch
-	{
-		unsigned int unknown0;
-		unsigned int sortKey;
-		unsigned char unknown8[0x24];
-	};
-
 	// The shader a part draws with (its object is another unit's; slot 4 answers the number the parts are sorted by)
 	class PartShader
 	{
@@ -80,6 +76,24 @@ namespace pure3d
 		virtual void Unknown2();
 		virtual void Unknown3();
 		virtual int GetSortKey();
+	};
+
+	// The data the device draws a part with (0x88 bytes; the second word is part of the sort key): the batch the
+	// primitive fills, then the part's world matrix (render bit 10 says whether it is the identity), the part's shader
+	// and the words the draw keeps
+	struct PartBatch
+	{
+		// 0x10612070: clears the batch, the matrix is the identity
+		PartBatch();
+
+		unsigned int unknown0;
+		unsigned int sortKey;
+		unsigned char unknown8[0x24];
+		math::Matrix worldMatrix;
+		PartShader* shader;
+		unsigned short unknown70;
+		unsigned short unknown72;
+		unsigned char unknown74[0x14];
 	};
 
 	// What a part's binding comes from
@@ -105,6 +119,8 @@ namespace pure3d
 		DrawablePart(const DrawablePart& other);
 		// 0x106DF340: releases the primitive, the state and the shader
 		~DrawablePart();
+		// 0x106DEC50: the part's state over this one (not the array at +0x38)
+		DrawablePart& operator=(const DrawablePart& other);
 
 		// 0x102D3D30: the binding, else the state's or primitive's binding source (another unit's out-of-line
 		// copy)
@@ -145,25 +161,29 @@ namespace pure3d
 
 		unsigned char* flags;
 		// The distance of the part from the eye, less its radius (0x10754BD0 sets it, the passes sort by it)
-		float distance;
-		unsigned char unknown8[0x10];
+		union
+		{
+			float distance;
+			int unknown4;
+		};
+		// As many words as the high nibble of byte +0x12A counts
+		int unknown8[4];
 		float unknown18;
 		float unknown1C;
 		visibility::Client client;
 		float unknown2C;
-		unsigned char unknown30[0x20];
+		float unknown30;
+		int unknown34;
+		// Up to five words kept with the part (the elements are unknown)
+		container::ArrayFixed<void*, 5> unknown38;
 		// The joint matrix the part follows (identity when it has none)
 		math::Matrix jointMatrix;
 		Primitive* primitive;
 		PrimitiveState* state;
 		PartBinding* binding;
-		unsigned char unknown9C[4];
-		// What the device draws the part with when render bit 9 is set (0x2C bytes)
+		int unknown9C;
+		// What the device draws the part with when render bit 9 is set
 		PartBatch batch;
-		// The part's world matrix (render bit 10 says whether it is the identity)
-		math::Matrix worldMatrix;
-		PartShader* unknown10C;
-		unsigned char unknown110[0x18];
 		// The render state bits (1 - 5 from the binding's flags, 7 from the primitive, 10: identity world matrix)
 		core::BitField<unsigned short> renderBits;
 		// +0x12A: the low nibble is the value of Drawable::SetUnknownCC

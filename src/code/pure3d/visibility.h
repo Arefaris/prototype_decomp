@@ -166,6 +166,10 @@ namespace pure3d
 		class Client
 		{
 		public:
+			// Not registered with a server
+			Client() : index(-1), server(0)
+			{
+			}
 			virtual ~Client();
 
 			// 0x1071A720 / 0x1071A740: the region of the client's index (its top four bits) and its place in the region
