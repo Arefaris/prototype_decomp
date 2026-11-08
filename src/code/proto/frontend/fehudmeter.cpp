@@ -5,13 +5,36 @@
 
 namespace engine
 {
+	class FrontEnd;
+	// 0x10864330
+	FrontEnd* Unknown10864330();
+	// 0x10872840: calls a function of the front end's movie with a format and the arguments it names (name unknown)
+	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* format, ...);
 	// 0x10838900 / 0x10837AB0
 	void AddSimulationTask(IRealTimeTask* task, unsigned int mask, int priority, unsigned int data);
 	void RemoveSimulationTask(IRealTimeTask* task);
 }
 
+namespace engine
+{
+	namespace driving
+	{
+		// 0x10D94CC4
+		extern const float gHalf;
+	}
+}
+
 namespace proto
 {
+	// 0x10D977E0 / 0x10DA3664
+	extern const float gHundred;
+	extern const float gFifty;
+
+	// 0x11099364: the movie clip of the meter
+	static const char* sMeterClip = "mcAnchor.meterHUD";
+	// 0x11099430: how many movie units one percent of the bar is
+	static float sBarScale = 3.0f;
+
 	// FUNCTION: ENGINE 0x104CDE60
 	FEHudMeter::FEHudMeter() : unknown10(0.0f), unknown14(0.0f), unknown18(0.0f), unknown1C(0.0f), drainEnabled(false), visible("_level0.mcAnchor.meterHUD._visible"),
 		pulseText0("_level0.mcAnchor.meterHUD.mcPulseText0.mcTextField.txtLabel.text"),
@@ -113,5 +136,119 @@ namespace proto
 		unknown18 = 0.0f;
 		unknown1C = 0.0f;
 		drainEnabled = enabled;
+	}
+
+	// FUNCTION: ENGINE 0x104CC5E0
+	void FEHudMeter::ToggleBars(EPositions position, bool on)
+	{
+		switch (position)
+		{
+		case 0:
+			bar0Visible.Set(FlashValue(on));
+			webbing0Visible.Set(FlashValue(on));
+			break;
+		case 2:
+			bar2Visible.Set(FlashValue(on));
+			webbing2Visible.Set(FlashValue(on));
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104CC690
+	void FEHudMeter::UpdateBarColor(EPositions position, EBarColors colour)
+	{
+		ToggleBars(position, colour != 0);
+		if (colour != 0)
+		{
+			engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s%d%d", sMeterClip, "SetBarColor", position, colour);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104CC6F0
+	void FEHudMeter::TriggerAttentionGrab()
+	{
+		engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s%d%d", sMeterClip, "TriggerAttentionGrab");
+	}
+
+	// FUNCTION: ENGINE 0x104CC230
+	void FEHudMeter::UpdateIcon(EPositions position, EIcons icon)
+	{
+		if (icon == 0)
+		{
+			capVisible[position].Set(FlashValue(false));
+			return;
+		}
+		capVisible[position].Set(FlashValue(true));
+		engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s%d%d", sMeterClip, "SetIcon", position, icon);
+	}
+
+	// FUNCTION: ENGINE 0x104CCB00
+	void FEHudMeter::UpdateText(EPositions position, const char* text)
+	{
+		switch (position)
+		{
+		case 0:
+			pulseText0.Set(FlashValue(text));
+			break;
+		case 2:
+			pulseText2.Set(FlashValue(text));
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104CC2E0
+	// NONMATCHING: the engine spills the clamped percentage after the second test, ours after the first (93.9 %)
+#ifdef NONMATCHING
+	void FEHudMeter::UpdatePercentage(float percentage)
+	{
+		if (percentage < 0.0f)
+		{
+			percentage = 0.0f;
+		}
+		if (percentage - gHundred >= 0.0f)
+		{
+			percentage = gHundred;
+		}
+		if (unknown14 > percentage)
+		{
+			unknown10 = unknown14 - percentage + unknown18;
+			unknown1C = 0.0f;
+		}
+		float scaled = sBarScale * percentage;
+		unknown14 = percentage;
+		bar0X.Set(FlashValue(0.0));
+		bar0Width.Set(FlashValue(300.0));
+		bar2Width.Set(FlashValue(300.0));
+		barsCombinedX.Set(FlashValue((double)(scaled - 300.0f)));
+		cap1X.Set(FlashValue((double)scaled));
+		flareX.Set(FlashValue((double)scaled));
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x104CC470
+	void FEHudMeter::UpdateWarPercentage(EPositions position, float percentage)
+	{
+		if (percentage < 0.0f)
+		{
+			percentage = 0.0f;
+		}
+		if (percentage - gHundred >= 0.0f)
+		{
+			percentage = gHundred;
+		}
+		float scaled = sBarScale * percentage * engine::driving::gHalf;
+		switch (position)
+		{
+		case 0:
+			bar0Width.Set(FlashValue((double)scaled));
+			bar0X.Set(FlashValue((double)(300.0f - scaled)));
+			break;
+		case 2:
+			bar2Width.Set(FlashValue((double)scaled));
+			break;
+		}
+		barsCombinedX.Set(FlashValue(-150.0));
+		cap1X.Set(FlashValue((double)(sBarScale * gFifty)));
+		flareX.Set(FlashValue((double)(sBarScale * gFifty)));
 	}
 }

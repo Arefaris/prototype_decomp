@@ -108275,3 +108275,5 @@ _sObjectiveClip = 0x1109A34C ; data size:0x4 | proto::FEHudPopup objective pop-u
 ?UpdateText@FEHudMeter@proto@@QAEXW4EPositions@12@PBD@Z = 0x104CCB00 ; function size:0x90 | proto::FEHudMeter::UpdateText (name guess)
 ?UpdateIcon@FEHudMeter@proto@@QAEXW4EPositions@12@W4EIcons@12@@Z = 0x104CC230 ; function size:0x89 | proto::FEHudMeter::UpdateIcon (name guess)
 ?ShowMeter@FEHudMeter@proto@@QAEXW4EIcons@12@00PBD1MW4EBarColors@12@2@Z = 0x104CD3A0 ; function size:0xA8 | proto::FEHudMeter::ShowMeter (name guess)
+_sMeterClip = 0x11099364 ; data size:0x4 | proto::FEHudMeter clip name (file static)
+_sBarScale = 0x11099430 ; data size:0x4 | proto::FEHudMeter movie units of one percent of the bar (file static)
