@@ -2,6 +2,13 @@
 // of each of its two pins and in the list of its graph.
 #include "code/mgraph/graph.h"
 #include "code/mgraph/pins.h"
+#include "code/om/textvalue.h"
+
+namespace engine
+{
+	// 0x105E4620: the string "?Name?"
+	om::String* GetName();
+}
 
 namespace mgraph
 {
@@ -95,6 +102,26 @@ namespace mgraph
 		Unlink(&to->firstConnection, &toLink);
 		Unlink(&from->firstConnection, &fromLink);
 		Unlink(&graph->firstConnection, &graphLink);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2350
+	void GraphConnectionBase::Slot5(void* argument)
+	{
+		om::TextValue* text = static_cast<om::TextValue*>(argument);
+		om::TextNode* input = new om::TextNode(text, om::String::Wrap("Input"));
+		om::TextNode* output = new om::TextNode(text, om::String::Wrap("Output"));
+		om::TextNode* inputNodeName = new om::TextNode(input, om::String::Wrap("NodeName"));
+		om::TextNode* inputPinName = new om::TextNode(input, om::String::Wrap("PinName"));
+		om::TextNode* outputNodeName = new om::TextNode(output, om::String::Wrap("NodeName"));
+		om::TextNode* outputPinName = new om::TextNode(output, om::String::Wrap("PinName"));
+		om::String* outputNodeNameValue = engine::GetName();
+		new om::TextNode(outputNodeName, *outputNodeNameValue);
+		om::String* outputPinNameValue = engine::GetName();
+		new om::TextNode(outputPinName, *outputPinNameValue);
+		om::String* inputNodeNameValue = engine::GetName();
+		new om::TextNode(inputNodeName, *inputNodeNameValue);
+		om::String* inputPinNameValue = engine::GetName();
+		new om::TextNode(inputPinName, *inputPinNameValue);
 	}
 
 	// FUNCTION: ENGINE 0x10AD2810
