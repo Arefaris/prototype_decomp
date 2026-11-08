@@ -90,10 +90,10 @@ namespace engine
 		fight::Branch* GetStartBranch() const;
 		// 0x108760C0: resets every sequencer
 		bool ResetSequencers();
+		// 0x10876B30: drops the queued messages and resets the sequencers (name guessed)
+		bool Reset();
 		// 0x10876710: destroys the queued messages
 		void ClearQueue();
-		// 0x10876B30: ClearQueue and ResetSequencers (name guess)
-		void ClearAll();
 		// The first sequencer that is not busy (-1 for none)
 		int FindFree()
 		{

@@ -413,6 +413,12 @@ namespace proto
 
 				// 0x101ED6D0: gives the reserved position back (name guess)
 				void ReleasePosition();
+				// 0x101EDBE0: reserves a position (name guess)
+				void ReservePosition(const math::Vector* position);
+				// 0x101ED8A0: whether a move from one position to another is allowed (name guess)
+				bool PositionAllowed(const math::Vector* unused, const math::Vector* from, const math::Vector* to, bool checkTokens, bool checkDistance);
+				// 0x101ED6C0: the last check of a position (name guess)
+				bool AcceptPosition(const math::Vector* position);
 				// 0x101EEAF0: picks the speed and the stop distances of the next move (name guess)
 				void ChooseDistances();
 

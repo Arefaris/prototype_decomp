@@ -12,6 +12,23 @@ namespace mgraph
 	// 0x105B9740: the graph of a name (the entity of that name that is a graph), null when there is none
 	Graph* FindGraph(const om::ClassName& graphName);
 
+	// The format of what a remote player plays (name guessed): the sample rate sits at 0x1C
+	class PatchFormat
+	{
+	public:
+		char unknown0[0x1C];
+		unsigned int sampleRate;
+	};
+
+	// What a remote player plays (name guessed; it is reference counted): the format sits at 8
+	class PatchSource
+	{
+	public:
+		int unknown0;
+		int unknown4;
+		PatchFormat* format;
+	};
+
 	class Patch : public om::DynamicObjectEntity
 	{
 	public:
@@ -42,6 +59,9 @@ namespace mgraph
 		om::ClassName graphName;  // 0x48
 		bool isSingleton;  // 0x50
 	};
+
+	// 0x105E30A0 (name guessed): the patch of a name, null when the first entity of the name is not one
+	Patch* FindPatchByName(const om::ClassName& name);
 }
 
 #endif

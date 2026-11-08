@@ -111,6 +111,29 @@ namespace proto
 				GetTable()[index]->Destroy(storage);
 			}
 		}
+		// A variant holding a copy of value
+		template<class T> explicit Variant(const T& value)
+		{
+			Construct(value);
+		}
+		// Replaces the held value by a copy of another variant's (the engine's copies are named by a guess; the plain
+		// operator= stays the implicit one other units rely on)
+		Variant& Assign(const Variant& other)
+		{
+			if (&other != this)
+			{
+				if (index != -1)
+				{
+					GetTable()[index]->Destroy(storage);
+				}
+				index = other.index;
+				if (index != -1)
+				{
+					GetTable()[index]->Copy(storage, other.storage);
+				}
+			}
+			return *this;
+		}
 		// Replaces the held value
 		template<class T> Variant& operator=(const T& value)
 		{

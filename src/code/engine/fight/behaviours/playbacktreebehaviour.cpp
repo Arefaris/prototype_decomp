@@ -180,3 +180,9 @@ namespace engine
 		}
 	}
 }
+
+// Kept copies (template instances of this unit's reflection):
+// FUNCTION: ENGINE 0x1089AD60
+// FUNCTION: ENGINE 0x1089ADA0
+// FUNCTION: ENGINE 0x1089ADE0
+// FUNCTION: ENGINE 0x1089AE20

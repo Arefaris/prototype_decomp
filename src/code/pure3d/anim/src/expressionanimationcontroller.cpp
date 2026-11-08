@@ -16,6 +16,11 @@ namespace pure3d
 		delete[] mWeights;
 	}
 
+	// FUNCTION: ENGINE 0x107344F0
+	ExpressionAnimationController::ExpressionAnimationController() : mMixer(0), mWeightCount(0), mWeights(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10734750
 	ExpressionAnimationController::ExpressionAnimationController(const ExpressionAnimationController& other) : SimpleFrameController(other)
 	{

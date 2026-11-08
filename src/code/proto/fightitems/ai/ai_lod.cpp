@@ -2,6 +2,9 @@
 #include "code/proto/fightitems/ai/ai_lod.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/engine/physics/getphysicsobjectmessage.h"
+#include "code/ravenphysics/collision/collisionobject.h"
+#include "code/ravenphysics/physicsobject.h"
 
 namespace proto
 {
@@ -1415,6 +1418,64 @@ namespace proto
 				return new LodSteerAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x101FAA70
+			// NONMATCHING: shrink-wrap: the engine tests the handle before it pushes the saved registers, and its object test shares the zero of the loop counter without a join (best 57.9 %)
+#ifdef NONMATCHING
+			bool ResetPhysicVelocitiesAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				int i = 0;
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetPhysicsObjectMessage query;
+				object->PostMessage(&query);
+				ravenphysics::PhysicsObject* physics = 0;
+				if (query.handle.IsValid())
+				{
+					physics = query.handle.GetObject();
+				}
+				int count = physics->objectCount;
+				for (; i < count; i++)
+				{
+					ravenphysics::CollisionShape* shape = physics->objects[i]->shape;
+					shape->MoveTo(math::Vector(0.0f, 0.0f, 0.0f), false);
+					shape->Translate(math::Vector(0.0f, 0.0f, 0.0f), false);
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101FBB90
+			// NONMATCHING: shrink-wrap: the engine tests the handle before it pushes the saved registers, and its object test shares the zero of the loop counter without a join (best 57.9 %)
+#ifdef NONMATCHING
+			bool ResetPhysicVelocitiesAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				int i = 0;
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetPhysicsObjectMessage query;
+				object->PostMessage(&query);
+				ravenphysics::PhysicsObject* physics = 0;
+				if (query.handle.IsValid())
+				{
+					physics = query.handle.GetObject();
+				}
+				int count = physics->objectCount;
+				for (; i < count; i++)
+				{
+					ravenphysics::CollisionShape* shape = physics->objects[i]->shape;
+					shape->MoveTo(math::Vector(0.0f, 0.0f, 0.0f), false);
+					shape->Translate(math::Vector(0.0f, 0.0f, 0.0f), false);
+				}
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x101FBAE0
 			ResetPhysicVelocitiesAction::ResetPhysicVelocitiesAction(ResetPhysicVelocitiesTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
@@ -1672,6 +1733,13 @@ namespace proto
 						object->SendMessage(&message);
 					}
 				}
+			}
+
+			// FUNCTION: ENGINE 0x101FCBC0
+			fight::Action* LodGotoFixedDestinationTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new LodGotoFixedDestinationAction(this, handle);
 			}
 
 			// ---- actions end

@@ -329,7 +329,7 @@ namespace proto
 	{
 		fight::TrackRegistry* context = engine::gLoadListeners->FindContext(
 			core::Name<core::CaseSensitiveKey>(engine::gScenarioContextName, 1));
-		ClearAll();
+		Reset();
 		started = ((StateMachineRecord*)message->stream)->started;
 		RestoreWatch(parentState, ((StateMachineRecord*)message->stream)->parentPath, context);
 		RestoreWatch(root, ((StateMachineRecord*)message->stream)->rootPath, context);

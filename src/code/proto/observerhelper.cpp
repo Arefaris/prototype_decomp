@@ -1,6 +1,7 @@
 #include "code/proto/observerhelper.h"
 
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/frontend/feresourcestreamclient.h"
 
 namespace proto
 {
@@ -17,8 +18,6 @@ namespace proto
 	void SetGamepadRumble(bool enabled, unsigned char player);
 	// 0x104DDBB0: the language of the game by name
 	void SetLanguage(const char* name, int round);
-	// 0x108732E0 (name unknown)
-	void Unknown108732E0(bool flag);
 
 	// FUNCTION: ENGINE 0x104DF580
 	ObserverHelper::ObserverHelper() : languageKey("SettingAudioLanguage", 0)
@@ -92,7 +91,7 @@ namespace proto
 		}
 		if (name == core::Name<core::CaseSensitiveKey>("SettingsDefaultController", 0))
 		{
-			Unknown108732E0(record->value < 2);
+			engine::SetUseKeyboardTexts(record->value < 2);
 		}
 	}
 #endif

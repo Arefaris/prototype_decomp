@@ -2,6 +2,17 @@
 #include "code/proto/fightitems/ai/ai_goto.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/proto/scenariomessages.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gHalf;
+	}
+}
 
 namespace proto
 {
@@ -457,6 +468,174 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x101F6080
+			void GoToAction::MoveToDestination(engine::GameObject* object)
+			{
+				MoveParams params;
+				params.ignoreRestrictions = true;
+				params.tolerance = engine::driving::gHalf;
+				Unknown103B8330(object, &unknown30, &params);
+			}
+
+			// FUNCTION: ENGINE 0x101F6130
+			void GoToAction::TakeDestination(engine::GameObject* object, float time)
+			{
+				GetFixedDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.destination != 0)
+				{
+					message.destination->source = this;
+					unknown30.x = message.destination->position.x;
+					unknown30.y = message.destination->position.y;
+					unknown30.z = message.destination->position.z;
+					unknown3C.x = message.destination->unknownC.x;
+					unknown3C.y = message.destination->unknownC.y;
+					unknown3C.z = message.destination->unknownC.z;
+					MoveToDestination(object);
+					unknown2C = 1;
+					return;
+				}
+				Unknown103B82F0(object);
+			}
+
+			// FUNCTION: ENGINE 0x101F6BA0
+			// NONMATCHING: stack frame of the engine overlaps the jump destination with the later messages (0x7C bytes against 0x8C), the squared distances are summed in another order (y, z, x) and the arrival message is expanded inline; best 15.6 % (shifted)
+#ifdef NONMATCHING
+			void GoToAction::GoToDestination(engine::GameObject* object, float time)
+			{
+				GetFixedDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.destination != 0)
+				{
+					message.destination->source = this;
+					math::Vector next(message.destination->position.x, message.destination->position.y, message.destination->position.z);
+					if (math::DistanceSquared(next, unknown30) > engine::driving::gOne)
+					{
+						unknown30.x = next.x;
+						unknown30.y = next.y;
+						unknown30.z = next.z;
+						MoveToDestination(object);
+					}
+					unknown3C.x = message.destination->unknownC.x;
+					unknown3C.y = message.destination->unknownC.y;
+					unknown3C.z = message.destination->unknownC.z;
+					JumpDestination jump;
+					jump.position.x = unknown30.x;
+					jump.position.y = unknown30.y;
+					jump.position.z = unknown30.z;
+					Unknown103BAE00(object, &jump);
+					if (Unknown103B8440(object))
+					{
+						DestinationReachedMessage reached;
+						reached.handles[0] = target;
+						core::StrNCpy(reached.data, "goto", 0x40u);
+						engine::SendMessage(&reached, &engine::gScenario38);
+						if (link.object->clearDestination)
+						{
+							ClearFixedDestinationMessage clear(this);
+							object->SendMessage(&clear);
+							unknown2C = 0;
+							return;
+						}
+						unknown2C = 2;
+					}
+				}
+				else
+				{
+					unknown30.z = 0.0f;
+					unknown30.y = 0.0f;
+					unknown30.x = 0.0f;
+					unknown3C.z = 0.0f;
+					unknown3C.y = 0.0f;
+					unknown3C.x = 0.0f;
+					unknown2C = 0;
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F61F0
+			// NONMATCHING: squared distances are summed in another order (y, z, x) and the stack frame differs; best 22.4 % (shifted)
+#ifdef NONMATCHING
+			void GoToAction::FollowDestination(engine::GameObject* object, float time)
+			{
+				GetFixedDestinationMessage message;
+				object->SendMessage(&message);
+				if (message.destination != 0)
+				{
+					message.destination->source = this;
+					math::Vector next(message.destination->position.x, message.destination->position.y, message.destination->position.z);
+					math::Matrix* world = object->transform->GetPointer();
+					math::Vector place(world->m[3][0], world->m[3][1], world->m[3][2]);
+					if (math::DistanceSquared(next, unknown30) > engine::driving::gOne || math::DistanceSquared(next, place) > 49.0f)
+					{
+						unknown30.x = next.x;
+						unknown30.y = next.y;
+						unknown30.z = next.z;
+						MoveToDestination(object);
+						unknown2C = 1;
+					}
+					else
+					{
+						Unknown103B82F0(object);
+					}
+					unknown3C.x = message.destination->unknownC.x;
+					unknown3C.y = message.destination->unknownC.y;
+					unknown3C.z = message.destination->unknownC.z;
+					GetAimParametersMovementMessage aim(false);
+					object->SendMessage(&aim);
+					if (aim.parameters != 0)
+					{
+						aim.parameters->active = 1;
+						aim.parameters->offset.z = 0.0f;
+						aim.parameters->offset.y = 0.0f;
+						aim.parameters->offset.x = 0.0f;
+						aim.parameters->where = 7;
+						aim.parameters->unknown18.x = unknown3C.x;
+						aim.parameters->unknown18.y = unknown3C.y;
+						aim.parameters->unknown18.z = unknown3C.z;
+						aim.parameters->forceWorldAngles = false;
+					}
+				}
+				else
+				{
+					unknown30.z = 0.0f;
+					unknown30.y = 0.0f;
+					unknown30.x = 0.0f;
+					unknown3C.z = 0.0f;
+					unknown3C.y = 0.0f;
+					unknown3C.x = 0.0f;
+					unknown2C = 0;
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101F70D0
+			bool GoToAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				switch (unknown2C)
+				{
+				case 0:
+					TakeDestination(object, value);
+					break;
+				case 1:
+					GoToDestination(object, value);
+					break;
+				case 2:
+					FollowDestination(object, value);
+					break;
+				}
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x101F67A0
 			bool DumbGotoAction::Slot5(int arg, float value)
 			{
@@ -510,6 +689,19 @@ namespace proto
 			// FUNCTION: ENGINE 0x101F6770
 			DumbGotoAction::~DumbGotoAction()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101F60D0
+			bool DumbGotoLODAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F7A00
+			fight::Action* DumbGotoLODTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DumbGotoLODAction(this, handle);
 			}
 
 			// FUNCTION: ENGINE 0x101F7170

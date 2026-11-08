@@ -144,6 +144,49 @@ namespace proto
 			void RegisterBlindTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// The event a message is sent for, as the actions of the message tracks keep it (kind 0x40000; the engine's class is not named)
+			struct MessageEvent : core::IRefCount
+			{
+				int unknown4;
+				unsigned int kind;  // +0x8
+				int unknownC;
+				int value;  // +0x10
+				unsigned char unknown14[0x2C];
+				char data[1];  // +0x40
+			};
+
+			// RTTI: proto::fightitems::ai::MessageAction (9 vftable slots, 0x38 bytes; only what the track's CreateAction needs is declared)
+			class MessageAction : public fight::Action
+			{
+			public:
+				// 0x101FD980
+				MessageAction(MessageTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FDA40
+				MessageAction(MessageTrack* newTrack, const char* newData, int newValue);
+
+				// vftable slot 5 (0x101FD200)
+				virtual bool Slot5(int arg, float value);
+
+				unsigned char unknown1C[0x38 - 0x1C];
+			};
+
+			// RTTI: proto::fightitems::ai::PeriodicMessageAction (9 vftable slots, 0x3C bytes; only what the track's CreateAction needs is declared)
+			class PeriodicMessageAction : public fight::Action
+			{
+			public:
+				// 0x101FDC80
+				PeriodicMessageAction(PeriodicMessageTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x101FDD50
+				PeriodicMessageAction(PeriodicMessageTrack* newTrack, const char* newData, int newValue);
+
+				// vftable slot 5 (0x101FD220)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FD230)
+				virtual void Slot6();
+
+				unsigned char unknown1C[0x3C - 0x1C];
+			};
+
 			// RTTI: proto::fightitems::ai::BlindAction (9 vftable slots, 0x2C bytes)
 			class BlindAction : public fight::Action
 			{

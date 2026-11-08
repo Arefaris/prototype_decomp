@@ -3,6 +3,14 @@
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/math/random.h"
 
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gTwo;
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -1130,6 +1138,53 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x101ED6C0
+			bool EngageAction::AcceptPosition(const math::Vector* position)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101ED8A0
+			bool EngageAction::PositionAllowed(const math::Vector* unused, const math::Vector* from, const math::Vector* to, bool checkTokens, bool checkDistance)
+			{
+				bool result = true;
+				if (checkDistance)
+				{
+					float dx = to->x - from->x;
+					float dz = to->z - from->z;
+					if (unknown34 > dz * dz + dx * dx)
+					{
+						result = true;
+					}
+					else
+					{
+						return false;
+					}
+				}
+				if (checkTokens)
+				{
+					result = gAISystem->strafeRunTokens->Unknown103826D0(to);
+					if (result)
+					{
+						result = AcceptPosition(to);
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EDBE0
+			void EngageAction::ReservePosition(const math::Vector* position)
+			{
+				ReleasePosition();
+				float time = engine::driving::gTwo;
+				StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+				unknown59 = true;
+				tokens->Unknown10384460(position, time, false);
+				unknown3C.x = position->x;
+				unknown3C.y = position->y;
+				unknown3C.z = position->z;
+			}
+
 			// FUNCTION: ENGINE 0x101EEAF0
 			// NONMATCHING: the inlined random steps keep a pointer to the second state in esi and the temporary in edi, ours the temporary in esi, about 85 %
 #ifdef NONMATCHING
@@ -1209,6 +1264,62 @@ namespace proto
 				}
 				return true;
 			}
+
+			// FUNCTION: ENGINE 0x101F02C0
+			void EngageAction::RunState5(float time)
+			{
+				if (unknown38.Get() != 0)
+				{
+					unknown5C = 0;
+					RunState0(time);
+					return;
+				}
+				Unknown103B82F0(target.Get());
+			}
+
+			// FUNCTION: ENGINE 0x101EE990
+			// NONMATCHING: the engine reads the other position into registers before the subtractions (memory operands in ours), best 93.2 %
+#ifdef NONMATCHING
+			void EngageAction::RunState2(float time)
+			{
+				engine::GameObject* object = target.Get();
+				if (unknown58)
+				{
+					Unknown103B8C10(object);
+				}
+				Unknown103B82F0(object);
+				Unknown103BDB60(object, unknown38, &link.object->weaponGrabSlot);
+				unknown48 += time;
+				if (unknown48 > unknown4C)
+				{
+					unknown5C = 0;
+					return;
+				}
+				math::Matrix* ownMatrix = object->transform->GetPointer();
+				float ownX = ownMatrix->m[3][0];
+				float ownZ = ownMatrix->m[3][2];
+				math::Matrix* otherMatrix = unknown38.Get()->transform->GetPointer();
+				float dx = otherMatrix->m[3][0] - ownX;
+				float dz = otherMatrix->m[3][2] - ownZ;
+				float distance = dx * dx + dz * dz;
+				if (distance > unknown34)
+				{
+					unknown5C = 0;
+				}
+				if (distance < 9.0f)
+				{
+					unknown50 += time;
+					if (unknown50 >= link.object->maxTimeMelee)
+					{
+						unknown5C = 0;
+					}
+				}
+				else
+				{
+					unknown50 = 0.0f;
+				}
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101EFD00
 			fight::Action* EngageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

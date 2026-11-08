@@ -1,5 +1,6 @@
 // Fight items of the ai group: FleeTrack (unit 0x10231FB0 - 0x10232390; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_flee.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace proto
 {
@@ -120,6 +121,78 @@ namespace proto
 			// FUNCTION: ENGINE 0x101F3040
 			void FleeAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x101F3320
+			void FleeAction::Flee(const math::Vector* newDirection)
+			{
+				direction.x = newDirection->x;
+				direction.y = newDirection->y;
+				direction.z = newDirection->z;
+				Unknown103B85A0(target.Get(), 1.0f, newDirection, true);
+				unknown1C = 1;
+			}
+
+			// FUNCTION: ENGINE 0x101F33A0
+			void FleeAction::FleeFromThreat()
+			{
+				engine::GameObject* object = target.Get();
+				math::Matrix* own = object->transform->GetPointer();
+				math::Vector ownPosition(own->m[3][0], own->m[3][1], own->m[3][2]);
+				engine::GameObject* threat = unknown20.Get();
+				math::Matrix* other = threat->transform->GetPointer();
+				math::Vector otherPosition(other->m[3][0], other->m[3][1], other->m[3][2]);
+				math::Vector away;
+				away.x = ownPosition.x - otherPosition.x;
+				away.y = 0.0f;
+				away.z = ownPosition.z - otherPosition.z;
+				away.Normalize();
+				Flee(&away);
+			}
+
+			// FUNCTION: ENGINE 0x101F3130
+			bool FleeAction::KeepFleeing(engine::GameObject* object, float time)
+			{
+				engine::GameObject* self = target.Get();
+				math::Matrix* own = self->transform->GetPointer();
+				math::Vector ownPosition(own->m[3][0], own->m[3][1], own->m[3][2]);
+				engine::GameObject* threat = unknown20.Get();
+				math::Matrix* other = threat->transform->GetPointer();
+				math::Vector otherPosition(other->m[3][0], other->m[3][1], other->m[3][2]);
+				math::Vector away;
+				away.x = ownPosition.x - otherPosition.x;
+				away.y = 0.0f;
+				away.z = ownPosition.z - otherPosition.z;
+				away.Normalize();
+				Unknown103B85A0(object, 1.0f, &away, true);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F34C0
+			bool FleeAction::StartFleeing(engine::GameObject* object, float time)
+			{
+				GetTargetMessage message;
+				object->SendMessage(&message);
+				if (message.target.Get() != 0)
+				{
+					unknown20 = message.target;
+					FleeFromThreat();
+					unknown1C = 1;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F3680
+			bool FleeAction::Slot7(int arg, float value)
+			{
+				switch (unknown1C)
+				{
+				case 0:
+					return StartFleeing(target.Get(), value);
+				case 1:
+					return KeepFleeing(target.Get(), value);
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x101F3470

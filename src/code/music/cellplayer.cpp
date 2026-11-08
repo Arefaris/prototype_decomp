@@ -1,17 +1,47 @@
 // The cell player's enumeration of states, reflected as an om meta enumeration (a template instance of the om library).
+#include "code/mgraph/patch.h"
+#include "code/music/cell.h"
 #include "code/music/cellplayer.h"
 #include "code/music/cue.h"
+#include <math.h>
+
 #include "code/om/dynamicarray.h"
 #include "code/om/dynamicobjectentity.h"
 #include "code/om/dynamicproperty.h"
 #include "code/om/metaclass.h"
 #include "code/om/metaenum.h"
 #include "code/om/reflection.h"
+#include "code/om/string.h"
+
+namespace engine
+{
+	// 0x105E4620 (name guessed): the address of the string "?Name?" (0x112768D4)
+	om::String* GetName();
+}
+
+namespace mgraph
+{
+	// FUNCTION: ENGINE 0x105E30A0
+	Patch* FindPatchByName(const om::ClassName& name)
+	{
+		om::Entity* entity = om::FindEntityByName(name);
+		while (entity != 0 && entity->name.key == name.key)
+		{
+			Patch* patch = dynamic_cast<Patch*>(entity);
+			if (patch != 0)
+			{
+				return patch;
+			}
+			entity = om::GetNextEntity(entity);
+		}
+		return 0;
+	}
+}
 
 namespace music
 {
 	// FUNCTION: ENGINE 0x105E2A10
-	bool CellPlayer::Slot1(int, int, int)
+	bool CellPlayer::Slot1(Cell*, int, int)
 	{
 		return false;
 	}
@@ -111,6 +141,12 @@ namespace music
 		second.parameters.unknown1C = 0;
 		second.parameters.unknown20 = 0;
 		second.parameters.unknown24 = false;
+	}
+
+	// FUNCTION: ENGINE 0x105E2F00
+	Cell* MGraphCellPlayer::Slot12()
+	{
+		return CellPlayer::Slot12();
 	}
 
 	// FUNCTION: ENGINE 0x105E2B70
@@ -253,5 +289,109 @@ namespace music
 	{
 		om::String text("MusicMGraphCellPlayer", false);
 		om::MetaClass<MGraphCellPlayer>::Create(om::MakeClassName(text), 0);
+	}
+}
+
+namespace music
+{
+	// FUNCTION: ENGINE 0x105E2F50
+	float MGraphCellPlayer::GetSampleScale()
+	{
+		return 48000.0f / graph->source->format->sampleRate;
+	}
+
+	// FUNCTION: ENGINE 0x105E35C0
+	int MGraphCellPlayer::Slot9()
+	{
+		if (state == 2 || state == 5 || state == 3 || state == 4 || state == 7)
+		{
+			return static_cast<int>(floor(GetSampleScale() * unknown28 - unknown24));
+		}
+		return -1;
+	}
+
+	// FUNCTION: ENGINE 0x105E3840
+	MGraphCellPlayer::~MGraphCellPlayer()
+	{
+		Reset();
+		audio::RemotePlayer* patch = graph;
+		if (patch != 0)
+		{
+			patch->audio::RemotePlayer::~RemotePlayer();
+			audio::RemotePlayer::operator delete(patch);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105E31D0
+	void MGraphCellPlayer::Reset()
+	{
+		audio::RemotePlayer* patch = graph;
+		if (patch != 0)
+		{
+			patch->audio::RemotePlayer::~RemotePlayer();
+			audio::RemotePlayer::operator delete(patch);
+			graph = 0;
+		}
+		unknown21 = false;
+		unknown20 = false;
+		unknown22 = false;
+		unknown24 = 0;
+		unknown2C = 0;
+		SetState(0);
+	}
+
+	// FUNCTION: ENGINE 0x105E35A0
+	void MGraphCellPlayer::Slot11(int frames)
+	{
+		int played = Advance(frames);
+		unknown2C += frames;
+		unknown24 += played;
+	}
+
+	// FUNCTION: ENGINE 0x105E3630
+	void MGraphCellPlayer::SetState(int newState)
+	{
+		if (newState != state)
+		{
+			unknown2C = 0;
+			Slot12();
+			engine::GetName();
+		}
+		CellPlayer::SetState(newState);
+	}
+
+	// FUNCTION: ENGINE 0x105E3E10
+	bool MGraphCellPlayer::Setup(Cell* cell, int layer, int part)
+	{
+		unknown8 = layer;
+		unknownC = part;
+		MGraphCell* graphCell = dynamic_cast<MGraphCell*>(cell);
+		if (graphCell == 0)
+		{
+			Reset();
+			return false;
+		}
+		mgraph::Patch* patch = mgraph::FindPatchByName(graphCell->patchName);
+		if (patch == 0)
+		{
+			Reset();
+			return false;
+		}
+		return SetUpFromPatch(patch);
+	}
+
+	// FUNCTION: ENGINE 0x105E3E70
+	bool MGraphCellPlayer::Slot1(Cell* cell, int layer, int part)
+	{
+		if (state == 2 && unknownC == part && unknown8 == layer)
+		{
+			return true;
+		}
+		bool ok = Setup(cell, layer, part);
+		if (ok)
+		{
+			SetState(1);
+		}
+		return ok;
 	}
 }

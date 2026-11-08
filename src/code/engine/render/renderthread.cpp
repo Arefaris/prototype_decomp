@@ -41,6 +41,16 @@ namespace engine
 			core::SemaphoreWait(&waiter->semaphore);
 		}
 
+		// The queue the render thread works through (made at start-up, 0x11315994; name guessed)
+		extern RenderQueue* gRenderQueue;
+
+		// Waits until the render thread has run everything queued so far
+		// FUNCTION: ENGINE 0x10861550
+		void FlushRenderEvents()
+		{
+			gRenderQueue->SendAndWait((void*)4);
+		}
+
 		// FUNCTION: ENGINE 0x10860BB0
 		void RenderThreadCallbackAdapter::Execute()
 		{

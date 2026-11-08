@@ -1047,4 +1047,7 @@ namespace engine
 		value = slot.index;
 	}
 #endif
+
+	// core::Link<EffectTrack>'s copy constructor (the effect action's begin builds its by-value argument with it)
+	// FUNCTION: ENGINE 0x10805B90
 }

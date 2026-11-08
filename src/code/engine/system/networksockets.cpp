@@ -50,17 +50,18 @@ namespace core
 #pragma comment(linker, "/alternatename:__imp__recvfrom@24=__imp__recvfrom")
 #pragma comment(linker, "/alternatename:__imp__sendto@24=__imp__sendto")
 
+// The Winsock address (global in the engine: the helpers that take it are named after it)
+struct sockaddr
+{
+	unsigned short family;
+	unsigned short port;
+	unsigned int address;
+	char zero[8];
+};
+
 namespace
 {
 	typedef unsigned int SOCKET;
-
-	struct sockaddr
-	{
-		unsigned short family;
-		unsigned short port;
-		unsigned int address;
-		char zero[8];
-	};
 
 	struct fd_set
 	{
@@ -329,6 +330,7 @@ namespace engine
 			return -2;
 		}
 
+		// FUNCTION: ENGINE 0x1093E710
 		// 0x1093E710: the Winsock address of a layer address
 		static int ToSockaddr(sockaddr* to, const NetAddress* from)
 		{
@@ -343,6 +345,7 @@ namespace engine
 			return -2;
 		}
 
+		// FUNCTION: ENGINE 0x1093E750
 		// 0x1093E750: the layer address of a Winsock address
 		static int FromSockaddr(NetAddress* to, const sockaddr* from, unsigned int length)
 		{
