@@ -30,8 +30,10 @@ namespace mgraph
 		struct Channel
 		{
 			Channel();
-			float unknown0;
-			float unknown4;
+			// Moves the value of the channel towards its input, no faster than the rise or fall rate allows, over the 256 samples of the frame
+			void Update(Smoother* node, EvaluationFrame* frame);
+			float target;
+			float current;
 		};
 		om::DynamicArray<Channel, unsigned short> channels;  // 0x50
 	};

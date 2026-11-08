@@ -28,15 +28,11 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10B773F0
-	// NONMATCHING: the call that gets the allocation tag of the pin leads to another copy of the same function in the engine (99.5 %)
-#ifdef NONMATCHING
 	SystemNode::SystemNode(Graph* newGraph, const ClassName& newName) :
 		Node(CachedNodeType<SystemNode>(), newGraph, newName, 0, 1)
 	{
 		new OutputPin<Packet<unsigned __int64> >(this, &MGRAPH_NAME("evaluate_count"), 0, Packet<unsigned __int64>());
 	}
-
-#endif
 
 	// FUNCTION: ENGINE 0x10B76EB0
 	SystemNode::~SystemNode()

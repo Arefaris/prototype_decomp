@@ -6,6 +6,21 @@
 
 namespace core
 {
+	// FUNCTION: ENGINE 0x10B7F3A0
+	AsyncTaskNode::AsyncTaskNode() :
+		type(0),
+		function(0),
+		data(0),
+		callback(0),
+		event(0),
+		timing(0),
+		childCount(0),
+		firstChild(0),
+		lastChild(0),
+		next(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10B7F3D0
 	void AsyncTaskNode::Destroy()
 	{
@@ -189,6 +204,24 @@ namespace core
 		Flattened flattened;
 		Flatten(&flattened, tasks, sizeof(tasks), 0, 0, 2);
 		RunAsyncTasksNow(flattened.tasks, flattened.count, unused);
+	}
+
+	// FUNCTION: ENGINE 0x10B7F960
+	// NONMATCHING: 93 %, the engine stores the state as an immediate and the timing record from a zero register
+#ifdef NONMATCHING
+	AsyncTaskJob::AsyncTaskJob()
+	{
+		state = 0;
+		timing.start = 0;
+		timing.end = 0;
+		timing.processor = 0;
+		timing.done = 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10B7F990
+	AsyncTaskJob::~AsyncTaskJob()
+	{
 	}
 
 	// FUNCTION: ENGINE 0x10B7F9A0

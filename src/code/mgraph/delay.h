@@ -2,6 +2,7 @@
 #ifndef MGRAPH_DELAY_H
 #define MGRAPH_DELAY_H
 
+#include "code/mgraph/castnodes.h"
 #include "code/mgraph/throw.h"
 
 namespace mgraph
@@ -24,10 +25,13 @@ namespace mgraph
 		struct Channel
 		{
 			Channel();
-			float unknown0;
-			float unknown4;
-			int unknown8;
-			int unknownC;
+			// Takes the delay range of the inputs and, when a trigger arrives and none is on its way, picks the number of samples to hold it back
+			void Update(Delay* node, EvaluationFrame* frame);
+
+			float minimum;
+			float maximum;
+			unsigned int pending;  // 1 while a trigger is held back
+			unsigned int remaining;  // the samples until it is let through
 		};
 		om::DynamicArray<Channel, unsigned short> channels;  // 0x50
 	};

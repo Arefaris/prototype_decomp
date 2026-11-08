@@ -58,7 +58,6 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10B6C9A0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.8 %)
 	CastBoolToTrigger::CastBoolToTrigger(Graph* newGraph, const ClassName& newName) :
 		Node(CachedNodeType<CastBoolToTrigger>(), newGraph, newName, 1, 2)
 	{
@@ -304,3 +303,15 @@ using namespace mgraph;
 	template void mgraph::NodeType<mgraph::CastBoolToTrigger>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B6CFE0
 	template void mgraph::NodeType<mgraph::CastTriggerToBool>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+
+	// FUNCTION: ENGINE 0x10B6BDF0
+	template mgraph::CastBoolToTrigger::LastValue& om::DynamicArray<mgraph::CastBoolToTrigger::LastValue,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B6BE30
+	template void om::DynamicArray<mgraph::CastBoolToTrigger::LastValue,unsigned short>::CopyElements(mgraph::CastBoolToTrigger::LastValue*, mgraph::CastBoolToTrigger::LastValue const*, unsigned short);
+	// FUNCTION: ENGINE 0x10B6BED0
+	template void om::DynamicArray<mgraph::CastTriggerToBool::Level,unsigned short>::CopyElements(mgraph::CastTriggerToBool::Level*, mgraph::CastTriggerToBool::Level const*, unsigned short);
+	// FUNCTION: ENGINE 0x10B6C0E0
+	template mgraph::CastBoolToTrigger::LastValue const& om::DynamicArray<mgraph::CastBoolToTrigger::LastValue,unsigned short>::operator[](unsigned short) const;
+	// FUNCTION: ENGINE 0x10B6C110
+	template mgraph::CastTriggerToBool::Level const& om::DynamicArray<mgraph::CastTriggerToBool::Level,unsigned short>::operator[](unsigned short) const;

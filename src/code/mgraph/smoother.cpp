@@ -31,8 +31,8 @@ namespace mgraph
 
 	// FUNCTION: ENGINE 0x10B75A50
 	Smoother::Channel::Channel() :
-		unknown0(0.0f),
-		unknown4(0.0f)
+		target(0.0f),
+		current(0.0f)
 	{
 	}
 
@@ -46,6 +46,67 @@ namespace mgraph
 	{
 		channels.Resize(newCount, Channel());
 		Node::SetNumChannels(newCount);
+	}
+
+	// FUNCTION: ENGINE 0x10B76620
+	Smoother::Smoother(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<Smoother>(), newGraph, newName, 3, 1)
+	{
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("i"), 0, 0, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("rise_rate"), 0, 1, Packet<float>(0.01f));
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("fall_rate"), 0, 2, Packet<float>(0.01f));
+		new OutputPin<Packet<float> >(this, &MGRAPH_NAME("o"), 0, Packet<float>());
+	}
+
+	// FUNCTION: ENGINE 0x10B76940
+	// NONMATCHING: 93.6 %, the engine loads the members of the frame for the call in another order
+#ifdef NONMATCHING
+	void Smoother::Channel::Update(Smoother* node, EvaluationFrame* frame)
+	{
+		float rise = frame->GetInputs<float>(1)->entries[0]->value;
+		float fall = frame->GetInputs<float>(2)->entries[0]->value;
+		target = frame->GetInputs<float>(0)->entries[0]->value;
+		float step;
+		if (current > target)
+		{
+			step = fall / node->GetSampleRate();
+		}
+		else
+		{
+			step = rise / node->GetSampleRate();
+		}
+		FrameEntry<float>* output = static_cast<FrameOutput<float>*>(frame->outputs)->entry;
+		float value = current;
+		float goal = target;
+		float* samples = output->AllocateSamples(*frame->allocator, frame->unknown18, frame->id);
+		for (unsigned int i = 0; i < 256; i++)
+		{
+			if (goal > value)
+			{
+				value += step;
+				if (value > goal)
+				{
+					value = goal;
+				}
+			}
+			else if (value >= goal)
+			{
+				value -= step;
+				if (goal > value)
+				{
+					value = goal;
+				}
+			}
+			samples[i] = value;
+		}
+		current = value;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10B76E80
+	void Smoother::Slot16(EvaluationFrame* frame)
+	{
+		channels[frame->channel].Update(this, frame);
 	}
 
 	// FUNCTION: ENGINE 0x10B76A20
@@ -145,3 +206,10 @@ using namespace mgraph;
 	template mgraph::Smoother::Channel* om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B760B0
 	template void om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Resize(unsigned short, mgraph::Smoother::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B75AF0
+	template om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B75B70
+	template mgraph::Smoother::Channel& om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B75D40
+	template mgraph::Smoother::Channel const& om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::operator[](unsigned short) const;

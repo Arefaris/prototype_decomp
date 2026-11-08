@@ -11,6 +11,9 @@ namespace mgraph
 	// Whether the trigger of a frame entry is set (0x10B40D50, name guessed)
 	bool IsTriggerSet(const FrameEntry<TriggerData>* entry);
 
+	// Where in the frame the first sample of a trigger is set (0x10B6E6A0, name guessed); false when none is
+	bool GetTriggerOffset(const FrameEntry<TriggerData>* entry, unsigned int* offset);
+
 	// Makes the description of the node classes and enters it in the registry (called when the library starts)
 	void RegisterCastBoolToTrigger();
 	void RegisterCastTriggerToBool();

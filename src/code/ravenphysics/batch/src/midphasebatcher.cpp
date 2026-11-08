@@ -189,7 +189,6 @@ namespace ravenphysics
 		pendingTasks = 0;
 		event = gate;
 		core::AsyncTaskNode node;
-		node.Clear();
 		node.Set(gMidPhaseTaskId, 0, 0, event);
 		core::AsyncTaskNode::Flattened flattened;
 		node.Flatten(&flattened, &task, 0x20, 0, 0, 2);

@@ -120,6 +120,12 @@ namespace mgraph
 		{
 			Assign(other, 0, 0);
 		}
+		// A packet that holds one value
+		explicit Packet(const T& newValue) :
+			blocks(0),
+			value(newValue)
+		{
+		}
 		virtual void Slot0(int count, om::Allocator* allocator);
 		virtual ~Packet()
 		{
@@ -350,8 +356,28 @@ namespace mgraph
 	{
 		unsigned int unknown0;
 		unsigned int id;
-		unsigned int unknown8;
+		PacketBlock<T>* block;  // 8: the values of the 256 channels when the entry has them
 		T value;
+
+		// 0x10B49DA0 (name guessed): gives the entry a block of values; the answer is the values
+		T* AllocateSamples(void* allocator, unsigned int unknown, unsigned int newId);
+	};
+	// The flags of a trigger for each of the 256 samples of a frame, kept in a block behind the entry
+	struct TriggerSamples
+	{
+		char unknown0[0x180];
+		unsigned char* samples;  // 0x180
+	};
+	// The entry of a trigger: the flags of its samples when it has them, else the value alone
+	template<> struct FrameEntry<TriggerData>
+	{
+		unsigned int unknown0;
+		unsigned int id;
+		TriggerSamples* samples;  // 8
+		TriggerData value;  // 0xC
+
+		// 0x10B2FAE0 (name guessed): gives the entry a block of samples; the answer is the flags
+		unsigned char* AllocateSamples(void* allocator, unsigned int unknown, unsigned int newId);
 	};
 	template<class T> struct FrameEntries
 	{
@@ -371,6 +397,7 @@ namespace mgraph
 		void* outputs;  // 0x10: the FrameOutput of the channel's type
 		unsigned int id;  // 0x14
 		unsigned int unknown18;
+		void** allocator;  // 0x1C: the allocator of the frame's entries
 
 		// The entries the input pin of an index brought (one FrameEntries for each input pin)
 		template<class T> FrameEntries<T>* GetInputs(unsigned int pinIndex)

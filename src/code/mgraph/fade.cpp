@@ -165,3 +165,17 @@ using namespace mgraph;
 	template mgraph::Fade::Channel* om::DynamicArray<mgraph::Fade::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B6F770
 	template void om::DynamicArray<mgraph::Fade::Channel,unsigned short>::Resize(unsigned short, mgraph::Fade::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B6F2A0
+	template void om::DynamicArray<mgraph::Fade::Channel,unsigned short>::DestroyElements(mgraph::Fade::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B6F2B0
+	template mgraph::Fade::Channel& om::DynamicArray<mgraph::Fade::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B6F470
+	template mgraph::Fade::Channel const& om::DynamicArray<mgraph::Fade::Channel,unsigned short>::operator[](unsigned short) const;
+
+	// FUNCTION: ENGINE 0x10B6F230
+	template om::DynamicArray<unsigned int,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B6F320
+	template void om::DynamicArray<unsigned int,unsigned short>::ReleaseElements(unsigned int*, unsigned short);
+	// FUNCTION: ENGINE 0x10B6F450
+	template om::DynamicArray<unsigned int,unsigned short>::~DynamicArray();

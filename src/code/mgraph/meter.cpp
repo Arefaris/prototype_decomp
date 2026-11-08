@@ -1,6 +1,7 @@
 // The meter node of the mgraph library (0x10B730D0 - 0x10B73A00): the reflection of the class and the description of its node type, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/mgraph/meter.h"
 #include "code/om/metaclass.h"
+#include <math.h>
 
 #pragma warning(disable: 4661)
 
@@ -23,6 +24,41 @@ namespace mgraph
 	inline void Meter::operator delete(void* memory)
 	{
 		Release(memory, sizeof(Meter), __alignof(Meter));
+	}
+
+	// FUNCTION: ENGINE 0x10B73690
+	Meter::Meter(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<Meter>(), newGraph, newName, 1, 1)
+	{
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("i"), 0, 0, Packet<float>());
+		new OutputPin<Packet<float> >(this, &MGRAPH_NAME("o"), 0, Packet<float>());
+	}
+
+	// FUNCTION: ENGINE 0x10B73290
+	void Meter::Slot16(EvaluationFrame* frame)
+	{
+		FrameEntry<float>* input = frame->GetInputs<float>(0)->entries[0];
+		FrameEntry<float>* output = static_cast<FrameOutput<float>*>(frame->outputs)->entry;
+		float sum = 0.0f;
+		if (IsPresent(input))
+		{
+			PacketBlock<float>* block = input->block;
+			float* samples;
+			if (block == 0 || (samples = block->data) == 0)
+			{
+				sum = input->value * 256.0f;
+			}
+			else
+			{
+				for (int i = 0; i < 256; i++)
+				{
+					float v = samples[i];
+					sum += v * v;
+				}
+			}
+		}
+		output->id = frame->id;
+		output->value = sqrtf(sum * (1.0f / 256.0f));
 	}
 
 	// FUNCTION: ENGINE 0x10B73910

@@ -58,6 +58,17 @@ namespace mgraph
 		NodeType<MinMaxDistance>::RegisterDerived(CachedNodeType<Node>(), flags, name);
 	}
 
+	// FUNCTION: ENGINE 0x10B742F0
+	MinMaxDistance::MinMaxDistance(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<MinMaxDistance>(), newGraph, newName, 4, 1)
+	{
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("min"), 0, 0, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("max"), 0, 1, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("distance"), 0, 2, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("noise_floor"), 0, 3, Packet<float>());
+		new OutputPin<Packet<float> >(this, &MGRAPH_NAME("o"), 0, Packet<float>());
+	}
+
 	// FUNCTION: ENGINE 0x10B74750
 	template<> Node* NodeType<MinMaxDistance>::CreateNode(void* graph, const ClassName* nodeName)
 	{
@@ -118,3 +129,16 @@ using namespace mgraph;
 	template mgraph::MinMaxDistance::Channel* om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B73FB0
 	template void om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Resize(unsigned short, mgraph::MinMaxDistance::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B73AE0
+	template om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B73B50
+	template void om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::DestroyElements(mgraph::MinMaxDistance::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B73B60
+	template mgraph::MinMaxDistance::Channel& om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B73BF0
+	template void om::DynamicArray<String,unsigned short>::ReleaseElements(String*, unsigned short);
+	// FUNCTION: ENGINE 0x10B73CE0
+	template om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10B73D00
+	template mgraph::MinMaxDistance::Channel const& om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::operator[](unsigned short) const;

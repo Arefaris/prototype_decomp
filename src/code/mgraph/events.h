@@ -52,7 +52,8 @@ namespace mgraph
 	{
 	public:
 		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
+		// Slot 1: the sample rate the nodes run at
+		virtual float GetSampleRate() = 0;
 		virtual void Slot2() = 0;
 		virtual void Slot3() = 0;
 		virtual bool IsCurrentThread() = 0;
