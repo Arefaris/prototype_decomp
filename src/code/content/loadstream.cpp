@@ -2,6 +2,7 @@
 // the stream buffer pool, a block of memory or a compressed file (unit 0x1060A410 - 0x1060B890, the pool and the
 // thread that unpacks compressed files are in front of and behind it).
 #include "code/content/chunkhandler.h"
+#include "code/content/compressedfile.h"
 #include "code/content/loadmanager.h"
 #include "code/content/streams.h"
 #include "code/core/file/filepath.h"
@@ -32,17 +33,6 @@ namespace content
 	// 0x11276B7C: set while a stream waits for its file's signal
 	extern bool gStreamWaiting;
 
-	// The thread that unpacks compressed files (0x11276A98, name guessed)
-	class CompressedFileFactory
-	{
-	public:
-		// 0x1060BE40: starts the thread (from the heap)
-		void Start(int heap);
-		// 0x1060BC20: stops it
-		void Stop();
-		// 0x1060BEA0
-		void Create(core::IFile** result, core::IFile* file, unsigned int start, unsigned int size, int unused);
-	};
 	extern CompressedFileFactory gCompressedFileFactory;
 
 	// 0x1060A470 / 0x1060A4E0: gives the streams their buffer pool and starts the thread that unpacks compressed

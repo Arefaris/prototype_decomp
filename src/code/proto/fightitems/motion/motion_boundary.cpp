@@ -1,5 +1,55 @@
 // Fight items of the motion group: InsideJumpInBoundaryCondition, DistanceFromWaterSurfaceCondition, HeliBoundaryStatusCondition, FromWaterSetJumpToTrack, IgnoreWaterReactionTrack, JumpFromWaterTrack, OrientTowardsJumpInPositionTrack (unit 0x10144950 - 0x10146A60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include <math.h>
+
+namespace proto
+{
+	// 0x104E7900 (protoutil.cpp)
+	float InterpolateClamped(float x0, float y0, float x1, float y1, float x);
+}
+
+namespace math
+{
+	// 0x1006FBA0 (another unit): -1, 0 or 1 by the sign of the value (name guess)
+	float Sign(float value);
+}
+
+namespace engine
+{
+	// 0x1009E210 / 0x1009E250: this unit's copies of the helpers that store a reference counted object in a slot (releasing the previous one) and let one go
+	void AssignRefCountedCopy5(core::IRefCount** slot, core::IRefCount* value);
+	void SafeReleaseRefCopy5(core::IRefCount** slot);
+}
+
+// FUNCTION: ENGINE 0x1009DFA0
+proto::GetJumpDestinationMovementMessage::GetJumpDestinationMovementMessage() : MovementMessage(0x26), found(false)
+{
+}
+
+// FUNCTION: ENGINE 0x1009E210
+void engine::AssignRefCountedCopy5(core::IRefCount** slot, core::IRefCount* value)
+{
+	if (value != 0)
+	{
+		value->AddRef();
+	}
+	if (*slot != 0)
+	{
+		(*slot)->Release();
+	}
+	*slot = value;
+}
+
+// FUNCTION: ENGINE 0x1009E250
+void engine::SafeReleaseRefCopy5(core::IRefCount** slot)
+{
+	if (*slot != 0)
+	{
+		(*slot)->Release();
+		*slot = 0;
+	}
+}
 
 namespace proto
 {
@@ -705,6 +755,102 @@ namespace proto
 				return new JumpFromWaterAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1009E060
+			float JumpFromWaterAction::GetInitialSpeed(float height, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				return height / time * 2.0f;
+			}
+
+			// FUNCTION: ENGINE 0x1009E090
+			float JumpFromWaterAction::GetGravity(float height, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				return height * 2.0f / (time * time);
+			}
+
+			// FUNCTION: ENGINE 0x1009F290
+			float JumpFromWaterAction::GetForwardSpeed(float distance, float time)
+			{
+				if (0.0f >= time)
+				{
+					return 0.0f;
+				}
+				float speed = distance / time;
+				return speed * link.Get()->forwardVelocityScale;
+			}
+
+			// FUNCTION: ENGINE 0x1009F310
+			float JumpFromWaterAction::GetForwardDistance(const math::Vector* from, const math::Vector* to)
+			{
+				float x = to->x - from->x;
+				float z = to->z - from->z;
+				float length = sqrtf(x * x + z * z);
+				float minimum = link.Get()->forwardDistanceMin;
+				float maximum = link.Get()->forwardDistanceMax;
+				float distance = length - minimum >= 0.0f ? length : minimum;
+				if (distance - maximum >= 0.0f)
+				{
+					distance = maximum;
+				}
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x1009F600
+			// NONMATCHING: the engine keeps this in ecx across its helpers (they do not touch it), ours reloads it, and the comparison of the height with zero is built the other way round (best 64.1 %)
+#ifdef NONMATCHING
+			bool JumpFromWaterAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				ChargeEatMessage message(1);
+				object->SendMessage(&message);
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				gAISystem->Unknown10360C80(&position, &unknown40);
+				driver = new choreo::RootDriver;
+				fight::Name driverName("jump", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->priority, 1.0f, link.Get()->blendInTime, link.Get()->blendOutTime, choreo::gMinusOne);
+				const math::Matrix& placement = object->transform->value;
+				float height = unknown40.y - placement.m[3][1];
+				height = 0.0f < height ? height : engine::driving::gOne;
+				float apex = link.Get()->upOvershootDistance + height;
+				position.x = placement.m[3][0];
+				position.y = placement.m[3][1];
+				position.z = placement.m[3][2];
+				float distance = GetForwardDistance(&position, &unknown40);
+				float flightTime = GetFlightTime(distance);
+				float upSpeed = GetInitialSpeed(apex, flightTime);
+				unknown3C = upSpeed;
+				float gravity = GetGravity(apex, flightTime);
+				unknown30 = gravity;
+				float forwardSpeed = GetForwardSpeed(distance, flightTime);
+				unknown38 = forwardSpeed;
+				gCameraManager->ChaseCameraVector(*(int*)&target, forwardSpeed, upSpeed, gravity);
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x1009E890
 			void JumpFromWaterAction::Slot6()
 			{
@@ -721,7 +867,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1009ECB0
-			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), unknown40(false), unknown44(0.0f)
+			OrientTowardsJumpInPositionAction::OrientTowardsJumpInPositionAction(OrientTowardsJumpInPositionTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), target(newTarget), link(newTrack), driver(0), unknown30(false), found(false), unknown44(0.0f)
 			{
 			}
 
@@ -737,6 +883,116 @@ namespace proto
 				return new OrientTowardsJumpInPositionAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1009ED60
+			bool OrientTowardsJumpInPositionAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				if (link.Get()->useJumpDestination)
+				{
+					GetJumpDestinationMovementMessage message;
+					object->SendMessage(&message);
+					found = message.found;
+					message.destination.Update();
+					destination.x = message.destination.position.x;
+					destination.y = message.destination.position.y;
+					destination.z = message.destination.position.z;
+				}
+				else
+				{
+					const math::Matrix& matrix = object->transform->value;
+					math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+					found = gAISystem->Unknown10360C80(&position, &destination);
+				}
+				if (found)
+				{
+					unknown44 = link.Get()->orientationCutOffDistance * link.Get()->orientationCutOffDistance;
+					driver = new choreo::RootDriver;
+					fight::Name driverName("orient_towards_jump_in", 1);
+					driver->SetName(driverName);
+					driver->AddRef();
+					driver->SetMask(2);
+					puppet->SetDriver(driver, choreo::gMinusOne, link.Get()->priority, 1.0f, link.Get()->blendInTime, link.Get()->blendOutTime, choreo::gMinusOne);
+				}
+				return found;
+			}
+
+			// FUNCTION: ENGINE 0x1009EF70
+			// NONMATCHING: the engine keeps the turning velocity and the target heading in the other order in its frame and leaves the heading on the x87 stack (best 88.6 %)
+#ifdef NONMATCHING
+			bool OrientTowardsJumpInPositionAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (driver == 0)
+				{
+					return false;
+				}
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (!found)
+				{
+					return false;
+				}
+				TransformCopy rootMatrix(object->transform->value);
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector row(matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]);
+				math::Vector forward = -row;
+				float currentHeading = choreo::Heading(forward);
+				const math::Matrix& placement = object->transform->value;
+				math::Vector position(placement.m[3][0], placement.m[3][1], placement.m[3][2]);
+				math::Vector toTarget;
+				toTarget.Sub(destination, position);
+				if (unknown44 > toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+				{
+					return false;
+				}
+				float targetHeading = choreo::Heading(toTarget);
+				float turningVelocity = link.Get()->turningVelocity;
+				float orientation;
+				if (turningVelocity > choreo::gZero)
+				{
+					float difference = choreo::AngleDifference(currentHeading, targetHeading);
+					float step = turningVelocity * value;
+					if (fabsf(difference) > step)
+					{
+						orientation = math::Sign(difference) * step + currentHeading;
+					}
+					else
+					{
+						orientation = targetHeading;
+					}
+				}
+				else
+				{
+					orientation = targetHeading;
+				}
+				driver->mDelta.SetOrientation(orientation, rootMatrix.value);
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x1009E7C0
 			void OrientTowardsJumpInPositionAction::Slot6()
 			{
@@ -748,7 +1004,94 @@ namespace proto
 					{
 						puppet->RemoveDriver(driver, false);
 					}
-					engine::ReleaseDriverCopy2(&driver);
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1009F400
+			FromWaterSetJumpToAction::FromWaterSetJumpToAction(FromWaterSetJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), target(newTarget), link(newTrack), event(0)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x1009E920
+			FromWaterSetJumpToAction::~FromWaterSetJumpToAction()
+			{
+				engine::SafeReleaseRefCopy5(&event);
+			}
+
+			// FUNCTION: ENGINE 0x1009FD70
+			fight::Action* FromWaterSetJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = AsJumpDestinationEvent(owner);
+				return new FromWaterSetJumpToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x1009E960
+			// NONMATCHING: the engine's locals (the destination, then the handle, sharing the slot of the looked-up position) sit at other frame offsets (best 94.7 %)
+#ifdef NONMATCHING
+			bool FromWaterSetJumpToAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				{
+					math::Vector destination = math::kZeroVector;
+					JumpDestinationEvent* jumpEvent = (JumpDestinationEvent*)event;
+					if (jumpEvent != 0)
+					{
+						destination.x = jumpEvent->position.x;
+						destination.y = jumpEvent->position.y;
+						destination.z = jumpEvent->position.z;
+					}
+					else
+					{
+						const math::Matrix& matrix = object->transform->value;
+						math::Vector position(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+						gAISystem->Unknown10360C80(&position, &destination);
+					}
+					JumpToMovementMessage message(engine::GameObjectHandle(), destination);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1009F4C0
+			IgnoreWaterReactionAction::IgnoreWaterReactionAction(IgnoreWaterReactionTrack* newTrack) : fight::Action(0x600), link(newTrack)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009EB00
+			IgnoreWaterReactionAction::~IgnoreWaterReactionAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1009FDF0
+			fight::Action* IgnoreWaterReactionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new IgnoreWaterReactionAction(this);
+			}
+
+			// FUNCTION: ENGINE 0x1009E0C0
+			bool IgnoreWaterReactionAction::Slot5(int arg, float value)
+			{
+				if (gWorldTriggerCollisionCallback != 0)
+				{
+					gWorldTriggerCollisionCallback->ignoreWaterReaction = true;
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1009E0E0
+			void IgnoreWaterReactionAction::Slot6()
+			{
+				if (gWorldTriggerCollisionCallback != 0)
+				{
+					gWorldTriggerCollisionCallback->ignoreWaterReaction = false;
 				}
 			}
 
@@ -891,3 +1234,20 @@ namespace proto
 // FUNCTION: ENGINE 0x1009EBA0
 // FUNCTION: ENGINE 0x1009ED30
 // FUNCTION: ENGINE 0x1009F260
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009DD30
+// FUNCTION: ENGINE 0x1009EC10
+// FUNCTION: ENGINE 0x1009E900
+// FUNCTION: ENGINE 0x1009EC60
+// FUNCTION: ENGINE 0x1009EAE0
+// FUNCTION: ENGINE 0x1009F490
+// FUNCTION: ENGINE 0x1009F530
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009DF60
+// FUNCTION: ENGINE 0x1009E010
+// FUNCTION: ENGINE 0x1009E2D0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1009EBF0

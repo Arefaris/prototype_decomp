@@ -38,6 +38,12 @@ namespace om
 			}
 		}
 
+		// 0x105B5A70: lets go of the entity
+		void Reset();
+		// 0x105B5AA0 / 0x105B5AF0: holds the same entity as another reference / the entity (counted)
+		EntityReference& operator=(const EntityReference& other);
+		Entity* operator=(Entity* newEntity);
+
 		Entity* entity;
 	};
 

@@ -10,6 +10,9 @@ namespace om
 	class Entity;
 	class EntityTypeBase;
 	class MetaClassBase;
+	class MetaTypeBase;
+	class String;
+	struct EnumValue;
 
 	// A node of an intrusive red-black tree (the engine's colors are 0 for black and 1 for red)
 	struct TreeNode
@@ -60,6 +63,15 @@ namespace om
 		bool InsertEntityTypeByType(EntityTypeBase* type);
 		// 0x105B54A0: the entity type registered for a type_info (name guessed)
 		EntityTypeBase* FindEntityType(const type_info& type);
+		// 0x105B53C0: the first entity type registered under a name (name guessed)
+		EntityTypeBase* FindEntityTypeByName(const char** name);
+		// 0x105B57D0: the first entity of a name (name guessed)
+		Entity* FindEntity(const ClassName& name);
+		// 0x105B7140 / 0x105B6470: enters a type description under its name, and under its type_info (names guessed)
+		bool InsertMetaTypeByName(MetaTypeBase* metaType);
+		bool InsertMetaTypeByType(MetaTypeBase* metaType);
+		// 0x105B67A0: the type description registered for a type_info (name guessed)
+		MetaTypeBase* FindMetaType(const type_info& type);
 		// 0x105C0AB0 / 0x105C0170: enters a class description under its name, and under its type_info (names guessed)
 		bool InsertMetaClassByName(MetaClassBase* metaClass);
 		bool InsertMetaClassByType(MetaClassBase* metaClass);
@@ -69,6 +81,17 @@ namespace om
 		// 0x105C0750 (attributes), 0x105C07B0 (properties), 0x105C0780 (methods): takes the objects that have their tree
 		// node at 8 out one by one and deletes them
 		template<class T> void DeleteAll();
+		// 0x105EB910 / 0x105EBA10 / 0x105EB9E0: for the entries of an enumeration (the value tree holds the first node of
+		// the entry, the name tree its second): the first entry of a value, the first entry of a name, and deleting all
+		TreeNode* FindFirstByValue(const int* value);
+		EnumValue* FindByName(const ClassName* name);
+		void DeleteAllEnumValues();
+		// 0x105EB6E0 / 0x105EBAC0 (names guessed): enter an entry of an enumeration in the tree by its value and in the tree by its
+		// name; false when there is one of that value or name already
+		// 0x105C09F0 (name guessed): the class description of a name in the registry of the descriptions
+		MetaClassBase* FindMetaClassByName(const ClassName* name);
+		bool InsertByValue(EnumValue* entry);
+		bool InsertEnumValueByName(EnumValue* entry);
 
 		TreeNode* root;
 		TreeNode nil;

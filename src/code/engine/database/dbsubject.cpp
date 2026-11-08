@@ -523,6 +523,22 @@ namespace engine
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108432A0
+template container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::ValueNode::ValueNode(const engine::DBObserverEntry&);
+// FUNCTION: ENGINE 0x108432C0
+template container::SList<engine::DBChange*, engine::DBSubject::Allocator>::ValueNode::ValueNode(engine::DBChange* const&);
+// FUNCTION: ENGINE 0x10843870
+template void container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::PopFrontAndFree();
+// FUNCTION: ENGINE 0x10843890
+template void container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::RemoveAfterAndFree(container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::ValueNode*);
+// FUNCTION: ENGINE 0x108431F0
+template container::SList<engine::DBChange*, engine::DBSubject::Allocator>::Iterator container::SList<engine::DBChange*, engine::DBSubject::Allocator>::Iterator::operator++(int);
+// FUNCTION: ENGINE 0x10843290
+template container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::Iterator container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::Iterator::operator++(int);
+// FUNCTION: ENGINE 0x10843230
+template engine::DBObserverEntry* container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::Iterator::operator->() const;
+// FUNCTION: ENGINE 0x10843250
+template bool container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::Iterator::operator==(const container::SList<engine::DBObserverEntry, engine::DBSubject::Allocator>::Iterator&) const;
 // FUNCTION: ENGINE 0x10843050
 // FUNCTION: ENGINE 0x108431A0
 // FUNCTION: ENGINE 0x108431B0

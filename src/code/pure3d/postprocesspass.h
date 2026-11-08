@@ -345,6 +345,8 @@ namespace pure3d
 		float sampleScale;      // +0x114
 		unsigned char unknown118[0x500 - 0x118];
 		ParameterHandler<ProtoRadialBlurPass> parameters; // +0x500
+		// The engine's object is four bytes larger than the members known so far (the factory allocates it)
+		unsigned char unknown544[4];
 	};
 
 	// Blurs the parts of the picture that are out of focus (vftable 0x10E5FCD0)

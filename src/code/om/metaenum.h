@@ -9,11 +9,21 @@
 
 namespace om
 {
-	// A name of the enumeration and its value (the value is at +0x20 of the node)
+	// A value of the enumeration with its name (0x30 bytes): it sits in two trees, the one ordered by value through the
+	// first node and the one ordered by name through the second
 	struct EnumValue
 	{
-		char node[0x20];
-		int value;
+		EnumValue(int newValue, const ClassName& newName) :
+			value(newValue),
+			name(newName)
+		{
+		}
+		TreeNode valueNode;
+		TreeNode nameNode;  // 0x10
+		int value;  // 0x20
+		int unknown24;
+		ClassName name;  // 0x28
+		OM_ALLOCATION(EnumValue);
 	};
 
 	class MetaEnumBase : public MetaTypeBase
@@ -26,6 +36,8 @@ namespace om
 		const EnumValue* FindValue(const ClassName& valueName);
 		// 0x105EB9D0: the name of a value, passed on to the text writer of the library
 		void WriteValueName(int value);
+		// 0x105EBCF0 (name guessed): adds a value under a name
+		void AddValue(const ClassName& valueName, int value);
 
 		TreeHead names;  // 0x38
 		TreeHead values;  // 0x4C
@@ -59,6 +71,25 @@ namespace om
 		virtual const type_info* GetType()
 		{
 			return &typeid(E);
+		}
+		// Makes the description of the enumeration when there is none yet, and counts one more user of it (name guessed)
+		static void Create(const ClassName& newName)
+		{
+			MetaTypeBase* type = FindMetaType(typeid(E));
+			if (type == 0)
+			{
+				type = new MetaEnum(newName);
+			}
+			ThreadSafeRefCount::AddRef(&type->count);
+		}
+		// Lets go of one user of the description (name guessed)
+		static void ReleaseType()
+		{
+			MetaTypeBase* type = FindMetaType(typeid(E));
+			if (ThreadSafeRefCount::Release(&type->count) == 0 && type != 0)
+			{
+				delete type;
+			}
 		}
 		OM_ALLOCATION(MetaEnum);
 	};

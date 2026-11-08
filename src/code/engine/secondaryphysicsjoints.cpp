@@ -412,3 +412,8 @@ namespace container
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10916A30
+// FUNCTION: ENGINE 0x10916020
+// FUNCTION: ENGINE 0x10916230
+// FUNCTION: ENGINE 0x10916460
+// FUNCTION: ENGINE 0x109179D0
+// FUNCTION: ENGINE 0x10917880

@@ -27,13 +27,13 @@ namespace proto
 
 namespace audio
 {
-	void RemotePlayer::Start(unsigned int position)
+	void RemotePlayer::Play(unsigned int value)
 	{
 		stopped = 0;
-		startPosition = position & 0xFFFFFFF0;
+		startPosition = value & 0xFFFFFFF0;
 	}
 
-	void RemotePlayer::Stop(unsigned int unused)
+	void RemotePlayer::Stop(unsigned int value)
 	{
 		stopped = 1;
 	}
@@ -48,9 +48,9 @@ namespace audio
 		volumes = newVolumes;
 	}
 
-	void RemotePlayer::SetChannelVolume(unsigned int channel, float volume)
+	void RemotePlayer::SetUnknown3E8(unsigned int index, float value)
 	{
-		channelVolumes[channel] = volume;
+		unknown3E8[index] = value;
 	}
 
 	void RemotePlayer::SetMixBuses(const om::DynamicArray<om::ClassName, unsigned short>& newBuses)
@@ -110,11 +110,11 @@ namespace audio
 		const om::DynamicArray<om::String, unsigned short>& names)
 	{
 		RemotePlayerTable* table = gRemotePlayers;
-		table->Start(player);
+		table->Play(player);
 		table->SetLoop(player, true);
 		table->SetFilename(player, text);
 		table->SetVolumes(player, volumes);
-		table->SetChannelVolume(player, 0, 0.0f);
+		table->SetUnknown3E8(player, 0, 0.0f);
 		table->Stop(player);
 		table->SetPosition(player, vector);
 		table->SetVelocity(player, vector);
@@ -154,7 +154,6 @@ template class om::DynamicArray<om::String, unsigned short>;
 // FUNCTION: ENGINE 0x104A2DC0
 // FUNCTION: ENGINE 0x104A2DE0
 // FUNCTION: ENGINE 0x104A3830
-// FUNCTION: ENGINE 0x104A3870
 // FUNCTION: ENGINE 0x104A38F0
 // FUNCTION: ENGINE 0x104A3970
 // FUNCTION: ENGINE 0x104A3A40
@@ -259,13 +258,13 @@ namespace proto
 
 	SoundPlayerHelicopter::~SoundPlayerHelicopter()
 	{
-		audio::gRemotePlayers->Release(player1C);
-		audio::gRemotePlayers->Release(player14);
-		audio::gRemotePlayers->Release(player18);
-		audio::gRemotePlayers->Release(player0C);
-		audio::gRemotePlayers->Release(player10);
-		audio::gRemotePlayers->Release(player20);
-		audio::gRemotePlayers->Release(player24);
+		audio::gRemotePlayers->Destroy(player1C);
+		audio::gRemotePlayers->Destroy(player14);
+		audio::gRemotePlayers->Destroy(player18);
+		audio::gRemotePlayers->Destroy(player0C);
+		audio::gRemotePlayers->Destroy(player10);
+		audio::gRemotePlayers->Destroy(player20);
+		audio::gRemotePlayers->Destroy(player24);
 	}
 
 	void SoundPlayerHelicopter::Slot4()
@@ -283,8 +282,8 @@ namespace proto
 	bool SoundPlayerHelicopter::Slot5()
 	{
 		audio::RemotePlayerEntry* entries = audio::gRemotePlayers->entries;
-		if (entries[player14.index].ready && entries[player18.index].ready && entries[player0C.index].ready && entries[player1C.index].ready
-			&& entries[player10.index].ready && entries[player20.index].ready && entries[player24.index].ready)
+		if (entries[player14.index].unknown28 && entries[player18.index].unknown28 && entries[player0C.index].unknown28 && entries[player1C.index].unknown28
+			&& entries[player10.index].unknown28 && entries[player20.index].unknown28 && entries[player24.index].unknown28)
 		{
 			return true;
 		}
@@ -307,17 +306,17 @@ namespace proto
 		if (*name == engine::gPlay3)
 		{
 			unknown48 = true;
-			audio::gRemotePlayers->Start(player14);
-			audio::gRemotePlayers->Start(player18);
-			audio::gRemotePlayers->Start(player0C);
-			audio::gRemotePlayers->Start(player1C);
+			audio::gRemotePlayers->Play(player14);
+			audio::gRemotePlayers->Play(player18);
+			audio::gRemotePlayers->Play(player0C);
+			audio::gRemotePlayers->Play(player1C);
 			if (unknown49)
 			{
-				audio::gRemotePlayers->Start(player20);
+				audio::gRemotePlayers->Play(player20);
 			}
 			if (unknown4A)
 			{
-				audio::gRemotePlayers->Start(player24);
+				audio::gRemotePlayers->Play(player24);
 			}
 		}
 		else if (*name == engine::gStop2)
@@ -327,14 +326,14 @@ namespace proto
 			audio::gRemotePlayers->Stop(player14);
 			audio::gRemotePlayers->Stop(player18);
 			audio::gRemotePlayers->Stop(player0C);
-			audio::gRemotePlayers->Start(player10);
+			audio::gRemotePlayers->Play(player10);
 			audio::gRemotePlayers->Stop(player20);
 			audio::gRemotePlayers->Stop(player24);
 		}
 		else if (*name == engine::gWinddown2)
 		{
 			audio::gRemotePlayers->SetUnknown49C(player10, ravenphysics::gDefaultMaxForce);
-			audio::gRemotePlayers->Start(player10);
+			audio::gRemotePlayers->Play(player10);
 		}
 		return true;
 	}
@@ -372,19 +371,19 @@ namespace proto
 
 	SoundPlayerVehicle::~SoundPlayerVehicle()
 	{
-		audio::gRemotePlayers->Release(player18);
-		audio::gRemotePlayers->Release(playerC);
-		audio::gRemotePlayers->Release(player14);
-		audio::gRemotePlayers->Release(player10);
+		audio::gRemotePlayers->Destroy(player18);
+		audio::gRemotePlayers->Destroy(playerC);
+		audio::gRemotePlayers->Destroy(player14);
+		audio::gRemotePlayers->Destroy(player10);
 	}
 
 	bool SoundPlayerVehicle::Slot1(core::Name<core::CaseSensitiveKey>* name)
 	{
 		if (*name == engine::gStartup2)
 		{
-			audio::gRemotePlayers->Start(playerC);
-			audio::gRemotePlayers->Start(player18);
-			audio::gRemotePlayers->Start(player14);
+			audio::gRemotePlayers->Play(playerC);
+			audio::gRemotePlayers->Play(player18);
+			audio::gRemotePlayers->Play(player14);
 		}
 		else if (*name == engine::gStop3)
 		{
@@ -395,13 +394,13 @@ namespace proto
 		}
 		else if (*name == engine::gWinddown3)
 		{
-			audio::gRemotePlayers->Start(player10);
-			audio::gRemotePlayers->Start(playerC);
+			audio::gRemotePlayers->Play(player10);
+			audio::gRemotePlayers->Play(playerC);
 			audio::gRemotePlayers->Stop(player18);
 		}
 		else if (*name == engine::gIdle2)
 		{
-			audio::gRemotePlayers->Start(playerC);
+			audio::gRemotePlayers->Play(playerC);
 			audio::gRemotePlayers->Stop(player18);
 		}
 		return true;
@@ -418,7 +417,7 @@ namespace proto
 	bool SoundPlayerVehicle::Slot5()
 	{
 		audio::RemotePlayerEntry* entries = audio::gRemotePlayers->entries;
-		if (entries[playerC.index].ready && entries[player18.index].ready && entries[player14.index].ready && entries[player10.index].ready)
+		if (entries[playerC.index].unknown28 && entries[player18.index].unknown28 && entries[player14.index].unknown28 && entries[player10.index].unknown28)
 		{
 			return true;
 		}

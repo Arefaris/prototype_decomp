@@ -2,6 +2,9 @@
 
 namespace proto
 {
+	// The engine's copies of the lists' members (most have no caller of their own)
+	template class container::ArrayDynamic<NPCInstance*, container::AllocatorCoreStatic<0xa1, 16> >;
+
 	// FUNCTION: ENGINE 0x1047A150
 	content::ClassInfo* NPCInstancePool::GetClassInfo()
 	{
@@ -44,3 +47,5 @@ namespace proto
 // FUNCTION: ENGINE 0x1047A590
 // FUNCTION: ENGINE 0x1047A7D0
 // FUNCTION: ENGINE 0x1047A8A0
+// FUNCTION: ENGINE 0x1047A1E0
+// FUNCTION: ENGINE 0x1047A240

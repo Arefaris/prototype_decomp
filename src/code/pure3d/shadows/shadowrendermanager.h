@@ -15,11 +15,19 @@ namespace core
 namespace pure3d
 {
 	class Texture;
+	// 0x10715980: the size of the shadow map of a mode (the width and the height; the number of cascades, four when
+	// it is -1, scales the height of the first three modes; the last two modes take 0x800 square whatever is said)
+	void GetShadowMapSize(int mode, int* width, int* height, int unused, int cascades);
+	// 0x10715A70: the memory the shadow map of a mode takes (four bytes a pixel, to the next 64 KB; name guess)
+	int GetShadowMapMemory(int mode);
+
 	class ShadowRenderManager
 	{
 	public:
 		// 0x10716770: builds the manager over the shadow quality mode its argument names (it must be the first one)
 		ShadowRenderManager(int mode);
+		// 0x10715C00 (not reconstructed)
+		~ShadowRenderManager();
 		// 0x10716830: creates the shadow map heap and the manager over it
 		static void Create(int mode);
 
@@ -54,7 +62,8 @@ namespace pure3d
 		// 0x0: the texture the shadow map is drawn into (released when the memory is lent)
 		Texture* texture;
 		int unknown4;
-		void* unknown8;
+		// The texture of the second kind of map (set when unknown10 is); else unknownC is the target's handle
+		Texture* unknown8;
 		int unknownC;
 		// 0x10: set by 0x10715B20 (0x10715CD0 reads it; name guess)
 		bool unknown10;
@@ -81,6 +90,8 @@ namespace pure3d
 	extern ShadowRenderManager* gShadowRenderManager;
 	// 0x11281734: the heap the shadow maps and their surfaces are allocated from
 	extern core::IMemoryAllocator* gShadowMapHeap;
+	// 0x11281738: the aligned block the manager's start-up left (freed when it stops; name guess)
+	extern void* gShadowMapBlock;
 }
 
 #endif

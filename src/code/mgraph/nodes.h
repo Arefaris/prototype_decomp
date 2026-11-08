@@ -17,7 +17,7 @@
 
 namespace om
 {
-	// A vector of the engine's property types and a complex number (sizes not recovered)
+	// A complex number (size not recovered)
 	class Complex
 	{
 	public:
@@ -181,6 +181,16 @@ namespace mgraph
 	{
 	};
 
+// The same with the allocation functions declared only: the node's source defines them as inline functions, so that they carry their
+// own annotations
+#define MGRAPH_NODE_BODY_OUT(Type, Base, Size) \
+	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
+		static void* operator new(size_t); \
+		static void operator delete(void* memory); \
+		static const char* AllocationTag(); \
+		char unknown4[Size - sizeof(Base)]
+
 	// The nodes allocate exactly their size (the engine's node classes have members that are not recovered yet)
 #define MGRAPH_NODE_BODY(Type, Base, Size) \
 	public: \
@@ -257,9 +267,13 @@ namespace mgraph
 		int count;
 	};
 
-	class __declspec(align(8)) PropertyNodeBase : public Node
+	class __declspec(align(8) novtable) PropertyNodeBase : public Node
 	{
 	public:
+		PropertyNodeBase(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName, unsigned int numInputs, unsigned int numOutputs) :
+			Node(newType, newGraph, newName, numInputs, numOutputs)
+		{
+		}
 		virtual ~PropertyNodeBase()
 		{
 		}
@@ -271,11 +285,54 @@ namespace mgraph
 		virtual om::DelegatePropertyBase* CreateDelegate(unsigned int channel);
 		OM_ALLOCATION(PropertyNodeBase);
 	};
+	class Abstraction;
+	class AbstractInputPinBase;
+	class AbstractOutputPinBase;
+	// The nodes that stand for the inlets and outlets of a graph (an abstraction of the graph gets a pin for each). The inlet
+	// has one abstract output pin, the outlet one abstract input pin; the nodes link themselves into lists of the graph.
 	class InletBase : public Node
 	{
+	public:
+		// 0x10B6A7F0 / 0x10B6A860
+		InletBase(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName);
+		virtual ~InletBase();
+		// Slots 1 and 2 do nothing (0x10B17830 / 0x10B17840)
+		virtual void Attach(Context* newContext)
+		{
+		}
+		virtual void Detach(Context* oldContext)
+		{
+		}
+		// Slots 17 to 19 (names guessed): the pin of the inlet, the reflection of the value and the pin an abstraction gets
+		virtual AbstractOutputPinBase* GetPin()
+		{
+			return pin;
+		}
+		virtual om::MetaTypeBase* GetValueMetaType() = 0;
+		virtual AbstractInputPinBase* CreateAbstractPin(Abstraction* abstraction) = 0;
+
+		AbstractOutputPinBase* pin;  // 0x50
+		NodeLink graphLink;  // 0x54: in the inlets of the graph
 	};
 	class OutletBase : public Node
 	{
+	public:
+		// 0x10B6A9E0 / 0x10B6AA50
+		OutletBase(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName);
+		virtual ~OutletBase();
+		// Slots 1 and 2 do nothing (0x10B17FE0 / 0x10B17FF0)
+		virtual void Attach(Context* newContext)
+		{
+		}
+		virtual void Detach(Context* oldContext)
+		{
+		}
+		// Slots 17 to 19 (names guessed): the first input pin of the node, the reflection of the packets and the pin an abstraction gets
+		virtual AbstractInputPinBase* GetPin();
+		virtual om::MetaTypeBase* GetPacketMetaType() = 0;
+		virtual AbstractOutputPinBase* CreateAbstractPin(Abstraction* abstraction) = 0;
+
+		NodeLink graphLink;  // 0x50: in the outlets of the graph
 	};
 	// The value a packet type carries
 	template<class P> struct PacketValue
@@ -356,6 +413,10 @@ namespace mgraph
 	{
 		typedef ValueInTemporary Kind;
 	};
+	template<> struct PropertyValueAccess<om::Vector>
+	{
+		typedef ValueInTemporary Kind;
+	};
 	template<> struct PropertyValueAccess<om::DynamicArray<om::String, unsigned short> >
 	{
 		typedef ValueInTemporary Kind;
@@ -371,6 +432,8 @@ namespace mgraph
 		typedef typename PacketValue<P>::Type Value;
 		typedef PropertyChannel<Value> Channel;
 
+		// The description of the node class is found by the caller (the node type that makes the node)
+		PropertyNode(Graph* newGraph, const om::ClassName& newName, NodeTypeBase* newType);
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot15(unsigned int channel);
 		virtual void Slot16(EvaluationFrame* frame);
@@ -399,7 +462,16 @@ namespace mgraph
 	}
 	template<class P> class __declspec(align(8)) Inlet : public InletBase
 	{
-		MGRAPH_NODE_BODY(Inlet, InletBase, 0x60);
+	public:
+		typedef typename PacketValue<P>::Type Value;
+
+		Inlet(Graph* newGraph, const om::ClassName& newName);
+		virtual ~Inlet();
+		virtual void Rename(const om::ClassName& newName);
+		virtual bool Slot8(void* argument);
+		virtual om::MetaTypeBase* GetValueMetaType();
+		virtual AbstractInputPinBase* CreateAbstractPin(Abstraction* abstraction);
+		OM_ALLOCATION(Inlet);
 	};
 	template<class P> const char* Inlet<P>::AllocationTag()
 	{
@@ -407,7 +479,14 @@ namespace mgraph
 	}
 	template<class P> class __declspec(align(8)) Outlet : public OutletBase
 	{
-		MGRAPH_NODE_BODY(Outlet, OutletBase, 0x58);
+	public:
+		Outlet(Graph* newGraph, const om::ClassName& newName);
+		virtual ~Outlet();
+		virtual void Rename(const om::ClassName& newName);
+		virtual bool Slot8(void* argument);
+		virtual om::MetaTypeBase* GetPacketMetaType();
+		virtual AbstractOutputPinBase* CreateAbstractPin(Abstraction* abstraction);
+		OM_ALLOCATION(Outlet);
 	};
 	template<class P> const char* Outlet<P>::AllocationTag()
 	{
@@ -426,9 +505,19 @@ namespace mgraph
 	class Abstraction : public Node
 	{
 	public:
+		// 0x10ACCDD0: makes the node and takes the graph it contains (counted), if there is one
+		Abstraction(NodeTypeBase* newType, Graph* newGraph, const om::ClassName& newName, Graph* newInnerGraph);
+		// 0x10ACCE20 (the deleting destructor is 0x10ACCED0): lets the contained graph go
+		virtual ~Abstraction();
 		// 0x10ACCDB0 / 0x10ACCDC0
 		virtual void Attach(Context* newContext);
 		virtual void Detach(Context* oldContext);
+		// Slot 17: the name of the graph the node stands for
+		virtual const om::ClassName* GetGraphName() = 0;
+		// 0x10ACCF00: puts another graph in the node (counted) and makes the pins of the node follow the graph's inlets and outlets
+		void SetInnerGraph(Graph* graph);
+		// 0x10ACCDA0: does nothing (name guessed; the nodes call it after they gave the abstraction a pin)
+		void Refresh();
 
 		NodeLink graphLink;  // 0x50: in the abstractions of the graph the node contains
 		Graph* innerGraph;  // 0x58
@@ -437,6 +526,17 @@ namespace mgraph
 	class LinkedGraph : public Abstraction
 	{
 	public:
+		// 0x10ACC420
+		LinkedGraph(Graph* newGraph, const om::ClassName& newName);
+		// 0x10ACBFB0 (the deleting destructor is 0x10ACC150)
+		virtual ~LinkedGraph();
+		OM_ALLOCATION(LinkedGraph);
+		// 0x10ACC180: the graph is found by its name
+		void SetAbstractedName(const om::ClassName& newName);
+		// Slot 8 (0x10ACC470)
+		virtual bool Slot8(void* argument);
+		// Slot 17 (0x10ACC510)
+		virtual const om::ClassName* GetGraphName();
 		// 0x10ACBFE0 / 0x10ACC000
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void SetChannelEnabled(unsigned int channel, bool enabled);
@@ -447,6 +547,15 @@ namespace mgraph
 	class EmbeddedGraph : public Abstraction
 	{
 	public:
+		// 0x10ACD460
+		EmbeddedGraph(Graph* newGraph, const om::ClassName& newName);
+		OM_ALLOCATION(EmbeddedGraph);
+		// 0x10ACD860: finds the graph and makes a copy of it for the node when it is shared (the name is kept)
+		void SetAbstractedName(const om::ClassName* newName);
+		// Slot 8 (0x10ACD930)
+		virtual bool Slot8(void* argument);
+		// Slot 17 (0x10ACD050)
+		virtual const om::ClassName* GetGraphName();
 		// 0x10ACD080 / 0x10ACD0C0
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void SetChannelEnabled(unsigned int channel, bool enabled);

@@ -32,6 +32,11 @@ namespace om
 		void RemoveProperty(DynamicPropertyBase* property);
 		DynamicPropertyBase* FindProperty(ClassName propertyName);
 		DynamicPropertyBase* CreateProperty(ClassName propertyName, MetaTypeBase* type);
+		// The property of a name that holds a value of the type, null when there is none (name guessed)
+		template<class T> DynamicProperty<T>* FindTypedProperty(ClassName propertyName)
+		{
+			return object.FindTypedProperty<T>(propertyName);
+		}
 
 		DynamicObject object;  // 0x20
 	};

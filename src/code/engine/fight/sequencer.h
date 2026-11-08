@@ -94,6 +94,9 @@ namespace fight
 		// vftable slot 8 (0x105A24A0): copies the action's flags and three times into another action (name guessed)
 		virtual Action* Slot8(Action* other, core::IRefCount* effect, core::IRefCount* owner);
 
+		// 0x10095460 (the animation blend unit's copy of an inline member; name guess): sets or clears the flag bit 0x800 << index
+		void SetIndexedFlag(int index, bool value);
+
 		// 0x105A2440: sets or clears one flag bit of the action
 		void SetFlag(unsigned int flag, bool value);
 		// 0x105A2560: makes another action the next one (the old one is let go)
@@ -336,8 +339,12 @@ namespace fight
 		bool Unknown105A4910(bool flag);
 		// 0x105A46C0: the path of the running track as text, in a buffer of the engine's (name guess)
 		const char* GetTrackPath();
-		// 0x105A4540: whether the track is one the running track's chain of parents leads to (name unknown)
+		// 0x105A4540: whether a branch is the one of a queued action (name unknown)
 		bool Unknown105A4540(Branch* other);
+		// 0x105A4570: whether a branch is the one of a queued action that belongs to the owner (name unknown)
+		bool Unknown105A4570(Branch* other, core::IRefCount* owner);
+		// 0x105A43E0 (name unknown)
+		int GetUnknown1C() const;
 		// 0x105A41B0: stops and empties the sequencer and releases its members, as a behaviour does when it is reset
 		void Reset();
 		// 0x105A4120: releases the two scheduled members

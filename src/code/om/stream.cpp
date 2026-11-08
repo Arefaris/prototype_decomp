@@ -7,14 +7,14 @@
 namespace om
 {
 	// FUNCTION: ENGINE 0x105C0E10
-	void StreamPrintf(Stream* stream, const char* format, ...)
+	char StreamPrintf(Stream* stream, const char* format, ...)
 	{
 		char buffer[0x800];
 		va_list arguments;
 		va_start(arguments, format);
 		_vsnprintf_s(buffer, 0x800, 0xFFFFFFFF, format, arguments);
 		buffer[0x7FF] = 0;
-		stream->Write(buffer, strlen(buffer));
+		return stream->Write(buffer, strlen(buffer));
 	}
 
 	// FUNCTION: ENGINE 0x105C0EA0

@@ -16,7 +16,7 @@ namespace proto
 
 	SoundPlayerAmbience::~SoundPlayerAmbience()
 	{
-		audio::gRemotePlayers->Release(player);
+		audio::gRemotePlayers->Destroy(player);
 	}
 
 	void SoundPlayerAmbience::SetLoop(bool value)

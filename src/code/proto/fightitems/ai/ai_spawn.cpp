@@ -377,3 +377,4 @@ template core::Link<proto::fightitems::ai::ObjectSpawnedTrack>::Link(proto::figh
 // FUNCTION: ENGINE 0x1024A750
 // FUNCTION: ENGINE 0x1024A770
 // FUNCTION: ENGINE 0x1024A7C0
+// FUNCTION: ENGINE 0x1020ABC0

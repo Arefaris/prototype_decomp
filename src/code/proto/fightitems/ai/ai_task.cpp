@@ -1,5 +1,7 @@
 // Fight items of the ai group: ExecuteTaskTrack, SpawnTaskTrack (unit 0x102527C0 - 0x10253340; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_task.h"
+#include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/fight/lodactions.h"
 
 namespace proto
 {
@@ -219,6 +221,145 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x102170E0
+			ExecuteTaskAction::ExecuteTaskAction(fight::Track* newListener, ExecuteTaskTrack* newTrack, int newEffect, core::IRefCount* newOwner) : fight::Action(0x760), watch(newListener), link(newTrack), effect(newEffect), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10216F20
+			ExecuteTaskAction::~ExecuteTaskAction()
+			{
+				core::SafeReleaseRef(owner);
+				sequencer.End();
+			}
+
+			// FUNCTION: ENGINE 0x10216D10
+			fight::Sequencer* ExecuteTaskAction::GetChild()
+			{
+				return &sequencer;
+			}
+
+			// FUNCTION: ENGINE 0x10216D20
+			void ExecuteTaskAction::Slot6()
+			{
+				sequencer.Reset();
+			}
+
+			// FUNCTION: ENGINE 0x102171C0
+			// NONMATCHING: scheduling of the argument loads (the engine loads the owner and the listener before the track), best 94.5 %
+#ifdef NONMATCHING
+			bool ExecuteTaskAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = engine::GetObjectHandle(owner).Get();
+				if (object != 0)
+				{
+					core::Name<core::CaseSensitiveKey> task = link.Get()->task;
+					SetTaskAIMsg message(task, false);
+					object->SendMessage(&message);
+				}
+				fight::Branch* branch = link.Get()->branch.GetBranch();
+				if (branch == 0)
+				{
+					return false;
+				}
+				fight::ConditionList* conditions = &link.Get()->conditions;
+				if (conditions != 0)
+				{
+					if (!conditions->Evaluate((int)watch.track, effect, (int)owner, 0))
+					{
+						return false;
+					}
+				}
+				fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, owner, 0, false);
+				if (started == 0)
+				{
+					return false;
+				}
+				sequencer.SetPending(started, effect, owner, 0);
+				return sequencer.Unknown105A45A0(true);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10217540
+			fight::Action* ExecuteTaskTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				return new ExecuteTaskAction(listener, this, (int)effect, owner);
+			}
+
+			// FUNCTION: ENGINE 0x10217320
+			SpawnTaskAction::SpawnTaskAction(fight::Track* newListener, SpawnTaskTrack* newTrack, core::IRefCount* newOwner) : fight::Action(0x740), watch(newListener), link(newTrack), owner(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10216FA0
+			SpawnTaskAction::~SpawnTaskAction()
+			{
+				core::SafeReleaseRef(owner);
+				sequencer.End();
+			}
+
+			// FUNCTION: ENGINE 0x10216D30
+			fight::Sequencer* SpawnTaskAction::GetChild()
+			{
+				return &sequencer;
+			}
+
+			// FUNCTION: ENGINE 0x10216D40
+			void SpawnTaskAction::Slot6()
+			{
+				sequencer.Reset();
+			}
+
+			// FUNCTION: ENGINE 0x102173F0
+			// NONMATCHING: the engine takes the track pointer in eax and the owner in edx, ours the other way round, best 98.5 %
+#ifdef NONMATCHING
+			bool SpawnTaskAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = engine::GetObjectHandle(owner).Get();
+				if (object != 0)
+				{
+					core::Name<core::CaseSensitiveKey> task = link.Get()->task;
+					SetTaskAIMsg message(task, true);
+					object->SendMessage(&message);
+				}
+				fight::Branch* branch = link.Get()->branch.GetBranch();
+				if (branch == 0)
+				{
+					return false;
+				}
+				core::IRefCount* currentOwner = owner;
+				int listener = (int)watch.track;
+				if (!link.Get()->conditions.Evaluate(listener, (int)&sequencer, (int)currentOwner, 0))
+				{
+					return false;
+				}
+				fight::Branch* started = branch->Slot10(&sequencer, owner, 0, false);
+				if (started == 0)
+				{
+					return false;
+				}
+				sequencer.SetPending(started, (int)&sequencer, owner, 0);
+				return sequencer.Unknown105A45A0(true);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10217590
+			fight::Action* SpawnTaskTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GetObjectHandle(owner);
+				return new SpawnTaskAction(listener, this, owner);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<ExecuteTaskTrack>;
 			template class fight::PropertyName<ExecuteTaskTrack>;
@@ -267,3 +408,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10253280
 // FUNCTION: ENGINE 0x102532A0
 // FUNCTION: ENGINE 0x102532F0
+// FUNCTION: ENGINE 0x10201160
+// FUNCTION: ENGINE 0x10205120
+// FUNCTION: ENGINE 0x102051C0
+// FUNCTION: ENGINE 0x10205360

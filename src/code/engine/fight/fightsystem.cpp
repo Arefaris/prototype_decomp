@@ -98,6 +98,27 @@ namespace engine
 		fight::gResolvingBranchRefs = previous;
 	}
 
+	// The empty functions the game state reset calls after the scenario listers (the engine's bodies are a lone return)
+	// FUNCTION: ENGINE 0x10811F90
+	void Unknown10811F90()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10811FA0
+	void Unknown10811FA0()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10811FB0
+	void Unknown10811FB0()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10811FC0
+	void Unknown10811FC0()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10811FD0
 	void StopFightSystem()
 	{

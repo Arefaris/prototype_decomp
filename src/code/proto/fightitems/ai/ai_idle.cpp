@@ -356,3 +356,4 @@ template core::Link<proto::fightitems::ai::IdleTrack>::Link(proto::fightitems::a
 // FUNCTION: ENGINE 0x101F7C90
 // FUNCTION: ENGINE 0x101F80E0
 // FUNCTION: ENGINE 0x101F80F0
+// FUNCTION: ENGINE 0x10207E10

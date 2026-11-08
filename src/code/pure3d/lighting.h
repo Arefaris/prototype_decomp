@@ -6,6 +6,7 @@
 #include "code/math/vector.h"
 #include "code/core/name.h"
 #include "code/pure3d/entity.h"
+#include "code/pure3d/visibility.h"
 
 namespace pure3d
 {
@@ -34,14 +35,25 @@ namespace pure3d
 		// region names a shared light bit set: the count of set light bits is its first word (the group count is
 		// that >> 7). The count argument is not read.
 		unsigned int Select(unsigned int* indices, unsigned int count, const unsigned int* region);
-		// 0x1060FC30 (mapped, not reconstructed): copies the region's bit set into bits (its three words at
-		// +0 / +4 / +8 are the caller's bit count, a spare word and the mask pointer)
-		void SetRegionMask(unsigned int* bits, const unsigned int* region);
+		// 0x1060FC30: sets the bits of the lights the region touches in the set: each group the region's mask names
+		// is all ones (else all zeros), and then the sets of the region's entries are taken away from it, or the
+		// ones they do not have
+		void SetRegionMask(visibility::BitSet* bits, const unsigned int* region);
 
-		unsigned char unknown0[0x3c];
-		unsigned int bitCount;     // +0x3c: how many light bits the region has (the group count is this >> 7)
-		unsigned int unknown40;    // +0x40
-		unsigned int* mask;        // +0x44: the light mask words (128 bits per group)
+		// The sets of lights each region of the scene holds
+		visibility::BitSet* sets;
+		unsigned char unknown4[0x1c - 4];
+		// The set the region entries that are not wanted are made into
+		visibility::BitSet notSet;
+		unsigned char unknown2C[0x3c - 0x2c];
+		// The lights of the region the last query found (bitCount and the mask words)
+		visibility::BitSet lights;
+		// Where each group starts in the set of all lights, and how many words it has
+		int* offsets;
+		unsigned char unknown50[0x58 - 0x50];
+		int* counts;
+		unsigned char unknown5C[0x70 - 0x5c];
+		unsigned char groupCount;
 	};
 
 	// 0x1060F840: the indices of the set bits of the 128-bit groups of masks, in order
@@ -132,6 +144,21 @@ namespace pure3d
 	// 0x1075C750: out = a | b over the groups whose bit is set in groups (14 groups)
 	void MergeLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
 		unsigned int groups);
+	// The same over the groups for the other operations (names guessed): 0x1075C6D0 out = a & b, 0x1075C7D0
+	// out = ~(a & b), 0x1075C860 out = ~(a | b), 0x1075C8F0 out = a ^ b, 0x1075C970 out = ~a, 0x1075C9F0 sets
+	// every bit of the groups, 0x1075CA60 clears them, 0x1075C640 counts the set bits of the groups
+	void AndLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NandLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void XorLightBits(LightBits* out, const LightBits* a, const LightBits* b, const LightGroups* layout,
+		unsigned int groups);
+	void NotLightBits(LightBits* out, const LightBits* a, const LightGroups* layout, unsigned int groups);
+	void SetLightBits(LightBits* out, const LightGroups* layout, unsigned int groups);
+	void ClearLightBits(LightBits* out, const LightGroups* layout, unsigned int groups);
+	int CountLightBits(const LightBits* bits, const LightGroups* layout, unsigned int groups);
 
 	// The lighting inputs of a pass (RTTI name pure3d::LightingInputs; one virtual function)
 	class LightingInputs

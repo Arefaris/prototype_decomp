@@ -151,6 +151,12 @@ namespace pure3d
 		unknown16C = value;
 	}
 
+	// FUNCTION: ENGINE 0x1072E3D0
+	void GpuSkin::GetParameters(ShaderParameters* out)
+	{
+		*out = parameters;
+	}
+
 	// FUNCTION: ENGINE 0x1072DF00
 	void GpuSkin::GetIndexDescription(IndexBufferDescription* description)
 	{

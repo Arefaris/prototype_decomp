@@ -5,14 +5,30 @@
 #ifndef AUDIO_REMOTEPLAYEREVENT_H
 #define AUDIO_REMOTEPLAYEREVENT_H
 
-#include "code/audio/remoteplayer.h"
 #include <string.h>
 #include <typeinfo.h>
 #include "code/om/dynamicarray.h"
+#include "code/om/name.h"
 #include "code/om/string.h"
+#include "code/om/vector.h"
+
+namespace dsp
+{
+	// The volumes of a voice for every channel and bin (RTTI: dsp::MixVoiceChannelBinVolumes, 0x240 bytes)
+	struct MixVoiceChannelBinVolumes
+	{
+		float volumes[144];
+	};
+}
 
 namespace audio
 {
+	// The output bins of a mix (RTTI: the argument of RemotePlayerEvent_Param2<enum audio::MixBin, float>)
+	enum MixBin
+	{
+		MIXBIN_FIRST = 0
+	};
+
 	// The ring buffer the events live in (0x1127636C holds its address; 0x105BA7B0 / 0x105BA730)
 	class EventQueue
 	{
@@ -45,13 +61,95 @@ namespace audio
 	long AtomicExchange(volatile long* value, const long* newValue);
 	extern EventQueue* gEventQueue;
 
-	// A remote player of the audio library (the entry's first word, a pointer, is the player)
+	// A remote player of the audio library (the entry's first word, a pointer, is the player). The events keep the
+	// method they call as a pointer to a member of it; only the methods the game posts are declared.
+	class RemotePlayer
+	{
+	public:
+		// 0x104A5E20 (behind the jump thunk 0x1003CD62): stops the player; 0x104A2D90 (behind 0x10023DDF): plays it from
+		// a position (rounded down to a multiple of 16). Names guessed
+		void Stop(unsigned int value);
+		void Play(unsigned int value);
+
+		// The setters of the unit 0x1087F100 - 0x1087F200 (names guessed): the audio thread writes the settings the game
+		// sent in events into the player
+		void SetUnknown444(float value);
+		void SetUnknown528(float value);
+		void SetUnknown52C(float value);
+		void SetUnknown520(float value);
+		void SetUnknown524(float value);
+		void SetUnknown544(float value);
+		void SetBinVolume(MixBin bin, float value);
+		void SetChannelVolume(unsigned int channel, float value);
+
+		// The setters the game's sound players post (their unit's copies; names guessed)
+		// 0x104A2DB0
+		void SetLoop(bool value);
+		// 0x104A2DC0: the volumes of the voice
+		void SetVolumes(const dsp::MixVoiceChannelBinVolumes& newVolumes);
+		// 0x104A2DE0: one of the five numbers at 0x3E8
+		void SetUnknown3E8(unsigned int index, float value);
+		// 0x104A5460: the mix busses the player sends to
+		void SetMixBuses(const om::DynamicArray<om::ClassName, unsigned short>& newBuses);
+		// 0x104A5E30 / 0x104A5E60: two vectors
+		void SetPosition(const om::Vector& newPosition);
+		void SetVelocity(const om::Vector& newVelocity);
+		// 0x104A5E90 - 0x104A5F50: numbers by their place in the player (the pitch and the filters are among them)
+		void SetUnknown474(float value);
+		void SetUnknown478(float value);
+		void SetUnknown498(float value);
+		void SetUnknown49C(float value);
+		void SetUnknown51C(float value);
+		void SetUnknown530(float value);
+		void SetUnknown484(float value);
+		// 0x105BE360: the name of the file the player plays (not reconstructed)
+		void SetFilename(const om::String& newFilename);
+		// 0x105BE320: a list of names (not reconstructed)
+		void SetNames(const om::DynamicArray<om::String, unsigned short>& newNames);
+
+		unsigned char unknown0[0xb0];
+		float channelVolumes[18];  // +0xB0
+		float binVolumes[8];  // +0xF8
+		dsp::MixVoiceChannelBinVolumes volumes;  // +0x118: for every channel and bin
+		unsigned char unknown358[0x3e8 - 0x358];
+		float unknown3E8[5];  // +0x3E8
+		om::Vector position;  // +0x3FC
+		om::Vector velocity;  // +0x408
+		unsigned char unknown414[0x444 - 0x414];
+		float unknown444;
+		unsigned char unknown448[0x474 - 0x448];
+		float unknown474;
+		float unknown478;
+		unsigned char unknown47C[0x484 - 0x47c];
+		float unknown484;
+		unsigned char unknown488[0x498 - 0x488];
+		float unknown498;
+		float unknown49C;
+		unsigned char unknown4A0[0x4f8 - 0x4a0];
+		unsigned int startPosition;  // +0x4F8
+		unsigned char unknown4FC[0x510 - 0x4fc];
+		bool loop;  // +0x510
+		unsigned char unknown511[0x51c - 0x511];
+		float unknown51C;
+		float unknown520;
+		float unknown524;
+		float unknown528;
+		float unknown52C;
+		float unknown530;
+		om::DynamicArray<om::ClassName, unsigned short> mixBuses;  // +0x534
+		unsigned char unknown53C[0x544 - 0x53c];
+		float unknown544;
+		unsigned int stopped;  // +0x548
+	};
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
 		unsigned char unknown4[0x28 - 4];
-		bool ready;  // 0x28
-		unsigned char unknown29[0x3c - 0x29];
+		bool unknown28;
+		unsigned int unknown2C;
+		float amplitude;  // +0x30
+		int unknown34;
+		float unknown38;
 	};
 	// Names a remote player (0x11276370 holds the table): the index in the low half
 	struct RemotePlayerHandle
@@ -94,16 +192,16 @@ namespace audio
 		// 0x105BAE40: makes a remote player (the audio thread is told to make it) and answers its handle (name guessed;
 		// the arguments after the parameters are not recovered, the type is the class of the game's player that asks)
 		unsigned int Create(const RemotePlayerParams& params, int unknown1, int unknown2, int unknown3, const type_info* owner, int unknown4);
-		// 0x105BAF90: gives the remote player back (name guessed)
-		void Release(RemotePlayerHandle player);
+		// 0x105BAF90: lets the player of the handle go
+		void Destroy(RemotePlayerHandle handle);
 
 		// The posting members (names after the members of the player they run): each posts an event that calls the
 		// member on the player the handle names
-		void Start(const RemotePlayerHandle& player);  // 0x104A3C40, position 0
+		void Play(const RemotePlayerHandle& player);  // 0x104A3C40, position 0
 		void SetLoop(const RemotePlayerHandle& player, bool value);  // 0x104A3C90
 		void SetFilename(const RemotePlayerHandle& player, const om::String& value);  // 0x104A3CE0
 		void SetVolumes(const RemotePlayerHandle& player, const dsp::MixVoiceChannelBinVolumes& value);  // 0x104A3D30
-		void SetChannelVolume(const RemotePlayerHandle& player, unsigned int channel, float volume);  // 0x104A3D90
+		void SetUnknown3E8(const RemotePlayerHandle& player, unsigned int index, float value);  // 0x104A3D90
 		void Stop(const RemotePlayerHandle& player);  // 0x104A6370
 		void SetPosition(const RemotePlayerHandle& player, const om::Vector& value);  // 0x104A63C0
 		void SetVelocity(const RemotePlayerHandle& player, const om::Vector& value);  // 0x104A6420
@@ -211,9 +309,9 @@ namespace audio
 		T2 value2;
 	};
 
-	inline void RemotePlayerTable::Start(const RemotePlayerHandle& player)
+	inline void RemotePlayerTable::Play(const RemotePlayerHandle& player)
 	{
-		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Start, 0);
+		new RemotePlayerEvent_Param1<unsigned int>(player, &RemotePlayer::Play, 0);
 	}
 
 	inline void RemotePlayerTable::SetLoop(const RemotePlayerHandle& player, bool value)
@@ -231,9 +329,9 @@ namespace audio
 		new RemotePlayerEvent_Param1<const dsp::MixVoiceChannelBinVolumes&>(player, &RemotePlayer::SetVolumes, value);
 	}
 
-	inline void RemotePlayerTable::SetChannelVolume(const RemotePlayerHandle& player, unsigned int channel, float volume)
+	inline void RemotePlayerTable::SetUnknown3E8(const RemotePlayerHandle& player, unsigned int index, float value)
 	{
-		new RemotePlayerEvent_Param2<unsigned int, float>(player, &RemotePlayer::SetChannelVolume, channel, volume);
+		new RemotePlayerEvent_Param2<unsigned int, float>(player, &RemotePlayer::SetUnknown3E8, index, value);
 	}
 
 	inline void RemotePlayerTable::Stop(const RemotePlayerHandle& player)

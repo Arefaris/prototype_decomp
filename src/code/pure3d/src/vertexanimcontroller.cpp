@@ -2,6 +2,7 @@
 // guesses.
 #include "code/core/refptr.h"
 #include "code/pure3d/loaders/drawableloaders.h"
+#include "code/pure3d/channel.h"
 #include "code/pure3d/primitive.h"
 
 namespace choreo
@@ -88,5 +89,35 @@ namespace pure3d
 	void VertexAnimController::SetKeyFrames(VertexAnimKeyFrameList* keyFrames)
 	{
 		core::RefAssign(mKeyFrames, keyFrames);
+	}
+
+	// FUNCTION: ENGINE 0x1073EC70
+	void VertexAnimController::Unknown5()
+	{
+		IntChannel* channel = (IntChannel*)mAnimation->GetGroup(0)->FindChannel(0x58545256, 0x544E49);
+		if (channel != 0)
+		{
+			unsigned int index0;
+			unsigned int index1;
+			int key0;
+			int key1;
+			float frame0;
+			float frame1;
+			channel->FindKeys(mFrame, &index0, &index1);
+			channel->GetKey(index0, &frame0, &key0);
+			mChanged = false;
+			if (mFrame != mLastFrame)
+			{
+				mLastFrame = mFrame;
+				mChanged = true;
+				SetFromKey(key0, true);
+				if (index0 != index1)
+				{
+					channel->GetKey(index1, &frame1, &key1);
+					SetToKey(key1, (mFrame - frame0) / (frame1 - frame0), channel->mode);
+				}
+				mExpression->ApplyTo((Mesh*)mPrimitive, mMeshState->buffers[mMeshState->unknown38]);
+			}
+		}
 	}
 }

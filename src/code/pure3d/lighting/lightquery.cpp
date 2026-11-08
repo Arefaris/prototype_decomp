@@ -1,4 +1,5 @@
 // pure3d::LightQuery (unit around 0x1060F840 - 0x1060FE00, next to the container helpers). Names are guesses.
+#include <string.h>
 #include "code/pure3d/lighting.h"
 
 namespace pure3d
@@ -75,11 +76,36 @@ namespace pure3d
 		return out - start;
 	}
 
+	// FUNCTION: ENGINE 0x1060FC30
+	// NONMATCHING: the engine keeps the object in edi and the entry pointer in esi, 25.5 %
+#ifdef NONMATCHING
+	void LightQuery::SetRegionMask(visibility::BitSet* bits, const unsigned int* region)
+	{
+		unsigned int mask = region[0];
+		for (unsigned int i = 0; i < groupCount; i++)
+		{
+			memset(bits->words + offsets[i], -(int)(mask & 1) & 0xFF, counts[i] * 4);
+			mask >>= 1;
+		}
+		const unsigned int* end = (const unsigned int*)region[0x21];
+		for (const unsigned int* entry = region + 1; entry < end; entry += 2)
+		{
+			visibility::BitSet* set = sets + entry[0];
+			if ((char)entry[1] != 0)
+			{
+				notSet.SetNot(set);
+				set = &notSet;
+			}
+			bits->SetAnd(bits, set);
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1060FE00
 	// EQUIVALENT: the three arguments load into eax / esi / ecx in the original, ecx / edx / eax in ours
 	unsigned int LightQuery::Select(unsigned int* indices, unsigned int count, const unsigned int* region)
 	{
-		SetRegionMask(&bitCount, region);
-		return BuildLightIndices(indices, mask, bitCount >> 7);
+		SetRegionMask(&lights, region);
+		return BuildLightIndices(indices, lights.words, lights.bitCount >> 7);
 	}
 }

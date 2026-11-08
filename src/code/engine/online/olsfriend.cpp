@@ -4,6 +4,7 @@
 #include "code/engine/luascriptmanager.h"
 #include "code/engine/online/ols.h"
 #include "code/core/strings.h"
+#include "code/core/textconvert.h"
 
 namespace engine
 {
@@ -227,6 +228,21 @@ namespace engine
 		OLSUserList* list = OLS::Get()->userList;
 		int selected = list->GetSelected();
 		Slot18(list->records[selected].invite->id);
+	}
+
+	// FUNCTION: ENGINE 0x108E9CE0
+	void OLSFriend::OnProfileSelected(int index)
+	{
+		unknown10 = index;
+	}
+
+	// FUNCTION: ENGINE 0x108EA100
+	void OLSFriend::SendGameInvite(const char* text)
+	{
+		int selected = OLS::Get()->userList->GetSelected();
+		wchar_t message[0x40];
+		core::ConvertText(message, 2, text, 0, 0x21, 0x80, 0, 0, 0);
+		Slot15(1, (int)&selected, (int)message);
 	}
 
 	// FUNCTION: ENGINE 0x108E9F70

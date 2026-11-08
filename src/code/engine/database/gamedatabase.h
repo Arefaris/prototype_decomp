@@ -270,6 +270,9 @@ namespace engine
 		void Send(DBSubject* subject, unsigned int player, const DBRecord* record, int size);
 		void OnInput(unsigned int id, int value);
 		void Clear();
+		// 0x108939A0 / 0x10893CD0 (names unknown)
+		void Unknown108939A0();
+		void Unknown10893CD0();
 
 		void* vftable0;
 		int unknown4[5];

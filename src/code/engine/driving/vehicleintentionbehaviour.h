@@ -20,6 +20,8 @@ namespace engine
 		void Reset();
 		// 0x108622F0: the input of the player (null for no player or no input)
 		void* Get() const;
+		// 0x10862310: the id of the player's slot (-1 for no player; name guessed)
+		void GetPlayerId(unsigned int* id) const;
 
 		int slot;  // +0x0
 		int unknown4;  // +0x4

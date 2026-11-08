@@ -13,6 +13,11 @@
 #include "code/om/bool32.h"
 #include "code/om/metaclass.h"
 
+namespace om
+{
+	struct BinaryOutput;
+}
+
 namespace music
 {
 	class CueEvent
@@ -26,8 +31,8 @@ namespace music
 		{
 		}
 		// Slots 1 and 2 (0x105D28B0 / 0x105D28D0): read and write the event through its description
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		// Slots 3 and 4 (0x105D2900 / 0x105D28F0): the description of the event's class, none here
 		virtual om::MetaClassBase* GetMetaClassForWrite();
 		virtual om::MetaClassBase* GetMetaClassForRead();
@@ -329,6 +334,8 @@ namespace music
 			cue(0)
 		{
 		}
+		// 0x105F7980: an event about a cue
+		explicit CueEventCueState(Cue* newCue);
 		virtual ~CueEventCueState()
 		{
 			Cue* old = cue;
@@ -342,8 +349,8 @@ namespace music
 			}
 		}
 		// Slots 1 and 2 (0x105F5FB0 / 0x105F1960)
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		OM_ALLOCATION(CueEventCueState);
 
 		Cue* cue;  // 8
@@ -360,8 +367,8 @@ namespace music
 		{
 		}
 		// Slots 1 and 2 (0x105F6820 / 0x105F68A0)
-		virtual void Read(om::BinaryStream* stream);
-		virtual void Write(om::BinaryStream* stream);
+		virtual bool Read(om::BinaryStream* stream);
+		virtual bool Write(om::BinaryOutput* output);
 		OM_ALLOCATION(CueEventCellState);
 
 		om::ClassName unknown8;
@@ -392,6 +399,46 @@ namespace music
 	{
 		return "";
 	}
+
+	// The registration of the reflection of each event class and the release of it (0x105F4130 - 0x105F6E90, names guessed)
+	void RegisterCueEventSetCellTypeMeta();
+	void UnregisterCueEventSetCellTypeMeta();
+	void RegisterCueEventCommandMeta();
+	void UnregisterCueEventCommandMeta();
+	void RegisterCueEventCueStateMeta();
+	void UnregisterCueEventCueStateMeta();
+	void RegisterCueEventCellStateMeta();
+	void UnregisterCueEventCellStateMeta();
+	void RegisterCueEventSetCurrentCueMeta();
+	void UnregisterCueEventSetCurrentCueMeta();
+	void RegisterCueEventSetCurrentCellMeta();
+	void UnregisterCueEventSetCurrentCellMeta();
+	void RegisterCueEventSetCurrentCuePlayerMeta();
+	void UnregisterCueEventSetCurrentCuePlayerMeta();
+	void RegisterCueEventCellPlayerStateMeta();
+	void UnregisterCueEventCellPlayerStateMeta();
+	void RegisterCueEventSetPartNameMeta();
+	void UnregisterCueEventSetPartNameMeta();
+	void RegisterCueEventSetLayerNameMeta();
+	void UnregisterCueEventSetLayerNameMeta();
+	void RegisterCueEventMoveCellMeta();
+	void UnregisterCueEventMoveCellMeta();
+	void RegisterCueEventMovePartMeta();
+	void UnregisterCueEventMovePartMeta();
+	void RegisterCueEventNewCuePlayerMeta();
+	void UnregisterCueEventNewCuePlayerMeta();
+	void RegisterCueEventDestroyCuePlayerMeta();
+	void UnregisterCueEventDestroyCuePlayerMeta();
+	void RegisterCueEventSetBPMMeta();
+	void UnregisterCueEventSetBPMMeta();
+	void RegisterCueEventSyncMeta();
+	void UnregisterCueEventSyncMeta();
+	void RegisterCueEventSetFadeMeta();
+	void UnregisterCueEventSetFadeMeta();
+
+	// 0x105F78C0 / 0x105F7920 (names guessed): register and release all of them
+	void RegisterCueEventMetas();
+	void UnregisterCueEventMetas();
 }
 
 #endif

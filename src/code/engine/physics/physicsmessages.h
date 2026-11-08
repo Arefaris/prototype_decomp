@@ -7,6 +7,7 @@
 
 #include "code/core/name.h"
 #include "code/engine/message.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/engine/physics/getphysicsobjectmessage.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
@@ -34,19 +35,6 @@ namespace engine
 		bool flag;
 	};
 
-	// Asks for the intersection properties of the object (id 9)
-	struct GetIntersectionPropertiesMessage : public NonintrusiveMessage
-	{
-		GetIntersectionPropertiesMessage() : NonintrusiveMessage(3, 9)
-		{
-			properties = 0;
-		}
-		virtual ~GetIntersectionPropertiesMessage()
-		{
-		}
-
-		int properties;
-	};
 
 	// Switches the physics object between simulated and keyframed (id 0x1A)
 	struct SetPhysicsObjectKeyframedMessage : public IntrusiveMessage

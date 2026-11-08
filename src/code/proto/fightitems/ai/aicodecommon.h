@@ -3,6 +3,7 @@
 #define PROTO_FIGHTITEMS_AI_AICODECOMMON_H
 
 #include "code/core/name.h"
+#include "code/math/vector.h"
 
 namespace choreo
 {
@@ -15,6 +16,8 @@ namespace fight
 	// 0x1009E120 (another unit): compares two floats with one of the compare operators (0 less, 1 less or equal, 2 equal, 3
 	// not equal, 4 greater or equal, 5 greater): lhs op rhs
 	bool CompareFloats(int op, const float* lhs, const float* rhs);
+	// 0x107F1BB0 (another unit; name guess): compares a measure of a vector (the component or length the selector names) with a value
+	bool CompareVectorMeasure(int op, const math::Vector* vector, int selector, float value);
 	// 0x10111310 (another unit): compares two integers with one of the compare operators (the numbers as for the floats)
 	bool CompareInts(int op, const int* lhs, const int* rhs);
 	// The comparison with the operands as values (an inline wrapper the conditions expand)

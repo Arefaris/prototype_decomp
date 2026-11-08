@@ -259,4 +259,6 @@ namespace om
 	template DynamicArray<Complex,unsigned short>* om::ReadArgument<class om::DynamicArray<class om::Complex,unsigned short> >(BinaryStream*, GarbageList*);
 	// FUNCTION: ENGINE 0x10B54550
 	template DynamicArray<mgraph::EnvelopeData,unsigned short>* om::ReadArgument<class om::DynamicArray<class mgraph::EnvelopeData,unsigned short> >(BinaryStream*, GarbageList*);
+	// FUNCTION: ENGINE 0x10B63E00
+	template void om::MetaMethod1<mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >,mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >,void,DynamicArray<mgraph::EnvelopeData,unsigned short> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 }

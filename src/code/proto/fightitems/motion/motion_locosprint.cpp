@@ -1,5 +1,6 @@
 // Fight items of the motion group: SprintVelocityClearTrack, LocoSprintTrack, LocoSprintChargeTrack (unit 0x10188680 - 0x1018AAB0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_locosprint.h"
+#include "code/proto/behaviours/charactermotionbehaviour.h"
 
 namespace proto
 {
@@ -833,6 +834,18 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100E6240
+			bool SprintVelocityClearAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SprintVelocitySetMessage message(math::kZeroVector);
+					object->SendMessage(&message);
+				}
+				return false;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<SprintVelocityClearTrack>;
 			template class fight::TrackFactoryTemplate<SprintVelocityClearTrack>;
@@ -854,7 +867,13 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::LocoSprintTrack* core::Link<proto::fightitems::motion::LocoSprintTrack>::Get() const;
+
+template proto::fightitems::motion::LocoSprintChargeTrack* core::Link<proto::fightitems::motion::LocoSprintChargeTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E61E0
+// FUNCTION: ENGINE 0x100E6180
 // FUNCTION: ENGINE 0x100E6110
 // FUNCTION: ENGINE 0x100E6140
 // FUNCTION: ENGINE 0x100E6160

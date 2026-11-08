@@ -57,6 +57,18 @@ namespace om
 	void RegisterEntity(Entity* entity);
 	// 0x105B5690: the entity type registered for a class (name guessed)
 	EntityTypeBase* FindEntityType(const type_info& type);
+	// 0x105B5610 / 0x105B5630: the first entity type of the registry by type and the one after another (names guessed)
+	EntityTypeBase* GetFirstEntityType();
+	EntityTypeBase* GetNextEntityType(EntityTypeBase* type);
+	// 0x105B5660: the entity type registered under a name (name guessed)
+	EntityTypeBase* FindEntityTypeByName(String* name);
+	// 0x105B56E0 / 0x105B5730: the first entity of the registry and the one after another, under the lock (names guessed)
+	Entity* GetFirstEntity();
+	Entity* GetNextEntity(Entity* entity);
+	// 0x105B5790: counts one more user of the entity (name guessed)
+	int AddRefEntity(Entity* entity);
+	// 0x105B5A30: the first entity of a name, under the lock (name guessed)
+	Entity* FindEntityByName(const ClassName& name);
 
 	// The description of an entity class (RTTI: om::EntityTypeBase); the registries are keyed by name and by type_info
 	class EntityTypeBase

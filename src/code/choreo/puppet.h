@@ -312,10 +312,11 @@ namespace choreo
 		static const unsigned int MAX_DRIVERS = 16;
 
 		// The interface the owner of a puppet implements to be told that the puppet's output failed its validation
-		// (RTTI: choreo::Puppet::ValidationFailedCallback, one pure virtual function)
+		// (RTTI: choreo::Puppet::ValidationFailedCallback, one pure virtual function; the owner answers whether the
+		// failure is an error, the flag says it was found while batching is disabled)
 		struct ValidationFailedCallback
 		{
-			virtual void OnValidationFailed() = 0;
+			virtual int OnValidationFailed(int unknown4, bool disableBatching, int unknown12) = 0;
 		};
 
 		// 0x10947980 - 0x10947A20: the puppet is allocated aligned to 16 bytes
@@ -431,6 +432,8 @@ namespace choreo
 		unsigned char unknown455[3];
 		// Counts the drivers that were dropped
 		unsigned int mRemovedCount;                // 0x458
+		// The engine's puppet is 0x460 bytes (its allocation size)
+		int unknown45C;
 	};
 }
 

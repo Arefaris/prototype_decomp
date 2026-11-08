@@ -3,6 +3,7 @@
 // the states' words are guesses.
 #include "code/core/debug.h"
 #include "code/core/time.h"
+#include <new>
 #include "code/pure3d/pddi.h"
 
 namespace pure3d
@@ -134,28 +135,28 @@ namespace pure3d
 	void pddiBaseContext::GetViewUnknown14(float* a, float* b, float* c, float* d)
 	{
 		pddiViewState* state = viewState;
-		*a = state->unknown14[0];
-		*b = state->unknown14[1];
-		*c = state->unknown14[2];
-		*d = state->unknown14[3];
+		*a = state->unknown14.values[0];
+		*b = state->unknown14.values[1];
+		*c = state->unknown14.values[2];
+		*d = state->unknown14.values[3];
 	}
 
 	// FUNCTION: ENGINE 0x10614D40
 	void pddiBaseContext::GetViewUnknown24(float* a, float* b, float* c, float* d)
 	{
 		pddiViewState* state = viewState;
-		*a = state->unknown24[0];
-		*b = state->unknown24[1];
-		*c = state->unknown24[2];
-		*d = state->unknown24[3];
+		*a = state->unknown24.values[0];
+		*b = state->unknown24.values[1];
+		*c = state->unknown24.values[2];
+		*d = state->unknown24.values[3];
 	}
 
 	// FUNCTION: ENGINE 0x10614D70
 	void pddiBaseContext::GetViewUnknown34(float* a, float* b)
 	{
 		pddiViewState* state = viewState;
-		*a = state->unknown24[4];
-		*b = state->unknown24[5];
+		*a = state->unknown24.values[4];
+		*b = state->unknown24.values[5];
 	}
 
 	// FUNCTION: ENGINE 0x10614D90
@@ -941,8 +942,9 @@ namespace pure3d
 		context->SetViewUnknown8(unknown8);
 		context->SetViewUnknownC(unknownC);
 		context->SetViewUnknown10(unknown10);
-		context->SetViewUnknown14(unknown14[0], unknown14[1], unknown14[2], unknown14[3]);
-		context->SetViewUnknown24(unknown24[0], unknown24[1], unknown24[2], unknown24[3], unknown24[4], unknown24[5]);
+		context->SetViewUnknown14(unknown14.values[0], unknown14.values[1], unknown14.values[2], unknown14.values[3]);
+		context->SetViewUnknown24(unknown24.values[0], unknown24.values[1], unknown24.values[2], unknown24.values[3], unknown24.values[4],
+			unknown24.values[5]);
 	}
 
 	// FUNCTION: ENGINE 0x1061DD10
@@ -975,5 +977,42 @@ namespace pure3d
 		*b = renderState->blend[1];
 		*c = renderState->blend[2];
 		*d = renderState->blend[3];
+	}
+
+	// FUNCTION: ENGINE 0x106156D0
+	pddiViewState::pddiViewState()
+	{
+	}
+
+	template<class T> pddiStack<T>::pddiStack(unsigned int newCapacity)
+	{
+		items = new T[newCapacity];
+		capacity = newCapacity;
+		top = 0;
+	}
+
+	template class pddiStack<pddiViewState>;
+	template class pddiStack<pddiRenderState>;
+	template class pddiStack<pddiZState>;
+	template class pddiStack<pddiStencilState>;
+
+	// FUNCTION: ENGINE 0x10615A80
+	void pddiBaseContext::CreateStacks()
+	{
+		viewStack = new pddiStack<pddiViewState>(2);
+		viewState = viewStack->Top();
+		renderStack = new pddiStack<pddiRenderState>(2);
+		renderState = renderStack->Top();
+		zStack = new pddiStack<pddiZState>(2);
+		zState = zStack->Top();
+		stencilStack = new pddiStack<pddiStencilState>(2);
+		stencilState = stencilStack->Top();
+	}
+
+	// FUNCTION: ENGINE 0x10614CD0
+	void pddiBaseContext::SetViewUnknown14(float a, float b, float c, float d)
+	{
+		viewState->unknown14.Set(a, b, c, d);
+		Unknown67();
 	}
 }
