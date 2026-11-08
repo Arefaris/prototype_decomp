@@ -6,6 +6,10 @@
 #include "code/engine/render/async/renderevent.h"
 #include "code/pure3d/texture/texture.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
+#include "code/content/loadinventory.h"
+#include "code/core/file/filepath.h"
+#include "code/engine/render/effectmanager.h"
+#include <new>
 
 namespace engine
 {
@@ -14,6 +18,12 @@ namespace engine
 		// 0x1128186A: passed to the texture uploader (another unit)
 		extern bool gTextureLoadFlag;
 	}
+}
+
+namespace core
+{
+	// 0x1063B990: SNPrintf that returns the count
+	int SNPrintfCount(char* destination, int size, const char* format, ...);
 }
 
 namespace proto
@@ -50,6 +60,41 @@ namespace proto
 			state = 1;
 		}
 	}
+
+	// FUNCTION: ENGINE 0x1056F2A0
+	// NONMATCHING: scheduling of the member and frame stores before the first formatting call (77.7 %)
+#ifdef NONMATCHING
+	void PropagandaManager::LoadTextures()
+	{
+		if (engine::render::GetEffectManager()->IsFeatureEnabled(0xC0000))
+		{
+			char name[0x100];
+			char path[0x204];
+			char prefix[4];
+			char letter = (char)(level + 'a');
+			uploaded++;
+			unknown14 = name;
+			unknown18 = path;
+			prefix[0] = letter;
+			prefix[1] = '_';
+			prefix[2] = 0;
+			core::SNPrintfCount(name, 0x100, "billboards_1024x1024_0%u_diffuse.dds", uploaded);
+			core::SNPrintfCount(path, 0x204, "art/billboards/billboards_1024x1024_0%u_%sdiffuse.dds", uploaded, prefix);
+			pure3d::Texture* texture = content::gRootInventory->Find<pure3d::Texture>(unknown14);
+			texture->AddRef();
+			core::IFile* file;
+			core::FileSystemOpenFileAsync(&file, core::FilePath(unknown18), false, 0, 1, 0, 1, 1, 0);
+			file->Wait();
+			unsigned char* buffer = new (10) unsigned char[file->GetCurrentSize()];
+			file->Read(buffer, file->GetCurrentSize(), 1);
+			file->Wait();
+			engine::render::QueueObjRenderEvent(this, &PropagandaManager::UploadTexture, buffer,
+				file->GetCurrentSize(), texture);
+			file->Release();
+			state = 2;
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1056F4C0
 	void PropagandaManager::Update(float deltaTime)

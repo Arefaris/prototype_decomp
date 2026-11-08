@@ -41,6 +41,19 @@ namespace proto
 		bool SetWhiteFadeTime(float value);
 		bool SetTimer(float value);
 
+		// Getters (names guessed from the setters)
+		const char* GetFilename() const;
+		bool GetUseFMVState() const;
+		bool GetClearSubtitles() const;
+		bool GetUseBlackFades() const;
+		bool GetFadeInOnEnter() const;
+		bool GetStayFadedOnExit() const;
+		bool GetFadeUpOnExit() const;
+		bool GetDelayUninstall() const;
+		float GetUninstallDelayTime() const;
+		float GetWhiteFadeTime() const;
+		float GetTimer() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();

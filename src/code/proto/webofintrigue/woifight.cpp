@@ -64,6 +64,42 @@ namespace proto
 	fight::Property** gWOISendEventTrackProperties;  // 0x11273090
 	fight::Property** gWOIPlayReactionTrackProperties;  // 0x11273094
 
+	// FUNCTION: ENGINE 0x10563290
+	const fight::Name& WOIPlayReactionTrack::GetTargetGrabSlot() const
+	{
+		return targetGrabSlot;
+	}
+
+	// FUNCTION: ENGINE 0x105632B0
+	int WOIPlayReactionTrack::GetPriority() const
+	{
+		return priority;
+	}
+
+	// FUNCTION: ENGINE 0x10563280
+	bool WOISendEventTrack::GetToScenario() const
+	{
+		return toScenario;
+	}
+
+	// FUNCTION: ENGINE 0x10563260
+	bool WOIFMVTrack::GetEndInBlack() const
+	{
+		return endInBlack;
+	}
+
+	// FUNCTION: ENGINE 0x10563270
+	bool WOIFMVTrack::GetFadeUpToBlack() const
+	{
+		return fadeUpToBlack;
+	}
+
+	// FUNCTION: ENGINE 0x10563240
+	bool IsWOITargetCondition::GetIsWOITarget() const
+	{
+		return isWOITarget;
+	}
+
 	// FUNCTION: ENGINE 0x10563630
 	// EQUIVALENT: register allocation (the handle and the table pointer use eax and ecx the other way round, the result
 	// is set through cl and copied; 69.8 %)

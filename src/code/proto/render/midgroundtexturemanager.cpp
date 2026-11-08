@@ -6,6 +6,10 @@
 #include "code/engine/render/async/renderevent.h"
 #include "code/pure3d/texture/texture.h"
 #include "code/pure3d/pddi/dx9/dxtexture.h"
+#include "code/content/loadinventory.h"
+#include "code/core/file/filepath.h"
+#include "code/engine/render/effectmanager.h"
+#include <new>
 
 namespace engine
 {
@@ -14,6 +18,12 @@ namespace engine
 		// 0x1128186A: passed to the texture uploader (another unit)
 		extern bool gTextureLoadFlag;
 	}
+}
+
+namespace core
+{
+	// 0x1063B990: SNPrintf that returns the count
+	int SNPrintfCount(char* destination, int size, const char* format, ...);
 }
 
 namespace proto
@@ -41,6 +51,30 @@ namespace proto
 		texture->Release();
 		delete[] data;
 		state = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10567A40
+	void MidgroundTextureManager::LoadTexture()
+	{
+		if (engine::render::GetEffectManager()->IsFeatureEnabled(0x7D000))
+		{
+			char name[0x100];
+			char path[0x204];
+			core::SNPrintfCount(name, 0x100, "global_temp_512x512_diffuse.dds", episode);
+			core::SNPrintfCount(path, 0x204, "art/midground_textures/midground_episode_%d.dds", episode);
+			pure3d::Texture* texture = content::gRootInventory->Find<pure3d::Texture>(name);
+			texture->AddRef();
+			core::IFile* file;
+			core::FileSystemOpenFileAsync(&file, core::FilePath(path), false, 0, 1, 0, 1, 1, 0);
+			file->Wait();
+			unsigned char* buffer = new (10) unsigned char[file->GetCurrentSize()];
+			file->Read(buffer, file->GetCurrentSize(), 1);
+			file->Wait();
+			engine::render::QueueObjRenderEvent(this, &MidgroundTextureManager::UploadTexture, buffer,
+				file->GetCurrentSize(), texture);
+			file->Release();
+			state = 2;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10567C30

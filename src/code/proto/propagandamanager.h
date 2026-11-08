@@ -25,7 +25,7 @@ namespace proto
 		void SetLevel(int newLevel);
 		// 0x1056F4C0: loads the wanted textures (the time is not read)
 		void Update(float deltaTime);
-		// 0x1056F2A0 (not reconstructed): reads the textures of the level in and queues their uploads
+		// 0x1056F2A0: reads the textures of the level in and queues their uploads
 		void LoadTextures();
 		// 0x1056EF40: on the render thread, parses one image in memory into a texture and frees the memory
 		void UploadTexture(unsigned char* data, unsigned int size, pure3d::Texture* texture);
@@ -38,8 +38,8 @@ namespace proto
 		int state;  // +8: 1 when textures are wanted
 		int textureCount;  // +0xC
 		int uploaded;  // +0x10
-		int unknown14;
-		int unknown18;
+		const char* unknown14;  // the names of the texture being read (buffers of LoadTextures' frame)
+		const char* unknown18;
 	};
 
 	// 0x112735A8: the one propaganda manager (null: none)
