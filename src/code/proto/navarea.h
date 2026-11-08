@@ -14,6 +14,9 @@ namespace proto
 	class NavArea
 	{
 	public:
+		// 0x105680A0 / 0x105680D0: puts a vehicle on the area's list in front / takes it off
+		void AddVehicle(VehicleBehaviour* vehicle);
+		void RemoveVehicle(VehicleBehaviour* vehicle);
 		// 0x10568060: whether a vehicle is on the area (the vehicles hang on their list nodes)
 		bool ContainsVehicle(VehicleBehaviour* vehicle);
 		// 0x10568240 / 0x10568290: whether the vehicles / the walkers reach the load of a lane (names guessed)

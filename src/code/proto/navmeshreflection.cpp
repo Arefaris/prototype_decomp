@@ -51,6 +51,16 @@ namespace proto
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x10567DD0
+	content::ClassInfo* AmbientNavMesh::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::AmbientNavMesh";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
 	// FUNCTION: ENGINE 0x10567E90
 	content::ClassInfo* LaneData::GetClassInfo()
 	{
