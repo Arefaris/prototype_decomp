@@ -5,6 +5,16 @@ namespace proto
 #define PROTO_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 
+	// FUNCTION: ENGINE 0x102BFF80
+	content::ClassInfo* MotherHealthBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::MotherHealthBehaviour";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
 	// FUNCTION: ENGINE 0x102C02F0
 	content::MemberList* MotherHealthBehaviour::GetMembers()
 	{

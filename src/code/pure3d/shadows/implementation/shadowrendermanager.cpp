@@ -1,12 +1,16 @@
 // pure3d::ShadowRenderManager (code/pure3d/shadows/implementation/shadowrendermanager.cpp; 0x10714560 - 0x10717900).
 // Only the pieces the passes use are reconstructed. Names are guesses.
+#include <math.h>
+
 #include "code/core/criticalsection.h"
 #include "code/core/debug.h"
 #include "code/core/heap.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/memory/memorypool.h"
 #include "code/core/refptr.h"
+#include "code/pure3d/protopass.h"
 #include "code/pure3d/shader.h"
+#include "code/pure3d/shaderconstants.h"
 #include "code/pure3d/texture/texture.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/shadows/shadowrendermanager.h"
@@ -22,6 +26,14 @@ namespace engine
 namespace proto
 {
 	extern const float gTen;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gHalf;
+	}
 }
 
 namespace pure3d
@@ -200,6 +212,14 @@ namespace pure3d
 	void Unknown106EC3E0();
 	void Unknown106F2DB0();
 	void Unknown1075CD00();
+
+	// This unit's copy of the release helper for the shadow map heap
+	// FUNCTION: ENGINE 0x10715B50
+	template void core::SafeRelease<core::IMemoryAllocator>(core::IMemoryAllocator*& object);
+
+	// This unit's copy of the texture reference helper
+	// FUNCTION: ENGINE 0x10715B70
+	template void core::RefAssign<pure3d::Texture>(pure3d::Texture*& pointer, pure3d::Texture* object);
 
 	// This unit's copy of the pool release
 	// FUNCTION: ENGINE 0x10715180
@@ -381,6 +401,19 @@ namespace pure3d
 		gShadowRenderManager = new ShadowRenderManager(mode);
 	}
 
+	// FUNCTION: ENGINE 0x107168B0
+	void Unknown107168B0()
+	{
+		delete gShadowRenderManager;
+		gShadowRenderManager = 0;
+		core::UnregisterHeap(4);
+		core::SafeRelease(gShadowMapHeap);
+		if (gShadowMapBlock != 0)
+		{
+			core::FreeAligned(gShadowMapBlock);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x10715910
 	ShadowRenderManager* ShadowRenderManager::Get()
 	{
@@ -403,6 +436,85 @@ namespace pure3d
 	{
 		shadowMap = (pddiSurface*)value;
 		context->UpdateRenderParams();
+	}
+
+	// FUNCTION: ENGINE 0x10715980
+	void GetShadowMapSize(int mode, int* width, int* height, int unused, int cascades)
+	{
+		if (cascades == -1)
+		{
+			cascades = 4;
+		}
+		unsigned int rows = (unsigned int)ceil((double)((float)cascades * engine::driving::gHalf));
+		switch (mode)
+		{
+		case 0:
+			*width = 0x800;
+			*height = rows << 10;
+			break;
+		case 1:
+			*width = 0x400;
+			*height = rows << 9;
+			break;
+		case 2:
+			*width = 0x200;
+			*height = rows << 8;
+			break;
+		case 3:
+			*width = 0x400;
+			*height = 0x400;
+			break;
+		}
+		*width = 0x800;
+		*height = 0x800;
+	}
+
+	// FUNCTION: ENGINE 0x10715A70
+	int GetShadowMapMemory(int mode)
+	{
+		int width = 0;
+		int height = 0;
+		GetShadowMapSize(mode, &width, &height, 2, -1);
+		return (width * height * 4 + 0xFFFE & 0xFFFF0000) + 0x10000;
+	}
+
+	// FUNCTION: ENGINE 0x10715B00
+	void ShadowRenderManager::Unknown10715B00()
+	{
+		BindTextureConstant(gConstantShadowMap.index, 0);
+	}
+
+	// FUNCTION: ENGINE 0x10715940
+	void ShadowRenderManager::Unknown10715940()
+	{
+		pddi->SetColourWrite(true, true, true, true);
+		pddi->SetRenderTargets(0);
+		pddi->SetViewUnknown10(0);
+	}
+
+	// FUNCTION: ENGINE 0x10715CD0
+	void ShadowRenderManager::Unknown10715CD0()
+	{
+		pddiRenderTargets targets = { 0, 0, 0, 0, 0 };
+		Unknown10715B00();
+		if (unknown10)
+		{
+			targets.colour = ((pddiSurface*)unknown8->info)->GetHandle();
+		}
+		else
+		{
+			targets.colour = unknownC;
+		}
+		targets.depth = ((pddiSurface*)texture->info)->GetHandle();
+		pddi->SetRenderTargets(&targets);
+		if (unknown10)
+		{
+			pddi->SetColourWrite(true, true, true, true);
+		}
+		else
+		{
+			pddi->SetColourWrite(false, false, false, false);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10715B20

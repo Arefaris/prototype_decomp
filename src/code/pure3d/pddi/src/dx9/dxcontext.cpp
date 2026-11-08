@@ -4,6 +4,7 @@
 #include "code/core/hash.h"
 #include "code/core/strings.h"
 #include "code/engine/display.h"
+#include "code/pure3d/pddi/dx9/dxsurface.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/shaderconstants.h"
 #include "code/core/namecopy.h"
@@ -726,6 +727,79 @@ namespace pure3d
 		{
 			SetRenderStateOn(gD3DDevice, gRenderStateCache, D3DRS_SLOPESCALEDEPTHBIAS, gDepthBiasSlopeOn);
 			SetRenderState(D3DRS_DEPTHBIAS, gDepthBiasOn);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1061FE80
+	// NONMATCHING: the engine loads the third argument before the target size, 75.2 %
+#ifdef NONMATCHING
+	void dxContext::SetBlendMode(int source, int destination, int sourceAlpha, int destinationAlpha)
+	{
+		D3DRECT rect;
+		rect.x1 = sourceAlpha;
+		rect.x2 = (int)targetWidth;
+		if (sourceAlpha + source <= (int)targetWidth)
+		{
+			rect.x2 = sourceAlpha + source;
+		}
+		rect.y1 = destinationAlpha;
+		rect.y2 = (int)targetHeight;
+		if (destinationAlpha + destination <= (int)targetHeight)
+		{
+			rect.y2 = destinationAlpha + destination;
+		}
+		pddiBaseContext::SetBlendMode(source, destination, sourceAlpha, destinationAlpha);
+		gD3DDevice->lpVtbl->SetScissorRect(gD3DDevice, &rect);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1061FF70
+	// NONMATCHING: the registers of the depth surface and of the device, 57.4 %
+#ifdef NONMATCHING
+	void dxContext::SetRenderTargets(const pddiRenderTargets* targets)
+	{
+		if (targets != 0)
+		{
+			if (targets->colours[0] == 0)
+			{
+				engine::gRenderDisplay->Unknown10616050();
+				D3DSURFACE_DESC description;
+				engine::gRenderDisplay->backBuffer->lpVtbl->GetDesc(engine::gRenderDisplay->backBuffer, &description);
+				targetWidth = description.Width;
+				targetHeight = description.Height;
+			}
+			else
+			{
+				for (unsigned int i = 0; i < 4; i++)
+				{
+					IDirect3DSurface9* surface = 0;
+					if (targets->colours[i] != 0)
+					{
+						surface = ((dxSurface*)targets->colours[i])->surface;
+					}
+					gD3DDevice->lpVtbl->SetRenderTarget(gD3DDevice, i, surface);
+				}
+				targetWidth = ((dxSurface*)targets->colours[0])->width;
+				targetHeight = ((dxSurface*)targets->colours[0])->height;
+			}
+			IDirect3DSurface9* depth = 0;
+			if (targets->depth != 0)
+			{
+				depth = ((dxSurface*)targets->depth)->surface;
+			}
+			gD3DDevice->lpVtbl->SetDepthStencilSurface(gD3DDevice, depth);
+			Unknown1061F950(0.0f, 0.0f, (float)targetWidth, (float)targetHeight);
+			unknown680 = true;
+			return;
+		}
+		if (unknown680)
+		{
+			engine::gRenderDisplay->Unknown10616050();
+			targetWidth = display->GetWidth();
+			targetHeight = display->GetUnknown8();
+			Unknown1061F950(0.0f, 0.0f, (float)targetWidth, (float)targetHeight);
+			unknown680 = false;
 		}
 	}
 #endif

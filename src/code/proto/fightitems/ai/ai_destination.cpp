@@ -1,6 +1,8 @@
 // Fight items of the ai group: InReservedAreaCondition, DestinationDistanceCondition, GroundDistanceCondition, DestinationTargetOrientationCondition, InsideReservedVolumeCondition, InBlastAreaCondition, StuckCondition, HaveDestinationCondition, InHotZoneCondition, DestinationHaveArrivedCondition, SetAvoidanceGapAnywhereTrack, SpeedTrack, DestinationJumpToTrack, DestinationFlyToTrack, SetIntersectionPropertiesTrack, DisableStayOnNavmeshTrack, TargetGoToTrack, ForceMotionTrack, ForceRecalculatePathTrack, ReserveVolumeTrack, DestinationSetDeadBodyTrack, StopTrack, TempSpeedTrack, SetBrakeDistanceTrack, AimTrack, DestinationGoToTrack (unit 0x1023BC30 - 0x102432A0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_destination.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/fightitems/ai/aicodecommon.h"
 
 namespace proto
 {
@@ -2849,22 +2851,21 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x102023A0
-			// EQUIVALENT: block order; the engine puts the failure return in front of the body and jumps to it from the other tests, ours behind (22.6 %)
 			bool AimAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
 				{
 					return false;
 				}
-				if (target.Get() != 0)
+				if (!target.IsValid())
 				{
-					return true;
+					return false;
 				}
-				return false;
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x102023F0
-			// NONMATCHING: the engine copies the offset vector with three SSE loads and three stores (ours: x87 for the first component), best 42 %
+			// NONMATCHING: the engine keeps the object in eax where ours uses ecx, best 41 % by bytes (the instructions are the engine's)
 #ifdef NONMATCHING
 			bool AimAction::Slot7(int arg, float value)
 			{
@@ -2883,7 +2884,10 @@ namespace proto
 				if (parameters != 0)
 				{
 					parameters->active = 1;
-					parameters->offset.Set(link.object->offset.x, link.object->offset.y, link.object->offset.z);
+					math::Vector offset(link.object->offset.x, link.object->offset.y, link.object->offset.z);
+					parameters->offset.x = offset.x;
+					parameters->offset.y = offset.y;
+					parameters->offset.z = offset.z;
 					parameters->where = link.object->where;
 					parameters->forceWorldAngles = link.object->forceWorldAngles;
 				}
@@ -2902,6 +2906,240 @@ namespace proto
 				}
 				return result;
 			}
+
+			// FUNCTION: ENGINE 0x10200CA0
+			bool InBlastAreaCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDestinationMessage message;
+					object->SendMessage(&message);
+					math::Vector place;
+					if (useDestination && message.hasDestination && message.unknownD)
+					{
+						place.x = message.destination.x;
+						place.y = message.destination.y;
+						place.z = message.destination.z;
+					}
+					else
+					{
+						math::Matrix& world = object->transform->value;
+						math::Vector at(world.m[3][0], world.m[3][1], world.m[3][2]);
+						place.x = at.x;
+						place.y = at.y;
+						place.z = at.z;
+					}
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					result = tokens->Unknown103827E0(&place);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200E30
+			bool InReservedAreaCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetDestinationMessage message;
+					object->SendMessage(&message);
+					math::Vector place;
+					if (useDestination && message.hasDestination && message.unknownD)
+					{
+						place.x = message.destination.x;
+						place.y = message.destination.y;
+						place.z = message.destination.z;
+					}
+					else
+					{
+						math::Matrix& world = object->transform->value;
+						math::Vector at(world.m[3][0], world.m[3][1], world.m[3][2]);
+						place.x = at.x;
+						place.y = at.y;
+						place.z = at.z;
+					}
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					result = !tokens->Unknown103826D0(&place);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10200FC0
+			bool InsideReservedVolumeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					math::Vector place;
+					bool found = false;
+					if (destination)
+					{
+						GetDestinationMessage message;
+						object->SendMessage(&message);
+						if (message.hasDestination && message.unknownD)
+						{
+							place.x = message.destination.x;
+							place.y = message.destination.y;
+							place.z = message.destination.z;
+							found = true;
+						}
+					}
+					if (!found)
+					{
+						math::Matrix& world = object->transform->value;
+						math::Vector at(world.m[3][0], world.m[3][1], world.m[3][2]);
+						place.z = at.z;
+						place.y = at.y;
+						place.x = at.x;
+					}
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					result = tokens->Unknown10382880(&place, radius, handle) != inside;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x10202F80
+			bool ForceMotionAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetVehicleAccelerationsMessage message;
+				message.factor = link.object->accelerationFactor;
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10203040
+			bool ForceMotionAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector direction;
+				direction.x = link.object->motion.x;
+				direction.y = link.object->motion.y;
+				direction.z = link.object->motion.z;
+				if (link.object->local)
+				{
+					Unknown103BB8A0(object, &direction);
+				}
+				float length = direction.Normalize();
+				Unknown103B85A0(object, length, &direction, false);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10203630
+			bool SetIntersectionPropertiesAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (link.object->temporary)
+					{
+						GetIntersectionPropertiesMovementMessage getMessage;
+						object->SendMessage(&getMessage);
+						unknown30 = getMessage.name;
+					}
+					SetIntersectionPropertiesMovementMessage setMessage(link.object->intersectionProperties);
+					object->SendMessage(&setMessage);
+				}
+				return link.object->temporary;
+			}
+
+			// FUNCTION: ENGINE 0x10203740
+			void SetIntersectionPropertiesAction::Slot6()
+			{
+				if (link.object != 0 && link.object->temporary)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetIntersectionPropertiesMovementMessage message(unknown30);
+						object->SendMessage(&message);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x102004F0
+			// NONMATCHING: the engine places the message branch behind the common tail and keeps the params pointer in ebp, ours the other way, 26 % by bytes (same instructions)
+#ifdef NONMATCHING
+			bool DestinationDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				DestinationParams* params = (DestinationParams*)c;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Vector target;
+					bool useGiven = false;
+					if (useParams && params != 0)
+					{
+						switch (params->value)
+						{
+						case 0x21010:
+						case 0x21011:
+						case 0x21012:
+						case 0x21013:
+							useGiven = true;
+							break;
+						}
+					}
+					if (!useGiven)
+					{
+						GetDestinationMessage message;
+						object->SendMessage(&message);
+						if (!message.hasDestination)
+						{
+							return false;
+						}
+						if (message.unknownD)
+						{
+							target.x = message.destination.x;
+							target.y = message.destination.y;
+							target.z = message.destination.z;
+						}
+						else
+						{
+							float zero = 0.0f;
+							float limit = distance;
+							return fight::CompareFloats(compare, &zero, &limit);
+						}
+					}
+					else
+					{
+						target.x = params->position.x;
+						target.y = params->position.y;
+						target.z = params->position.z;
+					}
+					math::Matrix& world = object->transform->value;
+					math::Vector offset(target.x - world.m[3][0], target.y - world.m[3][1], target.z - world.m[3][2]);
+					result = fight::CompareVectorMeasure(compare, &offset, direction, distance);
+				}
+				return result;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x10200A20
 			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %
@@ -3525,3 +3763,9 @@ namespace proto
 // FUNCTION: ENGINE 0x101FE6A0
 // FUNCTION: ENGINE 0x101FE6E0
 // FUNCTION: ENGINE 0x101FEB90
+// FUNCTION: ENGINE 0x101F6000
+// FUNCTION: ENGINE 0x101F8D10
+// FUNCTION: ENGINE 0x101FEFE0
+// FUNCTION: ENGINE 0x101FF020
+// FUNCTION: ENGINE 0x101FF030
+// FUNCTION: ENGINE 0x101FF070

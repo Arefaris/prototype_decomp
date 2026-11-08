@@ -47,4 +47,36 @@ namespace mgraph
 		return nodeType;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x10AD10A0
+	int CompareNodeTypeName(const unsigned __int64* key, const NodeTypeBase* nodeType)
+	{
+		const unsigned __int64& mine = *key;
+		const unsigned __int64& other = nodeType->name.key;
+		if (mine < other)
+		{
+			return -1;
+		}
+		if (mine > other)
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x10AD2E90
+	int ComparePinDataTypeName(const unsigned __int64* key, const PinDataTypeBase* dataType)
+	{
+		const unsigned __int64& mine = *key;
+		const unsigned __int64& other = dataType->name.key;
+		if (mine < other)
+		{
+			return -1;
+		}
+		if (mine > other)
+		{
+			return 1;
+		}
+		return 0;
+	}
 }

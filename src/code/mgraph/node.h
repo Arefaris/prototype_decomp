@@ -103,6 +103,23 @@ namespace mgraph
 		OutputPinBase* FindOutput(const om::ClassName& pinName);
 		// 0x10AC9F50: deletes the pins
 		void DeletePins();
+		// 0x10AD1AD0 / 0x10AD1770 (the engine keeps out-of-line copies): puts a pin in a place of the lists, which grow to fit
+		void SetInput(unsigned int index, InputPinBase* pin)
+		{
+			if (index >= inputs.size)
+			{
+				inputs.Resize(index + 1, 0);
+			}
+			inputs[index] = pin;
+		}
+		void SetOutput(unsigned int index, OutputPinBase* pin)
+		{
+			if (index >= outputs.size)
+			{
+				outputs.Resize(index + 1, 0);
+			}
+			outputs[index] = pin;
+		}
 
 		om::ClassName name;  // 8
 		NodeTypeBase* type;  // 0x10

@@ -16,6 +16,7 @@
 #include "code/math/vector.h"
 #include "code/math/vector2.h"
 #include "code/math/vector4.h"
+#include "code/pure3d/effects/multiarray.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/framecontroller.h"
@@ -69,7 +70,112 @@ namespace pure3d
 		unsigned int rest : 5;
 	};
 
-	// The description of a shader's inputs (8 bytes, copied and destroyed out of line: 0x10612A70 / 0x10613840)
+	// One input of a shader (0x4C bytes): its name, a kind, a word that is never set and the value's 64 bytes (what they
+	// hold depends on the kind: a bool, a float, a vector, a matrix, a sampler's packed settings)
+	struct ShaderInputValue
+	{
+		// 0x1007EE60 for the name
+		ShaderInputValue()
+		{
+		}
+
+		union Words
+		{
+			unsigned int words[16];
+			unsigned char flag;
+			float number;
+			float vector[16];
+			// The sampler settings packed from a SamplerSetting (the low 27 bits; the rest is not set)
+			struct Sampler
+			{
+				unsigned int h : 4;
+				unsigned int g : 2;
+				unsigned int f : 2;
+				unsigned int e : 2;
+				unsigned int d : 4;
+				unsigned int c : 4;
+				unsigned int b : 4;
+				unsigned int a : 5;
+				unsigned int rest : 5;
+			} sampler;
+		};
+
+		// The copy is made member by member into a name constructed empty (0x10612A10)
+		ShaderInputValue(const ShaderInputValue& other)
+		{
+			name = other.name;
+			kind = other.kind;
+			unknown8 = other.unknown8;
+			value = other.value;
+		}
+
+		core::Name<core::CaseInsensitiveKey32> name;
+		int kind;
+		int unknown8;
+		Words value;
+	};
+
+	// The inputs a description holds: a growable array of them (begin, end, end of storage; 0x10612A10 - 0x10612D20)
+	class ShaderInputList
+	{
+	public:
+		ShaderInputList()
+		{
+			begin = 0;
+			end = 0;
+			capacity = 0;
+		}
+		// 0x10612D20: the deleting destructor (0x10612C00 the destructor's body)
+		~ShaderInputList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				operator delete[](begin);
+			}
+		}
+
+		int Size() const
+		{
+			return (int)(end - begin);
+		}
+		int Capacity() const
+		{
+			return (int)(capacity - begin);
+		}
+		// Room for that many inputs (inline in both constructors of the description)
+		void Reserve(unsigned int count)
+		{
+			if (count != 0)
+			{
+				begin = (ShaderInputValue*)operator new[](count * sizeof(ShaderInputValue));
+				if (begin != 0)
+				{
+					end = begin;
+					capacity = begin + count;
+					return;
+				}
+			}
+			else
+			{
+				begin = 0;
+			}
+			end = 0;
+			capacity = 0;
+		}
+		// 0x10612C20: moves the inputs to a block of that many
+		void Resize(int capacityCount);
+		// 0x10612A10: false when the storage is full
+		bool PushBack(const ShaderInputValue& input);
+
+		ShaderInputValue* begin;
+		ShaderInputValue* end;
+		ShaderInputValue* capacity;
+		int unknownC;
+	};
+
+	// The description of a shader's inputs (8 bytes, copied and destroyed out of line: 0x10612A70 / 0x10613840): a list
+	// of the inputs and the xor of their names
 	class pddiShaderInputInitData
 	{
 	public:
@@ -90,9 +196,24 @@ namespace pure3d
 		void SetSampler(int kind, const char* name, const SamplerSetting* value);
 		// 0x10613870: the default value
 		void SetDefault(int kind, const char* name);
+		// 0x106139C0: a sampler with only its filter (name guess)
+		void SetFilter(int kind, const char* name, unsigned int filter);
 
-		void* unknown0;
-		int unknown4;
+		// The inputs of a name that the description does not hold yet are added, the others keep their first value
+		// (0x10612D50 default, 0x10612E60 bool, 0x10612F70 float, 0x10613080 / 0x106131A0 / 0x106132C0 vectors,
+		// 0x106133F0 matrix, 0x106135A0 filter, 0x106136C0 sampler)
+		void AddDefault(int kind, const core::Name<core::CaseInsensitiveKey32>& name);
+		void AddBool(int kind, const core::Name<core::CaseInsensitiveKey32>& name, bool value);
+		void AddFloat(int kind, const core::Name<core::CaseInsensitiveKey32>& name, float value);
+		void AddVector2(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddVector3(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddVector4(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddMatrix(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const float* value);
+		void AddFilter(int kind, const core::Name<core::CaseInsensitiveKey32>& name, unsigned int filter);
+		void AddSampler(int kind, const core::Name<core::CaseInsensitiveKey32>& name, const SamplerSetting* value);
+
+		ShaderInputList* inputs;
+		unsigned int hash;
 	};
 
 	// RTTI: pure3d::VertexOffsetList (base RefCounted, 3 slots, vftable 0x10E5DE74; 0x38 bytes): the offsets a
@@ -716,6 +837,8 @@ namespace pure3d
 	public:
 		// 0x106F2F20: the type is what the primitive is drawn as (0x4000 for the gpu skin)
 		explicit Primitive(unsigned int newType);
+		// 0x106F2F60: a primitive of the same kind (the shader and the flags are taken over)
+		Primitive(const Primitive& other);
 		virtual ~Primitive();
 		// Draws the primitive in the state of a part with the shader of that name
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
@@ -952,6 +1075,8 @@ namespace pure3d
 		// has (names guessed)
 		int FindEntry(const core::Name<core::CaseInsensitiveKey32>& name);
 		int GetEntryNumber(int index);
+		// 0x106EF970: registers a state with the module
+		void RegisterState(PrimitiveState* state);
 		// 0x106EE6E0: the index of a parameter
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
@@ -982,6 +1107,37 @@ namespace pure3d
 	class ParticleSphereGenerator;
 	class ParticleGridGenerator;
 	class ParticleMeshGenerator;
+
+	// A list of indices that keeps room for 68 of them inside itself (0x120 bytes: begin, end and capacity pointers, a
+	// word and the storage; the name is a guess)
+	class ParticleIndexList
+	{
+	public:
+		// Appends the index when there is room
+		void PushBack(const unsigned int& value)
+		{
+			if (end < capacity)
+			{
+				unsigned int* p = end;
+				end = p + 1;
+				if (p != 0)
+				{
+					*p = value;
+				}
+			}
+		}
+
+		void Clear()
+		{
+			end = begin;
+		}
+
+		unsigned int* begin;
+		unsigned int* end;
+		unsigned int* capacity;
+		int unknownC;
+		unsigned int storage[68];
+	};
 
 	class ParticleGenerator : public Entity
 	{
@@ -1015,7 +1171,7 @@ namespace pure3d
 		void Unknown10741120(float time);
 		// 0x10740460: the emitter transform, handed on to the generator
 		void SetTransform(const math::Matrix& newTransform);
-		// 0x10742720: forgets the particles it made (name guess)
+		// 0x10742720: forgets the particles it made (name guess; all the indices become free, in descending order)
 		void Unknown10742720();
 		// 0x10741080: whether the two counts at +0x2F4 / +0x2F8 differ (name guess)
 		bool Unknown10741080();
@@ -1023,6 +1179,14 @@ namespace pure3d
 		void GetUnknown10740E50(math::Matrix* out);
 		// 0x107404B0
 		void Unknown107404B0(float value);
+		// 0x10740490, 0x10740520, 0x10740540
+		void SetUnknown254(float value);
+		void SetUnknown260(float value);
+		void SetUnknown264(float value);
+		// 0x10740410: takes the first positive value (rounded up) once
+		void Unknown10740410(float value);
+		// 0x10740730
+		void Unknown10740730();
 		// 0x10741730, 0x10741850, 0x10741CE0, 0x10741990, 0x10741250: set a parameter (named by key) of the
 		// generator; the meaning of type (0 or 2) is unknown
 		void SetParameter(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
@@ -1036,14 +1200,29 @@ namespace pure3d
 		math::Matrix unknown90;
 		void* data;
 		ParticleAttributes attributes;
-		unsigned char unknown240[0x40];
+		unsigned char unknown240[0xC];
+		float unknown24C;
+		float unknown250;
+		float unknown254;
+		unsigned char unknown258[8];
+		float unknown260;
+		float unknown264;
+		unsigned char unknown268[0x10];
+		// The most particles the generator keeps alive
+		int particleCount;
+		// Set from the state that holds the generator (0x1070AF70)
+		int unknown27C;
 		float unknown280;
-		unsigned char unknown284[0x1C];
+		unsigned char unknown284[0xD];
+		bool unknown291;
+		bool unknown292;
+		unsigned char unknown293[1];
+		float unknown294;
+		unsigned char unknown298[8];
 		math::Matrix transform;
-		unsigned char unknown2E0[0x14];
-		int unknown2F4;
-		int unknown2F8;
-		unsigned char unknown2FC[0x114];
+		unsigned char unknown2E0[0x10];
+		// The indices of the particles that are free
+		ParticleIndexList indices;
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
@@ -1079,6 +1258,10 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10741F10)
 		virtual void Unknown6(float time);
+		// 0x10740180, 0x107401A0, 0x107401C0
+		void SetUnknown420(float value);
+		void SetUnknown424(float value);
+		void SetUnknown428(float value);
 
 		GeneratorAnimationState* animation;
 		float hosp;
@@ -1126,6 +1309,14 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742120)
 		virtual void Unknown6(float time);
+		// 0x107401E0 - 0x107402A0
+		void SetUnknown428(float value);
+		void SetUnknown42C(float value);
+		void SetUnknown430(float value);
+		void SetUnknown434(float value);
+		void SetUnknown438(float value);
+		void SetUnknown43C(float value);
+		void SetUnknown440(float value);
 
 		GeneratorAnimationState* animation;
 		float wdt;
@@ -1176,6 +1367,9 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107422B0)
 		virtual void Unknown6(float time);
+		// 0x107402C0, 0x107402E0
+		void SetUnknown41C(float value);
+		void SetUnknown420(float value);
 
 		GeneratorAnimationState* animation;
 		float rad;
@@ -1223,6 +1417,14 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742500)
 		virtual void Unknown6(float time);
+		// 0x10740300 - 0x10740380, 0x107403A0, 0x107403C0
+		void SetUnknown438(float value);
+		void SetUnknown43C(float value);
+		void SetUnknown440(float value);
+		void SetUnknown444(float value);
+		void SetUnknown448(float value);
+		void SetUnknown430(float value);
+		void SetUnknown434(float value);
 
 		GeneratorAnimationState* animation;
 		float wdt;
@@ -1275,6 +1477,11 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107425F0): only the base's animation
 		virtual void Unknown6(float time);
+		// 0x107403E0: the three components at +0x410
+		void SetUnknown410(const math::Vector& value);
+		// 0x10740940 / 0x10740950
+		int GetUnknown424();
+		void SetUnknown424(int value);
 
 		float unknown410;
 		float unknown414;
@@ -1443,6 +1650,8 @@ namespace pure3d
 			SkinState* mState;
 		};
 
+		// Slot 2 (the body is 0x1071FE10, the deleting destructor 0x107209E0)
+		virtual ~SkinState();
 		// Slots 3 - 9 and the state's own slot 10 (skin.cpp)
 		virtual PrimitiveState* Unknown3();
 		virtual void Unknown5();
@@ -1576,6 +1785,8 @@ namespace pure3d
 		unsigned int GetUnknown1C();
 		// 0x10720220: takes the primitive's flags from the shader's (called by Unknown4; name guess)
 		void SetFlagsFromShader();
+		// 0x1071ED40: the description of the index buffer at +0x148 (name guess)
+		void GetIndexDescription(IndexBufferDescription* description);
 		// 0x1071FF00 (0x29C bytes): a skin of the streams of the first description (the second and the third are
 		// the mesh's and the state's when the group animates some; argument names guessed)
 		Skin(const ShaderParameters* parameters, const ShaderParameters* meshParameters,
@@ -1722,6 +1933,8 @@ namespace pure3d
 		void SetFlagsFromShader();
 	};
 
+	class ParticleController;
+
 	// The per-instance state of a particle system. The setters and parameter forwarders are inline (0x107E8060 -
 	// 0x107E80D0 and 0x107E8AA0 - 0x107E8B30 are out-of-line copies); the rest is in the particle module.
 	class ParticleSystemState : public PrimitiveState
@@ -1777,6 +1990,36 @@ namespace pure3d
 		virtual void GetBoundingBox(math::AABB* box);
 		// 0x1070C340 (not reconstructed)
 		void Unknown1070C340();
+		// 0x1070BD00 - 0x1070BE20: the arrays of an entry of the lists of the attributes (vectors, four-component
+		// vectors, floats, floats) of the state that owns them (the parent's when inherited)
+		particles::Span GetSpan0(int index);
+		particles::Span GetSpan1(int index);
+		particles::Span GetSpan2(int index);
+		particles::Span GetSpan3(int index);
+		// 0x106E9980: the number of particles of the state that owns them (the parent's when inherited)
+		unsigned int GetParticleCount();
+		// 0x10709C00: starts the update unless the state takes its values from its parent
+		void StartUpdate(float x, float y, float z, bool flag);
+		// 0x10709D90: hands the value on to the generator
+		void SetGeneratorUnknown254(float value);
+		// 0x10709E90 / 0x10709EA0 / 0x10709EB0 / 0x10709F10: the values at +0x494, +0x498, +0x491 and +0x4BA
+		float GetUnknown494();
+		float GetUnknown498();
+		bool GetUnknown491();
+		void SetUnknown4BA(bool value);
+		// 0x10709EE0: the frame rate of the update controller times the value
+		float ScaleByFrameRate(float value);
+		// 0x1070AEB0 - 0x1070AF40: element n of the arrays of values at +0x2E0 (floats), +0x2F8 (pairs), +0x308
+		// (vectors) and +0x32C (matrices) of the state that owns them (the parent's when inherited)
+		float GetValue(int index);
+		float* GetPair(int index);
+		math::Vector* GetVector(int index);
+		math::Matrix* GetMatrix(int index);
+		// 0x1070AB60: makes the state follow another one (the four words at +0x4C4 come from the values) and makes the
+		// vertex buffers its draw needs
+		void SetParent(ParticleSystemState* newParent, const int* values);
+		// 0x1070AF70: holds the generator and tells it the value at +0x4B4
+		void SetGenerator(ParticleGenerator* newGenerator);
 
 		void SetUnknown49C(float value)
 		{
@@ -1902,7 +2145,9 @@ namespace pure3d
 		unsigned char* block;
 		unsigned char unknown2B8[8];
 		ParticleAttributeTable* attributes2C0;
-		unsigned char unknown2C4[0xC];
+		unsigned char unknown2C4[4];
+		ParticleAttributeTable* attributes2C8;
+		unsigned char unknown2CC[4];
 		ParticleAttributeTable* attributes2D0;
 		unsigned char unknown2D4[4];
 		ParticleAttributeTable* attributes2D8;
@@ -1929,8 +2174,8 @@ namespace pure3d
 		RefCountedBoolChannel* unknown3F0;
 		bool unknown3F4;
 		unsigned char unknown3F5[3];
-		FrameController* unknown3F8;
-		FrameController* unknown3FC;
+		ShaderAnimationController* unknown3F8;
+		ParticleController* unknown3FC;
 		RefCountedFloat1Channel* unknown400;
 		RefCountedFloat1Channel* unknown404;
 		RefCountedVectorChannel* unknown408;
@@ -1941,7 +2186,13 @@ namespace pure3d
 		// The box around the particles (UpdateBounds) and the emitter transform
 		math::AABB bounds;
 		math::Matrix transform;
-		unsigned char unknown474[0x1C];
+		// A reference the state holds (released by the destructor, copied by the copy constructor)
+		void* unknown474;
+		unsigned char unknown478[4];
+		unsigned int unknown47C;
+		// The two vertex buffers a state that takes its particles from a parent draws into (0x1070AB60)
+		dxVertexBuffer* vertexBuffers[2];
+		unsigned char unknown488[8];
 		bool unknown490;
 		bool unknown491;
 		unsigned char unknown492[2];
@@ -1954,12 +2205,19 @@ namespace pure3d
 		unsigned char unknown4AC[8];
 		int unknown4B4;
 		bool unknown4B8;
-		unsigned char unknown4B9[3];
+		bool unknown4B9;
+		// Set by 0x10709F10
+		bool unknown4BA;
+		bool unknown4BB;
 		bool unknown4BC;
 		bool inheritUnknown4BC;
 		unsigned char unknown4BE[2];
 		// The state this one was made from
 		ParticleSystemState* parent;
+		int unknown4C4;
+		int unknown4C8;
+		int unknown4CC;
+		int unknown4D0;
 	};
 }
 

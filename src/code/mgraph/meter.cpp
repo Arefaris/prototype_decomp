@@ -14,6 +14,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B734F0
+	inline void* Meter::operator new(size_t)
+	{
+		return Allocate(Meter::AllocationTag(), sizeof(Meter), __alignof(Meter));
+	}
+
+	inline void Meter::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Meter), __alignof(Meter));
+	}
+
 	// FUNCTION: ENGINE 0x10B73910
 	void RegisterMeter()
 	{

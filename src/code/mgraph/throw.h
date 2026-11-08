@@ -192,8 +192,6 @@ namespace mgraph
 		}
 	}
 	// Left to the engine: the constructors and the channel resizing of these classes do not match yet (their symbols are mapped)
-	template<> Throw<Packet<om::DynamicArray<float,unsigned short> > >::Throw(Graph* newGraph, const om::ClassName& newName);
-	template<> Throw<Packet<float > >::Throw(Graph* newGraph, const om::ClassName& newName);
 	template<> Throw<Packet<EnvelopeData > >::Throw(Graph* newGraph, const om::ClassName& newName);
 	template<> Catch<Packet<om::DynamicArray<bool,unsigned short> > >::Catch(Graph* newGraph, const om::ClassName& newName);
 	template<> Catch<Packet<om::DynamicArray<float,unsigned short> > >::Catch(Graph* newGraph, const om::ClassName& newName);
@@ -204,8 +202,9 @@ namespace mgraph
 	template<> Catch<Packet<om::DynamicArray<om::Complex,unsigned short> > >::Catch(Graph* newGraph, const om::ClassName& newName);
 	template<> Catch<Packet<EnvelopeData > >::Catch(Graph* newGraph, const om::ClassName& newName);
 	template<> Catch<Packet<om::DynamicArray<EnvelopeData,unsigned short> > >::Catch(Graph* newGraph, const om::ClassName& newName);
-	template<> Throw<Packet<om::DynamicArray<EnvelopeData,unsigned short> > >::Throw(Graph* newGraph, const om::ClassName& newName);
 	template<> Throw<Packet<om::String > >::~Throw();
+	template<> Throw<Packet<om::DynamicArray<float,unsigned short> > >::~Throw();
+	template<> Throw<Packet<om::DynamicArray<EnvelopeData,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<bool,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<unsigned int,unsigned short> > >::~Throw();
 	template<> Throw<Packet<om::DynamicArray<unsigned __int64,unsigned short> > >::~Throw();

@@ -265,7 +265,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x1082A660
-		void Light::ApplyUnknown1075C500(const unsigned int* a, const unsigned int* b, const unsigned int* c)
+		void Light::ApplyUnknown1075C500(const float* a, const float* b, const float* c)
 		{
 			pure3d::Light* object = (pure3d::Light*)GetControllerObject(handle);
 			if (object != 0)

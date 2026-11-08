@@ -4,6 +4,7 @@
 
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/engine/fight/effecttrack.h"
+#include "code/engine/gameobject/gameobjectparams.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata.h"
@@ -14,6 +15,14 @@ namespace proto
 	{
 		namespace ai
 		{
+			// RTTI: proto::fightitems::ai::DestinationParams (4 vftable slots): the parameters a destination track hands its conditions and actions,
+			// the part they read here (the flags of the params say what the destination is)
+			class DestinationParams : public engine::GameObjectParams
+			{
+			public:
+				math::Vector position;  // +0x18
+			};
+
 			// RTTI: proto::fightitems::ai::InReservedAreaCondition (10 vftable slots, 0x10 bytes)
 			class InReservedAreaCondition : public fight::Condition
 			{

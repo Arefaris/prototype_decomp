@@ -1,30 +1,11 @@
 // The script method wrappers of proto::scenario::ScenarioManager: the unit that registers the manager's methods with the
-// script context (0x10489C70 - 0x1048B3B0, no assert path; the file name is a guess) instantiates engine::Function's
+// script context (0x10489C70 - 0x1048B3B0; the class is in scenario/scenariomanager.h) instantiates engine::Function's
 // Method and Closure templates for their signatures.
 #include "code/engine/function.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/luascriptmanager.h"
 #include "code/math/vector.h"
-
-namespace proto
-{
-	namespace scenario
-	{
-		// RTTI: proto::scenario::ScenarioManager (no vftable). Only the script natives' signatures are known: the timers
-		// (sm_StartTimer, sm_CancelTimer), the clocks (time_GetSimulationDelta, time_GetElapsedTime, time_GetRealTimeDelta,
-		// time_GetElapsedRealTime) and the stream natives (stream_SetCellTriggerBoundingBox, stream_PackageSwap, ...).
-		class ScenarioManager
-		{
-		public:
-			int StartTimer(float time, const char* message);
-			void CancelTimer(int timer);
-			float GetClock();
-			void SetCellTriggerBoundingBox(unsigned int low, unsigned int high);
-			void SetMission(const char* first, const char* second);
-			bool GetFlag();
-		};
-	}
-}
+#include "code/proto/scenario/scenariomanager.h"
 
 template class Method2<proto::scenario::ScenarioManager, int, float, const char*>;
 template class Method1<proto::scenario::ScenarioManager, void, int>;

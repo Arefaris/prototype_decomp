@@ -383,10 +383,13 @@ namespace proto
 				// vftable slot 7 (0x10219A60)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x10219230 (name guess): where the ball starts, the offset of the track in the frame of its joint
+				math::Vector* GetOrigin(math::Vector* origin);
+
 				core::Link<ThreatBallTrack> link;  // +0x1C
 				engine::TrackWatch listener;  // +0x28
 				engine::GameObjectHandle target;  // +0x34
-				engine::HandleBase unknown38;  // +0x38
+				engine::GameObjectHandle unknown38;  // +0x38
 			};
 			// RTTI: proto::fightitems::ai::ThreatSendToTargetAction (9 vftable slots, 0x38 bytes)
 			class ThreatSendToTargetAction : public fight::Action
@@ -420,11 +423,16 @@ namespace proto
 				// vftable slot 7 (0x10219CF0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x10217F30 (name guess): whether the object and the last threat are closer to each other than the track's distance (or one of them is gone)
+				bool IsThreatNear();
+				// 0x10219870 (name guess): starts the dodge branch of the track
+				bool StartDodge();
+
 				core::IRefCount* effect;  // +0x1C
 				engine::TrackWatch listener;  // +0x20
 				core::Link<ThreatDodgeTrack> link;  // +0x2C
 				engine::GameObjectHandle target;  // +0x38
-				engine::HandleBase unknown3C;  // +0x3C
+				engine::GameObjectHandle unknown3C;  // +0x3C
 				float unknown40;  // +0x40
 			};
 			// ---- actions end

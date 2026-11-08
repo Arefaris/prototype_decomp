@@ -81,6 +81,71 @@ namespace proto
 		return result;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x103A0690
+	int HunterShortRangePathfinder::PathWrapper::GetPointCount()
+	{
+		return path->points.Size();
+	}
+
+	// FUNCTION: ENGINE 0x103A06B0
+	math::Vector HunterShortRangePathfinder::PathWrapper::GetPoint(int index)
+	{
+		return path->points.begin[index].position;
+	}
+
+	// FUNCTION: ENGINE 0x103A06E0
+	// NONMATCHING: the engine clamps the indices with branches, ours selects with set instructions (3.1 %)
+#ifdef NONMATCHING
+	bool HunterShortRangePathfinder::PathWrapper::Slot2(int first, int second)
+	{
+		int last = path->points.Size() - 1;
+		if (first < 0)
+		{
+			if (first <= last)
+			{
+				first = 0;
+			}
+			else
+			{
+				first = last;
+			}
+		}
+		else if (first > last)
+		{
+			first = last;
+		}
+		if (second < 0)
+		{
+			if (second <= last)
+			{
+				second = 0;
+			}
+			else
+			{
+				second = last;
+			}
+		}
+		else if (second > last)
+		{
+			second = last;
+		}
+		if (second - first > 0 && first < second)
+		{
+			HunterShortRangePathPoint* point = path->points.begin + first;
+			for (; first < second; first++)
+			{
+				if (0.9f > point->direction.x * point[1].direction.x + point->direction.y * point[1].direction.y
+					+ point->direction.z * point[1].direction.z)
+				{
+					return false;
+				}
+				point++;
+			}
+		}
+		return true;
+	}
+#endif
 }
 
 template class container::ArrayDynamic<proto::FlyingPathPoint, container::AllocatorNew>;

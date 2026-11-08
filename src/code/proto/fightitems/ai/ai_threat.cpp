@@ -1,13 +1,21 @@
 // Fight items of the ai group: ThreatCondition, ThreatInMemoryCondition, ThreatCanSeeCondition, LastThreatConditionGroupCondition, ThreatCanGrabCondition, ThreatStoreCondition, ThreatBallTrack, ThreatDodgeTrack, ThreatMemoryResetTrack, ThreatSendToTargetTrack (unit 0x10253340 - 0x10255E00; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_threat.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/engine/fight/effecttrack.h"
 
 namespace proto
 {
 	namespace fightitems
 	{
+		namespace motion
+		{
+			// 0x10127B10 (another unit; name guess): the index of the part of an object's drawable that a joint name stands for, or -1
+			int FindDrawablePart(engine::GameObject* object, const core::Name<core::CaseSensitiveKey>* name);
+		}
+
 		namespace ai
 		{
 			fight::Property** gThreatConditionProperties;  // 0x11255C20
@@ -874,6 +882,63 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10219230
+			math::Vector* ThreatBallAction::GetOrigin(math::Vector* origin)
+			{
+				engine::GameObject* object = target.Get();
+				math::Matrix world = object->transform->value;
+				engine::Attribute<proto::PartLookup*>* attribute = (engine::Attribute<proto::PartLookup*>*)object->FindAttribute(proto::gDrawableAttributeName);
+				if (attribute != 0 && &attribute->value != 0)
+				{
+					proto::PartLookup* lookup = attribute->value;
+					if (lookup != 0)
+					{
+						int part = motion::FindDrawablePart(object, &link.object->joint);
+						if (part != 0xffff)
+						{
+							world.Multiply(lookup->matrices[part], world);
+						}
+					}
+				}
+				math::Vector offset;
+				const math::Vector* source = &link.object->offset;
+				offset.x = source->x;
+				offset.y = source->y;
+				offset.z = source->z;
+				world.Transform(offset, *origin);
+				return origin;
+			}
+
+			// FUNCTION: ENGINE 0x102191E0
+			void ThreatBallAction::Slot6()
+			{
+				if (link.object != 0 && link.object->timeToLive < 0.0f)
+				{
+					engine::GameObject* ball = unknown38.Get();
+					if (ball != 0)
+					{
+						ball->SetActive(false);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10219A60
+			bool ThreatBallAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* ball = unknown38.Get();
+				if (ball != 0)
+				{
+					math::Vector origin;
+					GetOrigin(&origin);
+					ball->SetPosition(origin);
+				}
+				return ball != 0;
+			}
+
 			// FUNCTION: ENGINE 0x10219930
 			fight::Action* ThreatBallTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -905,6 +970,110 @@ namespace proto
 			ThreatDodgeAction::~ThreatDodgeAction()
 			{
 			}
+
+			// FUNCTION: ENGINE 0x10217F30
+			// NONMATCHING: the engine loads the position of the object, steps its pointer and then loads the threat's position into other registers, best 77 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::IsThreatNear()
+			{
+				engine::GameObject* object = target.Get();
+				engine::GameObject* threat = unknown3C.Get();
+				if (object != 0 && threat != 0)
+				{
+					math::Matrix& objectWorld = object->transform->value;
+					math::Matrix& threatWorld = threat->transform->value;
+					math::Vector from(objectWorld.m[3][0], objectWorld.m[3][1], objectWorld.m[3][2]);
+					math::Vector to(threatWorld.m[3][0], threatWorld.m[3][1], threatWorld.m[3][2]);
+					float dx = from.x - to.x;
+					float dz = from.z - to.z;
+					float dy = from.y - to.y;
+					float lengthSquared = dx * dx;
+					lengthSquared = lengthSquared + dz * dz;
+					lengthSquared = lengthSquared + dy * dy;
+					if (!(unknown40 > lengthSquared))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219870
+			// NONMATCHING: the argument loads of the condition call take other registers (effect in edx, listener in eax, track in ecx), best 94.6 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::StartDodge()
+			{
+				fight::Branch* branch = link.Get()->dodgeBranch.GetBranch();
+				engine::GameObjectParams* params = new engine::GameObjectParams(target, 0, 0x10001);
+				params->AddRef();
+				int currentEffect = (int)effect;
+				int currentListener = (int)listener.track;
+				fight::ConditionList* conditions = &link.Get()->conditions;
+				if (conditions->Evaluate(currentListener, currentEffect, (int)params, 0))
+				{
+					fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, params, 0, false);
+					if (started != 0)
+					{
+						started->Slot11((fight::Sequencer*)effect, params, link.Get()->priority);
+					}
+				}
+				params->Release();
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219BF0
+			// NONMATCHING: the call of the (not compiled) threat distance test keeps ecx in the engine, best 82 %
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (link.object->dodgeBranch.GetBranch() == 0)
+				{
+					return false;
+				}
+				unknown40 = link.object->distanceToThreat * link.object->distanceToThreat;
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					GetLastThreatMessage message;
+					object->SendMessage(&message);
+					if (message.threat.Exists())
+					{
+						unknown3C = message.threat;
+						if (!IsThreatNear())
+						{
+							return true;
+						}
+					}
+					StartDodge();
+					return false;
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10219CF0
+			// NONMATCHING: the call of the (not compiled) threat distance test keeps ecx in the engine
+#ifdef NONMATCHING
+			bool ThreatDodgeAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (unknown3C.IsValid() && IsThreatNear())
+				{
+					StartDodge();
+					return false;
+				}
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x10219860
 			void ThreatDodgeAction::Slot6()
@@ -945,6 +1114,63 @@ namespace proto
 					}
 				}
 				return false;
+			}
+
+			// FUNCTION: ENGINE 0x102181E0
+			// NONMATCHING: shrink-wrap; the engine saves ebp, edi and esi where the code needs them and sets ebx before the first call, best 70.8 %
+#ifdef NONMATCHING
+			bool ThreatInMemoryCondition::Evaluate(int a, int b, int c, int d)
+			{
+				int index = 0;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					ThreatBallsGetMessage message;
+					object->SendMessage(&message);
+					for (index = 0; index < message.count; index++)
+					{
+						engine::GameObject* ball = message.balls[index].Get();
+						if (ball != 0)
+						{
+							ThreatGetInfoMessage info;
+							ball->SendMessage(&info);
+							if (info.unknown20 != 0)
+							{
+								ThreatInMemoryMessage memory(info.unknown20, info.unknown24);
+								object->SendMessage(&memory);
+								if (memory.found)
+								{
+									return true;
+								}
+							}
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10218E30
+			bool LastThreatConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetLastThreatMessage message;
+				object->SendMessage(&message);
+				engine::GameObjectHandle threat = message.threat;
+				if (!threat.IsValid())
+				{
+					return false;
+				}
+				engine::GameObjectParams* params = new engine::GameObjectParams(0x10001);
+				params->handle = threat;
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
 			}
 
 			// ---- actions end
@@ -1166,3 +1392,9 @@ namespace proto
 // FUNCTION: ENGINE 0x10218FE0
 // FUNCTION: ENGINE 0x10218FF0
 // FUNCTION: ENGINE 0x10217970
+// FUNCTION: ENGINE 0x102177A0
+// FUNCTION: ENGINE 0x102177E0
+// FUNCTION: ENGINE 0x102177F0
+// FUNCTION: ENGINE 0x10217820
+// FUNCTION: ENGINE 0x10217870
+// FUNCTION: ENGINE 0x102178A0

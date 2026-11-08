@@ -20,6 +20,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B71BA0
+	inline void* Filter::operator new(size_t)
+	{
+		return Allocate(Filter::AllocationTag(), sizeof(Filter), __alignof(Filter));
+	}
+
+	inline void Filter::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Filter), __alignof(Filter));
+	}
+
 	// FUNCTION: ENGINE 0x10B726A0
 	template<> Node* NodeType<Filter>::CreateNode(void* graph, const ClassName* nodeName)
 	{

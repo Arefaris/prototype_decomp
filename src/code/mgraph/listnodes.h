@@ -7,6 +7,12 @@
 
 namespace mgraph
 {
+	// The comparison of the trigger values the list entry node makes
+	inline bool operator!=(const TriggerData& left, const TriggerData& right)
+	{
+		return left.unknown0 != right.unknown0;
+	}
+
 	template<class T> class __declspec(align(8)) ListCount : public Node
 	{
 	public:
@@ -32,12 +38,11 @@ namespace mgraph
 
 	template<class T> void ListCount<T>::Slot16(EvaluationFrame* frame)
 	{
-		FrameEntry<om::DynamicArray<T, unsigned short> >* list =
-			**reinterpret_cast<FrameEntry<om::DynamicArray<T, unsigned short> >***>(frame->inputs);
+		FrameEntry<om::DynamicArray<T, unsigned short> >** entries = frame->GetInputs<om::DynamicArray<T, unsigned short> >(0)->entries;
 		unsigned int count = 0;
-		if (list != 0)
+		if (entries[0] != 0)
 		{
-			count = list->value.size;
+			count = entries[0]->value.size;
 		}
 		FrameEntry<unsigned int>* output = static_cast<FrameOutput<unsigned int>*>(frame->outputs)->entry;
 		unsigned int id = frame->id;
@@ -98,14 +103,12 @@ namespace mgraph
 
 	// Left to the engine: the constructors that would expand the pins of these packet types, whose virtual functions the engine
 	// shares between identical copies
-	template<> ListCount<float>::ListCount(Graph* newGraph, const om::ClassName& newName);
-	template<> ListEntry<float>::ListEntry(Graph* newGraph, const om::ClassName& newName);
+
 	template<> ListCount<EnvelopeData>::ListCount(Graph* newGraph, const om::ClassName& newName);
 
 	// Left to the engine (compared by the types' own tests, not reconstructed)
 	template<> void ListEntry<om::Vector>::Slot16(EvaluationFrame* frame);
 	template<> void ListEntry<om::Complex>::Slot16(EvaluationFrame* frame);
-	template<> void ListEntry<TriggerData>::Slot16(EvaluationFrame* frame);
 	template<> void ListEntry<EnvelopeData>::Slot16(EvaluationFrame* frame);
 }
 

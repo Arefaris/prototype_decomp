@@ -8,8 +8,24 @@
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/core/name.h"
 
+namespace content
+{
+	struct ClassInfo;
+	struct MemberList;
+}
+
 namespace proto
 {
+	// RTTI: proto::EnterPoisonDamageMessage: a poison starts on the object (only the type of the poison is recovered; the
+	// reflection is in poisondamagemessages.cpp, 0x102B58A0 / 0x102B5B70)
+	struct EnterPoisonDamageMessage : public engine::IntrusiveMessage
+	{
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		int poisonType;  // +0xC
+	};
+
 	// RTTI: proto::EnterPoisonExDamageMessage: a poison starts on the object
 	struct EnterPoisonExDamageMessage : public engine::IntrusiveMessage
 	{
@@ -38,6 +54,9 @@ namespace proto
 		virtual ~ExitPoisonDamageMessage()
 		{
 		}
+		// 0x102B58E0 / 0x102B5C30 (poisondamagemessages.cpp)
+		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
 
 		int poisonType;  // +0xC
 		engine::HandleBase source;  // +0x10

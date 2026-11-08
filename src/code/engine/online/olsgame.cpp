@@ -24,13 +24,13 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10887DE0
-	void OLSGame::CancelState()
+	void OLSGame::Slot2()
 	{
 		CancelStateRequest(state);
 	}
 
 	// FUNCTION: ENGINE 0x10887DF0
-	void OLSGame::RequestTransitionState()
+	void OLSGame::Slot3()
 	{
 		RequestTransition(state, 0);
 	}
@@ -63,7 +63,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10888280
-	void OLSGame::Update()
+	void OLSGame::Slot6()
 	{
 		if ((flags & 1) != 0)
 		{

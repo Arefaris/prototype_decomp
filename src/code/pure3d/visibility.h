@@ -70,10 +70,28 @@ namespace pure3d
 		// A set of bits as the server keeps them (16 bytes: the words are at +8)
 		struct BitSet
 		{
-			int unknown0;
-			int unknown4;
+			// 0x1060F540: no bits
+			BitSet();
+			// 0x1060F550: room for that many bits (a multiple of 32), in a block of its own aligned to 128 bytes when
+			// there is no memory to take (the bits start cleared), else over that memory
+			void Create(unsigned int bits, void* memory);
+			// 0x1060F5C0
+			void Free();
+			// 0x1060F4F0
+			void ClearAll();
+			// 0x1060F5F0: how many bits are set
+			int CountSet();
+			// 0x1060F670 / 0x1060F690: the bits of another set of the same size / the bits it does not have
+			void CopyFrom(const BitSet* other);
+			void SetNot(const BitSet* other);
+			// 0x1060F6F0 / 0x1060F780: both sets' bits together / either's
+			void SetAnd(const BitSet* first, const BitSet* second);
+			void SetOr(const BitSet* first, const BitSet* second);
+
+			unsigned int bitCount;
+			bool ownsBlock;
 			unsigned int* words;
-			int unknownC;
+			void* block;
 		};
 
 		// RTTI pure3d::visibility::Server::BitFieldStack: the result sets of the tests (5) and then the flag sets
