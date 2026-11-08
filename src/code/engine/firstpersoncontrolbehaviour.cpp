@@ -21,6 +21,11 @@ namespace engine
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x1091DFA0
+	FirstPersonControlBehaviour::~FirstPersonControlBehaviour()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1091DFB0
 	void FirstPersonControlBehaviour::Slot1()
 	{
@@ -78,7 +83,7 @@ namespace engine
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x1091DFA0
+// FUNCTION: ENGINE 0x1091E050
 // FUNCTION: ENGINE 0x1091E010
 // FUNCTION: ENGINE 0x1091E020
 // FUNCTION: ENGINE 0x1091E070

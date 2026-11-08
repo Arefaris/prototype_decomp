@@ -22,9 +22,7 @@ namespace engine
 		// 0x1091EBD0
 		explicit FirstPersonControlBehaviour(GameObject* newOwner);
 		// 0x1091DFA0 (deleting destructor 0x1091E050)
-		virtual ~FirstPersonControlBehaviour()
-		{
-		}
+		virtual ~FirstPersonControlBehaviour();
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
