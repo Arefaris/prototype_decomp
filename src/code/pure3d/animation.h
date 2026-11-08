@@ -5,47 +5,118 @@
 
 #include "code/pure3d/entity.h"
 
+namespace compress
+{
+	class Stream;
+}
+
 namespace pure3d
 {
 	class AnimationMemoryBlock;
+	class Channel;
+	class Animation;
 
-	// A group of channels of an animation, found by a name (the members are in another unit)
+	// A group of channels of an animation, found by a name (RTTI: vftable 0x10E55A78, 2 slots)
 	class AnimationGroup
 	{
 	public:
+		// 0x106E8550: an empty group
+		AnimationGroup();
+		// 0x106E91E0 (it lets the channels go through Clear); the scalar deleting destructor is 0x106E97D0
+		virtual ~AnimationGroup();
+		// 0x106E8C80: deletes the channels of a group made on the heap, or lets the channels of one made in a
+		// memory block go and releases the block
+		virtual void Clear();
 		// 0x106E8240: the hash of the name
 		unsigned __int64 GetNameHash();
 		// 0x106E7910: the channel of the group by its type and the type of its values
 		void* FindChannel(unsigned int type, unsigned int format);
 
-		unsigned char unknown0[8];
+		unsigned char unknown4[4];
 		core::Name<core::CaseSensitiveKey> mName;
 		// The id the group is found by in an animation sorted by id (the overall groups)
 		int mId;
 		unsigned int mChannelCount;
-		void** mChannels;
+		Channel** mChannels;
 		AnimationMemoryBlock* mBlock;
 	};
 
-	// pure3d::AnimationMemoryBlock (RTTI name; base pure3d::RefCounted): the memory an animation's data sits in
+	// pure3d::AnimationMemoryBlock (RTTI name; base pure3d::RefCounted, vftable 0x10E559E0): the memory the data of an
+	// animation sits in, two pools: one for the objects and one for the arrays
 	class AnimationMemoryBlock : public RefCounted
 	{
 	public:
+		// 0x106E7820: the sizes of the two pools (objects, arrays); a pool of no bytes has no memory
+		explicit AnimationMemoryBlock(const unsigned int* sizes);
+		// 0x106E7890; the scalar deleting destructor is 0x106E8530
+		virtual ~AnimationMemoryBlock();
 		// 0x106E78C0: size bytes from one of the two pools (the one of the 7 mask for objects, the other for
 		// arrays), aligned by the mask; null for no bytes (name guess)
 		void* Allocate(unsigned int size, unsigned int alignmentMask);
 
-		unsigned char unknown8[8];
-		// The animation data, a pointer into the block (zero while it is not loaded)
+		unsigned int mSizes[2];
+		// How much of each pool is taken
+		unsigned int mUsed[2];
+		char* mPools[2];
+	};
+
+	// What an animation keeps of its data (+0x3C of the animation; names guessed)
+	struct AnimationData
+	{
+		unsigned char unknown0[4];
+		int mStart;
+		int mEnd;
+		void* mArray;
+		// The data itself (zero while it is not loaded)
 		void* mData;
+	};
+
+	// A track of events of an animation (0x30 bytes; the name is the one it is found by)
+	struct AnimationEventTrack
+	{
+		~AnimationEventTrack()
+		{
+		}
+
+		core::Name<core::CaseSensitiveKey> name;
+		unsigned char unknown8[0x28];
+	};
+
+	// The 0x20 bytes in front of the data of an animation in the manager's memory (names guessed)
+	struct AnimationDataHeader
+	{
+		unsigned char unknown0[8];
+		int pool;
+		unsigned char unknownC[4];
+		// How many animations use the data
+		int users;
+		unsigned char unknown14[4];
+		// The stream that decompresses the data (null when it is ready)
+		compress::Stream* stream;
+		unsigned char unknown1C[4];
 	};
 
 	// The manager of the animation memory (the global at 0x1127EDDC)
 	class AnimationMemoryManager
 	{
 	public:
+		// 0x106E7760: a user of the data of an animation (the data is touched unless the flag is set; names guessed)
+		void Use(void* data, int noTouch);
+		// 0x106E77B0: a user lets go of the data
+		void Release(void* data);
+		// 0x106E9180: brings the data of the animation in (name guess)
+		void* Load(Animation* animation);
+
 		// 0x106E76C0: marks the data as used (with the manager's lock held)
 		void Touch(void* data);
+		// 0x106E77E0: gives the data of an animation back (name guess)
+		void FreeData(void* data);
+
+		unsigned char unknown0[0x10];
+		// The lock of the manager (a critical section)
+		unsigned char unknown10[0x58];
+		// How many bytes of animation data have been given back (name guess)
+		int mFreed;
 	};
 
 	class Animation : public Entity
@@ -61,6 +132,13 @@ namespace pure3d
 			CYCLE_MODE_5
 		};
 
+		// 0x106E7960: an empty animation of 30 frames a second
+		Animation();
+		// 0x106E91F0 (frees the groups, the events and the data); the scalar deleting destructor is 0x106E97F0
+		virtual ~Animation();
+		// Slots 3 and 4 (0x106E79B0, 0x106E79C0): the base answers false and itself
+		virtual bool Unknown3();
+		virtual Animation* Unknown4();
 		// 0x106E7B20: touches the animation's data in the manager
 		void Touch();
 		// 0x106E7B50: releases the animation's data through the manager (name guess)
@@ -94,8 +172,12 @@ namespace pure3d
 		int mSortMode;
 		int mGroupCount;
 		AnimationGroup** mGroups;
-		unsigned char unknown30[0xC];
-		AnimationMemoryBlock* mBlock;
+		// The block the groups and the events are made in (none for an animation made on the heap), how many tracks of
+		// events there are and the tracks
+		AnimationMemoryBlock* mGroupBlock;
+		unsigned int mEventCount;
+		AnimationEventTrack* mEvents;
+		AnimationData* mBlock;
 	};
 
 	// 0x1127EDDC

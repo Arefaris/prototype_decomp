@@ -20,6 +20,8 @@ namespace pure3d
 	{
 		// 0x106E2FE0
 		FrameTime();
+		// 0x106E2FF0
+		FrameTime(short newFrame);
 		// 0x106E3010
 		FrameTime(float time);
 		// 0x106E3030: sets the frame and the time that goes with it
@@ -163,6 +165,11 @@ namespace pure3d
 		void Evaluate(FrameTime time, typename KeyValue<T>::Type* out);
 		// The frame number (as a float) and the value of the key of that index; 0x106E4020, 0x106E4180, 0x106E42E0
 		void GetKeyAt(unsigned int index, float* frame, typename KeyValue<T>::Type* out);
+		// The value of a key or at a time as a float time (0x106E6BA0 - 0x106E6C60); the rotations also as a matrix
+		// (0x106E5B10, 0x106E5F70, 0x106E6320, 0x106E6650, 0x106E6980 for a key, 0x106E6C90 - 0x106E6EE0 at a time)
+		void GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+		void Evaluate(float time, typename KeyValue<T>::Type* out);
+		void Evaluate(float time, math::Matrix* out);
 		// 0x106E35B0 (float): the change of the value between two times, the span of a cycle and whether it wraps
 		void GetDelta(float previousTime, float time, typename KeyValue<T>::Type* out, float length, bool cycle);
 
@@ -178,6 +185,8 @@ namespace pure3d
 			const T* values);
 		// 0x106E44D0 (float), 0x106E49D0 (Float2), 0x106E4B80 (Short2)
 		void Evaluate(FrameTime time, math::Vector* out);
+		// The frame and the vector of a key (0x106E4460, 0x106E4620, 0x106E46B0)
+		void GetKeyAt(unsigned int index, float* frame, math::Vector* out);
 
 		int axis;
 		math::Vector constant;
@@ -199,8 +208,16 @@ namespace pure3d
 		void Set(ChannelKeys<math::CompressedQuaternion3> newKeys);
 		// 0x106E6D70
 		void Evaluate(FrameTime time, math::Quaternion* out);
+		// 0x106E6CD0 (and 0x106E6D20 for a matrix, a function the analysis did not split off): the frame and the value of
+		// a key
+		void GetKeyAt(unsigned int index, float* frame, math::Quaternion* out);
+		void GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+		// 0x106E6F20: the value at a time as a matrix
+		void Evaluate(float time, math::Matrix* out);
 		// 0x106E6FC0: the rotation that takes the value at the first time to the one at the second
 		void GetDelta(FrameTime from, FrameTime to, math::Quaternion* out);
+		// 0x106E39B0: the keys of the stored form as their base (the base of every form sits in the same place)
+		RotationKeysBase* GetBase();
 		// 0x10734E40: the same for two times given as numbers
 		void GetDelta(float previousTime, float time, math::Quaternion* out);
 
@@ -223,8 +240,12 @@ namespace pure3d
 		void Set(const ChannelKeys<Short3>& newKeys);
 		// 0x106E5CC0
 		void Evaluate(FrameTime time, math::Vector* out);
+		// 0x106E5C70: the frame and the value of a key
+		void GetKeyAt(unsigned int index, float* frame, math::Vector* out);
 		// 0x106E5D70: the change of the value between two times
 		void GetDelta(FrameTime from, FrameTime to, math::Vector* out);
+		// 0x106E3980: the keys of the stored form as their base (the base of every form sits in the same place)
+		VectorKeysBase* GetBase();
 
 		int type;
 		unsigned char keys[0x20];

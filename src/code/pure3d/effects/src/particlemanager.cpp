@@ -3,7 +3,10 @@
 #include "code/math/mathutils.h"
 #include "code/math/pddicolour.h"
 #include "code/math/vector4.h"
+#include "code/pure3d/pass/rendertargetmanager.h"
+#include "code/pure3d/pddi.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/vertexstream.h"
 
 namespace math
 {
@@ -203,4 +206,239 @@ namespace pure3d
 	{
 		unknown1B8 = value;
 	}
+
+	// FUNCTION: ENGINE 0x106EDA00
+	ParticleStateRecord::ParticleStateRecord(PrimitiveState* newState)
+	{
+		state = newState;
+		released = false;
+	}
+
+	// FUNCTION: ENGINE 0x106EF970
+	void ParticleManager::RegisterState(PrimitiveState* state)
+	{
+		states.PushBack(ParticleStateRecord(state));
+	}
+
+	// FUNCTION: ENGINE 0x106EDA30
+	void ParticleManager::Unknown106EDA30()
+	{
+		for (int i = 1; i >= 0; i--)
+		{
+			if (queries[i])
+			{
+				pddi->Unknown14(queries[i]);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106EE500
+	void ParticleManager::Unknown106EE500()
+	{
+		unknown1C0 = 1;
+		for (int i = 0; i < 2; i++)
+		{
+			if (pddi && HasUnknown1A0())
+			{
+				queries[i] = pddi->Unknown13(0);
+			}
+			else
+			{
+				queries[i] = 0;
+			}
+			queryStarted[i] = false;
+			queryScale[i] = 1.0f;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106EDCD0
+	void ParticleManager::StartQuery()
+	{
+		pddi->Unknown15(queries[unknown1C0]);
+	}
+
+	// FUNCTION: ENGINE 0x106EDCF0
+	void ParticleManager::StopQuery(float scale)
+	{
+		pddi->Unknown16(queries[unknown1C0]);
+		queryStarted[unknown1C0] = true;
+		queryScale[unknown1C0] = scale;
+	}
+
+	// FUNCTION: ENGINE 0x106EDC20
+	void ParticleManager::SetUnknown1A0(int value)
+	{
+		int width;
+		int height;
+		if (RenderTargetManager::sSingleton)
+		{
+			width = RenderTargetManager::sSingleton->GetWidth();
+			height = RenderTargetManager::sSingleton->GetHeight();
+		}
+		else
+		{
+			width = 1280;
+			height = 720;
+		}
+		unknown1A0 = value;
+		unknown1A8 = (unsigned int)(unknown1E0 * height * width * value);
+	}
+
+	// FUNCTION: ENGINE 0x106EE570
+	void ParticleManager::Unknown106EE570()
+	{
+		unknown1B0 = 0;
+		unknown198 = true;
+		if (HasUnknown1A0())
+		{
+			unknown1C0 = (unknown1C0 - 1) & 1;
+			if (queryStarted[unknown1C0])
+			{
+				unknown1B0 = pddi->Unknown17(queries[unknown1C0]);
+				queryStarted[unknown1C0] = false;
+			}
+			else
+			{
+				unknown1B0 = 0;
+			}
+			float scale = queryScale[unknown1C0];
+			if (1.0f != scale)
+			{
+				unknown1B0 = (__int64)((double)unknown1B0 / scale);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106EEC50
+	void ParticleManager::Unknown106EEC50(int samples)
+	{
+		switch (samples)
+		{
+		case 1:
+			unknown1E0 = 2;
+			break;
+		case 2:
+			unknown1E0 = 4;
+			break;
+		default:
+			unknown1E0 = 1;
+			break;
+		}
+		SetUnknown1A0(unknown1A0);
+	}
+
+	// FUNCTION: ENGINE 0x106EE6E0
+	// NONMATCHING: the engine keeps the index in esi and the count in edi (80 %)
+#ifdef NONMATCHING
+	unsigned int ParticleManager::FindParameter(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int i = 0;
+		ParticleParameter** items = parameters;
+		unsigned int count = parametersEnd - items;
+		ParticleParameter** item = items;
+		for (; i < count; i++, item++)
+		{
+			if ((*item)->name == name)
+			{
+				return items[i]->index;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE730
+	// NONMATCHING: the engine keeps the index in esi and the count in edi (80 %)
+#ifdef NONMATCHING
+	unsigned int ParticleManager::FindParameterUnknownC(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int i = 0;
+		ParticleParameter** items = parameters;
+		unsigned int count = parametersEnd - items;
+		ParticleParameter** item = items;
+		for (; i < count; i++, item++)
+		{
+			if ((*item)->name == name)
+			{
+				return items[i]->unknownC;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE780
+	unsigned int ParticleManager::GetEntryCount()
+	{
+		return entriesEnd - entries;
+	}
+
+	// FUNCTION: ENGINE 0x106EE790
+	// NONMATCHING: the engine reads the entry through a stepped pointer and reloads it for the name (37 %)
+#ifdef NONMATCHING
+	int ParticleManager::FindEntry(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int count = GetEntryCount();
+		ParticleEntry** list = entries;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (list[i] && list[i]->name == name)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE7E0
+	int ParticleManager::GetEntryNumber(int index)
+	{
+		return entries[index]->number;
+	}
+
+	// FUNCTION: ENGINE 0x106EE860
+	void ParticleManager::ReleaseState(PrimitiveState* state)
+	{
+		for (unsigned int i = 0; i < states.Size(); i++)
+		{
+			if (states[i].state == state)
+			{
+				states[i].released = true;
+				return;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106EECB0
+	unsigned int ParticleManager::GetMaxParts()
+	{
+		return states.Capacity() - states.Size();
+	}
 }
+
+// The streams of vectors and of four-component vectors the particle module's buffers are written through (the
+// engine's kept copies sit in this unit)
+// FUNCTION: ENGINE 0x106EBB40
+template void pure3d::VertexStream<math::Vector>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EBBA0
+template void pure3d::VertexStream<math::Vector4>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC110
+template pure3d::VertexStream<math::Vector>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC140
+template pure3d::VertexStream<math::Vector4>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EBC00
+template void pure3d::VertexStream<math::pddiColour>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC170
+template pure3d::VertexStream<math::pddiColour>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);

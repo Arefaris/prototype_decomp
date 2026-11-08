@@ -270,6 +270,12 @@ namespace pure3d
 		Get()->SetBinding(binding);
 	}
 
+	// FUNCTION: ENGINE 0x106E14B0
+	void PartRef::Unknown106E14B0(bool value)
+	{
+		owner->SetPartUpdated(index, value);
+	}
+
 	// FUNCTION: ENGINE 0x106DFE00
 	PartBinding* PartRef::GetBinding() const
 	{
