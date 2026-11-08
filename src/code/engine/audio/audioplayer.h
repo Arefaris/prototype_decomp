@@ -39,9 +39,9 @@ namespace engine
 		virtual bool Slot3() = 0;
 		virtual void Slot4() = 0;
 		virtual bool Slot5() = 0;
-		// vftable slots 6 - 8 (0x104A2E50, 0x104A2E60, 0x104A2E70): the defaults
+		// vftable slots 6 - 8 (0x104A2E50, 0x104A2E60, 0x104A2E70; slot 7 is the update, named by the RTTI of the event classes local to it): the defaults
 		virtual float Slot6(int* unknown);
-		virtual void Slot7(int a);
+		virtual void Update(unsigned int elapsed);
 		virtual bool Slot8(const core::Name<core::CaseSensitiveKey>& name, float* value);
 	};
 }

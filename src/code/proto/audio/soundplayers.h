@@ -22,8 +22,21 @@ namespace engine
 	extern core::Name<core::CaseSensitiveKey> gIdle2;
 }
 
+namespace mgraph
+{
+	class EnvelopeData;
+}
+
+namespace om
+{
+	template<class T> class DynamicProperty;
+}
+
 namespace proto
 {
+	// 0x10880610 (another unit; name guess): the value of the curve a parameter source holds, for an input
+	float EvaluateEnvelope(om::DynamicProperty<mgraph::EnvelopeData>* curve, float input, float low, float high, float half, float two);
+
 	class SoundPlayerHelicopter : public engine::AudioPlayer
 	{
 	public:
@@ -34,7 +47,7 @@ namespace proto
 		virtual bool Slot3();
 		virtual void Slot4();
 		virtual bool Slot5();
-		virtual void Slot7(int a);
+		virtual void Update(unsigned int elapsed);
 		// 0x104A6DC0: sets one number of the voices
 		void SetUnknown49C(float value);
 		// 0x104A6030: a new voice for the player (the player itself is not read)
@@ -54,12 +67,15 @@ namespace proto
 		float unknown2C;
 		float unknown30;
 		float unknown34;
-		unsigned char unknown38[0x10];
+		float unknown38;
+		float unknown3C;
+		float unknown40;
+		float unknown44;
 		bool unknown48;
 		bool unknown49;
 		bool unknown4A;
-		unsigned int unknown4C;
-		unsigned int unknown50;
+		om::DynamicProperty<mgraph::EnvelopeData>* unknown4C;
+		om::DynamicProperty<mgraph::EnvelopeData>* unknown50;
 	};
 
 	class SoundPlayerVehicle : public engine::AudioPlayer
@@ -72,7 +88,7 @@ namespace proto
 		virtual bool Slot3();
 		virtual void Slot4();
 		virtual bool Slot5();
-		virtual void Slot7(int a);
+		virtual void Update(unsigned int elapsed);
 		// 0x104A88C0: a new voice for the player (the player itself is not read)
 		unsigned int CreatePlayer();
 		OM_ALLOCATION(SoundPlayerVehicle);
@@ -91,8 +107,8 @@ namespace proto
 		float unknown30;
 		float unknown34;
 		float unknown38;
-		unsigned int unknown3C;
-		unsigned int unknown40;
+		om::DynamicProperty<mgraph::EnvelopeData>* unknown3C;
+		om::DynamicProperty<mgraph::EnvelopeData>* unknown40;
 	};
 
 	inline const char* SoundPlayerHelicopter::AllocationTag()

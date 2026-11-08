@@ -17,6 +17,18 @@ namespace dsp
 	// The volumes of a voice for every channel and bin (RTTI: dsp::MixVoiceChannelBinVolumes, 0x240 bytes)
 	struct MixVoiceChannelBinVolumes
 	{
+		MixVoiceChannelBinVolumes()
+		{
+		}
+		// 0x104A2D70: every volume starts with that value
+		explicit MixVoiceChannelBinVolumes(float value)
+		{
+			for (int i = 0; i < 144; i++)
+			{
+				volumes[i] = value;
+			}
+		}
+
 		float volumes[144];
 	};
 }
