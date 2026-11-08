@@ -426,9 +426,6 @@ namespace leaf
 	// FUNCTION: ENGINE 0x10602230
 	template void LeafNothing<0x10602230>();
 
-	// FUNCTION: ENGINE 0x10603830
-	template struct LeafInitTwo<0x10603830, 0, 0>;
-
 	// FUNCTION: ENGINE 0x10604310
 	template struct LeafSelf<0x10604310>;
 

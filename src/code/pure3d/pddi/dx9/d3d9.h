@@ -428,7 +428,12 @@ struct IDirect3D9Vtbl
 	void* unknownC[5];
 	// 0x20 GetAdapterDisplayMode
 	HRESULT (__stdcall* GetAdapterDisplayMode)(IDirect3D9* d3d, UINT adapter, D3DDISPLAYMODE* mode);
-	void* unknown24[5];
+	void* checkDeviceType;
+	void* checkDeviceFormat;
+	// 0x2C CheckDeviceMultiSampleType
+	HRESULT (__stdcall* CheckDeviceMultiSampleType)(IDirect3D9* d3d, UINT adapter, unsigned int deviceType,
+		D3DFORMAT format, BOOL windowed, D3DMULTISAMPLE_TYPE type, DWORD* qualityLevels);
+	void* unknown30[2];
 	// 0x38 GetDeviceCaps
 	HRESULT (__stdcall* GetDeviceCaps)(IDirect3D9* d3d, UINT adapter, unsigned int deviceType, D3DCAPS9* caps);
 	void* getAdapterMonitor;

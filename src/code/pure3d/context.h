@@ -5,6 +5,7 @@
 #ifndef PURE3D_CONTEXT_H
 #define PURE3D_CONTEXT_H
 
+#include "code/pure3d/displaysettings.h"
 #include "code/pure3d/font.h"
 #include "code/pure3d/pass.h"
 #include "code/pure3d/renderoptions.h"
@@ -357,16 +358,6 @@ namespace pure3d
 
 	// The default of the second setting (0x10E5DA34, a constant in the image)
 	extern const int gDefaultSettingsUnknown4;
-
-	// The settings of the display (0x138 bytes): the window it is created on first
-	struct DisplaySettings
-	{
-		// 0x106179B0 (another unit)
-		DisplaySettings();
-
-		void* window;
-		unsigned char unknown4[0x134];
-	};
 
 	// What Context::Startup is given: the display's mode at +0xC, the window the display is created on at +0x10 and
 	// the number of the scene's drawables at +0x16C (only the members this unit reads are named, and they are

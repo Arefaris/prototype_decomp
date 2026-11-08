@@ -504,6 +504,22 @@ namespace content
 		}
 	};
 
+	// What an object member holds when the meta system made it (it lies in the meta heap): the class of the instance and
+	// the instance. A member of a real object is the plain pointer to the instance.
+	struct ObjectValue
+	{
+		// 0x10603830: both words zero
+		ObjectValue();
+		// 0x10603840: destroys the instance through its class
+		~ObjectValue();
+
+		ClassMetaType* type;
+		void* instance;
+	};
+
+	// 0x10603820
+	const char* GetObjectTypeName();
+
 	// The meta type of a pointer to a reflected object (0x10603860)
 	class ObjectMetaType : public MetaType
 	{
@@ -515,6 +531,7 @@ namespace content
 		virtual void Slot2();
 		virtual void Slot3();
 		virtual void Slot4();
+		virtual bool Matches(unsigned int flags, void* object);
 		virtual void Slot6();
 		virtual void Slot7();
 		virtual void Slot8();
@@ -522,7 +539,43 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
-		MetaType* type;
+		// The slots as the engine's code takes them (see MatrixMetaType). A value is a pointer to an instance of the class
+		// or of one derived from it; the text and binary forms start with the name and the version of the instance's class
+		// ("NULL" for none)
+		// 0x106040A0 (slot 0) / 0x10603F20 (slot 1)
+		bool ReadText(TextReadStream* reader, void* object, int a, int b);
+		void ReadBinary(ReadContext* context, void* object, int a, int b);
+		// 0x106041D0 (slot 2) / 0x10603FF0 (slot 3)
+		void WriteText(TextWriter* writer, const void* object, int a);
+		void WriteBinary(WriteContext* context, const void* object, int a);
+		// 0x10603890 (slot 4)
+		bool Compare(ReadContext* first, const char* firstName, ReadContext* second, const char* secondName,
+			int unused, TextWriter* log);
+		// 0x10603D20 (slot 5)
+		// 0x10603D60 (slot 6) / 0x10604250 (slot 7) / 0x10603DD0 (slot 8) / 0x10603E50 (slot 9) / 0x10603E90 (slot 10)
+		void* Create();
+		void Destroy(void* object);
+		void Copy(void* destination, const void* source, int a);
+		int Count(void* object, int a);
+		void Describe(MemberEntry** cursor, void* object, int a);
+		// 0x10603F00 (slot 11): the index of the instance's class
+		void WriteBinaryShort(WriteContext* context, unsigned short index);
+
+		// 0x10603B00: lets go of the instance
+		void Clear(void* object);
+		// 0x10603B60: makes an instance of the class of that name and version; answers the class
+		ClassMetaType* MakeInstance(void* object, const char* name, unsigned short version);
+		// 0x10603C10: the class of the instance a value refers to, null for none
+		ClassMetaType* GetValueType(void* object);
+		// 0x10603C40: its name and version ("NULL" for none)
+		const char* GetValueName(void* object, unsigned short* version);
+		// 0x10603C80: lets go of the instance, then makes one of that class unless the name is "NULL"
+		void Set(void* object, const char* name, unsigned short version);
+		// 0x10603CE0 / 0x10603D00: the instance behind a value
+		void* GetInstance(const void* object);
+		void* GetInstance(void* object);
+
+		ClassMetaType* type;
 		MetaInstanceHelperBase* helper;
 	};
 
