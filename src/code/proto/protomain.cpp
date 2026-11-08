@@ -347,7 +347,7 @@ namespace proto
 			}
 			GetControllerHandler()->LockController(0);
 			GetFrontEndHud()->Unknown104B1470(1);
-			frontEndState->Unknown104DD8B0(0);
+			frontEndState->SetStartUpFlowActive(false);
 			engine::RequestGameState(2, 0, 0);
 			return;
 		}
