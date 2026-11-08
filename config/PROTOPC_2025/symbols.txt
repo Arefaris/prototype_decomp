@@ -109454,3 +109454,4 @@ _sOutputMeter = 0x112768E0 ; data size:0x4 | audio outputmeter.cpp: the one mete
 ??_R0?AV?$DynamicCaster@UCharacterSolverProperties@engine@@@LoadInventory@content@@@8 = 0x111E71B0 ; data | RTTI type descriptor
 ??_R0?AV?$DynamicCaster@USupportingLimbDefinitionList@engine@@@LoadInventory@content@@@8 = 0x10FEF030 ; data | RTTI type descriptor
 ??_R0?AVCharacterSolverBehaviour@engine@@@8 = 0x111E717C ; data | RTTI type descriptor
+?Insert@?$ArrayCDynamic@VVector@math@@$03@container@@QAEPAVVector@math@@PAV34@IABV34@@Z = 0x109191E0 ; function size:0x45 | kept copy (sn-ft)

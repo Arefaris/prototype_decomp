@@ -188,7 +188,7 @@ namespace container
 	template<class T, int N> T* ArrayCDynamic<T, N>::Insert(T* position, unsigned int count, const T& value)
 	{
 		T* last = end;
-		if ((unsigned int)(Size() + count) < N + 1)
+		if ((unsigned int)(Size() + count) <= N)
 		{
 			ShiftUp(position, count);
 			UninitializedFill(position, count, value);
