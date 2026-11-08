@@ -58,7 +58,7 @@ namespace proto
 	SaveManager* GetSaveManager();
 
 	// The pieces of the heads up display the end popup of an event goes through
-	class PopupWidget
+	class FEHudEventPopup
 	{
 	public:
 		// 0x104CFB30
@@ -68,7 +68,7 @@ namespace proto
 	{
 	public:
 		unsigned char unknown0[0x30];
-		PopupWidget* popup;
+		FEHudEventPopup* popup;
 	};
 	class FrontEndHud
 	{

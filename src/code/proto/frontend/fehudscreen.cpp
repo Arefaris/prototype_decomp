@@ -571,8 +571,8 @@ namespace proto
 			targeting->Unknown104CAEA0();
 			evolutionPoints->Unknown104CFED0();
 			vehicleHealth->UpdateHealth();
-			eventPopup->Unknown104CFB90();
-			missionPopup->Unknown104D0F70();
+			eventPopup->Update();
+			missionPopup->Update();
 		}
 	}
 }

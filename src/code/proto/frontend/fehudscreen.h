@@ -19,6 +19,7 @@
 #include "code/proto/frontend/fehudcombatconclusion.h"
 #include "code/proto/frontend/fehuddisguiseactions.h"
 #include "code/proto/frontend/fehuddisguiseperception.h"
+#include "code/proto/frontend/fehudpopups.h"
 #include "code/proto/frontend/fehudelement.h"
 #include "code/proto/frontend/fehudkeycard.h"
 #include "code/proto/frontend/fehudtextlog.h"
@@ -175,50 +176,6 @@ namespace proto
 		void Unknown104D9A90(bool flag);
 
 		unsigned char unknown4[0x13B8 - 4];
-	};
-
-	// The three pop-ups that run in the front end's dialog state: each keeps its dialog (at +0) and the flags the scripts set
-	class FEHudEventPopup
-	{
-	public:
-		// 0x104CFD70
-		FEHudEventPopup();
-		// 0x104CFB00
-		~FEHudEventPopup();
-
-		// 0x104CFB90
-		void Unknown104CFB90();
-
-		engine::DialogState* dialog;  // +0
-		bool unknown4;
-		bool unknown5;
-		bool unknown6;
-	};
-
-	class FEHudMissionPopup
-	{
-	public:
-		// 0x104D1130
-		FEHudMissionPopup();
-		// 0x104D0F00
-		~FEHudMissionPopup();
-
-		// 0x104D0F70
-		void Unknown104D0F70();
-
-		engine::DialogState* dialog;  // +0
-		bool unknown4;
-	};
-
-	class FEHudOpportunityEventPopup
-	{
-	public:
-		// 0x104D13A0
-		FEHudOpportunityEventPopup();
-		// 0x104D11D0
-		~FEHudOpportunityEventPopup();
-
-		engine::DialogState* dialog;  // +0
 	};
 
 	class FEHudScreen
