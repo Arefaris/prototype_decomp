@@ -170,7 +170,7 @@ namespace engine
 				{
 					return true;
 				}
-				math::Vector cameraPosition = camera->position;
+				math::Vector cameraPosition = camera->GetPosition();
 				math::Vector delta;
 				delta.Sub(position, cameraPosition);
 				if (delta.Dot(delta) > maxDistanceSquared)
@@ -996,7 +996,7 @@ namespace engine
 					if (camera != 0)
 					{
 						math::Vector position;
-						position.Set(camera->position.x, camera->position.y, camera->position.z);
+						position.Set(camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z);
 						instance->UpdateLOD(0.0f, &position);
 					}
 				}
@@ -1144,7 +1144,7 @@ namespace engine
 				return;
 			}
 			math::Vector cameraPosition;
-			cameraPosition.Set(camera->position.x, camera->position.y, camera->position.z);
+			cameraPosition.Set(camera->GetPosition().x, camera->GetPosition().y, camera->GetPosition().z);
 			HashIterator<EffectInstanceList>& iterator = instanceLists;
 			iterator.index = 0xffffffff;
 			EffectInstanceList* list = iterator.NextCalled();

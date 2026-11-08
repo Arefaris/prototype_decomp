@@ -4,7 +4,7 @@
 #ifndef CONTENT_COMPRESSEDFILE_H
 #define CONTENT_COMPRESSEDFILE_H
 
-#include "code/content/decompressor.h"
+#include "code/compress/compress.h"
 #include "code/core/file/file.h"
 #include "code/core/thread.h"
 
@@ -134,7 +134,7 @@ namespace content
 		unsigned int unknown38;
 		unsigned int unknown3C;
 		int heap;
-		Decompressor* decompressor;
+		compress::Stream* decompressor;
 		long event[2];
 		volatile long refCount;
 	};

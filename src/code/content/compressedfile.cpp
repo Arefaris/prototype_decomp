@@ -34,11 +34,11 @@ namespace content
 	// FUNCTION: ENGINE 0x1060DC40
 	void CompressedReader::Read(void* destination, unsigned int count)
 	{
-		int usedOutput = decompressor->GetProduced();
-		int usedInput = decompressor->GetConsumed();
+		int usedOutput = decompressor->GetUsedOutput();
+		int usedInput = decompressor->GetUsedInput();
 		consumed += usedInput;
 		produced += usedOutput;
-		decompressor->Decode((char*)buffer + consumed, bufferSize - consumed, destination, count, true);
+		decompressor->Submit((char*)buffer + consumed, bufferSize - consumed, destination, count, true);
 	}
 
 	// FUNCTION: ENGINE 0x1060DC90
@@ -142,16 +142,16 @@ namespace content
 		{
 			unsigned int available = unknown30 - unknown38;
 			bool last = unknown1C + available >= innerSize;
-			decompressor->Decode((const void*)(buffers[unknown3C] + unknown38), available, output, outputEnd - output, last);
+			decompressor->Submit((const void*)(buffers[unknown3C] + unknown38), available, output, outputEnd - output, last);
 			decompressor->Wait();
-			int produced = decompressor->GetProduced();
-			int consumed = decompressor->GetConsumed();
+			int produced = decompressor->GetUsedOutput();
+			int consumed = decompressor->GetUsedInput();
 			remaining -= produced;
 			unknown20 += produced;
 			unknown38 += consumed;
 			unknown1C += consumed;
 			output += produced;
-			decompressor->GetState();
+			decompressor->GetStatus();
 			if (!last && unknown30 == unknown38)
 			{
 				inner->WaitSignal();

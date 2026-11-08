@@ -754,7 +754,7 @@ namespace proto
 		math::Vector position;
 		transform.GetTranslation(position);
 		math::Vector delta;
-		math::Vector cameraPosition = camera->position;
+		math::Vector cameraPosition = camera->GetPosition();
 		delta.Sub(position, cameraPosition);
 		float distance = LengthOf(delta);
 		float scale = gCameraManager->GetScale(camera);

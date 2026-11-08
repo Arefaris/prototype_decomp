@@ -35,6 +35,10 @@ namespace pure3d
 
 	// 0x106DF480: the frame number drawables mark their updates with
 	unsigned int GetCurrentFrame();
+	// 0x106DF460: makes the drawables use that frame number; 0x106DF4A0: whether IsPoseCurrent checks the pose's frame
+	// (names guessed)
+	void SetFrameOverride(unsigned int frame);
+	void SetCheckPoseFrame(bool value);
 
 	class dxShader;
 	class DrawablePart;
@@ -257,6 +261,19 @@ namespace pure3d
 		FrameController* GetUnknown80();
 		// 0x106DF680: flag 0x101 bit 1
 		void SetFlag101Bit1(bool value);
+		// 0x106DF510: the parts need updating; 0x106DF570: marks the drawable with the current frame; 0x106DF580: flag
+		// 0x100 bit 2; 0x106DF600: the transform; 0x106DF660 / 0x106DF670: the values SetUnknownFloat and SetUnknownBC
+		// keep; 0x106DF6A0 / 0x106DF6B0: the flags 0x101 bit 1 and 0x100 bit 3; 0x106DF6F0: the name at +0xF8 (names
+		// guessed)
+		void MarkPartsDirty();
+		void MarkFrame();
+		void SetFlag100Bit2(bool value);
+		math::Matrix* GetTransform();
+		int GetUnknownB8();
+		float GetUnknownBC();
+		bool GetFlag101Bit1();
+		bool GetFlag100Bit3();
+		core::Name<core::CaseSensitiveKey>* GetUnknownF8();
 		// 0x106DFFD0: advances the controllers, the expressions and the particle states by dt
 		void Update(float dt);
 		// 0x106E02C0: vftable slot 5 of every part's state, slot 0x15 of +0x78 and +0x7C

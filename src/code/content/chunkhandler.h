@@ -11,6 +11,11 @@
 #include "code/content/loadinventory.h"
 #include "code/core/file/file.h"
 
+namespace compress
+{
+	class Stream;
+}
+
 namespace math
 {
 	class Vector;
@@ -19,8 +24,6 @@ namespace math
 namespace content
 {
 	class LoadStream;
-
-	class Decompressor;
 
 	// The reads of a compressed file's data (class name guessed): the unpacking of a block of memory by a decompressor
 	class CompressedReader
@@ -40,7 +43,7 @@ namespace content
 		// 0x1060DCD0: reads and waits
 		void ReadWait(void* destination, unsigned int size);
 
-		Decompressor* decompressor;
+		compress::Stream* decompressor;
 		void* buffer;
 		unsigned int bufferSize;
 		// The size of the unpacked data
