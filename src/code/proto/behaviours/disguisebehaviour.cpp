@@ -226,9 +226,11 @@ namespace proto
 		unknown2D0(6.0f), unknown2DC(0.0f), unknown2E0(-1.0f), unknown2E8(0.0f), unknown2EC(200.0f), config(0),
 		watchers(10), unknown33C(20.0f), unknown344(50.0f), unknown340(false), unknown348(-1.0f), unknown354(-1.0f),
 		unknown358(20.0f), unknown35C(0.0f), unknown360(0.0f), unknown364(0), unknown368(0), unknown36C(0),
-		unknown370(0), unknown374(1), unknown378(9), watch(0), unknown324(0)
+		unknown370(0), unknown374(1), unknown378(9), watch(0)
 	{
-		((core::Name<core::CaseSensitiveKey>*)GetSequencer())->SetText("Alert");
+		unknown324 = 0;
+		core::Name<core::CaseSensitiveKey>* contextName = (core::Name<core::CaseSensitiveKey>*)GetSequencer();
+		contextName->SetText("Alert");
 		ResetState();
 		Listen(0x2a, true);
 		Listen(0x2f, true);
