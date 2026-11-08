@@ -39,6 +39,8 @@ namespace proto
 		void Unknown10383520(const math::Vector* position);
 		// 0x10385420: releases the volume the object reserved (name guess)
 		void Unknown10385420(engine::GameObjectHandle handle);
+		// 0x103826D0: whether no position is reserved close to the given one (name guess)
+		bool Unknown103826D0(const math::Vector* position);
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
 		void Unknown10384460(const math::Vector* position, float time, bool targets);
 		void Unknown103844F0(const math::Vector* position, float time);
@@ -109,6 +111,10 @@ namespace proto
 	bool Unknown103C02D0(engine::GameObject* object);
 	// 0x103B8DC0: the level of detail state of an object (name guess)
 	int Unknown103B8DC0(engine::GameObject* object);
+	// 0x103B8C10: makes the object press its crouch button (name guess)
+	void Unknown103B8C10(engine::GameObject* object);
+	// 0x103BDB60: aims the object at a target with the weapon of a grab slot (name guess)
+	void Unknown103BDB60(engine::GameObject* object, engine::GameObjectHandle target, const fight::Name* weaponGrabSlot);
 	// 0x103B8B80: the handle of the object's target (name guess)
 	engine::GameObjectHandle Unknown103B8B80(engine::GameObject* object);
 }

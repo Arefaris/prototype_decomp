@@ -2,6 +2,7 @@
 #include "code/proto/fightitems/ai/ai_token.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/proto/fightitems/ai/aitokenmessages.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace engine
 {
@@ -2253,6 +2254,30 @@ namespace proto
 				proto::ByteFlag flag = { requestIt };
 				return proto::gAISystem->strafeRunTokens->Unknown10384090(handle, flag);
 			}
+
+			// FUNCTION: ENGINE 0x101E5410
+			// NONMATCHING: the engine loads the three float members and the integer members of the message arguments in another order (best 84.1 %)
+#ifdef NONMATCHING
+			bool TargetHasLoFCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetTargetMessage targetQuery;
+				object->SendMessage(&targetQuery);
+				if (targetQuery.target.Get() == 0)
+				{
+					return false;
+				}
+				math::Vector direction(offset.x, offset.y, offset.z);
+				object->transform->GetPointer()->Rotate(direction, direction);
+				GetTargetLOFMessage message(timeTolerance, distanceTolerance, collisionFlags, collideWithType, radius, direction);
+				object->SendMessage(&message);
+				return message.hasLineOfFire;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101E63B0
 			// EQUIVALENT: instruction selection (the engine compares into al, ours through cl); the same calls in the same order (best 86.0 %)

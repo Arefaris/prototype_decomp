@@ -129,6 +129,35 @@ namespace proto
 		int unknown14;
 	};
 
+	// RTTI: proto::GetTargetLOFMessage: the object answers whether it has a line of fire to its target (0x64 bytes; member names are guesses)
+	struct GetTargetLOFMessage : public TargetMessage
+	{
+		GetTargetLOFMessage(float newTimeTolerance, float newDistanceTolerance, int newCollisionFlags, int newCollideWithType, float newRadius, math::Vector newOffset) : TargetMessage(0xd), hasLineOfFire(false), unknown10(choreo::gMinusOne), collisionFlags(1), unknown38(0.0f), unknown3C(-1), timeTolerance(newTimeTolerance), distanceTolerance(newDistanceTolerance), offset(newOffset), unknown60(false)
+		{
+			collisionFlags = newCollisionFlags;
+			collideWithType = newCollideWithType;
+			radius = newRadius;
+		}
+		virtual ~GetTargetLOFMessage()
+		{
+		}
+
+		bool hasLineOfFire;  // +0xC
+		float unknown10;
+		unsigned char unknown14[0x18];
+		int collisionFlags;  // +0x2C
+		int collideWithType;  // +0x30
+		float radius;  // +0x34
+		float unknown38;
+		int unknown3C;
+		float timeTolerance;  // +0x40
+		float distanceTolerance;  // +0x44
+		math::Vector offset;  // +0x48
+		unsigned char unknown54[0xC];
+		bool unknown60;
+		unsigned char unknown61[0x3];
+	};
+
 	// RTTI: proto::GetTargetMessage: the object answers its target
 	class GetTargetMessage : public TargetMessage
 	{
