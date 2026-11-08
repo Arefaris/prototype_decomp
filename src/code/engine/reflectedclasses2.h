@@ -11,6 +11,8 @@
 
 namespace engine
 {
+	class BaseAttribute;
+
 	namespace animation
 	{
 		// AttachableBehaviour: constructor 0x1083E5C0, reflection 0x1083BBA0 / 0x1083CB80
@@ -29,7 +31,9 @@ namespace engine
 			virtual void OnPostedMessage(engine::Message* message);
 			virtual void OnMessage(engine::Message* message);
 
-			unsigned char unknownC[0x38];
+			// Slot 1 looks the owner's drawable attribute up (0x1083C980)
+			BaseAttribute* drawableAttribute;  // +0xC
+			unsigned char unknown10[0x34];
 		};
 	}
 

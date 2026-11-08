@@ -109334,3 +109334,7 @@ _sOutputMeter = 0x112768E0 ; data size:0x4 | audio outputmeter.cpp: the one mete
 ?SetStreamDriverCount@engine@@YAXH@Z = 0x1082DC00 ; function size:0x70 | engine::SetStreamDriverCount (name guess)
 ?StopFirstStartupPackage@engine@@YAXXZ = 0x1082CD50 ; function size:0x40 | engine::StopFirstStartupPackage (name guess)
 ?DestroyStreamManager@engine@@YAXXZ = 0x1082CD90 ; function size:0xA9 | engine::DestroyStreamManager (name guess)
+??0EffectSetup@render@engine@@QAE@XZ = 0x10820080 ; function size:0xCE | engine::render::EffectSetup::EffectSetup (name guess)
+?Clone@ScriptOwner@engine@@UAEPAU12@XZ = 0x1082EB70 ; function size:0x2D | engine::ScriptOwner::Clone (name guess)
+??0TagSet@engine@@QAE@PBD@Z = 0x10835190 ; function size:0x20 | engine::TagSet::TagSet(const char *) (name guess)
+?InsertSorted@LODVector@EffectInstance@render@engine@@QAEPAPAVEffectLOD@4@PBQAV54@P6A_N11@Z@Z = 0x10820C60 ; function size:0x85 | engine::render::EffectInstance::LODVector::InsertSorted (name guess)

@@ -961,7 +961,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10819ED0
 		unsigned int EffectInstance::GetLODRecordCount() const
 		{
-			return lodsEnd - lodsBegin;
+			return lods.end - lods.begin;
 		}
 
 		// FUNCTION: ENGINE 0x10819EE0
@@ -993,9 +993,9 @@ namespace engine
 				EffectManager* manager = GetEffectManager();
 				for (int i = 0; i < lodCount; i++)
 				{
-					if (lodsBegin[i]->kind == EFFECT_LOD_SWITCH)
+					if (lods.begin[i]->kind == EFFECT_LOD_SWITCH)
 					{
-						manager->StopEffect(((EffectLODSwitch*)lodsBegin[i])->effect, 0.0f);
+						manager->StopEffect(((EffectLODSwitch*)lods.begin[i])->effect, 0.0f);
 						break;
 					}
 				}
@@ -1042,7 +1042,7 @@ namespace engine
 			if (instance != 0)
 			{
 				instance->AddLOD(lod);
-				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lodsEnd - instance->lodsBegin) > 1)
+				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lods.end - instance->lods.begin) > 1)
 				{
 					pure3d::Camera* camera = GetActiveCamera();
 					if (camera != 0)

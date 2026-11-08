@@ -56,6 +56,12 @@ namespace engine
 	{
 	}
 
+	// FUNCTION: ENGINE 0x10835190
+	TagSet::TagSet(const char* text) : all(false)
+	{
+		FromString(text);
+	}
+
 	// FUNCTION: ENGINE 0x10834960
 	void TagSet::Clear()
 	{

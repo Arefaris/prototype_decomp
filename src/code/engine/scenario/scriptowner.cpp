@@ -5,6 +5,12 @@ namespace engine
 	// GLOBAL: ENGINE 0x1130D3A8
 	int ScriptOwner::sCurrentId;
 
+	// FUNCTION: ENGINE 0x1082EB70
+	ScriptOwner* ScriptOwner::Clone()
+	{
+		return new ScriptOwner(GetPart(), 2);
+	}
+
 	// FUNCTION: ENGINE 0x1082EB60
 	ScenarioMessage* ScriptOwner::GetPart()
 	{
