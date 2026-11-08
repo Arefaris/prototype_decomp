@@ -8447,3 +8447,22 @@ the large action slots.
 - `RagdollLODBehaviour::Slot2` (0x109263A0) matches. The rest of the ragdoll behaviours (the helpers 0x109263C0 / 0x10925700 / 0x10926460 and the large `RagdollBehaviour` members) are not done.
 - `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
 - networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.
+## mgraph 0x10B20000 - 0x10B40000, fourth pass (sn-fv): the property node delegates, channel arrays, pins of the vector and bool packets
+- The allocation tags and `operator new` of `PropertyPropertyDelegate<P>` were mapped one packet type too far (the order of the blocks was guessed): the engine's `CreateDelegate` of each property node calls the copy at the
+  start of its own block (bool 0x10B37BA0 / 0x10B37C80, bool array 0x10B385A0 / 0x10B38640, float 0x10B391C0 / 0x10B392A0, float array 0x10B39C20 / 0x10B39CB0, unsigned int array 0x10B3A850 / 0x10B3A8F0, 64-bit array
+  0x10B3B520 / 0x10B3B5C0, string 0x10B3C200 / 0x10B3C320, string array 0x10B3CCD0 / 0x10B3CD70, vector 0x10B3DA40 / 0x10B3DB40, vector array 0x10B3E580 / 0x10B3E620, trigger array 0x10B3F240 / 0x10B3F2E0, complex array 0x10B3FF20 /
+  0x10B3FFC0). symbols.txt and the annotations of `propertynode.cpp` moved (18 renamed, 8 new). The `CreateDelegate` slots (11 in the range) still differ from the engine's by the order of the stores into the new delegate
+  (the engine stores the reference count, the node, the vftable, the channel; ours the node first: 84.5 %), no source form found (named local, constructor body, member order, `__forceinline`, a base class holding the node: the last one
+  matches here and breaks the constructors); they stay declared and mapped.
+- `propertynode.cpp`: `PropertyNode<P>::operator delete` (12 types), `PropertyNodeInputEvent<array / string>::~PropertyNodeInputEvent` (8), `DynamicArray<PropertyChannel<bool / float / vector>>::CopyElements` (3), `PropertyChannel<array>::Update`
+  and `PropertyNode<array>::Slot16` of bool, unsigned int and trigger arrays. `DynamicArray<PropertyChannel<bool / float / vector>>::FillElements` (the engine keeps the count in cx, 77 - 89 %) and `CopyElements` / `Resize` of the
+  array channels (20 % / 25 %: the engine increments both pointers) are declared and mapped. `PropertyNode<array>::SetPropertyValue` (the temporary's release makes ours keep the address of the vftable slot in esi, 46 %) not done.
+- `pins.cpp`, `pins.h`: `InputPin<P>::Slot4` is the connection of the pin in a context (`ContextConnection<P>::Create(owner, argument, pin)`; the symbols of all 18 instances were renamed), `Create` and `Slot4` for the bool, vector and trigger
+  packets, `OutputPin<vector>::operator delete` and the vector array's allocation tag. `ConcreteOutputPinBase` takes the size of the packet (0x10 for bool and float, 0x18 for vector). The output pin constructors of the bool and vector
+  packets are NONMATCHING (90 / 94 %: the address of the packet is computed at another place among the stores).
+- `mathnodes.cpp` (new): `CommutativeMath<VectorAdd>` constructor; the trigger and / or constructors are NONMATCHING (96.8 %, same cause as `Throw<TriggerData>` 96 %: the store of the trigger into the packet that the input pin
+  copies comes behind the argument push in ours). `methods.cpp`: the invocation of the random vector's setter (inline binary reader of the vector and an argument vector that starts with its numbers set in order).
+- Not done: the `Catch<array>` constructors, the property node constructors of the arrays (71 %, see sn-du), `NodeType<N>::Destroy` chains, the slot 16 of the math nodes (static initial value and register helpers), `Switch<P>` size
+  changes, the array `Inlet` constructors (92.5 %), `DelegateMetaProperty` of the envelope array (needs the element copy helpers 0x10AFE6E0 / 0x10AFE730 of another range). About 300 of the remaining functions are
+  unreferenced 3 - 28 byte copies of inline members (element getters, tags) of classes no caller names, and compiler-generated destructors.
+- Shared header changes: `mgraph/pins.h` (`Slot4` signature, `ConcreteOutputPinBase` constructor argument).
