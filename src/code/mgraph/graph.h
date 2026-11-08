@@ -89,12 +89,12 @@ namespace mgraph
 		NodeTree nodes;  // 0x44
 		NodeLink* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
 		NodeLink* lastAbstraction;  // 0x5C
-		unsigned int unknown60;
-		unsigned int unknown64;
-		unsigned int unknown68;
-		unsigned int unknown6C;
-		unsigned int unknown70;
-		unsigned int unknown74;
+		NodeLink* firstOutlet;  // 0x60: the outlet nodes of the graph (a list linked at 0x50 of the outlet)
+		NodeLink* lastOutlet;  // 0x64
+		unsigned int outletCount;  // 0x68
+		NodeLink* firstInlet;  // 0x6C: the inlet nodes of the graph (a list linked at 0x54 of the inlet)
+		NodeLink* lastInlet;  // 0x70
+		unsigned int inletCount;  // 0x74
 		unsigned int channelsEnabledLow;  // 0x78
 		unsigned int channelsEnabledHigh;  // 0x7C
 		bool unknown80;

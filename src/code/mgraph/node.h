@@ -101,6 +101,8 @@ namespace mgraph
 		// 0x10AC9FD0 / 0x10ACA020: the input and the output pin of a name, null when there is none
 		InputPinBase* FindInput(const om::ClassName& pinName);
 		OutputPinBase* FindOutput(const om::ClassName& pinName);
+		// 0x10AC88E0 (name guessed): the sample rate of the context the node is attached to
+		float GetSampleRate();
 		// 0x10AC9F50: deletes the pins
 		void DeletePins();
 		// 0x10AD1AD0 / 0x10AD1770 (the engine keeps out-of-line copies): puts a pin in a place of the lists, which grow to fit

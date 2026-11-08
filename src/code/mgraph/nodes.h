@@ -357,6 +357,9 @@ namespace mgraph
 		unsigned int id;
 		PacketBlock<T>* block;  // 8: the values of the 256 channels when the entry has them
 		T value;
+
+		// 0x10B49DA0 (name guessed): gives the entry a block of values; the answer is the values
+		T* AllocateSamples(void* allocator, unsigned int unknown, unsigned int newId);
 	};
 	// The flags of a trigger for each of the 256 samples of a frame, kept in a block behind the entry
 	struct TriggerSamples

@@ -109349,3 +109349,6 @@ __imp__rand = 0x11331FF0 ; data size:0x4 | __imp__rand (another unit; name guess
 ?ReleaseMetaType@?$NodeType@VCastTriggerToBool@mgraph@@@mgraph@@SAXXZ = 0x10B6C810 ; function size:0x48 | public: static void __cdecl mgraph::NodeType<class mgraph::CastTriggerToBool>::ReleaseMetaType(void) (name guess)
 ?IsPresent@mgraph@@YA_NPBU?$FrameEntry@M@1@@Z = 0x10B4AE90 ; function size:0xA | bool __cdecl mgraph::IsPresent(struct mgraph::FrameEntry<float> const *) (name guess)
 ?Slot16@Meter@mgraph@@UAEXPAVEvaluationFrame@2@@Z = 0x10B73290 ; function size:0x123 | public: virtual void __thiscall mgraph::Meter::Slot16(class mgraph::EvaluationFrame *) (name guess)
+?GetSampleRate@Node@mgraph@@QAEMXZ = 0x10AC88E0 ; function size:0xD | public: float __thiscall mgraph::Node::GetSampleRate(void) (name guess)
+?AllocateSamples@?$FrameEntry@M@mgraph@@QAEPAMPAXII@Z = 0x10B49DA0 ; function size:0x5A | public: float * __thiscall mgraph::FrameEntry<float>::AllocateSamples(void *,unsigned int,unsigned int) (name guess)
+?Update@Channel@Smoother@mgraph@@QAEXPAV23@PAVEvaluationFrame@3@@Z = 0x10B76940 ; function size:0xDA | public: void __thiscall mgraph::Smoother::Channel::Update(class mgraph::Smoother *,class mgraph::EvaluationFrame *) (name guess)
