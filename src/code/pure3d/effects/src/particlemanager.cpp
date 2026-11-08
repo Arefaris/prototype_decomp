@@ -40,6 +40,48 @@ namespace pure3d
 	// 0x1127EE4C
 	extern ParticleManager* gParticleManager;
 
+	// FUNCTION: ENGINE 0x106E9910
+	bool ParticleSystemState::GetUnknown4B8()
+	{
+		return unknown4B8;
+	}
+
+	// FUNCTION: ENGINE 0x106E9920
+	bool ParticleSystemState::GetInheritUnknown4BC()
+	{
+		return inheritUnknown4BC;
+	}
+
+	// FUNCTION: ENGINE 0x106E98D0
+	float ParticleSystemState::GetUnknown49C()
+	{
+		return unknown49C;
+	}
+
+	// FUNCTION: ENGINE 0x106E9970
+	ParticleGenerator* ParticleSystemState::GetGenerator()
+	{
+		return generator;
+	}
+
+	// FUNCTION: ENGINE 0x106E9940
+	// A state may take the flag from the state it was made from
+	bool ParticleSystemState::GetUnknown3F4()
+	{
+		ParticleSystemState* state = this;
+		while (state->inheritUnknown4BC)
+		{
+			state = state->parent;
+		}
+		return state->unknown3F4;
+	}
+
+	// FUNCTION: ENGINE 0x106E9980
+	unsigned int ParticleSystemState::GetParticleCount()
+	{
+		return inheritUnknown4BC ? parent->GetParticleCount() : particleCount;
+	}
+
 	// FUNCTION: ENGINE 0x106ED9D0
 	// A state may take the flag from the state it was made from
 	bool ParticleSystemState::GetUnknown4BC()
@@ -63,5 +105,102 @@ namespace pure3d
 	unsigned __int64 ParticleManager::GetUnknown1B0()
 	{
 		return unknown1B0;
+	}
+
+	// FUNCTION: ENGINE 0x106EDAB0
+	bool ParticleManager::GetUnknown184()
+	{
+		return unknown184;
+	}
+
+	// FUNCTION: ENGINE 0x106EDAA0
+	void ParticleManager::SetUnknown184(bool value)
+	{
+		unknown184 = value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDB20
+	bool ParticleManager::GetUnknown198()
+	{
+		return unknown198;
+	}
+
+	// FUNCTION: ENGINE 0x106EDB30
+	void ParticleManager::ClearUnknown198()
+	{
+		unknown198 = false;
+	}
+
+	// FUNCTION: ENGINE 0x106EDAC0
+	void ParticleManager::SetUnknown199(bool value)
+	{
+		unknown199 = !value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDB40
+	void ParticleManager::SetUnknown19A(bool value)
+	{
+		unknown19A = value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDBC0
+	void ParticleManager::SetUnknown19C(float value)
+	{
+		unknown19C = value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDBE0
+	float ParticleManager::GetUnknown19C()
+	{
+		return unknown19C;
+	}
+
+	// FUNCTION: ENGINE 0x106EDBF0
+	void ParticleManager::PushUnknown1A0()
+	{
+		unknown1A4 = unknown1A0;
+		unknown1A0 = -1;
+	}
+
+	// FUNCTION: ENGINE 0x106EDC10
+	void ParticleManager::PopUnknown1A0()
+	{
+		unknown1A0 = unknown1A4;
+	}
+
+	// FUNCTION: ENGINE 0x106EDC80
+	int ParticleManager::GetUnknown1A0()
+	{
+		return unknown1A0;
+	}
+
+	// FUNCTION: ENGINE 0x106EDCB0
+	void ParticleManager::SetUnknown1B0(unsigned __int64 value)
+	{
+		unknown1B0 = value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDD50
+	float ParticleManager::GetUnknown1BC()
+	{
+		return unknown1BC;
+	}
+
+	// FUNCTION: ENGINE 0x106EDD60
+	void ParticleManager::SetUnknown1BC(float value)
+	{
+		unknown1BC = value;
+	}
+
+	// FUNCTION: ENGINE 0x106EDD80
+	float ParticleManager::GetUnknown1B8()
+	{
+		return unknown1B8;
+	}
+
+	// FUNCTION: ENGINE 0x106EDD90
+	void ParticleManager::SetUnknown1B8(float value)
+	{
+		unknown1B8 = value;
 	}
 }

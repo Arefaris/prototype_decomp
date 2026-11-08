@@ -192,6 +192,9 @@ namespace pure3d
 			void Reset();
 			// 0x1071ACE0: marks the client as registered, optionally resetting it (name guess)
 			void Register(bool reset);
+			// 0x1071AE30: puts the client into / takes it out of list `list` of the server (list 0 registers or unregisters
+			// it; name guess)
+			void SetListed(int list, bool value);
 			// 0x1071AC20: the client's bit in result set `set` (the last visibility test)
 			bool GetResult(int set);
 			// 0x1071ABA0 / 0x1071ABE0: the client's bit in flag set `flag`

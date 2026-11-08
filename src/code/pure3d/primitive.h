@@ -1093,10 +1093,40 @@ namespace pure3d
 		// 0x106EEC50: the multisample mode the surfaces are made with, from the display's sample count
 		void Unknown106EEC50(int samples);
 
-		unsigned char unknown0[0x1A0];
+		// 0x106EDAB0 / 0x106EDAA0, 0x106EDB20 / 0x106EDB30, 0x106EDAC0, 0x106EDB40, 0x106EDBE0: the flags at +0x184,
+		// +0x198 (cleared), +0x199 (set when the argument is clear) and +0x19A, and the float at +0x19C (names guessed)
+		bool GetUnknown184();
+		void SetUnknown184(bool value);
+		bool GetUnknown198();
+		void ClearUnknown198();
+		void SetUnknown199(bool value);
+		void SetUnknown19A(bool value);
+		float GetUnknown19C();
+		// 0x106EDBF0 / 0x106EDC10 / 0x106EDC80: the value at +0x1A0 is put away at +0x1A4 (and reset to -1) and taken back
+		void PushUnknown1A0();
+		void PopUnknown1A0();
+		int GetUnknown1A0();
+		// 0x106EDCB0, 0x106EDD50 / 0x106EDD60, 0x106EDD80 / 0x106EDD90
+		void SetUnknown1B0(unsigned __int64 value);
+		float GetUnknown1BC();
+		void SetUnknown1BC(float value);
+		float GetUnknown1B8();
+		void SetUnknown1B8(float value);
+
+		unsigned char unknown0[0x184];
+		bool unknown184;
+		unsigned char unknown185[0x13];
+		bool unknown198;
+		bool unknown199;
+		bool unknown19A;
+		unsigned char unknown19B;
+		float unknown19C;
 		int unknown1A0;
-		unsigned char unknown1A4[0xC];
+		int unknown1A4;
+		unsigned char unknown1A8[8];
 		unsigned __int64 unknown1B0;
+		float unknown1B8;
+		float unknown1BC;
 	};
 	// 0x106EDA80
 	ParticleManager* GetParticleManager();
@@ -1978,6 +2008,11 @@ namespace pure3d
 		bool GetUnknown490();
 		// 0x106ED9D0: the flag at +0x4BC, or the parent's when it is inherited
 		bool GetUnknown4BC();
+		// 0x106E9910 / 0x106E9920 / 0x106E98D0 / 0x106E9970: the members at +0x4B8, +0x4BD, +0x49C and +0x3BC
+		bool GetUnknown4B8();
+		bool GetInheritUnknown4BC();
+		float GetUnknown49C();
+		ParticleGenerator* GetGenerator();
 		// 0x10709D30: the emitter transform (handed on to the generator)
 		void SetTransform(const math::Matrix& transform);
 		// Slots 4 and 6: 0x10709C40 advances the controllers while the time step is not zero, 0x10709CF0 answers whether

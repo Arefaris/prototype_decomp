@@ -160,7 +160,9 @@ namespace pure3d
 		unsigned char unknown110[0x18];
 		// The render state bits (1 - 5 from the binding's flags, 7 from the primitive, 10: identity world matrix)
 		core::BitField<unsigned short> renderBits;
-		unsigned char unknown12A;
+		// +0x12A: the low nibble is the value of Drawable::SetUnknownCC
+		unsigned char unknownCC : 4;
+		unsigned char unknown12A : 4;
 		unsigned char unknownIndex : 4;
 		unsigned char unknown12B : 4;
 	};
@@ -233,6 +235,9 @@ namespace pure3d
 		Drawable(const char* name, container::ArrayDynamic<DrawablePart, container::AllocatorNew>& newParts,
 			bool unknown);
 
+		// 0x106E21B0: an instance of another drawable (the source's parts, state and animation controllers are copied;
+		// name guess)
+		Drawable(Drawable* source, const CreateOptions& options);
 		// 0x106E2890: a new drawable made from this one (0x108 bytes, constructor 0x106E21B0)
 		Drawable* CreateInstance(const CreateOptions& options);
 
@@ -287,12 +292,27 @@ namespace pure3d
 		// 0x106E0A40 / 0x106E0AA0: the index of the named segment (0xFFFF when there is none)
 		unsigned short FindSegment(const core::Name<core::CaseSensitiveKey>& name);
 		unsigned short FindSegment(unsigned __int64 name);
+		// 0x106E0B80: the segment of that index, null for a bad index
+		DrawableSegment* GetSegment(unsigned short segment);
+		// 0x106E0790 / 0x106E07B0: the bit 0 of the part's flags (the state is updated; setting it also tells the part's
+		// visibility client)
+		bool GetPartUpdated(unsigned int part);
+		void SetPartUpdated(unsigned int part, bool value);
+		// 0x106E0800: the joint of a part
+		unsigned short GetPartJoint(unsigned int part);
+		// 0x106E1240 / 0x106E1900: the bits of the flag word at +0x8C
+		bool TestFlag8C(int bit);
+		void SetFlag8C(int bit, bool value);
 		// 0x106E0BB0
 		void SetSegmentVisible(unsigned short segment, bool visible);
 		// 0x106E0B30: the first part and the part count of a segment (both 0 for a bad index)
 		void GetSegmentParts(unsigned short segment, unsigned int* first, unsigned int* count);
 		// 0x106E0D60: the box and sphere around every part (when the transform changed, or always with force)
 		void UpdateBounds(bool force);
+		// 0x106E0C10 / 0x106E0D20: the bounds (box and sphere) of the drawable in its own space, from the world bounds
+		// and the inverse of its transform (names guessed)
+		void GetLocalBounds(math::AABB* box);
+		void GetLocalSphere(math::Sphere* sphere);
 		// 0x106E11F0: the value at +0xCC, handed to every part's primitive
 		void SetUnknownCC(int value);
 		// 0x106E0950: the float at +0xBC (clamped to 0 - 1)
@@ -335,11 +355,14 @@ namespace pure3d
 		VertexOffsetExpressionMixer* expressionMixer;
 		// Bit 0: unknownB8 changed, bit 2: transforms changed, bit 3: unknownBC changed
 		core::BitField<unsigned int> dirty;
-		core::BitField<unsigned int> unknown8C;
+		PrimitiveFlagWord unknown8C;
 		unsigned char unknown90[4];
 		// Per part: bit 1 the state is updated, bits 2 - 4 render flags
 		container::ArrayDynamic<unsigned char, container::AllocatorNew> partFlags;
-		unsigned char unknownA0[0x14];
+		unsigned char unknownA0[4];
+		// The named runs of parts (+0xA4)
+		container::ArrayDynamic<DrawableSegment, container::AllocatorNew> segments;
+		unsigned char unknownB0[4];
 		float unknownB4;
 		int unknownB8;
 		float unknownBC;
