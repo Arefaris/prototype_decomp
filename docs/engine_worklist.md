@@ -8462,7 +8462,7 @@ the large action slots.
   packets are NONMATCHING (90 / 94 %: the address of the packet is computed at another place among the stores).
 - `mathnodes.cpp` (new): `CommutativeMath<VectorAdd>` constructor; the trigger and / or constructors are NONMATCHING (96.8 %, same cause as `Throw<TriggerData>` 96 %: the store of the trigger into the packet that the input pin
   copies comes behind the argument push in ours). `methods.cpp`: the invocation of the random vector's setter (inline binary reader of the vector and an argument vector that starts with its numbers set in order).
-- Not done: the `Catch<array>` constructors, the property node constructors of the arrays (71 %, see sn-du), `NodeType<N>::Destroy` chains, the slot 16 of the math nodes (static initial value and register helpers), `Switch<P>` size
-  changes, the array `Inlet` constructors (92.5 %), `DelegateMetaProperty` of the envelope array (needs the element copy helpers 0x10AFE6E0 / 0x10AFE730 of another range). About 300 of the remaining functions are
+- Not done: the `Catch<array>` constructors, the property node constructors of the arrays (71 %, see sn-du), `NodeType<N>::Destroy` chains, the slot 16 of the math nodes (static initial value and register helpers),
+  the array `Inlet` constructors (92.5 %), `DelegateMetaProperty` of the envelope array (needs the element copy helpers 0x10AFE6E0 / 0x10AFE730 of another range). About 300 of the remaining functions are
   unreferenced 3 - 28 byte copies of inline members (element getters, tags) of classes no caller names, and compiler-generated destructors.
 - Shared header changes: `mgraph/pins.h` (`Slot4` signature, `ConcreteOutputPinBase` constructor argument).
