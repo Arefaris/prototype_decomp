@@ -15,9 +15,9 @@ namespace proto
 		virtual ~SoundDialogueResolver()
 		{
 		}
-		// The overrides of the engine's copies (left to the engine): 0x1049E0C0, 0x1049BB30, 0x1049BB70, 0x1049CD70,
-		// 0x1049CD90, 0x1049E2C0, 0x1049E3F0, 0x104A0950
-		virtual void Update();
+		// The overrides: 0x1049E0C0 (the answer is for the dialogue line the argument is), 0x1049BB30, 0x1049BB70,
+		// 0x1049CD70, 0x1049CD90, 0x1049E2C0 and 0x1049E3F0 (NONMATCHING), 0x104A0950 (left to the engine)
+		virtual void Update(int first);
 		virtual int Slot2(int first, int second, int third, int fourth);
 		virtual void Slot3(int first);
 		virtual core::Name<core::CaseSensitiveKey> GetLanguageName();

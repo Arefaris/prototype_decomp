@@ -84,6 +84,16 @@ namespace engine
 		static FightBranchRefMetaTypeGetSet sType(&sGetSetter, code);
 		return &sType;
 	}
+
+	// The same for a class with several branch members: the engine has a function of its own (with its own statics) for
+	// each member, Id tells the instantiations apart
+	template<class C, int Id> content::MetaType* GetFightBranchRefMetaTypeAt(const char* unused,
+		fight::Branch* (C::*getter)() const, void (C::*setter)(fight::Branch*), const char* code)
+	{
+		static FightBranchRefMemberGetSetter<C> sGetSetter(getter, setter);
+		static FightBranchRefMetaTypeGetSet sType(&sGetSetter, code);
+		return &sType;
+	}
 }
 
 #endif
