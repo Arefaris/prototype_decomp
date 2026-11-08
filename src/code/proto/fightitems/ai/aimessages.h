@@ -324,7 +324,7 @@ namespace proto
 		}
 	};
 
-	// What the object answers for its aim: filled in by the sender through the pointer (0x18 bytes, member names are guesses)
+	// What the object answers for its aim: filled in by the sender through the pointer (member names are guesses)
 	struct AimParameters
 	{
 		int active;  // +0x0
@@ -332,6 +332,7 @@ namespace proto
 		math::Vector offset;  // +0x8
 		bool forceWorldAngles;  // +0x14
 		unsigned char unknown15[0x3];
+		math::Vector direction;  // +0x18 (where to look when the place is 7)
 	};
 
 	// RTTI: proto::GetAimParametersMovementMessage: the object answers the block of its aim parameters
