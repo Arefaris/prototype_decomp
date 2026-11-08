@@ -123,6 +123,9 @@ namespace proto
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
 
+			// 0x103D1310 (the engine calls it out of line; the argument is unused; name guess)
+			double GetAlert(int unused);
+
 			float alert;  // +0
 			float surroundingFunction;
 			Faction disguiseType;  // +8
@@ -153,6 +156,9 @@ namespace proto
 			}
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
+
+			// 0x103D1320 (the engine calls it out of line; the argument is unused; name guess)
+			double GetAlert(int unused);
 
 			float alert;  // +0
 			float surroundingFunction;

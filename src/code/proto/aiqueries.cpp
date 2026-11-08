@@ -1,5 +1,6 @@
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/motion/motionattachmentmessage.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/matrix.h"
@@ -294,5 +295,20 @@ matched:
 		}
 		Faction otherFaction = GetObjectFaction(other);
 		return otherFaction.GetRelationTo(faction) == 0;
+	}
+
+	// FUNCTION: ENGINE 0x103C2420
+	bool IsPlayerOrDrivenByPlayer(engine::GameObject* object)
+	{
+		if (object == 0)
+		{
+			return false;
+		}
+		bool result = IsPlayerObject(object);
+		if (!result)
+		{
+			return IsPlayerObject(GetDriverObject(object));
+		}
+		return result;
 	}
 }

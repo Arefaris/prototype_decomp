@@ -16,18 +16,22 @@
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
+#include "code/proto/disguiseconfig.h"
 #include "code/proto/faction.h"
 
 namespace proto
 {
-	struct DisguiseConfig;
-
+	
 	class DisguiseBehaviour : public engine::FightTreeBehaviour, public engine::DBObserver
 	{
 	public:
 		// How long an object of a faction is noticed and held (0x10 bytes)
 		struct Watcher
 		{
+			Watcher() : suspicion(0.0f), hold(0.0f)
+			{
+			}
+
 			Faction faction;
 			float suspicion;  // +8
 			float hold;  // +0xC
@@ -62,8 +66,27 @@ namespace proto
 		// 0x103CA670 / 0x103CA6A0
 		void CountC(bool increase);
 		void CountD(bool increase);
+		// 0x103CAE00 / 0x103CAE80: how much suspicion / alert the configuration takes away for the faction (0 without a
+		// configuration)
+		float GetSuspicionDecrease(const core::Name<core::CaseSensitiveKey>& disguiseType);
+		float GetAlertDecrease(const core::Name<core::CaseSensitiveKey>& disguiseType);
+		// 0x103CAF10 / 0x103CAFB0: how much suspicion / alert the configuration raises for the faction pair
+		float GetSuspicionIncrease(const core::Name<core::CaseSensitiveKey>& disguiseType,
+			const core::Name<core::CaseSensitiveKey>& enemyType);
+		float GetAlertIncrease(const core::Name<core::CaseSensitiveKey>& disguiseType,
+			const core::Name<core::CaseSensitiveKey>& enemyType);
+		// 0x103CB0D0: lets the held and the noticed times of the watchers run out
+		void UpdateWatchers(float dt);
 		// 0x103CB1F0: the watcher of the faction, or the end of the list
 		Watcher* FindWatcher(const core::Name<core::CaseSensitiveKey>& faction);
+		// 0x103CD250: the watcher of the faction, made when there is room for one
+		Watcher* FindOrAddWatcher(const core::Name<core::CaseSensitiveKey>& faction);
+		// 0x103CD300: the faction notices the object (or, without the flag, forgets it)
+		void SetBlown(const core::Name<core::CaseSensitiveKey>& faction, bool blown);
+		// 0x103CD3E0
+		void SetWatcherSuspicion(const core::Name<core::CaseSensitiveKey>& faction, float suspicion);
+		// 0x103CD410: holds the suspicion of the faction the object is in
+		void HoldOwnFaction();
 		// 0x103CB240: forgets the held suspicion of the watchers that ran out
 		void ClearExpiredWatchers();
 		// 0x103CCBE0: puts the behaviour back to its beginning

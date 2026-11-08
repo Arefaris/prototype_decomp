@@ -237,6 +237,18 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x103D1310
+	double DisguiseConfig::AlertIncrease::GetAlert(int unused)
+	{
+		return alert;
+	}
+
+	// FUNCTION: ENGINE 0x103D1320
+	double DisguiseConfig::AlertDecrease::GetAlert(int unused)
+	{
+		return alert;
+	}
+
 	// FUNCTION: ENGINE 0x103D1850
 	bool DisguiseConfig::IsAllowedInBase(const core::Name<core::CaseSensitiveKey>& name)
 	{

@@ -48,6 +48,9 @@ namespace proto
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
 		void Unknown10384460(const math::Vector* position, float time, bool targets);
 		void Unknown103844F0(const math::Vector* position, float time);
+
+		unsigned char unknown0[0x19F4];
+		bool unknown19F4;
 	};
 
 	// The base alert (gAISystem +0x20; name guess)
