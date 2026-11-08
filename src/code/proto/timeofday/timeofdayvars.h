@@ -112,8 +112,8 @@ namespace proto
 			userData = 0;
 			unknown10 = true;
 		}
-		TimeOfDayLightInfo(const TimeOfDayLightInfo& other);
-		TimeOfDayLightInfo& operator=(const TimeOfDayLightInfo& other);
+		inline TimeOfDayLightInfo(const TimeOfDayLightInfo& other);
+		inline TimeOfDayLightInfo& operator=(const TimeOfDayLightInfo& other);
 		~TimeOfDayLightInfo()
 		{
 			core::SafeRelease(userData);
@@ -122,7 +122,7 @@ namespace proto
 		static content::MemberList* GetMembers();
 
 		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;
-		engine::HandleBase handle;  // +8
+		engine::GameObjectHandle handle;  // +8
 		pure3d::ProtoLightUserData* userData;  // +0xC
 		bool unknown10;
 	};
@@ -137,6 +137,12 @@ namespace container
 	{
 		Destroy(begin, end);
 		end = begin;
+	}
+	// The engine's single insert goes through the count version
+	template<> inline proto::TimeOfDayLightInfo* ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::Insert(
+		proto::TimeOfDayLightInfo* position, const proto::TimeOfDayLightInfo& value)
+	{
+		return Insert(position, 1, value);
 	}
 	template<> inline ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::~ArrayDynamic()
 	{
@@ -218,6 +224,11 @@ namespace proto
 			const core::Name<core::CaseSensitiveKey>& variationName);
 		TimeOfDayVariation* FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
 			const core::Name<core::CaseSensitiveKey>& variationName) const;
+		// Looks the light's game object up by its name once its handle is gone, and gives it the light user data the lit
+		// pass reads
+		void ResolveLight(TimeOfDayLightInfo* light);
+		// The light of that name, resolved
+		TimeOfDayLightInfo* FindLight(const core::Name<core::CaseSensitiveKey>& lightName);
 		// The light at an index and the number of lights
 		TimeOfDayLightInfo* GetLight(int index);
 		int GetLightCount();
@@ -257,6 +268,14 @@ namespace container
 		enum
 		{
 			value = 0
+		};
+	};
+	// Reserve of the variations stores the begin pointer first
+	template<> struct ArrayReserveBeginFirst<proto::TimeOfDayVariation>
+	{
+		enum
+		{
+			value = 1
 		};
 	};
 	template<> struct ArrayEraseInline<proto::TimeOfDayVarGroup*>

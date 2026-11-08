@@ -1,4 +1,6 @@
 #include "code/proto/timeofday/timeofdayvars.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/content/colourmetatype.h"
 #include "code/content/vectormetatype.h"
 #include "code/math/colour128.h"
@@ -10,6 +12,19 @@ namespace container
 	// The arrays of this unit's objects with all their members, as the unit's template instances (the engine's copies of the
 	// variation array's functions call the key arrays' and the rigs' special members)
 	template class ArrayDynamic<proto::TimeOfDayVariation, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarGroup*, AllocatorNew>;
+	template class ArrayFixed<proto::TimeOfDayVarGroup*, 128>;
+	template class ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<float>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector2>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Colour128>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalLightingRig::Light, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<float>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Vector>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Colour128>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Vector2>::Key, AllocatorNew>;
 }
 
 namespace proto
@@ -481,6 +496,52 @@ namespace proto
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x10524C30
+	void TimeOfDayVars::ResolveLight(TimeOfDayLightInfo* light)
+	{
+		if (!light->handle.IsValid() && light->unknown10)
+		{
+			light->unknown10 = false;
+			engine::GameObject* object = inventory->Find<engine::GameObject>(light->name);
+			if (object != 0)
+			{
+				engine::GameObjectHandle handle = engine::GetHandle(object);
+				if (handle.Exists())
+				{
+					light->handle = handle;
+					core::HeapScope scope(0x76);
+					pure3d::ProtoLightUserData* data = new pure3d::ProtoLightUserData();
+					core::RefAssign(light->userData, data);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10529370
+	// NONMATCHING: shrink-wrap: the engine pushes ebp after the emptiness test and keeps ebx and edi zeroed before it, 10 %
+#ifdef NONMATCHING
+	TimeOfDayLightInfo* TimeOfDayVars::FindLight(const core::Name<core::CaseSensitiveKey>& lightName)
+	{
+		if (lights.Size() != 0)
+		{
+			TimeOfDayLightInfo* first = lights.begin;
+			TimeOfDayLightInfo* light = first;
+			unsigned int i = 0;
+			do
+			{
+				if (light->name == lightName)
+				{
+					ResolveLight(&first[i]);
+					return &first[i];
+				}
+				i++;
+				light++;
+			} while (i < (unsigned int)(lights.end - first));
+		}
+		return 0;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10522380
 	TimeOfDayLightInfo* TimeOfDayVars::GetLight(int index)
 	{
@@ -516,7 +577,7 @@ namespace proto
 
 
 	// FUNCTION: ENGINE 0x105230D0
-	TimeOfDayLightInfo& TimeOfDayLightInfo::operator=(const TimeOfDayLightInfo& other)
+	inline TimeOfDayLightInfo& TimeOfDayLightInfo::operator=(const TimeOfDayLightInfo& other)
 	{
 		name = other.name;
 		handle = other.handle;
@@ -526,7 +587,7 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10523130
-	TimeOfDayLightInfo::TimeOfDayLightInfo(const TimeOfDayLightInfo& other) : name(other.name), handle(other.handle)
+	inline TimeOfDayLightInfo::TimeOfDayLightInfo(const TimeOfDayLightInfo& other) : name(other.name), handle(other.handle)
 	{
 		userData = 0;
 		unknown10 = other.unknown10;
@@ -1019,3 +1080,54 @@ namespace proto
 // FUNCTION: ENGINE 0x102A5C90
 // FUNCTION: ENGINE 0x102A5EC0
 // FUNCTION: ENGINE 0x102A3070
+// FUNCTION: ENGINE 0x1052CEE0
+// FUNCTION: ENGINE 0x105228E0
+// FUNCTION: ENGINE 0x10523450
+// FUNCTION: ENGINE 0x105234B0
+// FUNCTION: ENGINE 0x105258A0
+// FUNCTION: ENGINE 0x1052A6E0
+// FUNCTION: ENGINE 0x1052A880
+// FUNCTION: ENGINE 0x105230b0
+// FUNCTION: ENGINE 0x10521a50
+// FUNCTION: ENGINE 0x105217d0
+// FUNCTION: ENGINE 0x10526390
+// FUNCTION: ENGINE 0x105201c0
+// FUNCTION: ENGINE 0x10521190
+// FUNCTION: ENGINE 0x105200f0
+// FUNCTION: ENGINE 0x10523400
+// FUNCTION: ENGINE 0x1052bc40
+// FUNCTION: ENGINE 0x10525780
+// FUNCTION: ENGINE 0x1052ab10
+// FUNCTION: ENGINE 0x1052c590
+// FUNCTION: ENGINE 0x1052AB50
+// FUNCTION: ENGINE 0x10523C50
+// FUNCTION: ENGINE 0x10520010
+// FUNCTION: ENGINE 0x105200B0
+// FUNCTION: ENGINE 0x10520AF0
+// FUNCTION: ENGINE 0x105265D0
+// FUNCTION: ENGINE 0x105274C0
+// FUNCTION: ENGINE 0x105242a0
+// FUNCTION: ENGINE 0x10525930
+// FUNCTION: ENGINE 0x10525980
+// FUNCTION: ENGINE 0x1052a8d0
+// FUNCTION: ENGINE 0x10521450
+// FUNCTION: ENGINE 0x10521870
+// FUNCTION: ENGINE 0x10521890
+// FUNCTION: ENGINE 0x105218A0
+// FUNCTION: ENGINE 0x10522450
+// FUNCTION: ENGINE 0x105224A0
+// FUNCTION: ENGINE 0x10522580
+// FUNCTION: ENGINE 0x10523D20
+// FUNCTION: ENGINE 0x105219D0
+// FUNCTION: ENGINE 0x10521810
+// FUNCTION: ENGINE 0x10521820
+// FUNCTION: ENGINE 0x10522530
+// FUNCTION: ENGINE 0x10522570
+// FUNCTION: ENGINE 0x10523240
+// FUNCTION: ENGINE 0x10523180
+// FUNCTION: ENGINE 0x10520160
+// FUNCTION: ENGINE 0x10523FB0
+// FUNCTION: ENGINE 0x1052d200
+// FUNCTION: ENGINE 0x1052d320
+// FUNCTION: ENGINE 0x1052d440
+// FUNCTION: ENGINE 0x1052d560

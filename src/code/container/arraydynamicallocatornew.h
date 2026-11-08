@@ -101,7 +101,9 @@ namespace container
 				unsigned int size = Size();
 				if (count <= size)
 				{
-					end = AssignRange(other.begin, other.end, begin);
+					T* newEnd = AssignRange(other.begin, other.end, begin);
+					Destroy(newEnd, end);
+					end = newEnd;
 				}
 				else if (count <= Capacity())
 				{
@@ -110,6 +112,7 @@ namespace container
 				}
 				else
 				{
+					Destroy(begin, end);
 					end = begin;
 				}
 			}

@@ -172,6 +172,12 @@ namespace proto
 		TimeOfDayVarChannel(const TimeOfDayVarChannel& other) : keys(other.keys)
 		{
 		}
+		TimeOfDayVarChannel& operator=(const TimeOfDayVarChannel& other)
+		{
+			keys.Reserve(other.keys.Size());
+			keys = other.keys;
+			return *this;
+		}
 		virtual ~TimeOfDayVarChannel()
 		{
 		}
@@ -385,6 +391,28 @@ namespace proto
 
 namespace proto
 {
+	// The vector channels copy the value of a key component by component
+	template<> inline void TimeOfDayVarChannel<math::Vector2>::SetKey(float time, const math::Vector2& value)
+	{
+		for (unsigned int i = 0; i < keys.Size(); i++)
+		{
+			if (time == keys[i].time)
+			{
+				AssignValue(keys[i].value, value);
+			}
+		}
+	}
+	template<> inline void TimeOfDayVarChannel<math::Vector>::SetKey(float time, const math::Vector& value)
+	{
+		for (unsigned int i = 0; i < keys.Size(); i++)
+		{
+			if (time == keys[i].time)
+			{
+				AssignValue(keys[i].value, value);
+			}
+		}
+	}
+
 	// Left to the engine (declared and mapped in symbols.txt, not defined): the colour channel's AddKey schedules two loads
 	// differently and the two-component channel's RemoveKey copies the elements in another order
 	template<> void TimeOfDayVarChannel<math::Colour128>::AddKey(float time);
@@ -401,6 +429,17 @@ namespace container
 			value = 0
 		};
 	};
+	// The engine's AssignRange of the vector keys copies them component by component
+	template<> inline proto::TimeOfDayVarChannel<math::Vector>::Key* AssignRange(const proto::TimeOfDayVarChannel<math::Vector>::Key* first,
+		const proto::TimeOfDayVarChannel<math::Vector>::Key* last, proto::TimeOfDayVarChannel<math::Vector>::Key* dest)
+	{
+		for (; first != last; dest++, first++)
+		{
+			dest->time = first->time;
+			proto::AssignValue(dest->value, first->value);
+		}
+		return dest;
+	}
 	template<> struct ArrayEraseInline<proto::TimeOfDayVarChannel<math::Colour128>::Key>
 	{
 		enum
@@ -419,11 +458,12 @@ namespace container
 	{
 		typedef proto::TimeOfDayVarChannel<float>::Key Key;
 		Key* result = end;
-		if (end + count <= capacity)
+		Key* newEnd = end + count;
+		if (newEnd <= capacity)
 		{
 			Key* from = end;
-			end = from + count;
-			Key* to = end;
+			end = newEnd;
+			Key* to = newEnd;
 			while (from != position)
 			{
 				from--;
@@ -435,6 +475,13 @@ namespace container
 			result = position;
 		}
 		return result;
+	}
+	// The engine's single insert of the colour keys goes through the count version
+	template<> inline proto::TimeOfDayVarChannel<math::Colour128>::Key* ArrayDynamic<proto::TimeOfDayVarChannel<math::Colour128>::Key,
+		AllocatorNew>::Insert(proto::TimeOfDayVarChannel<math::Colour128>::Key* position,
+		const proto::TimeOfDayVarChannel<math::Colour128>::Key& value)
+	{
+		return Insert(position, 1, value);
 	}
 }
 

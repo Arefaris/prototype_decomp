@@ -70,6 +70,8 @@ namespace proto
 				overlayOpacity = engine::driving::gOne;
 				overlaySaturation = engine::driving::gOne;
 			}
+			// The member-wise copy is the engine's function (0x10514960, in the unit of the time of day manager)
+			ColourMatrixParameters& operator=(const ColourMatrixParameters& other);
 			static content::ClassInfo* GetClassInfo();
 			static content::MemberList* GetMembers();
 
@@ -240,6 +242,14 @@ namespace proto
 
 namespace container
 {
+	// Reserve of the colour matrix keys stores the begin pointer first
+	template<> struct ArrayReserveBeginFirst<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::Key>
+	{
+		enum
+		{
+			value = 1
+		};
+	};
 	// The keys of the effects are moved down by the out-of-line AssignRange
 	template<> struct ArrayEraseInline<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::Key>
 	{

@@ -440,6 +440,14 @@ namespace proto
 		return &dofKeys;
 	}
 
+	template TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>& TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::operator=(
+		const TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>&);
+	template bool TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::Key::operator<(const Key& other) const;
+	template TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::TimeOfDayVarChannel(
+		const TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>&);
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::TonemapParameters>;
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
@@ -460,6 +468,14 @@ namespace proto
 	template int TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>::FindNextKey(float time);
 	template int TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>::FindPreviousKey(float time);
 	template int TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>::FindNextKey(float time);
+}
+
+namespace container
+{
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::BloomParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::TonemapParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::DOFParameters>::Key, AllocatorNew>;
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -643,3 +659,47 @@ namespace proto
 // FUNCTION: ENGINE 0x1052EDB0
 // FUNCTION: ENGINE 0x1052EE70
 // FUNCTION: ENGINE 0x1052EF10
+// FUNCTION: ENGINE 0x1052e980
+// FUNCTION: ENGINE 0x1052e9d0
+// FUNCTION: ENGINE 0x1052ea20
+// FUNCTION: ENGINE 0x1052ea70
+// FUNCTION: ENGINE 0x10530390
+// FUNCTION: ENGINE 0x10530630
+// FUNCTION: ENGINE 0x105325d0
+// FUNCTION: ENGINE 0x10532620
+// FUNCTION: ENGINE 0x1053c2c0
+// FUNCTION: ENGINE 0x1052E590
+// FUNCTION: ENGINE 0x1052E650
+// FUNCTION: ENGINE 0x1052E700
+// FUNCTION: ENGINE 0x1052E7B0
+// FUNCTION: ENGINE 0x1052E5A0
+// FUNCTION: ENGINE 0x1052E660
+// FUNCTION: ENGINE 0x1052E710
+// FUNCTION: ENGINE 0x1052E7C0
+// FUNCTION: ENGINE 0x10530C60
+// FUNCTION: ENGINE 0x10530CA0
+// FUNCTION: ENGINE 0x10530CE0
+// FUNCTION: ENGINE 0x10530D20
+// FUNCTION: ENGINE 0x1052F250
+// FUNCTION: ENGINE 0x1052F260
+// FUNCTION: ENGINE 0x1052F270
+// FUNCTION: ENGINE 0x1052F280
+// FUNCTION: ENGINE 0x10533B50
+// FUNCTION: ENGINE 0x10536C60
+// FUNCTION: ENGINE 0x1052f220
+// FUNCTION: ENGINE 0x10539630
+// FUNCTION: ENGINE 0x10533640
+// FUNCTION: ENGINE 0x10539670
+// FUNCTION: ENGINE 0x10533690
+// FUNCTION: ENGINE 0x1053c220
+// FUNCTION: ENGINE 0x10539450
+// FUNCTION: ENGINE 0x1053c250
+// FUNCTION: ENGINE 0x105394c0
+// FUNCTION: ENGINE 0x10536920
+// FUNCTION: ENGINE 0x105350D0
+// FUNCTION: ENGINE 0x10534380
+// FUNCTION: ENGINE 0x10537B60
+// FUNCTION: ENGINE 0x105311C0
+// FUNCTION: ENGINE 0x105311F0
+// FUNCTION: ENGINE 0x10532670
+// FUNCTION: ENGINE 0x105326A0
