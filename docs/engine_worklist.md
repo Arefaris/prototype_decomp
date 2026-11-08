@@ -8323,3 +8323,17 @@ attribute conditions, the position-difference conditions and the big update slot
   `Slot6`, the music cue event creators (0x10AAD2D0 - 0x10AADB20), the audio shutdown (0x10AAA420), the registry of the factories (0x10AA3410 - 0x10AA3870, 0x10AA8280 - 0x10AA86E0: the registry class has no name), the Asio device code and
   the DirectSound and WdmKs device code. About 770 of the 1250 open functions are unreferenced second copies and constructors with an unused stack argument.
 - Shared header changes: `audio/drivers.h` (`WaveOutCaps`, `WaveHeader`, the classes of the Mme, Asio, WdmKs and DirectSound drivers, `DriverSemaphore` moved up). New sources: `om/simpletypes.cpp`, `audio/mmedriver.cpp`, `audio/asiodriver.cpp`, `audio/wdmksdriver.cpp`, `audio/directsounddriver.cpp`.
+## mgraph 0x10B00000 - 0x10B20000, third pass (sn-eu): inlets and outlets of the primitive packets, packet array and pin members
+- `mgraph/inletspackets.cpp` (123 functions): `Inlet<P>` and `Outlet<P>` for the bool, float, unsigned int, unsigned __int64 and string packets and their arrays (the string array's outlet is in
+  inlets.cpp): destructor, `operator delete`, `Slot8`, `Rename`, `GetValueMetaType` / `GetPacketMetaType`, `CreateAbstractPin`, the `Outlet` constructors (the scalar deleting destructors are mapped).
+  The templates of inlets.h match for every type unchanged. Left to the engine: the nine `Inlet<P>` constructors (declared, mapped, same shape as the vector's: 92.5 %), and the 18-byte
+  kept copy at 0x10B178E0 (a name assignment inside the bool inlet's unit, no class names it).
+- `mgraph/packetpins.cpp` (60 functions): `OutputPin<P>::operator new` (7 types) and `InputPin<Packet<DynamicArray<EnvelopeData>>>::operator new`, `Throw<P>::ChannelStorage::ChannelStorage` (the zeroed
+  array words of the throw node; 15 bytes, one per throw node of the engine's units), `Packet<P>::~Packet` of the primitive types, `DynamicArray<Packet<P>>` constructors, `ReleaseElements` and `Allocate`
+  for the packet types whose name was not placed yet, and the array members of `PropertyChannel<bool>`. The engine keeps a copy of these in the unit of every node that uses the type (no `/Gy`
+  folding across the units): the name sits at the first copy found, the later copies stay the engine's.
+- Not done: the `DestroyElements` of the packet arrays (34 bytes, 0x10B04EB0 ...: the engine calls the destructor of the packet without the virtual dispatch; the template's `element->~T()` is virtual),
+  `DynamicArray<Packet<DynamicArray<E>>>::Resize` (255 bytes: the engine's shrink branch destroys the elements and `FillElements` / `CopyElements` stay out of line in 0x10B0BCA0 / 0x10B0BD00 with
+  the strength-reduced source pointer), `OutputPin<array>` constructors and destructors, the array packet destructors, the 18- and 19-byte `operator delete` / `operator new` kept copies whose class is
+  not named by anything (`Packet<P>` has no allocation operators in our source, the engine's scalar deleting destructor releases 0x10 bytes), the `NodeType<N>::Destroy` second copies (0x10B00230 ...: the same
+  name as the first copy at 0x10AF2D10 ...), and about 300 copies of identical 3 - 7 byte accessors.
