@@ -50,9 +50,9 @@ namespace engine
 			bool busy;  // +0x54
 		};
 
-		// GLOBAL: ENGINE 0x113169E8
+		// 0x113169E8 (the engine's object, shared with its code)
 		// the state, made by 0x108747B0 and freed by 0x10874800 (name guess)
-		StorageGameState* gState;
+		extern StorageGameState* gState;
 
 		// FUNCTION: ENGINE 0x10874210
 		void StorageGameState::Enter()
@@ -69,36 +69,36 @@ namespace engine
 
 		// The request the storage fiber works on: the callers below fill it in and raise the pending flag, the fiber answers
 		// through gResult (all names guessed)
-		// GLOBAL: ENGINE 0x11316968
-		int gRequestUnknown68;
-		// GLOBAL: ENGINE 0x1131696C
-		int gRequestKind;
-		// GLOBAL: ENGINE 0x11316970
-		int gRequestArg70;
-		// GLOBAL: ENGINE 0x11316974
-		int gRequestArg74;
-		// GLOBAL: ENGINE 0x11316978
-		int gResult;
-		// GLOBAL: ENGINE 0x1131697C
-		bool gRequestFlag7C;
-		// GLOBAL: ENGINE 0x1131697D
-		bool gRequestFlag7D;
-		// GLOBAL: ENGINE 0x11316980
-		int gRequestArg80;
-		// GLOBAL: ENGINE 0x11316984
-		const unsigned short* gRequestArg84;
-		// GLOBAL: ENGINE 0x113169D4
-		int gRequestUnknownD4;
-		// GLOBAL: ENGINE 0x113169D9
-		bool gPending;
-		// GLOBAL: ENGINE 0x113169DC
-		core::Fiber* gCallerFiber;
-		// GLOBAL: ENGINE 0x11316710
-		int gUnknown710;
-		// GLOBAL: ENGINE 0x11316714
-		int gUnknown714;
-		// GLOBAL: ENGINE 0x1131671C
-		int gDefaultResult;
+		// 0x11316968 (the engine's object, shared with its code)
+		extern int gRequestUnknown68;
+		// 0x1131696C (the engine's object, shared with its code)
+		extern int gRequestKind;
+		// 0x11316970 (the engine's object, shared with its code)
+		extern int gRequestArg70;
+		// 0x11316974 (the engine's object, shared with its code)
+		extern int gRequestArg74;
+		// 0x11316978 (the engine's object, shared with its code)
+		extern int gResult;
+		// 0x1131697C (the engine's object, shared with its code)
+		extern bool gRequestFlag7C;
+		// 0x1131697D (the engine's object, shared with its code)
+		extern bool gRequestFlag7D;
+		// 0x11316980 (the engine's object, shared with its code)
+		extern int gRequestArg80;
+		// 0x11316984 (the engine's object, shared with its code)
+		extern const unsigned short* gRequestArg84;
+		// 0x113169D4 (the engine's object, shared with its code)
+		extern int gRequestUnknownD4;
+		// 0x113169D9 (the engine's object, shared with its code)
+		extern bool gPending;
+		// 0x113169DC (the engine's object, shared with its code)
+		extern core::Fiber* gCallerFiber;
+		// 0x11316710 (the engine's object, shared with its code)
+		extern int gUnknown710;
+		// 0x11316714 (the engine's object, shared with its code)
+		extern int gUnknown714;
+		// 0x1131671C (the engine's object, shared with its code)
+		extern int gDefaultResult;
 		extern core::Fiber gStorageFiber;
 		extern bool gAvailable;
 
@@ -213,12 +213,12 @@ namespace engine
 			AddGameState(gState, 4, 0x14, 0, 0, 0);
 		}
 
-		// GLOBAL: ENGINE 0x113169D0
+		// 0x113169D0 (the engine's object, shared with its code)
 		// the drive the profile and the saved games live on (name guess)
-		core::IDrive* gDrive;
-		// GLOBAL: ENGINE 0x113169D8
+		extern core::IDrive* gDrive;
+		// 0x113169D8 (the engine's object, shared with its code)
 		// whether the storage fiber and the state exist (name guess)
-		bool gStarted;
+		extern bool gStarted;
 
 		// 0x108E24D0 (another unit): destroys the object the storage services keep (name guess)
 		void Unknown108E24D0();
@@ -240,9 +240,9 @@ namespace engine
 			gStarted = false;
 		}
 
-		// GLOBAL: ENGINE 0x1131697E
+		// 0x1131697E (the engine's object, shared with its code)
 		// what the drive is asked about when it is asked whether a file of some size can be made (name guess)
-		short gRequestWord7E;
+		extern short gRequestWord7E;
 
 		// 0x108E2D10 (another unit): shows the message of the text to the player and answers the button pressed (names guessed)
 		int ShowMessage(const char* title, const char* text, int buttons, core::Fiber* fiber, void* extra);
