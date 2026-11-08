@@ -1,6 +1,7 @@
 #include "code/proto/heightmap.h"
 #include <math.h>
 #include <new>
+#include <string.h>
 
 namespace engine
 {
@@ -83,8 +84,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x103902C0
-	// NONMATCHING: the engine walks the old slots and derives the key addresses from the distance of the two arrays, ours walks the keys (24.9 %)
-#ifdef NONMATCHING
 	void HeightCache::Resize(unsigned int count)
 	{
 		core::HeapScope scope(heap);
@@ -93,9 +92,9 @@ namespace proto
 		int* oldKeys = keys;
 		bucketCount = count;
 		slots = new void*[count];
-		keys = new int[count];
-		usedCount = 0;
+		keys = new int[bucketCount];
 		removedCount = 0;
+		usedCount = 0;
 		for (unsigned int i = 0; i < bucketCount; i++)
 		{
 			slots[i] = 0;
@@ -105,26 +104,25 @@ namespace proto
 		{
 			for (unsigned int i = 0; i < oldCount; i++)
 			{
-				void* item = oldSlots[i];
-				if (item != 0 && item != &removedMarker)
+				if (oldSlots[i] != 0 && oldSlots[i] != &removedMarker)
 				{
-					Insert(&oldKeys[i], item);
+					Insert(&oldKeys[i], oldSlots[i]);
 				}
 			}
 			operator delete[](oldSlots);
 			operator delete[](oldKeys);
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x1038DCA0
-	// NONMATCHING: the engine keeps the 64-bit shift of the key's step and loads the key through the pointer for every use, ours folds the shift (8.0 %)
+	// NONMATCHING: the engine schedules the stores of the key, start and step differently around the register saves (6.5 %)
 #ifdef NONMATCHING
 	void* HeightCache::Probe::StartInsert(const int* newKey)
 	{
 		key = *newKey;
-		start = Mask(*newKey);
-		step = Step(*newKey);
+		int hash = *newKey;
+		start = Mask(hash);
+		step = Step(hash);
 		unsigned int position = start;
 		while (table->slots[position] != 0 && table->keys[position] != key
 			&& table->slots[position] != &table->removedMarker)
@@ -142,13 +140,14 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x1038DC00
-	// NONMATCHING: the engine keeps the 64-bit shift of the key's step and loads the key through the pointer for every use, ours folds the shift (9.2 %)
+	// NONMATCHING: the engine schedules the stores of the key, start and step differently around the register saves (9.5 %)
 #ifdef NONMATCHING
 	void* HeightCache::Probe::Find(const int* newKey)
 	{
 		key = *newKey;
-		start = Mask(*newKey);
-		step = Step(*newKey);
+		int hash = *newKey;
+		start = Mask(hash);
+		step = Step(hash);
 		unsigned int position = start;
 		while ((table->slots[position] != 0 && table->keys[position] != key)
 			|| table->slots[position] == &table->removedMarker)
@@ -210,13 +209,13 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x103901B0
-	// NONMATCHING: the probes it calls are not reproduced (34.7 %)
+	// NONMATCHING: the engine keeps the index of the slot in a register for both stores (69.1 %)
 #ifdef NONMATCHING
 	void HeightCache::Insert(const int* key, void* item)
 	{
 		Probe probe(this);
 		void* found = probe.StartInsert(key);
-		while (found != 0 && found != &removedMarker)
+		while (found != 0 && found != &probe.table->removedMarker)
 		{
 			found = probe.Next();
 		}
@@ -228,12 +227,62 @@ namespace proto
 		*slot = item;
 		keys[probe.current] = *key;
 		usedCount++;
-		if (maxLoadPercent < usedCount * 100 / bucketCount)
+		if (usedCount * 100 / bucketCount > maxLoadPercent)
 		{
 			Resize(bucketCount * 2);
 		}
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x10394E80
+	void HeightCache::Rehash()
+	{
+		void** slotCopy = (void**)core::HeapAlloc(1, bucketCount * 4);
+		memcpy(slotCopy, slots, bucketCount * 4);
+		int* keyCopy = (int*)core::HeapAlloc(1, bucketCount * 4);
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			keyCopy[i] = keys[i];
+		}
+		removedCount = 0;
+		usedCount = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			slots[i] = 0;
+			keys[i] = 0;
+		}
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			if (slotCopy[i] != 0 && slotCopy[i] != &removedMarker)
+			{
+				Insert(&keyCopy[i], slotCopy[i]);
+			}
+		}
+		core::Free(slotCopy);
+		core::Free(keyCopy);
+	}
+
+	// FUNCTION: ENGINE 0x103951F0
+	int HeightCache::Remove(void* item)
+	{
+		int removed = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			if (slots[i] == item)
+			{
+				slots[i] = &removedMarker;
+				keys[i] = 0;
+				removedCount++;
+				removed++;
+				usedCount--;
+			}
+		}
+		if (shrinks && removedCount > maxRemoved)
+		{
+			Rehash();
+		}
+		return removed;
+	}
 
 	// FUNCTION: ENGINE 0x103937F0
 	void Heightmap::SetHeight(int x, int y, float height)

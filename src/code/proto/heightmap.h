@@ -70,6 +70,8 @@ namespace proto
 		// 0x103951F0: takes every slot holding the item out (answers how many); a table that shrinks packs itself when too many
 		// removed slots pile up
 		int Remove(void* item);
+		// 0x10394E80: files every item again (drops the removed slots)
+		void Rehash();
 
 		// The probing of the table: the first slot is the key masked to the bucket count, the step comes from the next bits of
 		// the key (always odd)
@@ -86,7 +88,7 @@ namespace proto
 				return (table->bucketCount - 1) & hash;
 			}
 			// 0x1038CAC0: the step of a key (odd, from the bits behind the lowest nine)
-			static unsigned int Step(__int64 hash)
+			static unsigned int Step(unsigned __int64 hash)
 			{
 				return (unsigned int)((hash >> 9) & 0xfe) | 1;
 			}
