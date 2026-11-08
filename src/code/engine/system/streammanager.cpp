@@ -653,6 +653,22 @@ namespace engine
 	core::Name<core::CaseSensitiveKey> gNoSlotGroup("Undefined_SlotGroup", 0);
 }
 
+namespace proto
+{
+	// FUNCTION: ENGINE 0x1082D550
+	engine::StreamSlotGroup* CreateSlotGroup(const core::Name<core::CaseSensitiveKey>& name, unsigned int slotCount,
+		const SlotGroupConfig* config, bool shared, bool unknown, engine::SlotHeapFactory factory, int unknown60)
+	{
+		engine::StreamSlotGroup* group = new (0xC) engine::StreamSlotGroup(name, slotCount,
+			(const engine::SlotHeapConfig*)config, shared, unknown);
+		group->factory = factory;
+		group->destroyer = (engine::SlotHeapDestroyer)unknown60;
+		group->Create(0, false);
+		engine::gStreamManager->slotGroups.PushBack(group);
+		return group;
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D74C80
 // FUNCTION: ENGINE 0x10D8A0A0
