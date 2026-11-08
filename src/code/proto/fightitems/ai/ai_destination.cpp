@@ -3328,6 +3328,112 @@ namespace proto
 			}
 #endif
 
+
+			// FUNCTION: ENGINE 0x10202030
+			void TargetGoToAction::MoveToPosition(engine::GameObject* object)
+			{
+				MoveParams params;
+				TargetGoToTrack* track = link.Get();
+				params.tolerance = track->tolerance;
+				params.braking = track->brake;
+				params.ignoreRestrictions = track->ignoreRestrictions;
+				params.unknown6 = track->stayOnGround;
+				Unknown103B8330(object, &unknown1C, &params);
+			}
+
+			// FUNCTION: ENGINE 0x10203D70
+			// NONMATCHING: the engine copies the target's position with SSE loads and the second vector from memory with x87 loads, ours forwards the registers, about 50 %
+#ifdef NONMATCHING
+			bool TargetGoToAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0 || link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* targetObject = GetTargetObject(object);
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = targetObject->transform->value;
+				math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+				unknown1C.x = place.x;
+				unknown1C.y = place.y;
+				unknown1C.z = place.z;
+				unknown28.x = unknown1C.x;
+				unknown28.y = unknown1C.y;
+				unknown28.z = unknown1C.z;
+				if (link.Get()->targetClimbing)
+				{
+					unknown1C.x = unknown1C.x + (math::WORLD_MIN - world.m[2][0]);
+					unknown1C.y = unknown1C.y + (math::WORLD_MIN - world.m[2][1]);
+					unknown1C.z = unknown1C.z + (math::WORLD_MIN - world.m[2][2]);
+				}
+				if (link.Get()->useRandomOvershoot)
+				{
+					AddOvershoot(targetObject);
+				}
+				MoveToPosition(object);
+				unknown34 = link.Get()->minTimeBetweenPathfind;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10203ED0
+			// NONMATCHING: the registers of the object and the target object differ (ebp / ebx in the engine), 74 %
+#ifdef NONMATCHING
+			bool TargetGoToAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (unknown34 >= choreo::gZero)
+				{
+					unknown34 = unknown34 - value;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* targetObject = GetTargetObject(object);
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				if (unknown34 < 0.0f)
+				{
+					math::Vector position;
+					GetTargetPosition(&position, targetObject);
+					float dx = position.x - unknown28.x;
+					float dy = position.y - unknown28.y;
+					float dz = position.z - unknown28.z;
+					float tolerance = link.Get()->toleranceRePathfind;
+					float limit = tolerance * tolerance;
+					if (dx * dx + dy * dy + dz * dz > limit)
+					{
+						if (position.DistanceSquaredTo(&unknown1C) > limit)
+						{
+							unknown28.x = position.x;
+							unknown28.y = position.y;
+							unknown28.z = position.z;
+							unknown1C.x = position.x;
+							unknown1C.y = position.y;
+							unknown1C.z = position.z;
+							if (link.Get()->useRandomOvershoot)
+							{
+								AddOvershoot(targetObject);
+							}
+							MoveToPosition(object);
+							unknown34 = link.Get()->minTimeBetweenPathfind;
+						}
+					}
+				}
+				return !Unknown103B8440(object);
+			}
+#endif
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;

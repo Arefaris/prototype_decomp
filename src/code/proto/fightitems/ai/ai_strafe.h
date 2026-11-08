@@ -7,6 +7,22 @@
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
+#include "code/container/arrayfixed.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/gameobject/gameobjectparams.h"
+#include "code/math/vector.h"
+
+namespace engine
+{
+	// 0x1020C120 (the strafe actions' copy): stores a reference counted object in a slot, releasing the previous one
+	void AssignRefCountedCopy6(core::IRefCount** slot, core::IRefCount* value);
+}
+
+namespace core
+{
+	// 0x1020C160 (the strafe actions' copy): lets go of the object in a slot
+	void SafeReleaseRefCopy7(IRefCount** slot);
+}
 
 namespace proto
 {
@@ -499,6 +515,103 @@ namespace proto
 			void RegisterTryStrafeRunTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+
+			// RTTI: proto::fightitems::ai::StrafeRunParams (the owner a strafe run is made on, kind 0x2100F; the part the actions copy)
+			class StrafeRunParams : public engine::GameObjectParams
+			{
+			public:
+				math::Vector unknown18;  // +0x18
+				math::Vector unknown24;  // +0x24
+				math::Vector unknown30;  // +0x30
+			};
+
+			// The owner as the strafe run actions keep it: null when the owner is none or not strafe run params (0x1020B630 is the engine's out of line copy)
+			inline StrafeRunParams* AsStrafeRunParams(core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				return ((motion::TrackOwner*)owner)->kind == 0x2100F ? (StrafeRunParams*)owner : 0;
+			}
+
+			// RTTI: proto::fightitems::ai::StrafeRunAction (9 vftable slots, 0x7C bytes)
+			class StrafeRunAction : public fight::Action
+			{
+			public:
+				// 0x1020DE00
+				StrafeRunAction(StrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, StrafeRunParams* newParams);
+				// 0x1020D170
+				virtual ~StrafeRunAction();
+
+				// vftable slot 5 (0x10210300)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10210A60)
+				virtual void Slot6();
+				// vftable slot 7 (0x102132F0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<StrafeRunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				float unknown2C;  // +0x2C
+				float unknown30;  // +0x30
+				float unknown34;  // +0x34
+				float unknown38;  // +0x38
+				bool unknown3C;
+				unsigned char unknown3D[0x3];
+				int unknown40;
+				unsigned char unknown44[0x34];
+				StrafeRunParams* params;  // +0x78
+			};
+			// RTTI: proto::fightitems::ai::SimpleOpenStrafeRunAction (9 vftable slots, 0x54 bytes)
+			class SimpleOpenStrafeRunAction : public fight::Action
+			{
+			public:
+				// 0x1020EA60
+				SimpleOpenStrafeRunAction(SimpleOpenStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, StrafeRunParams* newParams);
+				// 0x1020D340
+				virtual ~SimpleOpenStrafeRunAction();
+
+				// vftable slot 5 (0x102147D0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102129B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10214A10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<SimpleOpenStrafeRunTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				math::Vector unknown2C;  // +0x2C
+				math::Vector unknown38;  // +0x38
+				math::Vector unknown44;  // +0x44
+				int unknown50;  // +0x50
+			};
+			// RTTI: proto::fightitems::ai::PredefinedPatrolAction (9 vftable slots, 0xA4 bytes)
+			class PredefinedPatrolAction : public fight::Action
+			{
+			public:
+				// 0x10210230
+				PredefinedPatrolAction(PredefinedPatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102102C0
+				virtual ~PredefinedPatrolAction();
+
+				// vftable slot 5 (0x10214C10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x1020C030)
+				virtual void Slot6();
+				// vftable slot 7 (0x10214D30)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PredefinedPatrolTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				container::ArrayFixed<math::Vector, 6> points;  // +0x2C
+				int unknown78;  // +0x78
+				int unknown7C;  // +0x7C
+				int unknown80;  // +0x80
+				unsigned char unknown84[0x18];
+				bool unknown9C;  // +0x9C
+				unsigned char unknown9D[0x7];
+			};
 
 			// RTTI: proto::fightitems::ai::TightStrafeRunAction (9 vftable slots, 0x90 bytes)
 			class TightStrafeRunAction : public fight::Action

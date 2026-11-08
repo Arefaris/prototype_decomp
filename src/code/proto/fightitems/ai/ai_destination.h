@@ -1192,7 +1192,7 @@ namespace proto
 				void AddOvershoot(engine::GameObject* targetObject);
 
 				math::Vector unknown1C;  // +0x1C
-				unsigned char unknown28[0xC];
+				math::Vector unknown28;  // +0x28
 				float unknown34;  // +0x34
 				core::Link<TargetGoToTrack> link;  // +0x38
 				engine::GameObjectHandle target;  // +0x44

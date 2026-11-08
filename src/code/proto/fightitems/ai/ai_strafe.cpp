@@ -2,6 +2,36 @@
 #include "code/proto/fightitems/ai/ai_strafe.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x1020C120
+	void AssignRefCountedCopy6(core::IRefCount** slot, core::IRefCount* value)
+	{
+		if (value != 0)
+		{
+			value->AddRef();
+		}
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+		}
+		*slot = value;
+	}
+}
+
+namespace core
+{
+	// FUNCTION: ENGINE 0x1020C160
+	void SafeReleaseRefCopy7(IRefCount** slot)
+	{
+		if (*slot != 0)
+		{
+			(*slot)->Release();
+			*slot = 0;
+		}
+	}
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -1705,6 +1735,80 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new TryOpenStrafeRunAction(this, handle, effect, listener);
 			}
+
+			// FUNCTION: ENGINE 0x1020EA60
+			SimpleOpenStrafeRunAction::SimpleOpenStrafeRunAction(SimpleOpenStrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, StrafeRunParams* newParams) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown50(0)
+			{
+				unknown2C.x = newParams->unknown30.x;
+				unknown2C.y = newParams->unknown30.y;
+				unknown2C.z = newParams->unknown30.z;
+				unknown38.x = newParams->unknown24.x;
+				unknown38.y = newParams->unknown24.y;
+				unknown38.z = newParams->unknown24.z;
+				unknown44.x = newParams->unknown18.x;
+				unknown44.y = newParams->unknown18.y;
+				unknown44.z = newParams->unknown18.z;
+			}
+
+			// FUNCTION: ENGINE 0x1020D340
+			SimpleOpenStrafeRunAction::~SimpleOpenStrafeRunAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102101C0
+			fight::Action* SimpleOpenStrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				StrafeRunParams* params = AsStrafeRunParams(owner);
+				return new SimpleOpenStrafeRunAction(this, handle, params);
+			}
+
+			// FUNCTION: ENGINE 0x10210230
+			PredefinedPatrolAction::PredefinedPatrolAction(PredefinedPatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), unknown78(0), unknown7C(0), unknown80(-1), unknown9C(true)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102102C0
+			PredefinedPatrolAction::~PredefinedPatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102109E0
+			fight::Action* PredefinedPatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PredefinedPatrolAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x1020DE00
+			// NONMATCHING: the engine pushes the arguments of the reference helper after the stores of the members, ours before them, 74.6 %
+#ifdef NONMATCHING
+			StrafeRunAction::StrafeRunAction(StrafeRunTrack* newTrack, engine::GameObjectHandle newTarget, StrafeRunParams* newParams) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			{
+				unknown2C = 0.0f;
+				unknown30 = 0.0f;
+				unknown34 = 0.0f;
+				unknown38 = 0.0f;
+				unknown3C = true;
+				unknown40 = 0;
+				params = 0;
+				engine::AssignRefCountedCopy6((core::IRefCount**)&params, newParams);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1020D170
+			StrafeRunAction::~StrafeRunAction()
+			{
+				core::SafeReleaseRefCopy7((core::IRefCount**)&params);
+			}
+
+			// FUNCTION: ENGINE 0x1020ED90
+			fight::Action* StrafeRunTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				StrafeRunParams* params = AsStrafeRunParams(owner);
+				return new StrafeRunAction(this, handle, params);
+			}
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CanStrafeRunCondition>;
 			template class fight::PropertyIntConstRange<CanStrafeRunCondition>;
@@ -1785,6 +1889,8 @@ namespace proto
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1020EB10
+// FUNCTION: ENGINE 0x10210A30
 // FUNCTION: ENGINE 0x1020E1A0
 // FUNCTION: ENGINE 0x1020E6B0
 // FUNCTION: ENGINE 0x1020E9A0
