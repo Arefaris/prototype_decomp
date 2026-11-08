@@ -23,8 +23,8 @@ namespace engine
 		}
 		// vftable slot 1 (0x1087F680): "play" and "stop" are the events it answers
 		virtual bool Slot1(core::Name<core::CaseSensitiveKey>* name);
-		// 0x1087F230: hands every item of the update to slot 9
-		virtual void Slot2(AudioPlayerUpdate* update);
+		// 0x1087F230: hands every property of the settings to slot 9
+		virtual void Slot2(om::DynamicObject* properties);
 		// 0x1087FF80
 		virtual bool Slot3();
 		// 0x1087F740: posts the stop event

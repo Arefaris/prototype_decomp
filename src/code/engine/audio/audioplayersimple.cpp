@@ -1,6 +1,7 @@
 // engine::AudioPlayerSimple: see the header.
 #include "code/engine/audio/audiomessage.h"
 #include "code/engine/audio/audioplayersimple.h"
+#include "code/om/dynamicobject.h"
 
 namespace engine
 {
@@ -31,11 +32,11 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1087F230
-	void AudioPlayerSimple::Slot2(AudioPlayerUpdate* update)
+	void AudioPlayerSimple::Slot2(om::DynamicObject* properties)
 	{
-		for (void* item = update->First(); item != 0; item = update->Next(item))
+		for (om::DynamicPropertyBase* property = properties->GetFirstProperty(); property != 0; property = properties->GetNextProperty(property))
 		{
-			Slot9(item);
+			Slot9(property);
 		}
 	}
 
