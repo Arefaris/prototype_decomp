@@ -88,6 +88,12 @@ namespace proto
 		explicit GrabBehaviour(engine::GameObject* newOwner);
 		// 0x102C9C40 (the engine's: it lets the held objects go; the deleting destructor is 0x102C9E30)
 		virtual ~GrabBehaviour();
+		// 0x102C7120: the index of the slot of that name, -1 when there is none
+		int FindSlot(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x102C7180: what the slot of that name holds (an empty handle when there is none)
+		engine::HandleBase GetSlotHandle(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x102C80D0: hands a message to every object the slots hold
+		void SendToHeld(engine::Message* message);
 		// vftable slot 1 (0x102C7110): nothing
 		virtual void Slot1()
 		{
@@ -101,33 +107,6 @@ namespace proto
 		int unknown18;
 		int unknown1C;
 		core::Name<core::CaseSensitiveKey> mountableSlot;  // +0x20
-	};
-
-	// The messages of type 0x1F (RTTI proto::GrabMessage, base engine::IntrusiveMessage); the ids are the engine's
-	class GrabMessage : public engine::IntrusiveMessage
-	{
-	public:
-		explicit GrabMessage(short newId) : engine::IntrusiveMessage(0x1F, newId)
-		{
-		}
-		virtual ~GrabMessage()
-		{
-		}
-	};
-
-	// Asks for the object that was spawned for an entry of the auto spawn list (answers its handle)
-	class GetGrabbedObjectMessage : public GrabMessage
-	{
-	public:
-		explicit GetGrabbedObjectMessage(const GrabSpawnListEntry* newEntry) : GrabMessage(0), entry(newEntry)
-		{
-		}
-		virtual ~GetGrabbedObjectMessage()
-		{
-		}
-
-		const GrabSpawnListEntry* entry;  // +0xC
-		engine::HandleBase result;  // +0x10
 	};
 
 	class GrabAutoSpawnBehaviour : public engine::Behaviour

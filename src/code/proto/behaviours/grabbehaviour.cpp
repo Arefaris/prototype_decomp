@@ -1,5 +1,6 @@
 #include "code/proto/behaviours/grabbehaviour.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/engine/gameobject/gameobjectspawner.h"
 #include "code/core/refptr.h"
 #include "code/ravenphysics/context.h"
@@ -245,9 +246,9 @@ namespace proto
 			GrabSpawnListEntry* entry = autoSpawnList.begin + i;
 			if (entry->aICharacter)
 			{
-				GetGrabbedObjectMessage message(entry);
+				GetGrabbedObjectMessage message(&entry->grabSlot);
 				owner->SendMessage(&message);
-				engine::GameObjectHandle handle = (const engine::GameObjectHandle&)message.result;
+				engine::GameObjectHandle handle = message.grabbed;
 				if (handle.IsValid())
 				{
 					handle.DeferUpdate(false);
@@ -307,6 +308,52 @@ namespace proto
 		{
 			timer = 0.0f;
 			Listen2(4, false);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102C7120
+	int GrabBehaviour::FindSlot(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		int count = grabSlots.Size();
+		int i = 0;
+		if (0 < count)
+		{
+			GrabSlot* slot = grabSlots.begin;
+			do
+			{
+				if (slot->name == name)
+				{
+					return i;
+				}
+				i++;
+				slot++;
+			}
+			while (i < count);
+		}
+		return -1;
+	}
+
+	// FUNCTION: ENGINE 0x102C7180
+	engine::HandleBase GrabBehaviour::GetSlotHandle(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		int index = FindSlot(name);
+		if (index >= 0 && index < (int)grabSlots.Size())
+		{
+			return grabSlots[index].held;
+		}
+		return engine::HandleBase();
+	}
+
+	// FUNCTION: ENGINE 0x102C80D0
+	void GrabBehaviour::SendToHeld(engine::Message* message)
+	{
+		for (GrabSlot* slot = grabSlots.begin; slot != grabSlots.end; slot++)
+		{
+			engine::GameObject* object = ((const engine::GameObjectHandle&)slot->held).Get();
+			if (object != 0)
+			{
+				object->SendMessage(message);
+			}
 		}
 	}
 
