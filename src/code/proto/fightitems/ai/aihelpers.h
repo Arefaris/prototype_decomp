@@ -64,6 +64,8 @@ namespace proto
 		bool Unknown103826D0(const math::Vector* place);
 		// 0x10382880: whether the place with a radius is free of the volumes of other objects than the given one (name guess)
 		bool Unknown10382880(const math::Vector* place, float radius, engine::GameObjectHandle handle);
+		// 0x10381F60: looks a value up in the table of four ranges (name guess)
+		float Unknown10381F60(float value);
 		// 0x10385420: releases the volume the object reserved (name guess)
 		void Unknown10385420(engine::GameObjectHandle handle);
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
@@ -155,10 +157,10 @@ namespace proto
 	void Unknown103BB8A0(engine::GameObject* object, math::Vector* direction);
 	// 0x103B8DC0: the level of detail state of an object (name guess)
 	int Unknown103B8DC0(engine::GameObject* object);
-	// 0x103B9ED0: whether a position is in the view of the first player's camera, with a margin (name guess)
-	bool Unknown103B9ED0(const math::Vector* position, float margin);
-	// 0x103B8C10: makes the object press its crouch button (name guess)
-	void Unknown103B8C10(engine::GameObject* object);
+	// 0x103B9ED0: whether a point is in the view of the first player's camera, with a margin (name guess)
+	bool IsPointVisibleToCamera(const math::Vector* point, float radius);
+	// 0x103B8C10: makes the object press its button 6, the crouch button (name guess)
+	void SendButton6(engine::GameObject* object);
 	// 0x103BDB60: aims the object at a target with the weapon of a grab slot (name guess)
 	void Unknown103BDB60(engine::GameObject* object, engine::GameObjectHandle target, const fight::Name* weaponGrabSlot);
 	// 0x103B8B80: the handle of the object's target (name guess)

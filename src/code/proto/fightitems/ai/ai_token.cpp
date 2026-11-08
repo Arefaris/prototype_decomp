@@ -2419,7 +2419,7 @@ namespace proto
 					{
 						math::Matrix* world = object->transform->GetPointer();
 						math::Vector position(world->m[3][0], world->m[3][1], world->m[3][2]);
-						result = Unknown103B9ED0(&position, size);
+						result = IsPointVisibleToCamera(&position, size);
 					}
 				}
 				return result;

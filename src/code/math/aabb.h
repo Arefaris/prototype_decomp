@@ -44,6 +44,8 @@ namespace math
 		void SetTransformed(const Matrix& m, const AABB& box);
 		// 0x102CBD60: widens every axis on which the box is (nearly) flat
 		void Inflate();
+		// 0x103B4130 (the world triggers' unit; name guess): the product of the three extents
+		float GetVolume() const;
 
 		Vector min;
 		Vector max;

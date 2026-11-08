@@ -381,7 +381,7 @@ namespace proto
 		math::Vector offset;  // +0x8
 		bool forceWorldAngles;  // +0x14
 		unsigned char unknown15[0x3];
-		math::Vector unknown18;  // +0x18
+		math::Vector unknown18;  // +0x18 (where to look when the place is 7)
 	};
 
 	// RTTI: proto::GetAimParametersMovementMessage: the object answers the block of its aim parameters

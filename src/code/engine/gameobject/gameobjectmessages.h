@@ -197,6 +197,10 @@ namespace engine
 	// One axis of a character's intention
 	struct CharacterIntentionAxis
 	{
+		// 0x107E25D0 (another unit; name guess): sets the value; the second member counts the time it stays within
+		// 0.05 of the old one (else it restarts with the given time)
+		void Set(float elapsed, float newValue);
+
 		float x;
 		float y;
 	};
@@ -212,6 +216,8 @@ namespace engine
 		CharacterIntentionButton* GetButtonOther(int index);
 		// 0x107E30C0: another copy of GetAxis (a unit that holds its own)
 		CharacterIntentionAxis* GetAxisCopy(int index);
+		// 0x107E31F0 (another unit; name guess): puts every button, axis and the state name back to their start
+		void Reset();
 		// 0x107E2920 / 0x107E30F0 (another unit): the name of the state the character is in (at +8) and its setter
 		core::Name<core::CaseSensitiveKey>* GetStateName();
 		void SetStateName(const core::Name<core::CaseSensitiveKey>& newName);

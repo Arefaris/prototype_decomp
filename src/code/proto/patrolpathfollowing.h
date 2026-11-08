@@ -33,9 +33,9 @@ namespace proto
 			virtual void Notify(void* arg) = 0;
 		};
 
-		// 0x103A61D0 (another unit): starts with no path, following through the follower and telling the notifier
+		// 0x103A61D0: starts with no path, following through the follower and telling the notifier
 		PatrolPathFollowing(Follower* newFollower, Notifier* newNotifier);
-		// 0x103A6270 (deleting destructor 0x103A6C80, another unit)
+		// 0x103A6270 (deleting destructor 0x103A6C80)
 		virtual ~PatrolPathFollowing();
 		// 0x103A7400 (another unit): takes a path and starts it over (name guess)
 		void SetPath(PatrolPath* newPath);
@@ -51,6 +51,27 @@ namespace proto
 		int unknown2C;  // +0x2C
 		int unknown30;  // +0x30
 		float unknown34;  // +0x34
+	};
+
+	// RTTI: proto::SimplePathFollowing (no base class): the same members as PatrolPathFollowing and a float behind
+	// them; it frees the block at +8 (0x103A6600, destructor 0x103A66B0, deleting destructor 0x103A7190)
+	class SimplePathFollowing
+	{
+	public:
+		SimplePathFollowing(PatrolPathFollowing::Follower* newFollower, PatrolPathFollowing::Notifier* newNotifier,
+			float newUnknown38);
+		virtual ~SimplePathFollowing();
+
+		int unknown4;
+		void* unknown8;
+		PatrolPathFollowing::Follower* follower;  // +0xC
+		PatrolPathFollowing::Notifier* notifier;  // +0x10
+		math::Vector unknown14;
+		math::Vector unknown20;
+		int unknown2C;
+		int unknown30;
+		float unknown34;
+		float unknown38;
 	};
 
 	// Moves a game object through its movement behaviour (0x103A6390 - 0x103A64E0; slot 2 is 0x103A63F0)

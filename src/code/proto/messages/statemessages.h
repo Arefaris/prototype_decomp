@@ -12,17 +12,19 @@
 
 namespace engine
 {
+	struct PlayerControlInfo;
+
 	// Asks for the state of the player's control (message type 0x10, id 1)
 	struct CharacterQueryPlayerControlStateMessage : public CharacterQueryMessage
 	{
-		CharacterQueryPlayerControlStateMessage() : CharacterQueryMessage(1), state(0)
+		CharacterQueryPlayerControlStateMessage() : CharacterQueryMessage(1), info(0)
 		{
 		}
 		virtual ~CharacterQueryPlayerControlStateMessage()
 		{
 		}
 
-		int state;  // +0xC
+		const PlayerControlInfo* info;  // +0xC (the answer: who controls the character)
 	};
 
 	// Switches the rendering of an object (message type 7, id 0xB)

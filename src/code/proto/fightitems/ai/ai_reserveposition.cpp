@@ -1285,7 +1285,7 @@ namespace proto
 				engine::GameObject* object = target.Get();
 				if (unknown58)
 				{
-					Unknown103B8C10(object);
+					SendButton6(object);
 				}
 				Unknown103B82F0(object);
 				Unknown103BDB60(object, unknown38, &link.object->weaponGrabSlot);
