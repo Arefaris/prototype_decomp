@@ -9,20 +9,10 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/propspawner.h"
+#include "code/proto/cloudspawnerbase.h"
 
 namespace proto
 {
-	class CloudSpawnerBase : public engine::PropSpawner
-	{
-	public:
-		enum Priority
-		{
-			PriorityFirst
-		};
-	};
-	class CloudSpawner : public CloudSpawnerBase
-	{
-	};
 	class CloudManager
 	{
 	};
