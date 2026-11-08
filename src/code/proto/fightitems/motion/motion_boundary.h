@@ -56,6 +56,11 @@ namespace proto
 		{
 		}
 
+		// An object whose position is not known yet (the position is left as it is)
+		explicit JumpDestination(const engine::GameObjectHandle& newTarget) : target(newTarget)
+		{
+		}
+
 		// 0x103C5C60 (another unit): takes the position of the object
 		void Update();
 

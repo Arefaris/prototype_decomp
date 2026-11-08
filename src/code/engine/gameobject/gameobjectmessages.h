@@ -197,6 +197,10 @@ namespace engine
 	// One axis of a character's intention
 	struct CharacterIntentionAxis
 	{
+		// 0x107E25D0 (another unit; name guess): sets the value; the second member counts the time it stays within
+		// 0.05 of the old one (else it restarts with the given time)
+		void Set(float elapsed, float newValue);
+
 		float x;
 		float y;
 	};

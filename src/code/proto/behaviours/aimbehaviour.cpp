@@ -1,3 +1,4 @@
+#include "code/proto/fightitems/motion/motion_boundary.h"
 #include "code/proto/behaviours/aimbehaviour.h"
 #include "code/proto/messages/movementrestrictionsmessage.h"
 
@@ -280,7 +281,7 @@ namespace proto
 		position.x = point.x + info->unknown8.x;
 		position.y = info->unknown8.y + point.y;
 		position.z = info->unknown8.z + point.z;
-		AimTarget aimTarget;
+		JumpDestination aimTarget;
 		aimTarget.position.x = position.x;
 		aimTarget.position.y = position.y;
 		aimTarget.position.z = position.z;
@@ -301,7 +302,7 @@ namespace proto
 		position.x = point.x + info->unknown8.x;
 		position.y = info->unknown8.y + point.y;
 		position.z = info->unknown8.z + point.z;
-		AimTarget aimTarget;
+		JumpDestination aimTarget;
 		aimTarget.position.x = position.x;
 		aimTarget.position.y = position.y;
 		aimTarget.position.z = position.z;
