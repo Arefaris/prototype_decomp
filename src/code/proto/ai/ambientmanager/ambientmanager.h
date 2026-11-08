@@ -8,6 +8,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/core/heap.h"
 #include "code/core/name.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
@@ -206,6 +207,10 @@ namespace proto
 	public:
 		// 0x1041FA40
 		explicit AmbientManager(const AmbientConfig* newConfig);
+		// 0x104138E0 / 0x10411D20 (names unknown): the first answers whether the object has the ambient attribute, the second
+		// puts the object's visibility client right
+		bool Unknown104138E0(engine::GameObjectHandle handle);
+		void Unknown10411D20(engine::GameObjectHandle handle);
 		// 0x10411FF0: adds the car to the list its record points at (this is not read)
 		void AddVehicle(VehicleBehaviourAmbient* vehicle);
 		// 0x104120F0: takes the car out of the manager's list
