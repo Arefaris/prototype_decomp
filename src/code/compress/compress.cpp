@@ -169,16 +169,9 @@ namespace compress
 	}
 
 	// FUNCTION: ENGINE 0x106DC1A0
-	// NONMATCHING: the engine loads the mode before the level and stores it first (83.3 %)
-#ifdef NONMATCHING
 	Stream::Stream(int newLevel, int newMode, int heap)
+		: status(1), usedInput(0), usedOutput(0), level(newLevel), mode(newMode), compressor(0)
 	{
-		mode = newMode;
-		status = 1;
-		usedInput = 0;
-		usedOutput = 0;
-		level = newLevel;
-		compressor = 0;
 		callback.SetStream(this);
 		core::CriticalSectionInit(lock);
 		core::EventInit(event, 0);
@@ -192,7 +185,6 @@ namespace compress
 			break;
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x106DC230
 	Stream::~Stream()
