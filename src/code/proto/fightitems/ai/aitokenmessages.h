@@ -5,9 +5,25 @@
 
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/proto/messages/airequestmessages.h"
+#include "code/proto/behaviours/tokenbehaviour.h"
 
 namespace proto
 {
+	// RTTI: proto::GetOwnersTokenMsg: the object answers who holds its tokens of a kind (the group comes back through the pointer)
+	struct GetOwnersTokenMsg : public TokenMessage
+	{
+		explicit GetOwnersTokenMsg(int newKind) : TokenMessage(0), group(0), unknown10(false), kind(newKind)
+		{
+		}
+		virtual ~GetOwnersTokenMsg()
+		{
+		}
+
+		TokenBehaviour::TokenGroup* group;  // +0xC
+		bool unknown10;
+		int kind;  // +0x14
+	};
+
 	// RTTI: proto::RequestTokenMsg: an object asks for a token of a type for a requester and is answered whether it got one
 	struct RequestTokenMsg : public TokenMessage
 	{

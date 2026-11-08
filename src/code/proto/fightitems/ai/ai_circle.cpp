@@ -577,6 +577,13 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x101E2140
+			fight::Action* IntersectionCirclePatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new IntersectionCirclePatrolAction(this, handle);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CirclePatrolTrack>;
 			template class fight::PropertyIntConstRange<CirclePatrolTrack>;

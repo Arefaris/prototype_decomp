@@ -381,7 +381,7 @@ public:
 
 	virtual content::LoadObject* Get(const void* object)
 	{
-		return (((const C*)object)->*getter)();
+		return (content::LoadObject*)(((const C*)object)->*getter)();
 	}
 	virtual void Set(void* object, content::LoadObject* value)
 	{

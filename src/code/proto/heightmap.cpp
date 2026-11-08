@@ -1,5 +1,7 @@
 #include "code/proto/heightmap.h"
 #include <math.h>
+#include <new>
+#include <string.h>
 
 namespace engine
 {
@@ -57,6 +59,229 @@ namespace proto
 		sList.members = sMembers;
 		sList.count = 11;
 		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x103954E0
+	Heightmap::Heightmap() : gridSize(0.0f), inverseGridSize(0.0f), sizeX(0), sizeY(0), marginX(0), marginY(0), minVec(math::kZeroVector), minHeight(0.0f),
+		maxHeight(0.0f), quantum(0.0f)
+	{
+		aabb.Reset();
+		pool.Init(0, 0x14, 0x1000, core::GetCurrentHeap(), "HeightmapPool", 0x10);
+	}
+
+	// FUNCTION: ENGINE 0x10395080
+	Heightmap::~Heightmap()
+	{
+		data.Free();
+		sizeY = 0;
+		sizeX = 0;
+		HeightCache::Iterator iterator(&cache);
+		for (void* item = iterator.First(); item != 0; item = iterator.Next())
+		{
+			pool.Free(item);
+		}
+		cache.Clear();
+	}
+
+	// FUNCTION: ENGINE 0x103902C0
+	void HeightCache::Resize(unsigned int count)
+	{
+		core::HeapScope scope(heap);
+		unsigned int oldCount = bucketCount;
+		void** oldSlots = slots;
+		int* oldKeys = keys;
+		bucketCount = count;
+		slots = new void*[count];
+		keys = new int[bucketCount];
+		removedCount = 0;
+		usedCount = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			slots[i] = 0;
+			keys[i] = 0;
+		}
+		if (oldSlots != 0)
+		{
+			for (unsigned int i = 0; i < oldCount; i++)
+			{
+				if (oldSlots[i] != 0 && oldSlots[i] != &removedMarker)
+				{
+					Insert(&oldKeys[i], oldSlots[i]);
+				}
+			}
+			operator delete[](oldSlots);
+			operator delete[](oldKeys);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1038DCA0
+	// NONMATCHING: the engine schedules the stores of the key, start and step differently around the register saves (6.5 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::StartInsert(const int* newKey)
+	{
+		key = *newKey;
+		int hash = *newKey;
+		start = Mask(hash);
+		step = Step(hash);
+		unsigned int position = start;
+		while (table->slots[position] != 0 && table->keys[position] != key
+			&& table->slots[position] != &table->removedMarker)
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1038DC00
+	// NONMATCHING: the engine schedules the stores of the key, start and step differently around the register saves (9.5 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::Find(const int* newKey)
+	{
+		key = *newKey;
+		int hash = *newKey;
+		start = Mask(hash);
+		step = Step(hash);
+		unsigned int position = start;
+		while ((table->slots[position] != 0 && table->keys[position] != key)
+			|| table->slots[position] == &table->removedMarker)
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1038CA20
+	void* HeightCache::Probe::Next()
+	{
+		unsigned int position = (current + step) & (table->bucketCount - 1);
+		while (table->slots[position] != 0 && table->keys[position] != key
+			&& table->slots[position] != &table->removedMarker)
+		{
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+			position = (position + step) & (table->bucketCount - 1);
+		}
+		current = position;
+		return table->slots[position];
+	}
+
+	// FUNCTION: ENGINE 0x10393340
+	// NONMATCHING: the engine hoists the mask before the position (83.5 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::FindNext()
+	{
+		unsigned int position = current;
+		do
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if ((table->slots[position] == 0 || table->keys[position] == key)
+				&& table->slots[position] != &table->removedMarker)
+			{
+				break;
+			}
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		while (true);
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103901B0
+	// NONMATCHING: the engine keeps the index of the slot in a register for both stores (69.1 %)
+#ifdef NONMATCHING
+	void HeightCache::Insert(const int* key, void* item)
+	{
+		Probe probe(this);
+		void* found = probe.StartInsert(key);
+		while (found != 0 && found != &probe.table->removedMarker)
+		{
+			found = probe.Next();
+		}
+		void** slot = &slots[probe.current];
+		if (*slot == &removedMarker)
+		{
+			removedCount--;
+		}
+		*slot = item;
+		keys[probe.current] = *key;
+		usedCount++;
+		if (usedCount * 100 / bucketCount > maxLoadPercent)
+		{
+			Resize(bucketCount * 2);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10394E80
+	void HeightCache::Rehash()
+	{
+		void** slotCopy = (void**)core::HeapAlloc(1, bucketCount * 4);
+		memcpy(slotCopy, slots, bucketCount * 4);
+		int* keyCopy = (int*)core::HeapAlloc(1, bucketCount * 4);
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			keyCopy[i] = keys[i];
+		}
+		removedCount = 0;
+		usedCount = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			slots[i] = 0;
+			keys[i] = 0;
+		}
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			if (slotCopy[i] != 0 && slotCopy[i] != &removedMarker)
+			{
+				Insert(&keyCopy[i], slotCopy[i]);
+			}
+		}
+		core::Free(slotCopy);
+		core::Free(keyCopy);
+	}
+
+	// FUNCTION: ENGINE 0x103951F0
+	int HeightCache::Remove(void* item)
+	{
+		int removed = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			if (slots[i] == item)
+			{
+				slots[i] = &removedMarker;
+				keys[i] = 0;
+				removedCount++;
+				removed++;
+				usedCount--;
+			}
+		}
+		if (shrinks && removedCount > maxRemoved)
+		{
+			Rehash();
+		}
+		return removed;
 	}
 
 	// FUNCTION: ENGINE 0x103937F0
@@ -164,7 +389,7 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x103951D0
-	void Heightmap::SetName(const content::ObjectName& name)
+	void Heightmap::Slot3(int unused)
 	{
 	}
 
@@ -186,14 +411,18 @@ template class container::ArrayDynamic<unsigned short, container::AllocatorNew>;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x103931B0
+// FUNCTION: ENGINE 0x103931C0
 // FUNCTION: ENGINE 0x103931F0
 // FUNCTION: ENGINE 0x10393250
 // FUNCTION: ENGINE 0x103932C0
+// FUNCTION: ENGINE 0x103932F0
 // FUNCTION: ENGINE 0x103933B0
 // FUNCTION: ENGINE 0x103933F0
 // FUNCTION: ENGINE 0x10393400
 // FUNCTION: ENGINE 0x103937E0
+// FUNCTION: ENGINE 0x10393850
 // FUNCTION: ENGINE 0x10393870
+// FUNCTION: ENGINE 0x103938C0
 // FUNCTION: ENGINE 0x103938D0
 // FUNCTION: ENGINE 0x10393910
 // FUNCTION: ENGINE 0x10393950
@@ -225,3 +454,4 @@ template class container::ArrayDynamic<unsigned short, container::AllocatorNew>;
 // FUNCTION: ENGINE 0x10394E60
 // FUNCTION: ENGINE 0x10394F90
 // FUNCTION: ENGINE 0x10395260
+// FUNCTION: ENGINE 0x103952B0

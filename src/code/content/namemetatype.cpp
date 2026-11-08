@@ -1,7 +1,10 @@
 // content::NameMetaType: the meta type of the four kinds of name a reflected class can hold (unit 0x105FCC70 - 0x105FD3A2;
 // only the small slots so far; the file name is guessed).
 #include "code/content/metatype.h"
+#include "code/core/hash.h"
 #include "code/core/heap.h"
+#include "code/core/name.h"
+#include "code/scaleformp3d/flashfilecache.h"
 
 namespace content
 {
@@ -54,5 +57,27 @@ namespace content
 				::operator delete(object);
 			}
 		}
+	}
+}
+
+namespace scaleformp3d
+{
+	// FUNCTION: ENGINE 0x105FCE40
+	FlashFileKey::FlashFileKey(const char* text, int unknown)
+	{
+		low = 0;
+		high = 0;
+		unsigned __int64 hash = core::Hash64NoCase(text, 0);
+		low = static_cast<unsigned int>(hash);
+		high = static_cast<unsigned int>(hash >> 32);
+	}
+}
+
+namespace core
+{
+	// FUNCTION: ENGINE 0x105FCED0
+	void Name<CaseInsensitiveKey32>::SetText(const char* text)
+	{
+		hash = Hash32NoCase(text, 0);
 	}
 }

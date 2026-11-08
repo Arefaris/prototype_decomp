@@ -13,6 +13,12 @@ namespace pure3d
 	extern float gParticleUnknown111372B8;
 	extern int gParticleUnknown1127EDE8;
 
+	// FUNCTION: ENGINE 0x1073FD00
+	void PSAsyncTaskCallback::OnResult(int result)
+	{
+		core::EventSignal(event, 1);
+	}
+
 	// FUNCTION: ENGINE 0x1073FD30
 	// EQUIVALENT: the camera position is copied through x87 for its first component (554 bytes against 558); the rest
 	// is identical
@@ -58,7 +64,7 @@ namespace pure3d
 			unknownBC.Set(camera.m[3][0], camera.m[3][1], camera.m[3][2]);
 		}
 		heap = core::GetCurrentHeap();
-		core::EventReset(event, 1);
+		core::EventReset(taskCallback.event, 1);
 		job.Submit(1);
 	}
 }

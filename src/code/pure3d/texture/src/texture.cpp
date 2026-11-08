@@ -852,6 +852,11 @@ namespace pure3d
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x1072B7B0
+	DDSParser::DDSParser() : texture(0), width(0), height(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1072B3D0
 	DDSParser::DDSParser(Texture* newTexture, unsigned int newWidth, unsigned int newHeight)
 		: texture(newTexture), width(newWidth), height(newHeight)

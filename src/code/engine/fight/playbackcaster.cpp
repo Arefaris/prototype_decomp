@@ -10,3 +10,9 @@ namespace fight
 	{
 	}
 }
+
+// The unit's template instances (the property and factory classes of its tracks and conditions), mapped in symbols.txt:
+// FUNCTION: ENGINE 0x108079D0
+// FUNCTION: ENGINE 0x10807C60
+// FUNCTION: ENGINE 0x10807C90
+// FUNCTION: ENGINE 0x10807CB0

@@ -33,6 +33,11 @@ namespace dsp
 	};
 }
 
+namespace mgraph
+{
+	class PatchSource;
+}
+
 namespace audio
 {
 	// The output bins of a mix (RTTI: the argument of RemotePlayerEvent_Param2<enum audio::MixBin, float>)
@@ -145,7 +150,9 @@ namespace audio
 		float unknown49C;
 		unsigned char unknown4A0[0x4f8 - 0x4a0];
 		unsigned int startPosition;  // +0x4F8
-		unsigned char unknown4FC[0x510 - 0x4fc];
+		unsigned char unknown4FC[0x500 - 0x4fc];
+		mgraph::PatchSource* source;  // +0x500: what the player plays
+		unsigned char unknown504[0x510 - 0x504];
 		bool loop;  // +0x510
 		unsigned char unknown511[0x51c - 0x511];
 		float unknown51C;

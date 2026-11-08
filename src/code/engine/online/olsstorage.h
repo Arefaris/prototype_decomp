@@ -17,10 +17,10 @@ namespace engine
 {
 	// The messages of the storage (message type 7; the id says what happened: 0 a read can start, 1 a download is done,
 	// 2 an upload is done)
-	struct OLSStorageMessage : public OLSMessage
+	struct OLSStorageMessage : public OLSMessageWords
 	{
 		// 0x108C5950
-		explicit OLSStorageMessage(short newId) : OLSMessage(7, newId)
+		explicit OLSStorageMessage(short newId) : OLSMessageWords(7, newId)
 		{
 		}
 		// 0x108C5F40 is the deleting destructor

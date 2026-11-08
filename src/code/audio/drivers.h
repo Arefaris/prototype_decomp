@@ -197,19 +197,165 @@ namespace audio
 		om::String path;  // 0x34
 	};
 
+	// A counting semaphore of the core module, created with the object and destroyed with it
+	class DriverSemaphore
+	{
+	public:
+		DriverSemaphore()
+		{
+			core::SemaphoreCreate(&handle, 0);
+		}
+		~DriverSemaphore()
+		{
+			core::SemaphoreDestroy(&handle);
+		}
+
+		void* handle;
+	};
+
+	// What the multimedia library tells about an output device (WAVEOUTCAPS, 0x34 bytes)
+	struct WaveOutCaps
+	{
+		unsigned short manufacturerId;
+		unsigned short productId;
+		unsigned int driverVersion;
+		char name[32];
+		unsigned int formats;
+		unsigned short channels;
+		unsigned short reserved;
+		unsigned int support;
+	};
+
+	// A block of samples handed to the multimedia library (WAVEHDR, 0x20 bytes)
+	struct WaveHeader
+	{
+		char* data;
+		unsigned int bufferLength;
+		unsigned int bytesRecorded;
+		unsigned int user;
+		unsigned int flags;
+		unsigned int loops;
+		WaveHeader* next;
+		unsigned int reserved;
+	};
+
 	// The multimedia extension driver (names of the accessors guessed)
 	class MmeRendererDriver : public RendererDriver
 	{
 	public:
+		// The thread that mixes the next block of samples and hands it to the device
+		class Thread : public om::Thread
+		{
+		public:
+			// 0x10AB7980
+			explicit Thread(MmeRendererDriver* newDriver);
+			// 0x10AB8080
+			virtual void Run();
+
+			MmeRendererDriver* driver;  // 0xCC
+		};
+
+		// 0x10AB7CB0
+		MmeRendererDriver(unsigned int newDeviceId, const WaveOutCaps* newCaps);
+		// 0x10AB7770 (the deleting destructor is 0x10AB7E00)
+		virtual ~MmeRendererDriver();
+		virtual const char* Slot1();
+		// Slot 2 (0x10AB85C0): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slots 3 and 4: the device is opened with the user data and closed again
+		virtual void SetUserData(unsigned int newUserData);
+		virtual void ClearUserData();
+		// Slot 5 (0x10AB77E0): true on the driver's own thread
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
 		void SetWaveFormat(WAVEFORMAT newWaveFormat);
 		WAVEFORMAT GetWaveFormat() const;
+		OM_ALLOCATION(MmeRendererDriver);
+
+		// 0x1132767C (name guessed)
+		static char unknownStatic;
+
+		float** mixBins;  // 0x7C
+		unsigned int deviceId;  // 0x80
+		WaveOutCaps caps;  // 0x84
+		void* device;  // 0xB8: the open device, null while it is closed
+		WaveHeader headers[2];  // 0xBC
+		WAVEFORMAT waveFormat;  // 0xFC
+		Thread thread;  // 0x100
+		DriverSemaphore semaphore;  // 0x1D0
+		bool closing;  // 0x1D4
 	};
 
+	// The driver of an ASIO device (RTTI: audio::AsioRendererDriver); only the parts the slots below use are described
+	class AsioRendererDriver : public RendererDriver
+	{
+	public:
+		virtual const char* Slot1();
+		// Slot 5 (0x10AB9340): true on the thread the device calls back on
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed (the latency and the channels follow the buffers)
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
+		// 0x10AB9360: the device changed its sample rate (a callback of the device library)
+		static void __cdecl SampleRateDidChange(double newSampleRate);
+
+		// 0x11327690 (name guessed): the driver the device calls back
+		static AsioRendererDriver* current;
+		// 0x11327694 (name guessed)
+		static char unknownStatic;
+
+		char unknown7C[0x10];
+		void* device;  // 0x8C
+		int state;  // 0x90
+		float** buffers;  // 0x94
+		char unknown98[0x3C];
+		int bufferSize;  // 0xD4
+		char unknownD8[8];
+		int outputChannels;  // 0xE0
+		char unknownE4[4];
+		double deviceSampleRate;  // 0xE8
+		char unknownF0[8];
+		unsigned long threadId;  // 0xF8
+	};
+
+	// The driver of the kernel streaming devices (names of the accessors guessed)
 	class WdmKsRendererDriver : public RendererDriver
 	{
 	public:
+		// The thread that mixes into the device's events (its body is not recovered)
+		class Thread : public om::Thread
+		{
+		public:
+			virtual void Run();
+
+			WdmKsRendererDriver* driver;  // 0xCC
+		};
+
+		virtual const char* Slot1();
+		// Slot 2 (0x10ABB8E0): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slot 5 (0x10ABA740): true on the driver's own thread
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
 		void SetWaveFormat(WAVEFORMAT newWaveFormat);
 		WAVEFORMAT GetWaveFormat() const;
+
+		// 0x113276B0 (name guessed)
+		static char unknownStatic;
+
+		void* unknown7C;
+		char unknown80[8];
+		Thread thread;  // 0x88
+		void* mixEvents;  // 0x158
+		unsigned int numberOfMixEvents;  // 0x15C
+		WAVEFORMAT waveFormat;  // 0x160
 	};
 
 	// The interface the DirectSound driver implements besides the driver base (at 0x7C of the object; RTTI:
@@ -217,15 +363,39 @@ namespace audio
 	class DirectSoundRendererDriver
 	{
 	public:
-		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
-		virtual void Slot2() = 0;
-		virtual void Slot3() = 0;
+		virtual void InterfaceSlot0() = 0;
+		virtual void InterfaceSlot1() = 0;
+		virtual void InterfaceSlot2() = 0;
+		virtual void InterfaceSlot3() = 0;
 	};
 
 	class DirectSoundRendererDriverImpl : public RendererDriver, public DirectSoundRendererDriver
 	{
 	public:
+		// The thread that fills the device's buffer (its body is not recovered)
+		class Thread : public om::Thread
+		{
+		public:
+			virtual void Run();
+
+			DirectSoundRendererDriverImpl* driver;  // 0xCC
+		};
+
+		virtual const char* Slot1();
+		// Slot 2 (0x10ABEF40): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slot 5 (0x10ABCFC0): true on the driver's own thread
+		virtual bool Slot5();
+		// Slot 17 (0x10ABCFE0)
+		virtual int Slot17();
+
+		// 0x113276D4 (name guessed)
+		static char unknownStatic;
+
+		char unknown80[0xE8];
+		Thread thread;  // 0x168
+		char unknown238[0x1C];
+		int unknown254;  // 0x254
 		void SetBufferLocation(BufferLocation newBufferLocation);
 		BufferLocation GetBufferLocation() const;
 		void SetMixType(MixType newMixType);
@@ -252,22 +422,6 @@ namespace audio
 
 	// 0x105C6E60 (name guessed): whether two counters hold the same value
 	bool Equal(const int* first, const int* second);
-
-	// A counting semaphore of the core module, created with the object and destroyed with it
-	class DriverSemaphore
-	{
-	public:
-		DriverSemaphore()
-		{
-			core::SemaphoreCreate(&handle, 0);
-		}
-		~DriverSemaphore()
-		{
-			core::SemaphoreDestroy(&handle);
-		}
-
-		void* handle;
-	};
 
 	// The driver of the XAudio2 device (RTTI: audio::XAudio2RendererDriver, also a voice callback of the device library)
 	class XAudio2RendererDriver : public RendererDriver, public IXAudio2VoiceCallback

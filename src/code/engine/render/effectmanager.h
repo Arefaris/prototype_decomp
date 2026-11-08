@@ -259,6 +259,15 @@ namespace engine
 			void SetEmitting(bool emitting, float fadeTime);
 			// 0x1081EC00: the drawable of the store the effect is made from; the effect counts as its user when it exists
 			void SetStoreDrawable(const Drawable* store);
+			// 0x10819360 / 0x10819370 / 0x10819380: the flags of the effect (counted as a user of the store it names, made
+			// from a store) as functions
+			bool IsStoreUser() const;
+			bool IsFromStore() const;
+			void SetFromStore(bool newValue);
+			// 0x10819ED0: how many level-of-detail records the effect holds
+			unsigned int GetLODRecordCount() const;
+			// 0x10819EE0: the name of the store the effect belongs to
+			EffectName GetStoreName() const;
 
 			int unknown0;
 			math::Matrix transform;  // +0x04
@@ -365,6 +374,10 @@ namespace engine
 			void* Find(const unsigned int* newKey);
 			// 0x1081A910: the first place that is empty, removed or holds the key
 			void* FindForInsert(const unsigned int* newKey);
+			// 0x10819CA0 / 0x10819CB0: the place a key's probe starts at and the step it takes (the engine's lookups work
+			// these out in line; the keys are widened to 64 bits first)
+			unsigned int StartSlot(unsigned __int64 value) const;
+			unsigned int StepOf(unsigned __int64 value) const;
 			// 0x10819C30: the next place of the probe
 			void* Next();
 
@@ -522,6 +535,10 @@ namespace engine
 			// 0x1081C7B0: the defaults (the effect heap 10, the attached drawables' heap 0x77, 4 starts a frame, 64 lights,
 			// 8 waiting drawables) and room for 16 kinds of effect and 4 kinds of attached drawable
 			EffectManagerConfig();
+			// 0x1081AAC0 / 0x1081AB30: set how many effects of a kind (attached drawables of a kind) may play at once; the kind
+			// is added to the lists when they do not hold it yet (the engine's start-up calls them once per kind)
+			void SetEffectLimit(unsigned int key, unsigned int limit);
+			void SetAttachedLimit(unsigned int key, unsigned int limit);
 
 			int heap;  // +0x00
 			int attachedHeap;  // +0x04

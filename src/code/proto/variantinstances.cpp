@@ -29,6 +29,11 @@ template SphereOBBVariant::TypeDiscriminator* SphereOBBVariant::GetDiscriminator
 template SphereOBBVariant::TypeDiscriminator* SphereOBBVariant::GetDiscriminator<proto::NilVariant>();
 template void SphereOBBVariant::Construct<math::Sphere>(const math::Sphere&);
 template void SphereOBBVariant::Construct<math::OBB>(const math::OBB&);
+template SphereOBBVariant& SphereOBBVariant::Assign(const SphereOBBVariant&);
+template SphereOBBVariant::Variant(const math::Sphere&);
+template SphereOBBVariant::Variant(const math::OBB&);
+template SphereOBBVariant& SphereOBBVariant::operator=<math::Sphere>(const math::Sphere&);
+template SphereOBBVariant& SphereOBBVariant::operator=<math::OBB>(const math::OBB&);
 
 template class proto::Variant<math::Vector, float, int, core::Name<core::CaseSensitiveKey>, engine::GameObjectHandle,
 	bool>;
@@ -100,6 +105,11 @@ template ValueVariant& ValueVariant::operator=<bool>(const bool&);
 // FUNCTION: ENGINE 0x1037FFA0
 // FUNCTION: ENGINE 0x10380010
 // FUNCTION: ENGINE 0x103806C0
+// FUNCTION: ENGINE 0x10380700
+// FUNCTION: ENGINE 0x10380770
+// FUNCTION: ENGINE 0x10380790
+// FUNCTION: ENGINE 0x103807B0
+// FUNCTION: ENGINE 0x103807F0
 // FUNCTION: ENGINE 0x10381FE0
 // FUNCTION: ENGINE 0x1038AD10
 // FUNCTION: ENGINE 0x1038ADA0

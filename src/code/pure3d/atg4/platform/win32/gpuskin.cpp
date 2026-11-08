@@ -163,6 +163,12 @@ namespace pure3d
 		unknown13C->GetDescription(description);
 	}
 
+	// FUNCTION: ENGINE 0x1072E060
+	unsigned int GpuSkin::GetKind()
+	{
+		return unknown1C;
+	}
+
 	// FUNCTION: ENGINE 0x1072E070
 	void GpuSkin::LockIndices(dxIndexBufferState* lock)
 	{
@@ -182,6 +188,12 @@ namespace pure3d
 	void GpuSkin::UnlockIndices()
 	{
 		unknown13C->Unlock();
+	}
+
+	// FUNCTION: ENGINE 0x1072E0A0
+	MatrixPaletteList* GpuSkin::GetPalette()
+	{
+		return unknown140;
 	}
 
 	// FUNCTION: ENGINE 0x1072E200

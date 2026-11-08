@@ -11,6 +11,9 @@
 
 namespace proto
 {
+	// 0x10387800: the kind of character an object is by its class name (0 to 11, -1 without a class name; name guess)
+	int GetCharacterClassIndex(engine::GameObject* object);
+
 	class SoldierBudgets
 	{
 	public:
@@ -43,6 +46,8 @@ namespace proto
 		CharacterBudgetEntry* RemoveEntry(engine::GameObjectHandle handle);
 		// 0x10388EC0: takes the entries out whose objects are gone and sorts the list
 		void RemoveDeadEntries();
+		// 0x103876A0: sends every character of the list a PurgeKissOfDeathAIMsg (name guess)
+		void PurgeKissOfDeath();
 		// 0x10388F40: sends count of the characters (the last ones in the list) back to their spawners
 		bool ReturnSpawnedObjects(int count);
 		// 0x103892E0: makes room for one more entry (the dead ones go, then count characters when returnSpawns is set)
@@ -56,11 +61,15 @@ namespace proto
 		// 0x10388030 / 0x10388130: counts the object in, with a flag, or out of the characterized (name guesses)
 		bool Unknown10388030(engine::GameObjectHandle handle, bool flag);
 		bool Unknown10388130(engine::GameObjectHandle handle);
+		// 0x10385DD0: gives up the reservation of an object (name guess)
+		bool Unknown10385DD0(engine::GameObjectHandle handle);
+		// 0x10385C00: sets the level of detail of an object (the stack frame ignores this; name guess)
+		void SetObjectLevelOfDetail(engine::GameObject* object, const int* levelOfDetail, bool flag);
 
 		EntryArray entries;  // +0
 		unsigned char unknownC[0x10];
 		int maxEntries;  // +0x1C
-		unsigned char unknown20[4];
+		int unknown20;  // +0x20
 		int reserved;  // +0x24
 		engine::GameObjectHandle reservedHandle;  // +0x28
 		float unknown2C;  // +0x2C
