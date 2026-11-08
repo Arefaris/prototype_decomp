@@ -714,6 +714,21 @@ namespace pure3d
 		}
 		return false;
 	}
+
+	// FUNCTION: ENGINE 0x1061D350
+	void dxTexture::Detach()
+	{
+		if (unknown88 != 0)
+		{
+			unknown88->unknown8C = 0;
+			ReleaseRef(&unknown88);
+		}
+		if (unknown8C != 0)
+		{
+			ReleaseRef(&unknown8C->unknown88);
+			unknown8C = 0;
+		}
+	}
 }
 
 // Kept copies (compiler-generated and inline functions of this unit):

@@ -39,7 +39,10 @@ namespace pure3d
 		// 0x10618550: the entry of the table at +0x2D0 for a technique number
 		void* Get(int technique);
 
-		unsigned char unknown0[0x2E8];
+		unsigned char unknown0[0x2D0];
+		// The table of the techniques' entries
+		void** entries;
+		unsigned char unknown2D4[0x2E8 - 0x2D4];
 		// The name of the shader template the techniques belong to
 		core::Name<core::CaseInsensitiveKey32> templateName;
 		// 0x106283E0 / 0x10628400: the first and second program of the Z fill technique

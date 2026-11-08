@@ -1,4 +1,5 @@
 // engine::Display: the display mode object. See display.h for the model; names are guesses.
+#include <math.h>
 #include <new>
 #include <string.h>
 
@@ -646,5 +647,28 @@ namespace engine
 			format++;
 			list++;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10616C90
+	void Display::Unknown10616C90(float a, float b, float c)
+	{
+		gamma.values[0] = a;
+		gamma.values[1] = b;
+		gamma.values[2] = c;
+		float inverseA = 1.0f / a;
+		float inverseB = 1.0f / b;
+		float inverseC = 1.0f / c;
+		unsigned short ramp[3][256];
+		for (int i = 0; i < 256; i++)
+		{
+			float level = i * (1.0f / 255.0f);
+			float red = powf(level, inverseA);
+			float green = powf(level, inverseB);
+			float blue = powf(level, inverseC);
+			ramp[0][i] = (unsigned short)((red > 1.0f ? 1.0f : red) * 65535.0f);
+			ramp[1][i] = (unsigned short)((green > 1.0f ? 1.0f : green) * 65535.0f);
+			ramp[2][i] = (unsigned short)((blue > 1.0f ? 1.0f : blue) * 65535.0f);
+		}
+		device->lpVtbl->SetGammaRamp(device, 0, 0, ramp);
 	}
 }

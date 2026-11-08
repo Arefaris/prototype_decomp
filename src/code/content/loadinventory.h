@@ -51,6 +51,9 @@ namespace content
 
 	// The lock of every inventory (a critical section, 0x11276950)
 	extern unsigned char gInventoryLock[24];
+	// 0x10601BB0 / 0x10601BC0: make and delete the lock (names guessed)
+	void InitInventoryLock();
+	void DeleteInventoryLock();
 
 	class LoadInventory : public LoadObject
 	{

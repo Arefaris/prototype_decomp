@@ -575,7 +575,7 @@ struct IDirect3DDevice9Vtbl
 	// 0x4C
 	void* getRasterStatus;
 	void* setDialogBoxMode;
-	void* setGammaRamp;
+	void (__stdcall* SetGammaRamp)(IDirect3DDevice9* device, UINT swapChain, DWORD flags, const void* ramp);
 	// 0x58 GetGammaRamp
 	HRESULT (__stdcall* GetGammaRamp)(IDirect3DDevice9* device, UINT swapChain, void* ramp);
 	// 0x5C CreateTexture
