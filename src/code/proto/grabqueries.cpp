@@ -1,5 +1,6 @@
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
 #include "code/proto/fightitems/motion/motionactionmessages.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/gameobject.h"
@@ -43,6 +44,33 @@ namespace proto
 		engine::GameObjectHandle object;  // +0xC
 		core::Name<core::CaseSensitiveKey> slot;  // +0x10
 	};
+}
+
+namespace proto
+{
+	// RTTI: proto::GetGrabbableClassMessage: the object answers the class of its grabs (the same declaration as
+	// motionmessages5.h, which cannot be included next to motionactionmessages.h)
+	class GetGrabbableClassMessage : public GrabbableMessage
+	{
+	public:
+		GetGrabbableClassMessage() : GrabbableMessage(1), className(), unknown18(false)
+		{
+		}
+		virtual ~GetGrabbableClassMessage()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> className;  // +0x10
+		bool unknown18;  // +0x18
+		int unknown1C;
+	};
+}
+
+namespace engine
+{
+	// 0x11264A10: the name "firearm"
+	extern core::Name<core::CaseSensitiveKey> gFirearm2;
 }
 
 namespace proto
@@ -103,6 +131,46 @@ namespace proto
 			}
 		}
 		return result;
+	}
+
+	// FUNCTION: ENGINE 0x103BE720
+	// NONMATCHING: the engine keeps the zero in ebp, caches the end of the list and loads the master table once (34.8 %)
+#ifdef NONMATCHING
+	engine::GameObject* Unknown103BE720(engine::GameObject* object)
+	{
+		GetGrabSlotsMessage message;
+		object->SendMessage(&message);
+		if (message.slots == 0)
+		{
+			return 0;
+		}
+		for (GrabSlot* slot = message.slots->begin; slot != message.slots->end; slot++)
+		{
+			if (static_cast<engine::GameObjectHandle&>(slot->held).Get() != 0 && slot->name == engine::gHolding3)
+			{
+				return static_cast<engine::GameObjectHandle&>(slot->held).Get();
+			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103BE830
+	engine::GameObject* Unknown103BE830(engine::GameObject* object)
+	{
+		GetGrabbedObjectMessage query(&engine::gHolding3);
+		object->SendMessage(&query);
+		engine::GameObject* held = query.grabbed.Get();
+		if (held != 0)
+		{
+			GetGrabbableClassMessage classQuery;
+			held->SendMessage(&classQuery);
+			if (classQuery.className == engine::gFirearm2)
+			{
+				return held;
+			}
+		}
+		return 0;
 	}
 
 	// FUNCTION: ENGINE 0x103BE920

@@ -5,6 +5,7 @@
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/driving/vehicleintentionbehaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/proto/fightitems/motion/motion_patsy.h"
 #include "code/proto/messages/statemessages.h"
 #include "code/proto/messages/airequestmessages.h"
 #include "code/proto/fightitems/motion/motion_boundary.h"
@@ -14,6 +15,19 @@
 #include "code/proto/behaviours/aimbehaviour.h"
 #include "code/proto/behaviours/helicoptersolverproperties.h"
 #include "code/proto/behaviours/tanksolver.h"
+
+namespace proto
+{
+	namespace HitEffectManager
+	{
+		// 0x112562B8: the name of the attribute that holds an object's class name
+		extern core::Name<core::CaseSensitiveKey> gClassNameAttributeName;
+	}
+
+	// 0x103BDE30 / 0x103BE0E0 (another function of this file): the object turns towards a direction
+	void Unknown103BDE30(engine::GameObject* object, const math::Vector* direction, bool flag);
+	void Unknown103BE0E0(engine::GameObject* object, const math::Vector* direction);
+}
 
 namespace choreo
 {
@@ -261,17 +275,16 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x103BAE00
-	// NONMATCHING: the engine loads the translation and the target point before the three subtractions (59.6 %)
-#ifdef NONMATCHING
 	void Unknown103BAE00(engine::GameObject* object, JumpDestination* target)
 	{
 		target->Update();
 		math::Vector at;
 		object->transform->GetPointer()->GetTranslation(at);
-		math::Vector direction(target->position.x - at.x, target->position.y - at.y, target->position.z - at.z);
+		math::Vector goal = target->position;
+		math::Vector direction;
+		direction.Sub(goal, at);
 		Unknown103B86E0(object, &direction);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x103BDD00
 	void Unknown103BDD00(engine::GameObject* object, engine::GameObjectHandle target)
@@ -310,4 +323,57 @@ namespace proto
 		query.intention->GetAxisCopy(10)->Set(0.0f, heading);
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x103BE050
+	void Unknown103BE050(engine::GameObject* object, JumpDestination* target, bool flag)
+	{
+		target->Update();
+		math::Vector at;
+		object->transform->GetPointer()->GetTranslation(at);
+		math::Vector goal = target->position;
+		math::Vector direction;
+		direction.Sub(goal, at);
+		Unknown103BDE30(object, &direction, flag);
+	}
+
+	// FUNCTION: ENGINE 0x103BE300
+	// NONMATCHING: the engine copies the target point into the direction before it loads the translation (37.5 %)
+#ifdef NONMATCHING
+	void Unknown103BE300(engine::GameObject* object, JumpDestination* target)
+	{
+		target->Update();
+		math::Vector at;
+		object->transform->GetPointer()->GetTranslation(at);
+		math::Vector direction = target->position;
+		direction.Sub(direction, at);
+		Unknown103BE0E0(object, &direction);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103BE3A0
+	int Unknown103BE3A0(engine::GameObject* object)
+	{
+		if (!IsPlayerObject(object))
+		{
+			return 0;
+		}
+		if (fightitems::motion::GetObjectHealth(object) > 0.0f)
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x103BE450
+	core::Name<core::CaseSensitiveKey> Unknown103BE450(engine::GameObject* object)
+	{
+		engine::BaseAttribute* attribute = object->FindAttribute(HitEffectManager::gClassNameAttributeName);
+		core::Name<core::CaseSensitiveKey>* value = (attribute != 0) ? &((engine::Attribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value : 0;
+		if (value != 0)
+		{
+			core::Name<core::CaseSensitiveKey> local(*value);
+			return local;
+		}
+		return core::Name<core::CaseSensitiveKey>();
+	}
 }
