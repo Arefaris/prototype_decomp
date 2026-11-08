@@ -19,6 +19,8 @@ namespace engine
 	// 0x100A0C40 / 0x100A0C60: this unit's copies of the helpers that release a driver (clearing the pointer) and replace one
 	// 0x107F2010: the puppet of an object (the value of its puppet attribute), or null
 	choreo::Puppet* GetPuppet(GameObject* object);
+	// 0x1005E1D0: sends the message that sticks an object to its supporting surface or lets it go (name guess)
+	void SetStickToSupportingSurface(GameObject* object, bool stick);
 	// the player that controls an object, or -1
 	int GetControllingPlayer(GameObject* object);
 	void ReleaseDriver(choreo::Driver*& driver);
@@ -56,6 +58,8 @@ namespace core
 	void SafeReleaseRefCopy2(IRefCount*& object);
 	// 0x100ECEA0: the magnetic boots unit's copy of SafeReleaseRef, taking the address of the pointer
 	void SafeReleaseRefCopy4(IRefCount** object);
+	// 0x100F7730: the obstacle unit's copy of SafeReleaseRef, taking the address of the pointer
+	void SafeReleaseRefCopy6(IRefCount** object);
 }
 
 namespace choreo
@@ -122,6 +126,16 @@ namespace proto
 					return 0;
 				}
 				return (((TrackOwner*)owner)->kind == 0x2100E) ? owner : 0;
+			}
+
+			// The owner an obstacle action keeps: null when the owner is none or not an obstacle event (kind 0x21007)
+			inline core::IRefCount* AsObstacleEventOwner(core::IRefCount* owner)
+			{
+				if (owner == 0)
+				{
+					return 0;
+				}
+				return (((TrackOwner*)owner)->kind == 0x21007) ? owner : 0;
 			}
 
 			// The owner the sequencer hands a condition in its third argument
