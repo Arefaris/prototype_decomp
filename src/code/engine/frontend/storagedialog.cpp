@@ -402,3 +402,6 @@ namespace engine
 #endif
 	}
 }
+
+// Kept copies (compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108E2C60

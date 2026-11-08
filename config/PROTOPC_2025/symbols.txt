@@ -109337,3 +109337,4 @@ _sCementProgress = 0x1131AC88 ; data size:0x4 | cementloader.cpp: percent done (
 ??0?$Link@VSetObjectLightGroupTrack@engine@@@core@@QAE@PAVSetObjectLightGroupTrack@engine@@@Z = 0x108EFE50 ; function size:0x37 | kept template or inline copy of this unit
 ??1?$Link@VTeleportTrack@engine@@@core@@QAE@XZ = 0x108F3330 ; function size:0x10 | kept template or inline copy of this unit
 ??0?$Link@VTeleportTrack@engine@@@core@@QAE@PAVTeleportTrack@engine@@@Z = 0x108F3350 ; function size:0x37 | kept template or inline copy of this unit
+??_GStorageDialogState@StorageManager@engine@@UAEPAXI@Z = 0x108E2C60 ; function size:0x1E | engine::StorageManager::StorageDialogState::scalar deleting destructor vftable slot 0
