@@ -19,10 +19,34 @@ namespace proto
 	// 0x103C4A00: how many objects of a tag are around (name guess)
 	int Unknown103C4A00(const fight::Name* tag, int limit, ByteFlag tryDespawnIfFull, float minDespawnDistance, float objRadius);
 
+	// The request of a player's character for an action of the ai (0x1C bytes; names are guesses)
+	struct PlayerRequest
+	{
+		engine::GameObjectHandle requester;  // +0x0
+		bool active;  // +0x4
+		unsigned char unknown5[0x3];
+		float age;  // +0x8
+		math::Vector position;  // +0xC
+		engine::GameObjectHandle unknown18;  // +0x18
+	};
+
 	// The strafe run tokens (gAISystem +0x1C; name guess)
 	class StrafeRunTokens
 	{
 	public:
+		// 0x10383730: the number of a player's object among the players (name guess)
+		int Unknown10383730(engine::GameObject* player);
+		// 0x103846E0: makes a request for a player (name guess)
+		void Unknown103846E0(int kind, engine::GameObject* player, const math::Vector* position, const engine::GameObjectHandle* requester, int flag, int flag2);
+		// 0x10384D30 / 0x10384D50: whether the object's request for the radio headquarters / the strike team is the one in force (name guesses)
+		bool Unknown10384D30(engine::GameObjectHandle requester, engine::GameObject* target);
+		bool Unknown10384D50(engine::GameObjectHandle requester, engine::GameObject* target);
+		// 0x10384BA0: makes the request of a kind for a player (name guess)
+		void Unknown10384BA0(int kind, engine::GameObject* player, engine::GameObjectHandle requester);
+
+		unsigned char unknown0[4];
+		PlayerRequest requests[64];  // +0x4; the kinds of requests follow one another from the number of the player
+
 		// 0x10383FF0: gives the object a token for a time (name guess)
 		bool Unknown10383FF0(engine::GameObjectHandle handle, float time);
 		// 0x10381E10 / 0x10381E20: counts a commander in or out of combat (name guess)
@@ -83,6 +107,9 @@ namespace proto
 
 	// 0x11263AB0
 	extern AISystem* gAISystem;
+
+	// 0x10099560: the game object of a player, null when there is none
+	engine::GameObject* GetPlayerObject(int index);
 
 	// 0x103B9940: a debug output the release build leaves empty (name guess)
 	void Unknown103B9940(engine::GameObject* object, int channel, const char* text);
