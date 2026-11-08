@@ -83,8 +83,8 @@ namespace core
 			int count;
 		};
 
-		// Zeroes the node (0x10B7F3A0, the body of the engine's constructor; name guess)
-		void Clear();
+		// Zeroes the node (0x10B7F3A0)
+		AsyncTaskNode();
 		// The data, the callback, the event and the timing record of the node (0x10B7F430 - 0x10B7F4A0; names guessed)
 		void SetData(void* newData);
 		void* GetData();
