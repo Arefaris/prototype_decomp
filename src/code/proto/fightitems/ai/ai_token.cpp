@@ -3,6 +3,24 @@
 #include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/proto/fightitems/ai/aitokenmessages.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/controller/inputsystem.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+
+namespace proto
+{
+	// The handles of the players' game objects
+	extern engine::GameObjectHandle gPlayerHandles[];
+
+	// The handle of a player's game object, the empty handle when there is none
+	inline engine::GameObjectHandle GetPlayerHandle(int index)
+	{
+		if (index < 0 || index >= engine::controller::InputSystem::Get()->GetPlayerCount())
+		{
+			return engine::GameObjectHandle();
+		}
+		return gPlayerHandles[index];
+	}
+}
 
 namespace engine
 {
@@ -2254,6 +2272,38 @@ namespace proto
 				proto::ByteFlag flag = { requestIt };
 				return proto::gAISystem->strafeRunTokens->Unknown10384090(handle, flag);
 			}
+
+			// FUNCTION: ENGINE 0x101E5260
+			// NONMATCHING: the player handle lookup of the engine puts the copy of the global last, and the engine loads the position and the offset into registers before the additions (best 26 %, shifted)
+#ifdef NONMATCHING
+			bool AnyPlayerDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					math::Matrix* world = object->transform->GetPointer();
+					math::Vector position(world->m[3][0], world->m[3][1], world->m[3][2]);
+					math::Vector place(position.x + offset.x, position.y + offset.y, position.z + offset.z);
+					int i = 0;
+					do
+					{
+						if (result)
+						{
+							break;
+						}
+						engine::GameObjectHandle playerHandle = GetPlayerHandle(i);
+						engine::GameObject* player = playerHandle.Get();
+						math::Matrix* playerWorld = player->transform->GetPointer();
+						math::Vector delta(playerWorld->m[3][0] - place.x, playerWorld->m[3][1] - place.y, playerWorld->m[3][2] - place.z);
+						result = fight::CompareVectorMeasure(compare, &delta, direction, distance);
+						i++;
+					}
+					while (i < 1);
+				}
+				return result;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101E5410
 			// NONMATCHING: the engine loads the three float members and the integer members of the message arguments in another order (best 84.1 %)
