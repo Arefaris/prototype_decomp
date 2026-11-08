@@ -7,6 +7,9 @@
 #include "code/engine/render/renderbehaviour.h"
 #include "code/proto/fightitems/motion/motion_patsy.h"
 #include "code/proto/messages/statemessages.h"
+#include "code/proto/lifetimemanager.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/system/simulationdriver.h"
 #include "code/proto/messages/airequestmessages.h"
 #include "code/proto/fightitems/motion/motion_boundary.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
@@ -27,6 +30,19 @@ namespace proto
 	// 0x103BDE30 / 0x103BE0E0 (another function of this file): the object turns towards a direction
 	void Unknown103BDE30(engine::GameObject* object, const math::Vector* direction, bool flag);
 	void Unknown103BE0E0(engine::GameObject* object, const math::Vector* direction);
+}
+
+namespace engine
+{
+	// 0x11283700: the name of the game object inventory
+	extern core::Name<core::CaseSensitiveKey> gGameObjectsName;
+	// 0x112658F8 / 0x11265A00 / 0x11265A40 / 0x11265988 / 0x112659C8: the names "Pursuit", "Search", "SearchFast",
+	// "StopPursuit" and "SearchScan"
+	extern core::Name<core::CaseSensitiveKey> gPursuit;
+	extern core::Name<core::CaseSensitiveKey> gSearch;
+	extern core::Name<core::CaseSensitiveKey> gSearchFast;
+	extern core::Name<core::CaseSensitiveKey> gStopPursuit;
+	extern core::Name<core::CaseSensitiveKey> gSearchScan;
 }
 
 namespace choreo
@@ -375,5 +391,82 @@ namespace proto
 			return local;
 		}
 		return core::Name<core::CaseSensitiveKey>();
+	}
+
+	// FUNCTION: ENGINE 0x103B8AD0
+	// NONMATCHING: the engine selects the result between 1 and the cleared register after the call (92.7 %)
+#ifdef NONMATCHING
+	bool Unknown103B8AD0(engine::GameObject* object)
+	{
+		bool result = false;
+		if (object == 0)
+		{
+			return true;
+		}
+		engine::GameObjectHandle handle = engine::GetHandle(object);
+		if (gLifetimeManager->Unknown104985C0(handle))
+		{
+			result = true;
+		}
+		return result;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103B8BE0
+	engine::GameObjectHandle Unknown103B8BE0(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		return engine::SearchGameObject(name, engine::gGameObjectsName);
+	}
+
+	// FUNCTION: ENGINE 0x103B8DA0
+	float Unknown103B8DA0(float value)
+	{
+		StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+		return tokens->Unknown10381F60(value);
+	}
+
+	// FUNCTION: ENGINE 0x103B9280
+	// NONMATCHING: the engine copies the time through the pointer of the driver, ours through the base class offset (41 %)
+#ifdef NONMATCHING
+	float Unknown103B9280()
+	{
+		core::Time time = engine::GetSimulationDriver()->time4;
+		return time.seconds;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103B9950
+	// NONMATCHING: the engine subtracts in the register of the modulus (89.2 %)
+#ifdef NONMATCHING
+	int Unknown103B9950(int value, int modulus)
+	{
+		if (value > 0)
+		{
+			return value % modulus;
+		}
+		if (-value % modulus == 0)
+		{
+			return 0;
+		}
+		modulus -= -value % modulus;
+		return modulus;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103BD430
+	bool Unknown103BD430(engine::GameObject* object)
+	{
+		engine::CharacterQueryIntentionMessage query;
+		object->SendMessage(&query);
+		if (query.intention != 0)
+		{
+			core::Name<core::CaseSensitiveKey> state(*query.intention->GetStateName());
+			if (state == engine::gPursuit || state == engine::gSearch || state == engine::gSearchFast ||
+				state == engine::gStopPursuit || state == engine::gSearchScan)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

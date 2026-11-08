@@ -43,6 +43,8 @@ namespace proto
 		bool Unknown103826D0(const math::Vector* place);
 		// 0x10382880: whether the place with a radius is free of the volumes of other objects than the given one (name guess)
 		bool Unknown10382880(const math::Vector* place, float radius, engine::GameObjectHandle handle);
+		// 0x10381F60: looks a value up in the table of four ranges (name guess)
+		float Unknown10381F60(float value);
 		// 0x10385420: releases the volume the object reserved (name guess)
 		void Unknown10385420(engine::GameObjectHandle handle);
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
