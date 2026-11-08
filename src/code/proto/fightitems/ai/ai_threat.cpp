@@ -1079,9 +1079,9 @@ namespace proto
 				return new ThreatDodgeAction(this, handle, effect, listener);
 			}
 			// FUNCTION: ENGINE 0x10218020
-			// EQUIVALENT: register allocation of the loop (the engine keeps the zero in ebx and the index in ebp and spills this; ours the other way round); the same calls, tests and message (64.5 %)
 			bool ThreatCondition::Evaluate(int a, int b, int c, int d)
 			{
+				bool result = false;
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
 				if (object != 0)
 				{
@@ -1094,32 +1094,32 @@ namespace proto
 						{
 							if (name.IsEmpty())
 							{
-								return true;
+								result = true;
+								break;
 							}
 							ThreatGetInfoMessage info;
 							ball->SendMessage(&info);
 							if (info.name == name)
 							{
-								return true;
+								result = true;
+								break;
 							}
 						}
 					}
 				}
-				return false;
+				return result;
 			}
 
 			// FUNCTION: ENGINE 0x102181E0
-			// NONMATCHING: shrink-wrap; the engine saves ebp, edi and esi where the code needs them and sets ebx before the first call, best 70.8 %
-#ifdef NONMATCHING
 			bool ThreatInMemoryCondition::Evaluate(int a, int b, int c, int d)
 			{
-				int index = 0;
+				bool result = false;
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
 				if (object != 0)
 				{
 					ThreatBallsGetMessage message;
 					object->SendMessage(&message);
-					for (index = 0; index < message.count; index++)
+					for (int index = 0; index < message.count; index++)
 					{
 						engine::GameObject* ball = message.balls[index].Get();
 						if (ball != 0)
@@ -1132,15 +1132,15 @@ namespace proto
 								object->SendMessage(&memory);
 								if (memory.found)
 								{
-									return true;
+									result = true;
+									break;
 								}
 							}
 						}
 					}
 				}
-				return false;
+				return result;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10218E30
 			bool LastThreatConditionGroupCondition::Evaluate(int a, int b, int c, int d)
