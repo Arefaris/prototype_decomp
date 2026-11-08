@@ -168,17 +168,50 @@ namespace proto
 namespace proto
 {
 	// RTTI: proto::MagneticBootsGetSteerInfoMessage
+	// RTTI: proto::HunterResetStuckTimeMovementMessage (no fields)
+	struct HunterResetStuckTimeMovementMessage : public proto::MovementMessage
+	{
+	public:
+		HunterResetStuckTimeMovementMessage() : MovementMessage(0x54)
+		{
+		}
+		virtual ~HunterResetStuckTimeMovementMessage()
+		{
+		}
+	};
+
+	// RTTI: proto::UsingHunterShortRangeMovementMessage: the object answers whether it moves like a hunter at short range
+	struct UsingHunterShortRangeMovementMessage : public proto::MovementMessage
+	{
+	public:
+		UsingHunterShortRangeMovementMessage() : MovementMessage(0x51), result(false)
+		{
+		}
+		virtual ~UsingHunterShortRangeMovementMessage()
+		{
+		}
+
+		bool result;  // +0xC
+	};
+
 	struct MagneticBootsGetSteerInfoMessage : public proto::MovementMessage
 	{
 	public:
-		explicit MagneticBootsGetSteerInfoMessage(int vC) : MovementMessage(45), unknownC(vC)
+		MagneticBootsGetSteerInfoMessage() : MovementMessage(45), info(0)
 		{
 		}
 		virtual ~MagneticBootsGetSteerInfoMessage()
 		{
 		}
 
-		int unknownC;  // +0xC
+		// What the character answers with: the steering state the magnetic boots keep (the layout is unknown, only the flag at +0xC is touched)
+		struct SteerInfo
+		{
+			unsigned char unknown0[0xC];
+			bool unknownC;
+		};
+
+		SteerInfo* info;  // +0xC
 	};
 
 }

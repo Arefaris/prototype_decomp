@@ -7,6 +7,7 @@
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
 #include "code/engine/physics/supportinglimb.h"
+#include "code/engine/physics/supportinglimbactivemessage.h"
 #include "code/math/vector.h"
 #include "code/math/worldbounds.h"
 
@@ -38,20 +39,6 @@ namespace engine
 		}
 
 		const SupportingLimb::Support* support;
-	};
-
-	// RTTI: engine::SupportingLimbGetActiveMessageConst (a character answers with its active supporting limb)
-	struct SupportingLimbGetActiveMessageConst : public NonintrusiveMessage
-	{
-		SupportingLimbGetActiveMessageConst() : NonintrusiveMessage(0x11, 4)
-		{
-			limb = 0;
-		}
-		virtual ~SupportingLimbGetActiveMessageConst()
-		{
-		}
-
-		const SupportingLimb* limb;
 	};
 
 	// 0x107FC7A0 (another unit): the handle of the game object an owner pointer stands for

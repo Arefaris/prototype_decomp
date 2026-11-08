@@ -47,6 +47,25 @@ namespace proto
 	class GameDatabaseHelper : public engine::GameDBHelper, public engine::DBObserver
 	{
 	public:
+		// 0x104DEDA0
+		explicit GameDatabaseHelper(const Config& config);
+		// 0x104DF8D0 (deleting destructor 0x104E0C50)
+		virtual ~GameDatabaseHelper();
+
+		// The GameDBHelper slots: 0 (0x104DEDE0), 3 (0x104DEDD0, which jumps to the base), 4 (0x104DEE30), 5 (0x104E1150) and
+		// 6 (0x104E0C80)
+		virtual void OnMessage(engine::OLSMessage* message);
+		virtual void Start();
+		virtual void Stop();
+		virtual bool Enable();
+		virtual void Disable();
+
+		// 0x104DF040 / 0x104DF210: makes the subjects of the level and the tutorials and lets them go
+		void AddSubjects();
+		void ReleaseSubjects();
+
+		// The DBObserver's slot 1 (0x104DF2B0)
+		virtual void OnDBSlot1(int a, int b);
 		// vftable slot 0 of the DBObserver (0x104E0790): the level name key tells the zone set
 		virtual void OnDBSlot0(int a, int b);
 
@@ -64,6 +83,17 @@ namespace proto
 
 	// 0x104E04C0: fe_PrepareGameDevSelect
 	void PrepareGameDevSelect(unsigned int index);
+
+	// 0x1109D074: the difficulty names and the dev select group (the first is the default)
+	extern const char* gDifficultyNames[];
+	// 0x104DEEC0: names the level and the difficulty in the game database and has the save manager start it
+	void StartDevSelectLevel(const char* name, int flag, const char* group);
+	// 0x104DEFC0 / 0x104DEFD0 / 0x104DEFE0: the flag that tells the dev select start is finished
+	void FinishDevSelectStart();
+	void ClearDevSelectStart();
+	bool IsDevSelectStarted();
+	// 0x104DEFF0: puts the game database in the mode the online game needs (0 off, 1 and 2 on)
+	void SetGameDatabaseMode(int mode);
 }
 
 #endif

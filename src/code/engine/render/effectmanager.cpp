@@ -10,6 +10,7 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/render/drawablearchetype.h"
 #include "code/core/heap.h"
+#include "code/core/refptr.h"
 #include "code/math/colour128.h"
 #include "code/math/mathutils.h"
 #include "code/math/noise.h"
@@ -510,6 +511,12 @@ namespace engine
 		void EffectManager::ReleaseAttachedDrawable(AttachedDrawable attached)
 		{
 			Drawable::Destroy(&attached.drawable, 0);
+		}
+
+		// FUNCTION: ENGINE 0x10819560
+		void EffectManager::ReleaseDrawable(Drawable* drawable)
+		{
+			Drawable::Destroy(drawable, 0);
 		}
 
 		// FUNCTION: ENGINE 0x1081EAC0
@@ -1208,6 +1215,176 @@ namespace engine
 		bool EffectManager::IsFeatureEnabled(int features)
 		{
 			return true;
+		}
+
+		// Takes a block for that many values (an empty list that has no storage when there is none to take)
+		static __forceinline void ReserveList(ConfigList& list, unsigned int count)
+		{
+			list.begin = (unsigned int*)operator new[](count * sizeof(unsigned int));
+			if (list.begin != 0)
+			{
+				list.end = list.begin;
+				list.capacity = list.begin + count;
+			}
+			else
+			{
+				list.end = 0;
+				list.capacity = 0;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081C7B0
+		EffectManagerConfig::EffectManagerConfig()
+		{
+			heap = 10;
+			attachedHeap = 0x77;
+			resetCallback = 0;
+			resetCallbackArgument = 0;
+			startCallback = 0;
+			unknown14 = 0;
+			startLimit = 4;
+			lightCount = 0x40;
+			waitingCount = 8;
+			effectSuspendCount = 4;
+			ReserveList(effectKeys, 16);
+			ReserveList(effectCounts, 16);
+			ReserveList(attachedKeys, 4);
+			ReserveList(attachedCounts, 4);
+		}
+
+		// FUNCTION: ENGINE 0x1081C4C0
+		void* HashTable::Find(const unsigned int* key)
+		{
+			HashLookup lookup(this);
+			return lookup.Find(key);
+		}
+
+		// FUNCTION: ENGINE 0x10819A80
+		bool DrawableRing::Allocate(unsigned int count)
+		{
+			if (count != 0)
+			{
+				head = (DrawableLink*)operator new[](count * sizeof(DrawableLink));
+				if (head != 0)
+				{
+					end = head + count;
+					tail = head;
+					begin = head;
+					return true;
+				}
+			}
+			else
+			{
+				head = 0;
+			}
+			tail = 0;
+			begin = 0;
+			end = 0;
+			return false;
+		}
+
+		// The engine's copies of the reference helpers for an inventory that the manager's setters call (0x102D2440 /
+		// 0x102D2420; the copies of other units are other functions); kept out of line like the engine's
+		void AssignInventory(content::LoadInventory*& pointer, content::LoadInventory* inventory)
+		{
+			if (inventory != 0)
+			{
+				inventory->AddRef();
+			}
+			if (pointer != 0)
+			{
+				pointer->Release();
+			}
+			pointer = inventory;
+		}
+
+		void ReleaseInventory(content::LoadInventory*& pointer)
+		{
+			if (pointer != 0)
+			{
+				pointer->Release();
+				pointer = 0;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x108193B0
+		void EffectManager::SetResetCallback(void (*callback)(int), int argument)
+		{
+			resetCallback = callback;
+			resetCallbackArgument = argument;
+		}
+
+		// FUNCTION: ENGINE 0x10819F60
+		void EffectManager::SetInventory(content::LoadInventory* newInventory)
+		{
+			AssignInventory(inventory, newInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819F40
+		void EffectManager::SetSecondInventory(content::LoadInventory* newInventory)
+		{
+			AssignInventory(secondInventory, newInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819F80
+		void EffectManager::ReleaseInventories()
+		{
+			ReleaseInventory(inventory);
+			ReleaseInventory(secondInventory);
+		}
+
+		// FUNCTION: ENGINE 0x10819FD0
+		bool EffectManager::CanAddLight()
+		{
+			if (lightsEnd == lightsCapacity)
+			{
+				return false;
+			}
+			if (IsFeatureEnabled(0x20000))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		// FUNCTION: ENGINE 0x1081CF90
+		bool EffectManager::IsListFull(unsigned int key)
+		{
+			unsigned int copy = key;
+			return !GetList(&copy)->HasRoom();
+		}
+
+		// FUNCTION: ENGINE 0x1081CFE0
+		bool EffectManager::IsAttachedRingFull(unsigned int key)
+		{
+			unsigned int copy = key;
+			HashLookup lookup(&attachedTable);
+			AttachedRing* ring = (AttachedRing*)lookup.Find(&copy);
+			return !(ring->tail < ring->end);
+		}
+
+		// FUNCTION: ENGINE 0x1081C410
+		void EffectManager::SetEffectEmitting(const unsigned int* effect, bool emitting, float fadeTime)
+		{
+			EffectInstance* instance = FindInstance(*effect, 0);
+			if (instance != 0)
+			{
+				instance->SetEmitting(emitting, fadeTime);
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1081E520
+		void CreateEffectManager(const EffectManagerConfig* config)
+		{
+			core::HeapScope scope(10);
+			gEffectManager = new EffectManager(config);
+		}
+
+		// FUNCTION: ENGINE 0x1081E570
+		void DestroyEffectManager()
+		{
+			delete gEffectManager;
+			gEffectManager = 0;
 		}
 
 		// FUNCTION: ENGINE 0x1081E5A0

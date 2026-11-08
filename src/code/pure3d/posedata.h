@@ -54,8 +54,10 @@ namespace pure3d
 		unsigned int SetJointArrays(unsigned int memory);
 		// 0x1072D930: gives the memory back
 		void Free();
-		// 0x1072DB80: builds the bind pose matrices from the rotations and translations a file gave (name guess)
-		void Finish();
+		// 0x1072DB80: the bind pose from the file's matrices (name guess)
+		void BuildBindPose();
+		// 0x1072D940: the rest rotation of every limb from the positions of its joints (name guess)
+		void BuildLimbRotations();
 		// 0x1072D7D0: the index of the joint of that name, or 0xFFFF
 		unsigned int FindJoint(const core::Name<core::CaseSensitiveKey>& name);
 		// 0x106DD950 / 0x106DD960: the rest rotation and translation of a limb (names guessed)

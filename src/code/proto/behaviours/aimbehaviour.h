@@ -9,6 +9,7 @@
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"
 
@@ -27,6 +28,16 @@ namespace proto
 		bool flag;  // +0x14
 		math::Vector unknown18;
 	};
+
+	// What the aim hands to 0x103BAE00 (name guess): no object, the point
+	struct AimTarget
+	{
+		engine::HandleBase handle;
+		math::Vector position;
+	};
+
+	// 0x103BAE00 (another unit): the object takes the target to aim at
+	void Unknown103BAE00(engine::GameObject* object, AimTarget* target);
 
 	// The query / reset messages the behaviour answers (type 0x26 id 0x57 / 0x58, type 0x2F id 2)
 	struct AimSlotMessage : public engine::Message
@@ -58,8 +69,9 @@ namespace proto
 		// 0x103C6AD0): the aim at a target; the ones that take the target apart are left to the engine
 		virtual void Slot8(int a, int b, int c);
 		virtual void Slot9(AimInfo* info, int flags);
-		virtual void Slot10(int a, int b, int c);
-		virtual void Slot11(int a, int b, int c);
+		// 10 and 11: aim at the position of the target object plus the offset of the info
+		virtual void Slot10(AimInfo* info, engine::GameObject* target, int unused);
+		virtual void Slot11(AimInfo* info, engine::GameObject* target, int unused);
 		virtual void Slot12(AimInfo* info, int flags);
 		virtual void Slot13(AimInfo* info, int flags);
 		virtual void Slot14(AimInfo* info, int flags);

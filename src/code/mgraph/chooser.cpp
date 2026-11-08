@@ -14,6 +14,17 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B6DAE0
+	inline void* Chooser::operator new(size_t)
+	{
+		return Allocate(Chooser::AllocationTag(), sizeof(Chooser), __alignof(Chooser));
+	}
+
+	inline void Chooser::operator delete(void* memory)
+	{
+		Release(memory, sizeof(Chooser), __alignof(Chooser));
+	}
+
 	// FUNCTION: ENGINE 0x10B6DE70
 	void RegisterChooser()
 	{

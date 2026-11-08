@@ -1,5 +1,7 @@
 #include "code/proto/behaviours/vehicleconstraints.h"
 #include "code/core/refptr.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/pure3d/pose.h"
 
 namespace content
 {
@@ -26,6 +28,38 @@ namespace proto
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 #define PROTO_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x103077C0
+	content::ClassInfo* VehicleConstraintsBehaviour::GetClassInfo()
+	{
+		static content::ClassInfo sInfo;
+		sInfo.version = 1;
+		sInfo.name = "proto::VehicleConstraintsBehaviour";
+		sInfo.code = "p";
+		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x1030CB80
+	VehicleWheelList::LateralWheelGroup::LateralWheelGroup() : suspensionProperties(0)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1030CBA0
+	VehicleWheelList::LateralWheelGroup::~LateralWheelGroup()
+	{
+		core::SafeRelease(suspensionProperties);
+	}
+
+	// FUNCTION: ENGINE 0x1030CBD0
+	VehicleDoorList::DoorGroup::DoorGroup() : doorProperties(0), doorSide(VehicleDoorProperties::DoorSideLeft)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1030CBF0
+	VehicleDoorList::DoorGroup::~DoorGroup()
+	{
+		core::SafeRelease(doorProperties);
+	}
 
 	// FUNCTION: ENGINE 0x10307580
 	content::ClassInfo* VehicleWheelSuspensionProperties::GetClassInfo()
@@ -127,6 +161,54 @@ namespace proto
 		sList.members = sMembers;
 		sList.count = 5;
 		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x10308D60
+	// NONMATCHING: the engine loads the constant before the base class stores and mixes the vftable store into the member stores, 41 %
+#ifdef NONMATCHING
+	VehicleWheelSuspensionProperties::VehicleWheelSuspensionProperties()
+	{
+		float one = engine::driving::gOne;
+		maxSuspensionStretch = one;
+		maxSuspensionCompression = one;
+		dampingScale = one;
+		suspensionOffsetStretch = 0.0f;
+		rollingFrictionScale = 0.0f;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103090B0
+	// NONMATCHING: the engine sets up the argument of the setter between the base class stores, 60 %
+#ifdef NONMATCHING
+	VehicleDoorProperties::VehicleDoorProperties()
+	{
+		SetDoorOpenAngle(engine::driving::gThirty);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10309140
+	VehicleMassProperties::VehicleMassProperties()
+	{
+		chassisMassProperties = 0;
+		wheelMassProperties = 0;
+		doorMassProperties = 0;
+	}
+
+	// FUNCTION: ENGINE 0x10309170
+	VehicleMassProperties::~VehicleMassProperties()
+	{
+		core::SafeRelease(chassisMassProperties);
+		core::SafeRelease(wheelMassProperties);
+		core::SafeRelease(doorMassProperties);
+	}
+
+	// FUNCTION: ENGINE 0x10308260
+	VehicleConstraintsBehaviour::VehicleConstraintsBehaviour(engine::GameObject* newOwner) :
+		engine::Behaviour(newOwner), sharedProperties(0), unknown10(0), unknown14(0), unknown18(true)
+	{
+		Listen(3, true);
+		Listen(6, true);
+		Listen(2, true);
 	}
 
 	// FUNCTION: ENGINE 0x10307A10
@@ -350,3 +432,96 @@ namespace proto
 // FUNCTION: ENGINE 0x1030E160
 // FUNCTION: ENGINE 0x10D82CE0
 // FUNCTION: ENGINE 0x10D82CF0
+
+// Kept copies (more template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x103088D0
+// FUNCTION: ENGINE 0x10308CA0
+// FUNCTION: ENGINE 0x1030A8D0
+// FUNCTION: ENGINE 0x1030A930
+// FUNCTION: ENGINE 0x1030A960
+// FUNCTION: ENGINE 0x1030AA80
+// FUNCTION: ENGINE 0x1030ABB0
+// FUNCTION: ENGINE 0x1030ABF0
+// FUNCTION: ENGINE 0x1030AC30
+// FUNCTION: ENGINE 0x1030AC70
+// FUNCTION: ENGINE 0x1030ADC0
+// FUNCTION: ENGINE 0x1030ADE0
+// FUNCTION: ENGINE 0x1030AE20
+// FUNCTION: ENGINE 0x1030AE40
+// FUNCTION: ENGINE 0x1030AE60
+// FUNCTION: ENGINE 0x1030AE80
+// FUNCTION: ENGINE 0x1030AEB0
+// FUNCTION: ENGINE 0x1030AEE0
+// FUNCTION: ENGINE 0x1030AF00
+// FUNCTION: ENGINE 0x1030AF20
+// FUNCTION: ENGINE 0x1030AF70
+// FUNCTION: ENGINE 0x1030AF90
+// FUNCTION: ENGINE 0x1030DFA0
+// FUNCTION: ENGINE 0x1030DFE0
+// FUNCTION: ENGINE 0x1030E3C0
+// FUNCTION: ENGINE 0x1030E430
+// FUNCTION: ENGINE 0x1030E6B0
+// FUNCTION: ENGINE 0x1030E790
+
+// The engine's copy of the skeleton reference caster of the constraints' loader code
+template class content::LoadInventory::DynamicCaster<pure3d::Skeleton>;
+
+// The engine's copies of every member of the arrays of wheel groups and of door groups
+template class container::ArrayDynamic<proto::VehicleWheelList::LateralWheelGroup, container::AllocatorNew>;
+template class container::ArrayDynamic<proto::VehicleDoorList::DoorGroup, container::AllocatorNew>;
+// FUNCTION: ENGINE 0x103082E0
+// FUNCTION: ENGINE 0x10308310
+// FUNCTION: ENGINE 0x10308330
+// FUNCTION: ENGINE 0x103083B0
+// FUNCTION: ENGINE 0x10308540
+// FUNCTION: ENGINE 0x103085C0
+// FUNCTION: ENGINE 0x10308C90
+// FUNCTION: ENGINE 0x1030A200
+// FUNCTION: ENGINE 0x1030A210
+// FUNCTION: ENGINE 0x1030A8C0
+// FUNCTION: ENGINE 0x1030A900
+// FUNCTION: ENGINE 0x1030A910
+// FUNCTION: ENGINE 0x1030A9E0
+// FUNCTION: ENGINE 0x1030AA00
+// FUNCTION: ENGINE 0x1030AA70
+// FUNCTION: ENGINE 0x1030AAB0
+// FUNCTION: ENGINE 0x1030AB20
+// FUNCTION: ENGINE 0x1030AB60
+// FUNCTION: ENGINE 0x1030AB80
+// FUNCTION: ENGINE 0x1030ABA0
+// FUNCTION: ENGINE 0x1030ABE0
+// FUNCTION: ENGINE 0x1030AC20
+// FUNCTION: ENGINE 0x1030AC60
+// FUNCTION: ENGINE 0x1030ADA0
+// FUNCTION: ENGINE 0x1030AE00
+// FUNCTION: ENGINE 0x1030AF50
+// FUNCTION: ENGINE 0x1030C3F0
+// FUNCTION: ENGINE 0x1030C420
+// FUNCTION: ENGINE 0x1030C9F0
+// FUNCTION: ENGINE 0x1030CA20
+// FUNCTION: ENGINE 0x1030CD70
+// FUNCTION: ENGINE 0x1030CDA0
+// FUNCTION: ENGINE 0x1030CDD0
+// FUNCTION: ENGINE 0x1030CE80
+// FUNCTION: ENGINE 0x1030CEB0
+// FUNCTION: ENGINE 0x1030D980
+// FUNCTION: ENGINE 0x1030D990
+// FUNCTION: ENGINE 0x1030DC00
+// FUNCTION: ENGINE 0x1030DC30
+// FUNCTION: ENGINE 0x1030DC60
+// FUNCTION: ENGINE 0x1030DCA0
+// FUNCTION: ENGINE 0x1030DCE0
+// FUNCTION: ENGINE 0x1030DD40
+// FUNCTION: ENGINE 0x1030DF20
+// FUNCTION: ENGINE 0x1030DF60
+// FUNCTION: ENGINE 0x1030E2A0
+// FUNCTION: ENGINE 0x1030E2F0
+// FUNCTION: ENGINE 0x1030E340
+// FUNCTION: ENGINE 0x1030E380
+// FUNCTION: ENGINE 0x1030E4A0
+// FUNCTION: ENGINE 0x1030EA70
+// FUNCTION: ENGINE 0x1030ED20
+// FUNCTION: ENGINE 0x1030B200
+// FUNCTION: ENGINE 0x1030DE70
+// FUNCTION: ENGINE 0x10308990
+// FUNCTION: ENGINE 0x1030ACB0

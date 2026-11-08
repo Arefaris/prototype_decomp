@@ -46,6 +46,11 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// 0x103B3460: how often the outline winds around point (in the x / z plane; zero outside, nonzero inside)
+		int GetWindingNumber(const math::Vector* point);
+		// 0x103B3580: the point of the outline closest to point; false when there are no vertices
+		bool GetClosestPoint(const math::Vector* point, math::Vector* closest);
+
 		VertexArray vertexList;  // +8
 		int unknown14;
 	};

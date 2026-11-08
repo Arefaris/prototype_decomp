@@ -515,6 +515,38 @@ namespace fight
 		}
 	}
 
+	// FUNCTION: ENGINE 0x105A43E0
+	int Sequencer::GetUnknown1C() const
+	{
+		return unknown1C;
+	}
+
+	// FUNCTION: ENGINE 0x105A4540
+	bool Sequencer::Unknown105A4540(Branch* other)
+	{
+		for (Action* action = scheduled; action != 0; action = action->next)
+		{
+			if (((QueuedBranchAction*)action)->link.branch == other)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105A4570
+	bool Sequencer::Unknown105A4570(Branch* other, core::IRefCount* owner)
+	{
+		for (Action* action = scheduled; action != 0; action = action->next)
+		{
+			if (((QueuedBranchAction*)action)->link.branch == other && ((QueuedBranchAction*)action)->owner == owner)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x105A43C0
 	int Sequencer::CanSetPending(int priority) const
 	{

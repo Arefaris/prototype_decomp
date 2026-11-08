@@ -209,17 +209,17 @@ namespace compress
 namespace content
 {
 	// FUNCTION: ENGINE 0x106DC260
-	void* CreateDecompressor(int level, int mode, int heap)
+	compress::Stream* CreateDecompressor(int level, int mode, int heap)
 	{
 		return new (heap) compress::Stream(level, mode, heap);
 	}
 
 	// FUNCTION: ENGINE 0x106DC2B0
-	void DestroyDecompressor(void* stream)
+	void DestroyDecompressor(compress::Stream* stream)
 	{
 		if (stream)
 		{
-			delete (compress::Stream*)stream;
+			delete stream;
 		}
 	}
 }

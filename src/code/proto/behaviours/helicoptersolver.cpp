@@ -172,3 +172,7 @@ namespace proto
 		return &sInfo;
 	}
 }
+
+// The engine's copy of the reflection's caster of the behaviour
+template class content::BaseClassCasterImpl<engine::Behaviour, proto::HelicopterSolverBehaviour>;
+// FUNCTION: ENGINE 0x10313740

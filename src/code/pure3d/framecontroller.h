@@ -129,6 +129,8 @@ namespace pure3d
 
 		// 0x10777570
 		Animation* GetAnimation();
+		// 0x10777590
+		float GetFrame();
 		// 0x10777E80: takes the animation
 		void SetAnimation(Animation* animation);
 		// 0x10777EC0: the whole range of the animation, no fade
@@ -181,6 +183,8 @@ namespace pure3d
 		virtual void Unknown27() = 0;
 		// Slot 28 (0x10778320): drops the oldest animation
 		virtual void RemoveFirst();
+		// 0x10777AE0: the byte at +0x108 (name guess)
+		bool GetUnknown108();
 
 		int mCycleMode;           // +0x20
 		unsigned int mNumCycles;  // +0x24

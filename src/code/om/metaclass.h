@@ -29,6 +29,9 @@ namespace om
 		TreeNode nodeByTypeRegistry;  // 0x88
 	};
 
+	// 0x105C0D60 (name guessed): the description of the class registered under a name, null when there is none
+	MetaClassBase* FindMetaClassByName(const ClassName& name);
+
 	template<class T> class MetaClass : public MetaClassBase
 	{
 	public:

@@ -6,6 +6,7 @@
 #define COMPRESS_COMPRESS_H
 
 #include "code/core/asynctask.h"
+#include "code/core/criticalsection.h"
 
 namespace compress
 {
@@ -147,6 +148,17 @@ namespace compress
 		// 0x106DBF90: waits for the event the finished step signals
 		void Wait();
 
+		// Nothing is left to do: it has not failed and no step is pending (the engine has a copy out of line at
+		// 0x1060DBB0)
+		int IsDone()
+		{
+			if (GetStatus() != 3 && core::AtomicRead(&event[0]) == 0)
+			{
+				return 1;
+			}
+			return 0;
+		}
+
 		AsyncCallback callback;
 		int status;
 		int usedInput;
@@ -155,12 +167,21 @@ namespace compress
 		int mode;
 		ICompressor* compressor;
 		unsigned char lock[0x18];
-		unsigned char event[8];
+		// The event at +0x38: its count is the steps that are pending
+		long event[2];
 	};
 
 	// 0x106DBF00 / 0x106DBF10: registers the worker thread's step with the task system and removes it
 	void Startup();
 	void Shutdown();
+}
+
+namespace content
+{
+	// 0x106DC260 / 0x106DC2B0: makes a stream for a level (the content library asks for mode 1, decompressing) /
+	// destroys it
+	compress::Stream* CreateDecompressor(int level, int mode, int heap);
+	void DestroyDecompressor(compress::Stream* stream);
 }
 
 #endif

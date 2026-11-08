@@ -2,6 +2,7 @@
 // property lists and the property classes their lists instantiate. No assert path names the unit; the file name is a
 // guess. The CreateAction bodies are the audio systems' (not reconstructed).
 #include "code/engine/audio/audiotracks.h"
+#include "code/engine/fight/soundactions.h"
 #include "code/om/dynamicproperty.h"
 
 namespace fight
@@ -1028,6 +1029,52 @@ namespace om
 	template Command1<void,bool>* CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Create(DynamicProperty<bool>*, CommandMember1<DynamicProperty<bool>,DynamicProperty<bool>,void,bool>::Function);
 	template DelegatePropertyBase* DynamicProperty<bool>::CreateDelegate();
 	template DynamicProperty<bool>::DynamicProperty(const ClassName&, bool);
+}
+
+namespace engine
+{
+	// What a track runs for: an IRefCount-derived object whose kind says whether the game object handle is kept at +0xC (the
+	// engine's class is not named; the same layout as in effecttrack.cpp)
+	struct SoundTrackOwner : core::IRefCount
+	{
+		int unknown4;
+		unsigned int kind;  // +0x8
+		GameObjectHandle handle;  // +0xC
+	};
+
+	// FUNCTION: ENGINE 0x1087AA70
+	// NONMATCHING: shrink-wrap, the engine saves esi and edi in the entry block before the owner test (41.6 %)
+#ifdef NONMATCHING
+	fight::Action* MixerTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		SoundTrackOwner* trackOwner = (SoundTrackOwner*)owner;
+		if (trackOwner != 0 && trackOwner->kind - 0x10000 <= 0x1ffff)
+		{
+			GameObjectHandle handle = trackOwner->handle;
+			return new MixerAction(this, handle);
+		}
+		GameObjectHandle handle;
+		return new MixerAction(this, handle);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1087AB20
+	fight::Action* MusicTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return new MusicAction(this, GameObjectHandle());
+	}
+
+	// FUNCTION: ENGINE 0x1087AB80
+	fight::Action* ReverbTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return new ReverbAction(this, GameObjectHandle());
+	}
+
+	// FUNCTION: ENGINE 0x1087ABE0
+	fight::Action* SoundZoneTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+	{
+		return new SoundZoneAction(this, GameObjectHandle());
+	}
 }
 
 namespace engine

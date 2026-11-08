@@ -402,6 +402,16 @@ namespace content
 		static ReferenceMetaTypeGetSet sType(&sCaster, &sGetSetter, code);
 		return &sType;
 	}
+
+	// The same with an identifier, for a class that reflects several members of one type
+	template<class C, class T, int Id> ReferenceMetaType* GetReferenceMemberMetaType(T* (C::*getter)() const,
+		void (C::*setter)(T*), const char* code)
+	{
+		static ReferenceMemberGetSetter<C, T> sGetSetter(getter, setter);
+		static LoadInventory::DynamicCaster<T> sCaster;
+		static ReferenceMetaTypeGetSet sType(&sCaster, &sGetSetter, code);
+		return &sType;
+	}
 }
 
 #endif

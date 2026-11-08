@@ -196,6 +196,35 @@ namespace content
 		}
 	};
 
+	template<> struct PrimitiveTraits<unsigned char>
+	{
+		typedef unsigned char Stored;
+		__forceinline static void Read(BinaryReader* reader, unsigned char* value)
+		{
+			reader->Read(value, 1, 1);
+		}
+		__forceinline static unsigned char FromStored(unsigned char value)
+		{
+			return value;
+		}
+		__forceinline static unsigned char ToStored(unsigned char value)
+		{
+			return value;
+		}
+		__forceinline static bool ReadText(TextReadStream* reader, unsigned char* value)
+		{
+			return reader->ReadUChar(value);
+		}
+		__forceinline static void WriteText(TextWriter* writer, const unsigned char* value)
+		{
+			writer->WriteUChar(value);
+		}
+		__forceinline static const char* TypeName()
+		{
+			return GetUCharTypeName();
+		}
+	};
+
 	template<> struct PrimitiveTraits<short>
 	{
 		typedef short Stored;

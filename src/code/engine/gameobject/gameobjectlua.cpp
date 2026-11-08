@@ -170,8 +170,8 @@ namespace engine
 	void LuaGetNameArgument(lua_State* L, int index, core::Name<core::CaseSensitiveKey>* name);
 	GameObject* LuaToGameObject(lua_State* L, int index);
 	// 0x10853890 (another unit): the service pump, and 0x10853B30: the object log call, which does nothing
-	class ServicePump;
-	ServicePump* GetServicePump();
+	class GameLinkManager;
+	GameLinkManager* GetGameLinkManager();
 	void LogGameObject(GameObject* gameObject, const char* text);
 
 	// The access to a named attribute of type T (the units that write attributes keep their own copies: int, float
@@ -906,7 +906,7 @@ namespace engine
 		GameObject* gameObject = DeserializeHandle(object).Get();
 		if (gameObject != 0)
 		{
-			GetServicePump();
+			GetGameLinkManager();
 			LogGameObject(gameObject, text);
 		}
 	}

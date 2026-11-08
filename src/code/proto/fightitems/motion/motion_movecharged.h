@@ -74,10 +74,8 @@ namespace proto
 
 				core::Link<MoveChargedTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				choreo::Driver* driver;  // +0x2C
-				float unknown30;  // +0x30
-				float unknown34;  // +0x34
-				float unknown38;  // +0x38
+				choreo::RootDriver* driver;  // +0x2C
+				math::Vector distance;  // +0x30
 			};
 
 			// ---- actions end

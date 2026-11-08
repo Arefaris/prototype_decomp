@@ -84,7 +84,7 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x106DDAA0
 	void Skeleton::Finish()
 	{
-		mData.Finish();
+		mData.BuildBindPose();
 	}
 
 	// FUNCTION: ENGINE 0x106DDAB0

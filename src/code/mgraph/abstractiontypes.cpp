@@ -54,4 +54,16 @@ namespace mgraph
 	template void mgraph::NodeType<mgraph::EmbeddedGraph>::Register(MetaClassBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10ACDB20
 	template void mgraph::NodeType<mgraph::EmbeddedGraph>::RegisterDerived(mgraph::NodeTypeBase*, unsigned int const&, Name<CaseSensitive64BitKey> const&);
+
+	// FUNCTION: ENGINE 0x10ACC7B0
+	template<> Node* NodeType<mgraph::LinkedGraph>::CreateNode(void* graph, const ClassName* nodeName)
+	{
+		return new mgraph::LinkedGraph(static_cast<Graph*>(graph), *nodeName);
+	}
+
+	// FUNCTION: ENGINE 0x10ACD720
+	template<> Node* NodeType<mgraph::EmbeddedGraph>::CreateNode(void* graph, const ClassName* nodeName)
+	{
+		return new mgraph::EmbeddedGraph(static_cast<Graph*>(graph), *nodeName);
+	}
 }

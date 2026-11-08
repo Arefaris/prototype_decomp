@@ -43,6 +43,7 @@ namespace mgraph
 	};
 
 	class Level;
+	class ContextConnectionBase;
 	// 0x10AC46F0 (name guessed): puts a node in the list of a level (null: none) and takes it out of the list of its old one
 	void SetNodeLevel(Node* node, Level* level);
 
@@ -64,6 +65,9 @@ namespace mgraph
 		void RemoveNode(Node* node);
 		// 0x10AC33D0: what the nodes allocate their channels for (name guessed)
 		void* GetChannelOwner();
+		// 0x10AC5430 / 0x10AC5520: a connection of a pin of a graph in the context, and out of it (names guessed)
+		void AddConnection(ContextConnectionBase* connection);
+		void RemoveConnection(ContextConnectionBase* connection);
 		// 0x10AC5770 / 0x10AC5780 / 0x10AC59F0 / 0x10AC5A00: a command of the evaluation pass
 		void AddPreEvaluateCommand(void* command);
 		void AddPostEvaluateCommand(void* command);

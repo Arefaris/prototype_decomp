@@ -1,5 +1,6 @@
 // Fight items of the motion group: NoPushbackTrack (unit 0x101939C0 - 0x10193D60; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_nopushback.h"
+#include "code/proto/behaviours/charactermotionbehaviour.h"
 
 namespace proto
 {
@@ -104,6 +105,25 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new NoPushbackAction(handle);
+			}
+
+			// FUNCTION: ENGINE 0x100F66E0
+			bool NoPushbackAction::Slot5(int arg, float value)
+			{
+				SetNoPushbackMessage message(true);
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100F6770
+			void NoPushbackAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					SetNoPushbackMessage message(false);
+					object->SendMessage(&message);
+				}
 			}
 
 			// ---- actions end

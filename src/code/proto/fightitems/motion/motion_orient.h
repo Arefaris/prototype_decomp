@@ -175,7 +175,7 @@ namespace proto
 				virtual bool Slot7(int arg, float value);
 
 				engine::GameObjectHandle target;  // +0x1C
-				choreo::Driver* driver;  // +0x20
+				choreo::RootDriver* driver;  // +0x20
 				core::Link<WorldOrientTrack> link;  // +0x24
 			};
 

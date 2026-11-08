@@ -219,6 +219,12 @@ namespace engine
 		return out;
 	}
 
+	// FUNCTION: ENGINE 0x1083EA30
+	StreamSlot* StreamSlotGroup::GetSlot(unsigned int index)
+	{
+		return slots + index;
+	}
+
 	// FUNCTION: ENGINE 0x1083E8F0
 	StreamSlot* StreamSlotGroup::FindFreeSlot() const
 	{

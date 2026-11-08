@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 
 namespace proto
 {
@@ -65,6 +66,140 @@ namespace proto
 				bool SetBlendInTime(float newValue);
 				bool SetBlendOutTime(float newValue);
 				bool SetTargetingMode(int newValue);
+
+				// The getters the actions use (the engine keeps a copy of each in front of the actions' unit)
+				float GetAngleRate() const
+				{
+					return angleRate;
+				}
+				float GetAngleDefault() const
+				{
+					return angleDefault;
+				}
+				float GetAngleOffset() const
+				{
+					return angleOffset;
+				}
+				float GetAngleOffsetMin() const
+				{
+					return angleOffsetMin;
+				}
+				float GetAngleMin() const
+				{
+					return angleMin;
+				}
+				float GetAngleMax() const
+				{
+					return angleMax;
+				}
+				float GetOffsetInterpolationDist() const
+				{
+					return offsetInterpolationDist;
+				}
+				int GetInterpolationDirection() const
+				{
+					return interpolationDirection;
+				}
+				float GetSpeed() const
+				{
+					return speed;
+				}
+				int GetCyclic() const
+				{
+					return cyclic;
+				}
+				const fight::Name& GetAnimUp() const
+				{
+					return animUp;
+				}
+				float GetAnimUpAngle() const
+				{
+					return animUpAngle;
+				}
+				float GetAnimUpSyncFrame() const
+				{
+					return animUpSyncFrame;
+				}
+				float GetAnimUpStartFrame() const
+				{
+					return animUpStartFrame;
+				}
+				float GetAnimUpEndFrame() const
+				{
+					return animUpEndFrame;
+				}
+				float GetAnimUpSpeed() const
+				{
+					return animUpSpeed;
+				}
+				const fight::Name& GetAnimNeutral() const
+				{
+					return animNeutral;
+				}
+				float GetAnimNeutralAngle() const
+				{
+					return animNeutralAngle;
+				}
+				float GetAnimNeutralSyncFrame() const
+				{
+					return animNeutralSyncFrame;
+				}
+				float GetAnimNeutralStartFrame() const
+				{
+					return animNeutralStartFrame;
+				}
+				float GetAnimNeutralEndFrame() const
+				{
+					return animNeutralEndFrame;
+				}
+				float GetAnimNeutralSpeed() const
+				{
+					return animNeutralSpeed;
+				}
+				const fight::Name& GetAnimDown() const
+				{
+					return animDown;
+				}
+				float GetAnimDownAngle() const
+				{
+					return animDownAngle;
+				}
+				float GetAnimDownSyncFrame() const
+				{
+					return animDownSyncFrame;
+				}
+				float GetAnimDownStartFrame() const
+				{
+					return animDownStartFrame;
+				}
+				float GetAnimDownEndFrame() const
+				{
+					return animDownEndFrame;
+				}
+				float GetAnimDownSpeed() const
+				{
+					return animDownSpeed;
+				}
+				const fight::Name& GetPartition() const
+				{
+					return partition;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
+				int GetTargetingMode() const
+				{
+					return targetingMode;
+				}
 
 				// The property list, built once and freed again
 				static void RegisterProperties();
@@ -149,6 +284,76 @@ namespace proto
 				bool SetPriority(int newValue);
 				bool SetBlendInTime(float newValue);
 				bool SetBlendOutTime(float newValue);
+
+				// The getters the actions use (the engine keeps a copy of each in front of the actions' unit)
+				const fight::Name& GetWeightVariable() const
+				{
+					return weightVariable;
+				}
+				float GetSpeed() const
+				{
+					return speed;
+				}
+				int GetCyclic() const
+				{
+					return cyclic;
+				}
+				const fight::Name& GetAnimA() const
+				{
+					return animA;
+				}
+				float GetAnimASyncFrame() const
+				{
+					return animASyncFrame;
+				}
+				float GetAnimAStartFrame() const
+				{
+					return animAStartFrame;
+				}
+				float GetAnimAEndFrame() const
+				{
+					return animAEndFrame;
+				}
+				float GetAnimASpeed() const
+				{
+					return animASpeed;
+				}
+				const fight::Name& GetAnimB() const
+				{
+					return animB;
+				}
+				float GetAnimBSyncFrame() const
+				{
+					return animBSyncFrame;
+				}
+				float GetAnimBStartFrame() const
+				{
+					return animBStartFrame;
+				}
+				float GetAnimBEndFrame() const
+				{
+					return animBEndFrame;
+				}
+				float GetAnimBSpeed() const
+				{
+					return animBSpeed;
+				}
+				const fight::Name& GetPartition() const
+				{
+					return partition;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
 
 				// The property list, built once and freed again
 				static void RegisterProperties();
@@ -339,6 +544,156 @@ namespace proto
 				bool SetBlendInTime(float newValue);
 				bool SetBlendOutTime(float newValue);
 
+				// The getters the actions use (the engine keeps a copy of each in front of the actions' unit)
+				int GetInput() const
+				{
+					return input;
+				}
+				float GetBlendRate() const
+				{
+					return blendRate;
+				}
+				float GetSpeed() const
+				{
+					return speed;
+				}
+				int GetCyclic() const
+				{
+					return cyclic;
+				}
+				const fight::Name& GetAnimNeutral() const
+				{
+					return animNeutral;
+				}
+				float GetAnimNeutralSyncFrame() const
+				{
+					return animNeutralSyncFrame;
+				}
+				float GetAnimNeutralStartFrame() const
+				{
+					return animNeutralStartFrame;
+				}
+				float GetAnimNeutralEndFrame() const
+				{
+					return animNeutralEndFrame;
+				}
+				float GetAnimNeutralSpeed() const
+				{
+					return animNeutralSpeed;
+				}
+				const fight::Name& GetAnimNorth() const
+				{
+					return animNorth;
+				}
+				float GetAnimNorthSyncFrame() const
+				{
+					return animNorthSyncFrame;
+				}
+				float GetAnimNorthStartFrame() const
+				{
+					return animNorthStartFrame;
+				}
+				float GetAnimNorthEndFrame() const
+				{
+					return animNorthEndFrame;
+				}
+				float GetAnimNorthSpeed() const
+				{
+					return animNorthSpeed;
+				}
+				int GetAnimNorthAllowedTransitions() const
+				{
+					return animNorthAllowedTransitions;
+				}
+				const fight::Name& GetAnimEast() const
+				{
+					return animEast;
+				}
+				float GetAnimEastSyncFrame() const
+				{
+					return animEastSyncFrame;
+				}
+				float GetAnimEastStartFrame() const
+				{
+					return animEastStartFrame;
+				}
+				float GetAnimEastEndFrame() const
+				{
+					return animEastEndFrame;
+				}
+				float GetAnimEastSpeed() const
+				{
+					return animEastSpeed;
+				}
+				int GetAnimEastAllowedTransitions() const
+				{
+					return animEastAllowedTransitions;
+				}
+				const fight::Name& GetAnimSouth() const
+				{
+					return animSouth;
+				}
+				float GetAnimSouthSyncFrame() const
+				{
+					return animSouthSyncFrame;
+				}
+				float GetAnimSouthStartFrame() const
+				{
+					return animSouthStartFrame;
+				}
+				float GetAnimSouthEndFrame() const
+				{
+					return animSouthEndFrame;
+				}
+				float GetAnimSouthSpeed() const
+				{
+					return animSouthSpeed;
+				}
+				int GetAnimSouthAllowedTransitions() const
+				{
+					return animSouthAllowedTransitions;
+				}
+				const fight::Name& GetAnimWest() const
+				{
+					return animWest;
+				}
+				float GetAnimWestSyncFrame() const
+				{
+					return animWestSyncFrame;
+				}
+				float GetAnimWestStartFrame() const
+				{
+					return animWestStartFrame;
+				}
+				float GetAnimWestEndFrame() const
+				{
+					return animWestEndFrame;
+				}
+				float GetAnimWestSpeed() const
+				{
+					return animWestSpeed;
+				}
+				int GetAnimWestAllowedTransitions() const
+				{
+					return animWestAllowedTransitions;
+				}
+				const fight::Name& GetPartition() const
+				{
+					return partition;
+				}
+				int GetPriority() const
+				{
+					return priority;
+				}
+				float GetBlendInTime() const
+				{
+					return blendInTime;
+				}
+				float GetBlendOutTime() const
+				{
+					return blendOutTime;
+				}
+
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
@@ -429,6 +784,9 @@ namespace proto
 				// vftable slot 7 (0x100985C0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x100956D0 (left to the engine, the message constructor does not match): the value of an integer fight variable of the object in hundredths
+				float ReadWeightVariable(engine::GameObject* object, const fight::Name& name);
+
 				core::Link<AnimationBlendSimpleTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				choreo::Driver* driver;  // +0x2C
@@ -474,6 +832,15 @@ namespace proto
 				virtual void Slot6();
 				// vftable slot 7 (0x10096B60)
 				virtual bool Slot7(int arg, float value);
+
+				// 0x10096420: the heading and the strength of the character's movement input (left alone when the track reads another input)
+				void GetInput(engine::GameObject* object, float* heading, float* strength);
+				// 0x100964B0: the direction (1 - 4, 0 none) the blend moves to, kept when the other blended directions allow the move
+				int ChooseDirection(float heading, float strength);
+				// 0x10096560: moves the weights of the blend towards the direction of an input
+				void Blend(float scale, float heading, float strength);
+				// 0x10095230: raises the weight of a direction and lowers the others
+				void AdjustWeights(float delta, int direction);
 
 				core::Link<AnimationBlendDirectionalTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

@@ -7,6 +7,10 @@ namespace proto
 #define PROTO_NAME_OFFSET(type, member) \
 	content::MemberOffset((core::Name<core::CaseSensitiveKey>*)&((type*)0)->member, (int)&((type*)0)->member)
 
+	// The engine's copies of the arrays' members (most have no caller of their own)
+	template class container::ArrayDynamic<WeaponEntry, container::AllocatorNew>;
+	template class container::ArrayDynamic<WeaponConfiguration, container::AllocatorNew>;
+
 	// FUNCTION: ENGINE 0x10474AE0
 	content::ClassInfo* WeaponEntry::GetClassInfo()
 	{
@@ -182,3 +186,8 @@ namespace proto
 // FUNCTION: ENGINE 0x10476750
 // FUNCTION: ENGINE 0x104768A0
 // FUNCTION: ENGINE 0x10476970
+// FUNCTION: ENGINE 0x10474CD0
+// FUNCTION: ENGINE 0x10475A80
+// FUNCTION: ENGINE 0x10475DF0
+// FUNCTION: ENGINE 0x10476470
+// FUNCTION: ENGINE 0x10476530

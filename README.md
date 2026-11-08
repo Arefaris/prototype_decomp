@@ -15,24 +15,23 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       ████████░░░░░░░░░░░░░░░░░░░░░░  26.930 %
-Functions  ██████████████░░░░░░░░░░░░░░░░  47.683 %  (66921 / 140347)
-  audio       812 functions matched, 29,902 bytes
+Code       ████████░░░░░░░░░░░░░░░░░░░░░░  27.441 %
+Functions  ███████████████░░░░░░░░░░░░░░░  48.478 %  (68037 / 140347)
+  audio       831 functions matched, 31,560 bytes
   choreo      614 functions matched, 34,098 bytes
-  compress     34 functions matched, 1,048 bytes
   container    54 functions matched, 4,080 bytes
-  content     451 functions matched, 21,598 bytes
+  content     455 functions matched, 21,760 bytes
   core       1618 functions matched, 80,507 bytes
   crypto       69 functions matched, 21,107 bytes
-  engine    14786 functions matched, 621,991 bytes
+  engine    14922 functions matched, 627,893 bytes
   gfx         109 functions matched, 2,534 bytes
   lua         509 functions matched, 45,757 bytes
   math        205 functions matched, 25,523 bytes
   mgraph     7077 functions matched, 258,757 bytes
-  music      1225 functions matched, 39,666 bytes
-  om          934 functions matched, 33,990 bytes
-  proto     31946 functions matched, 1,135,639 bytes
-  pure3d     4014 functions matched, 173,109 bytes
+  music      1248 functions matched, 40,843 bytes
+  om         1082 functions matched, 42,332 bytes
+  proto     32777 functions matched, 1,168,256 bytes
+  pure3d     4003 functions matched, 174,104 bytes
   ravenphysics  2413 functions matched, 94,277 bytes
   scaleformp3d    67 functions matched, 2,567 bytes
 ```

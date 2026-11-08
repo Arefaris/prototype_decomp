@@ -9,6 +9,8 @@
 #include "code/core/name.h"
 #include "code/engine/audio/audiomanager.h"
 #include "code/engine/message.h"
+#include "code/om/allocation.h"
+#include "code/om/tree.h"
 
 namespace engine
 {
@@ -54,7 +56,9 @@ namespace engine
 	{
 		struct Data
 		{
-			int unknown0[8];
+			int unknown0[2];
+			AudioName name;  // +8
+			int unknown10[4];
 			AudioParameterTable parameters;
 		};
 
@@ -65,7 +69,10 @@ namespace engine
 
 		int unknown0[2];
 		Data* data;
+		bool unknownC;
 	};
+
+	class AudioSoundList;
 
 	// A sound an emitter plays
 	class AudioSound
@@ -73,8 +80,10 @@ namespace engine
 	public:
 		// 0x108703A0: starts the event of the sound (name guessed)
 		void Trigger(const AudioName& event);
-		// 0x108714D0
-		void Release(bool unknown);
+		// 0x108714D0: lets the sound end (when it is not forced to stay) and moves it to the audio system's list
+		void Release(int force);
+		// 0x1086E000
+		void MarkReleased();
 		// 0x10306300: sets a parameter of the sound
 		void SetParameter(const AudioName& name, const float* value);
 
@@ -87,12 +96,19 @@ namespace engine
 			unknown24 = AudioSystem::Get()->GetUnknown28();
 		}
 
-		int unknown0[0x14 / 4];
+		int unknown0;
+		int unknown4;
+		bool released;  // +8
+		AudioSoundList* list;  // +0xC
+		int unknown10;
 		AudioBank* bank;
 		int unknown18[2];
 		bool unknown20;
 		bool unknown21;
 		int unknown24;
+		unsigned char unknown28[0x8c - 0x28];
+		om::TreeNode node;  // +0x8C: in the tree of the list
+		unsigned char unknown9C[0xa8 - 0x9c];
 	};
 
 	// The sounds of an emitter by name
@@ -108,10 +124,18 @@ namespace engine
 		// 0x10870D40: a new sound of name (radius unknown, category the sound's)
 		AudioSound* Create(const AudioName& name, float radius, const AudioString& category);
 		// 0x10871500
-		void Remove(AudioSound* sound, bool unknown);
+		void Remove(AudioSound* sound, int unknown);
+
+		// 0x10871580: takes every sound out of the list (the flag is passed on to Release)
+		void RemoveAll(int unknown);
+		// 0x10870BA0: moves the sound into this list
+		void Adopt(AudioSound* sound);
 
 		AudioName name;  // 0
-		char unknown8[0x1C];  // the tree of the sounds (+8) and the array of their slots (+0x1C)
+		om::TreeHead tree;  // 8: the tree of the sounds
+		void* slots;  // 0x1C: the array of their slots (8 bytes each)
+		unsigned short usedSlots;  // 0x20
+		unsigned short slotCount;  // 0x22
 	};
 
 	class AudioEmitter

@@ -156,8 +156,10 @@ namespace pure3d
 		void SetUnknown17C(float value);
 		void SetUnknown180(float value);
 		void SetUnknown184(float value);
-		// 0x1075C500: takes three light bit sets of nine words (the unit of the light bit sets)
-		void Unknown1075C500(const unsigned int* a, const unsigned int* b, const unsigned int* c);
+		// 0x1075C500: takes three sets of nine floats (at +0x1A0, +0x1C4 and +0x1E8); 0x1075C570 gives them to the
+		// arrays that are not null
+		void Unknown1075C500(const float* a, const float* b, const float* c);
+		void Unknown1075C570(float* a, float* b, float* c);
 		// 0x10758400 / 0x10758460 / 0x10758520 / 0x10758580 / 0x107585B0 / 0x107585E0 / 0x10758770 / 0x10758780 /
 		// 0x10758790 / 0x107587D0 / 0x107587E0 / 0x10758820 / 0x10758E50
 		float GetUnknown120();
@@ -267,7 +269,9 @@ namespace pure3d
 		float unknown194;
 		float unknown198;
 		float unknown19C;
-		unsigned char unknown1A0[0x6C];
+		float unknown1A0[9];
+		float unknown1C4[9];
+		float unknown1E8[9];
 		int unknown20C;
 		LightUserData* userData;
 		unsigned short unknown214;

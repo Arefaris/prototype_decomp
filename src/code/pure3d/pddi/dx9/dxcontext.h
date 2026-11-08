@@ -57,10 +57,20 @@ namespace pure3d
 		virtual void AddPass(const char* name, const char* vertexProgram, const char* pixelProgram,
 			const PrimStreamParameters* state, int unknown);
 
+		// 0x10704990: the word at +0x2DC; 0x107049A0: the record of a pass, 4 bytes into it (none for a number past the
+		// last)
+		unsigned int GetFlags2DC();
+		void* GetPass(unsigned int index);
 		// 0x10618580: copies the defaults of the inputs into the constants of a new shader
 		void InitConstants(pddiBaseContext::Constants* constants);
 
-		unsigned char unknown8[0x2E4 - 8];
+		unsigned char unknown8[0x2CC - 8];
+		// 0x10704990 / 0x107049A0: the passes of the template (the count and the table of their records)
+		unsigned int passCount;
+		void** passes;
+		unsigned char unknown2D4[8];
+		unsigned int flags2DC;
+		unsigned char unknown2E0[4];
 		bool unknown2E4;
 		unsigned char unknown2E5[3];
 		core::Name<core::CaseInsensitiveKey32> templateName;
@@ -179,6 +189,12 @@ namespace pure3d
 	// are only passed on when the word differs from the one kept here
 	struct dxRenderStateCache
 	{
+		// 0x1061EE30: every state is -1, a value no state has (so the first set always reaches the device)
+		dxRenderStateCache();
+		// 0x1061EDB0 (the engine has a copy of the reset out of line at 0x1061ED70)
+		~dxRenderStateCache();
+		void Reset();
+
 		// The sampler states: four vertex samplers, then the pixel samplers, 0x50 states each
 		int samplerStates[20][0x50];
 		int renderStates[400];
@@ -368,6 +384,22 @@ namespace pure3d
 
 	// 0x11276D70
 	extern dxRenderStateCache* gRenderStateCache;
+	// 0x10615F20 / 0x10615F40 / 0x10615F50: the back end's device, and the Direct3D device (name guesses)
+	dxContext* GetContext();
+	// 0x11276D30: the driver object the last dxDevice constructor recorded (name guess)
+	extern dxDevice* gCurrentDevice;
+	// 0x1061F1C0 / 0x1061B440 (name guesses)
+	void SetContext(dxContext* context);
+	void SetCurrentDevice(dxDevice* device);
+	void SetD3DDevice(IDirect3DDevice9* device);
+	IDirect3DDevice9* GetD3DDevice();
+	// 0x10615F80 / 0x10615F90: the vertex / pixel constants written from now on are not the ones the registers hold
+	void NextVertexConstantPass();
+	void NextPixelConstantPass();
+	// 0x1061EE70: makes the cache when there is none and starts its constant registers over (name guess)
+	void CreateRenderStateCache();
+	// 0x1061EF40: deletes the cache (name guess)
+	void DestroyRenderStateCache();
 	// 0x11276D4C / 0x11276D50 / 0x11276D54 / 0x11276D58 / 0x11276D5C (dxdefaulttextures.cpp)
 	extern dxTexture* gWhiteTexture;
 	extern dxTexture* gBlackTexture;
@@ -462,6 +494,8 @@ namespace pure3d
 		// 0x1061B600 / 0x1061B660: a buffer from the pool (the creator's result is dropped)
 		dxVertexBuffer* NewVertexBuffer(const VertexBufferDescription* description);
 		dxIndexBuffer* NewIndexBuffer(const IndexBufferDescription* description);
+		// 0x1061B650: gives no buffer (the device does not make this kind; name guess)
+		dxVertexBuffer* NewUnsupportedVertexBuffer(const VertexBufferDescription* description);
 		// 0x1061BC00: the byte at +0x2E4 of the shader template of that name (false when there is none)
 		bool Unknown1061BC00(const char* name);
 

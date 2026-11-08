@@ -2,6 +2,7 @@
 // The characters of an owned string sit behind a header of the number of strings that share them and the room they have.
 #include "code/om/string.h"
 #include "code/om/stringdata.h"
+#include "code/om/textscanner.h"
 
 #include "code/om/allocation.h"
 #include <stdarg.h>
@@ -534,21 +535,25 @@ namespace om
 	}
 
 	// FUNCTION: ENGINE 0x105B4500
-	// NONMATCHING: the engine tests the letter with two compares and branches (cmp 'A' / cmp 'Z'), ours turns the range test
-	// into one unsigned compare (45 %)
-#ifdef NONMATCHING
 	String SpaceOutCapitals(const String& source)
 	{
 		char buffer[256];
 		strcpy_s(buffer, 256, source.GetText());
 		char* out = buffer;
 		const char* in = source.GetText();
-		bool previousCapital = *in >= 'A' && *in <= 'Z';
-		char character = *in;
-		while (character != 0)
+		bool previousCapital;
+		if (*in < 'A' || *in > 'Z')
+		{
+			previousCapital = false;
+		}
+		else
+		{
+			previousCapital = true;
+		}
+		while (*in != 0)
 		{
 			bool capital;
-			if (character < 'A' || character > 'Z')
+			if (*in < 'A' || *in > 'Z')
 			{
 				capital = false;
 			}
@@ -561,18 +566,44 @@ namespace om
 				*out = ' ';
 				out++;
 			}
-			character = *in;
-			in++;
-			*out = character;
-			out++;
 			previousCapital = capital;
-			character = *in;
+			*out = *in;
+			in++;
+			out++;
 		}
 		*out = 0;
 		String text(buffer, 1);
 		return String(text);
 	}
-#endif
+
+	// FUNCTION: ENGINE 0x105B45D0
+	String ToSnakeCase(const String& source)
+	{
+		char buffer[256];
+		strcpy_s(buffer, 256, source.GetText());
+		char* out = buffer;
+		const char* in = source.GetText();
+		char previous = ' ';
+		while (*in != 0)
+		{
+			if (IsLetter(previous) && !IsUpper(previous) && IsUpper(*in))
+			{
+				*out = '_';
+				out++;
+			}
+			previous = *in;
+			*out = previous;
+			if (previous == ' ')
+			{
+				*out = '_';
+			}
+			in++;
+			out++;
+		}
+		*out = 0;
+		String text(buffer, 1);
+		return text.ToLower();
+	}
 
 	// FUNCTION: ENGINE 0x105B46B0
 	void AssignTail(String& result, const String& source, unsigned int count)

@@ -49,7 +49,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B06FD0
 	template void* mgraph::Catch<mgraph::Packet<unsigned __int64> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B09590
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<mgraph::TriggerData> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B09680
 	template void mgraph::Catch<mgraph::Packet<mgraph::TriggerData> >::operator delete(void*);
@@ -77,7 +76,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B33040
 	template mgraph::Throw<mgraph::Packet<bool> >::~Throw();
 	// FUNCTION: ENGINE 0x10B330D0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<bool> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B331C0
 	template void mgraph::Catch<mgraph::Packet<bool> >::operator delete(void*);
@@ -122,7 +120,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B33F60
 	template mgraph::Throw<mgraph::Packet<unsigned int> >::~Throw();
 	// FUNCTION: ENGINE 0x10B33FF0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<unsigned int> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B340E0
 	template void mgraph::Catch<mgraph::Packet<unsigned int> >::operator delete(void*);
@@ -147,7 +144,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B347A0
 	template void mgraph::Throw<mgraph::Packet<unsigned __int64> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B34800
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<unsigned __int64> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B348F0
 	template void mgraph::Catch<mgraph::Packet<unsigned __int64> >::operator delete(void*);
@@ -170,7 +166,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B34FA0
 	template void mgraph::Throw<mgraph::Packet<String> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B35000
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<String> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B35110
 	template void mgraph::Catch<mgraph::Packet<String> >::operator delete(void*);
@@ -179,7 +174,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B351F0
 	template void mgraph::Catch<mgraph::Packet<String> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B35220
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B35330
 	template void mgraph::Catch<mgraph::Packet<DynamicArray<String,unsigned short> > >::operator delete(void*);
@@ -198,7 +192,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B35730
 	template mgraph::Throw<mgraph::Packet<Vector> >::~Throw();
 	// FUNCTION: ENGINE 0x10B357D0
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<Vector> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B358D0
 	template void mgraph::Catch<mgraph::Packet<Vector> >::operator delete(void*);
@@ -235,7 +228,6 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B364F0
 	template void mgraph::Throw<mgraph::Packet<Complex> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B36550
-	// EQUIVALENT: the call that gets the allocation tag of a pin leads to another copy of the same function (the engine's linker folded the copies) (99.6 %)
 	template mgraph::Catch<mgraph::Packet<Complex> >::Catch(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 	// FUNCTION: ENGINE 0x10B36650
 	template void mgraph::Catch<mgraph::Packet<Complex> >::operator delete(void*);
@@ -528,4 +520,10 @@ namespace mgraph
 	{
 		return new mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >(static_cast<Graph*>(graph), *nodeName);
 	}
+	// FUNCTION: ENGINE 0x10B33500
+	template mgraph::Throw<mgraph::Packet<float> >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B4E400
+	template mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
+	// FUNCTION: ENGINE 0x10B693E0
+	template mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::Throw(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 }

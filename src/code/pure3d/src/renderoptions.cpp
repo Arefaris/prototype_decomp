@@ -1,4 +1,8 @@
 // pure3d::RenderOptions: the switches of a render (see the header). The file name is a guess.
+#include <string.h>
+
+#include "code/engine/display.h"
+#include "code/pure3d/context.h"
 #include "code/pure3d/renderoptions.h"
 
 namespace pure3d
@@ -120,4 +124,31 @@ namespace pure3d
 	{
 		enableShaderLOD = value;
 	}
+
+	// The parameters of a render (the engine's pure3d::RenderParams, 0x88 bytes; context.h calls the class
+	// TargetParams)
+
+	// FUNCTION: ENGINE 0x1074E540
+	// NONMATCHING: the engine stores the vftable before it loads the address of the options (86.1 %)
+#ifdef NONMATCHING
+	TargetParams::TargetParams() : unknown4(0), unknown8(0), unknownC(0), colour(0), depth(0)
+	{
+		width = engine::gDisplay->GetWidth();
+		height = engine::gDisplay->GetUnknown8();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1074E590
+	TargetParams::~TargetParams()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x1074E5A0
+	// NONMATCHING: the engine stores the vftable before it loads the address of the options (88.5 %)
+#ifdef NONMATCHING
+	TargetParams::TargetParams(const TargetParams* source) : colour(0), depth(0)
+	{
+		memcpy(this, source, sizeof(TargetParams));
+	}
+#endif
 }

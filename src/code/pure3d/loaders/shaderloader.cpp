@@ -3,12 +3,41 @@
 
 #include "code/pure3d/loaders/shaderloader.h"
 
+#include "code/core/refptr.h"
 #include "code/core/strings.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/primitive.h"
 #include "code/pure3d/shader.h"
 #include "code/pure3d/shaderconstants.h"
+
+// The members of the name table's map that the unit keeps
+typedef container::Map<unsigned int, const char*, pure3d::ShaderLoader::InputNameAllocator> ShaderInputNameMap;
+
+// FUNCTION: ENGINE 0x10706070
+template int ShaderInputNameMap::CompareKey(const void* key, const container::TreeBase::Node* node);
+
+// FUNCTION: ENGINE 0x107060A0
+template int ShaderInputNameMap::CompareNodes(const container::TreeBase::Node* a, const container::TreeBase::Node* b);
+
+// FUNCTION: ENGINE 0x107060C0
+template bool ShaderInputNameMap::DeleteNode(container::TreeBase::Node* node, void* context);
+
+// FUNCTION: ENGINE 0x107063C0
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Find(const unsigned int& key);
+
+// FUNCTION: ENGINE 0x107063F0
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Find(const unsigned int& key) const;
+
+// FUNCTION: ENGINE 0x10706420
+template ShaderInputNameMap::Iterator ShaderInputNameMap::Insert(const ShaderInputNameMap::Pair& pair);
+
+// FUNCTION: ENGINE 0x10706490
+template void ShaderInputNameMap::Clear();
+
+// This unit's copy of the reference helper for the device's shader
+// FUNCTION: ENGINE 0x10705250
+template void core::SafeRelease<pure3d::dxShader>(pure3d::dxShader*& object);
 
 namespace pure3d
 {
@@ -32,6 +61,52 @@ namespace pure3d
 		Unknown10704B70();
 		Unknown107052A0();
 		gShaderModuleStarted = true;
+	}
+
+	// FUNCTION: ENGINE 0x10705280
+	Shader::~Shader()
+	{
+		core::SafeRelease(shader);
+	}
+
+	// FUNCTION: ENGINE 0x10704990
+	unsigned int pddiBaseShaderTemplate::GetFlags2DC()
+	{
+		return flags2DC;
+	}
+
+	// FUNCTION: ENGINE 0x107049A0
+	void* pddiBaseShaderTemplate::GetPass(unsigned int index)
+	{
+		if (index < passCount)
+		{
+			return (char*)passes[index] + 4;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x107049D0
+	void Shader::SetColour(const core::Name<core::CaseInsensitiveKey32>& inputName, const math::Vector4& value)
+	{
+		shader->SetColour(inputName, value);
+	}
+
+	// FUNCTION: ENGINE 0x107049E0
+	void Shader::SetMatrix(const core::Name<core::CaseInsensitiveKey32>& inputName, const float* value)
+	{
+		shader->SetMatrix(inputName, value);
+	}
+
+	// FUNCTION: ENGINE 0x10704B10
+	bool Shader::GetTemplateFlag()
+	{
+		return shader->shaderTemplate->flags2DC & 1;
+	}
+
+	// FUNCTION: ENGINE 0x10704B40
+	void Shader::CopyConstants(Shader* other)
+	{
+		shader->CopyConstants(other->shader);
 	}
 
 	// The shader's methods share the unit with its loader (0x107062D0 - 0x10707260): with SetParameters compiled here

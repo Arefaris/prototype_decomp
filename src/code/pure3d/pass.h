@@ -140,6 +140,13 @@ namespace pure3d
 		void AddChild(Pass* child, Pass* before);
 		// 0x10754840: runs End and clears bit 0 of the second flag word
 		void EndOnce();
+		// 0x10754BD0: gives every part of the list its distance from the eye; 0x107561F0 does that and sorts the list
+		// from the farthest to the nearest (neither uses the pass; name guesses)
+		void UpdateDistances(PartList* parts, const math::Vector* eye);
+		void SortBackToFront(PartList* parts, const math::Vector* eye);
+		// 0x10754780: sets the view's first value (when bit 0 is set) and clears the buffers the flags name (the pass
+		// is not used; name guess)
+		void ClearBuffers(unsigned int flags, int value);
 		// 0x10754810: the lighting inputs the passes upload (the global at 0x11282AB0; the pass is not used)
 		LightingInputs* GetLightingInputs();
 

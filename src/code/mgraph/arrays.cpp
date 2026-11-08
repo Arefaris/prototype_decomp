@@ -21,15 +21,15 @@ namespace om
 
 	// FUNCTION: ENGINE 0x10B00DC0
 	template DynamicArray<mgraph::Packet<bool>,unsigned short>::DynamicArray();
-	// FUNCTION: ENGINE 0x10B00DD0
+	// FUNCTION: ENGINE 0x10B30390
 	template char const* DynamicArray<mgraph::Packet<bool>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B011F0
 	template DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::DynamicArray();
-	// FUNCTION: ENGINE 0x10B01220
+	// FUNCTION: ENGINE 0x10B024E0
 	template char const* DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B04A00
 	template DynamicArray<mgraph::Packet<unsigned int>,unsigned short>::DynamicArray();
-	// FUNCTION: ENGINE 0x10B04A10
+	// FUNCTION: ENGINE 0x10B0C570
 	template char const* DynamicArray<mgraph::Packet<unsigned int>,unsigned short>::AllocationTag();
 	// FUNCTION: ENGINE 0x10B07200
 	template DynamicArray<unsigned __int64,unsigned short>::DynamicArray();
