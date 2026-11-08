@@ -43,6 +43,8 @@ namespace engine
 			void PackString(const char* text);
 			// 0x108EC430
 			void PackBytes(const void* data, unsigned int length);
+			// 0x108EC2F0: a player id as two bytes (the local ones go out with the net system's local address)
+			void PackPlayerId(const unsigned int* id);
 			// 0x108EC710: a number between -1 and 1 as a sign and seven bits
 			void PackSignedUnit7(float value);
 			// 0x108EC750: the same with fifteen bits
@@ -64,6 +66,8 @@ namespace engine
 			void UnpackBit(bool* value);
 			// 0x108EC530: that many bits, lowest first
 			void UnpackBits(int* value, int count);
+			// 0x108EC490: the player id of two bytes (an id from the local address is a local one again)
+			void UnpackPlayerId(unsigned int* id);
 			// 0x108EC590 / 0x108EC5E0: a number between -1 and 1 packed with seven or fifteen bits
 			void UnpackSignedUnit7(float* value);
 			void UnpackSignedUnit15(float* value);

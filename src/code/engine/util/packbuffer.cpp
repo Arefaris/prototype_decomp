@@ -1,6 +1,7 @@
 // The byte and bit stream of the online messages (unit 0x108EC240 - 0x108EC7B0; no assert path, file name guessed).
 #include "code/engine/util/packbuffer.h"
 #include "code/engine/driving/carattributes.h"
+#include "code/engine/gamelink.h"
 #include <string.h>
 
 namespace engine
@@ -54,6 +55,41 @@ namespace engine
 			*value = buffer[position];
 			position++;
 		}
+
+		// FUNCTION: ENGINE 0x108EC2F0
+		void Packer::PackPlayerId(const unsigned int* id)
+		{
+			unsigned int byte = (unsigned char)(*id >> 8);
+			if ((*id >> 8) == 0xFE && GetNetSystem() != 0)
+			{
+				byte = GetNetSystem()->localAddress[2];
+			}
+			buffer[position] = (unsigned char)byte;
+			position++;
+			buffer[position] = (unsigned char)*id;
+			position++;
+		}
+
+		// FUNCTION: ENGINE 0x108EC490
+		// NONMATCHING: the engine keeps the first byte in ebx and spills the second to the stack, ours the other way round, 51.6 %
+#ifdef NONMATCHING
+		void UnPacker::UnpackPlayerId(unsigned int* id)
+		{
+			unsigned int high = buffer[position++];
+			unsigned int low = buffer[position++];
+			unsigned int value = 0;
+			if (GetNetSystem() != 0 && GetNetSystem()->localAddress[2] != high)
+			{
+				value |= (high & 0xFF) << 8;
+				value |= low & 0xFF;
+				*id = value;
+			}
+			else
+			{
+				*id = low | 0xFE00;
+			}
+		}
+#endif
 
 		// FUNCTION: ENGINE 0x108EC350
 		void Packer::PackBit(bool value)
