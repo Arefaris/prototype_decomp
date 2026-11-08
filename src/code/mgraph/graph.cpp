@@ -3,6 +3,13 @@
 #include "code/mgraph/connectiondata.h"
 #include "code/mgraph/nodes.h"
 #include "code/mgraph/pins.h"
+#include "code/om/textvalue.h"
+
+namespace engine
+{
+	// 0x105E4620: the string "?Name?"
+	om::String* GetName();
+}
 
 namespace om
 {
@@ -413,6 +420,32 @@ namespace mgraph
 		for (Node* node = FirstNode(); node != 0; node = NextNode(node))
 		{
 			node->SetChannelEnabled(channel, enabled);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AC6FE0
+	// NONMATCHING: the engine spills the this pointer and keeps the allocation tag in a register; ours spills the address of the node tree and the tag (34.7 %)
+#ifdef NONMATCHING
+	void Graph::Slot4(void* argument)
+	{
+		om::TextValue* text = static_cast<om::TextValue*>(argument);
+		om::TextNode* nodeList = new om::TextNode(text, om::String::Wrap("Nodes"));
+		for (Node* node = NodeOfTreeNode(nodes.First()); node != 0; node = NodeOfTreeNode(nodes.Next(&node->treeNode)))
+		{
+			om::TextNode* nodeText = new om::TextNode(nodeList, om::String::Wrap("Node"));
+			om::TextNode* value = new om::TextNode(nodeText, om::String::Wrap("Value"));
+			om::TextNode* name = new om::TextNode(nodeText, om::String::Wrap("Name"));
+			om::TextNode* type = new om::TextNode(nodeText, om::String::Wrap("Type"));
+			new om::TextNode(type, *engine::GetName() + om::String::Wrap("\\") + *engine::GetName());
+			new om::TextNode(name, *engine::GetName());
+			node->Slot5(value);
+		}
+		om::TextNode* connectionList = new om::TextNode(text, om::String::Wrap("Connections"));
+		for (GraphConnectionBase* connection = ConnectionOfLink(firstConnection); connection != 0; connection = ConnectionOfLink(connection->graphLink.next))
+		{
+			om::TextNode* connectionText = new om::TextNode(connectionList, om::String::Wrap("Connection"));
+			connection->Slot5(connectionText);
 		}
 	}
 #endif
