@@ -1563,6 +1563,18 @@ namespace mgraph
 	template mgraph::Packet<DynamicArray<float,unsigned short> >::Packet();
 	// FUNCTION: ENGINE 0x10B59D90
 	template mgraph::Packet<DynamicArray<unsigned int,unsigned short> >::Packet();
+	// FUNCTION: ENGINE 0x10B30900
+	template mgraph::ContextConnection<mgraph::Packet<bool> >* mgraph::ContextConnection<mgraph::Packet<bool> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B30960
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<bool> >::Slot4(mgraph::ConnectionOwner*, void*);
+	// FUNCTION: ENGINE 0x10B2EE70
+	template mgraph::ContextConnection<mgraph::Packet<Vector> >* mgraph::ContextConnection<mgraph::Packet<Vector> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B2EED0
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<Vector> >::Slot4(mgraph::ConnectionOwner*, void*);
+	// FUNCTION: ENGINE 0x10B2E9E0
+	template mgraph::ContextConnection<mgraph::Packet<TriggerData> >* mgraph::ContextConnection<mgraph::Packet<TriggerData> >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
+	// FUNCTION: ENGINE 0x10B2EA40
+	template mgraph::ContextConnectionBase* mgraph::InputPin<mgraph::Packet<TriggerData> >::Slot4(mgraph::ConnectionOwner*, void*);
 	// FUNCTION: ENGINE 0x10B0BA60
 	template mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >* mgraph::ContextConnection<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Create(mgraph::ConnectionOwner*, void*, mgraph::ConcreteInputPinBase*);
 	// FUNCTION: ENGINE 0x10B0C440
