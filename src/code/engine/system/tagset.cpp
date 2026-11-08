@@ -12,6 +12,7 @@ namespace container
 		core::Name<core::CaseSensitiveKey>* position, int count);
 
 	// The members FromString and the copies of the sets use, as copies of their own
+	// FUNCTION: ENGINE 0x10834410
 	template bool ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorCoreStatic<12, 16> >::Create(
 		unsigned int count);
 }
@@ -311,6 +312,8 @@ namespace engine
 typedef core::Name<core::CaseSensitiveKey> TagNameType;
 template void std::_Med3<TagNameType*>(TagNameType*, TagNameType*, TagNameType*);
 template void std::_Push_heap<TagNameType*, int, TagNameType>(TagNameType*, int, int, TagNameType);
+// FUNCTION: ENGINE 0x10834650
+template void std::_Pop_heap<TagNameType*, int, TagNameType>(TagNameType*, TagNameType*, TagNameType*, TagNameType, int*);
 template void std::_Median<TagNameType*>(TagNameType*, TagNameType*, TagNameType*);
 template void std::_Adjust_heap<TagNameType*, int, TagNameType>(TagNameType*, int, int, TagNameType);
 template void std::_Make_heap<TagNameType*, int, TagNameType>(TagNameType*, TagNameType*, int*, TagNameType*);
