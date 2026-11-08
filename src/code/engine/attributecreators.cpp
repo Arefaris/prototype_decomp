@@ -77,12 +77,6 @@ namespace content
 		return 0;
 	}
 
-	// FUNCTION: ENGINE 0x108E0910
-	template<> void* MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose*>, 1>::Create()
-	{
-		return new engine::Attribute<pure3d::Pose*>((pure3d::Pose*)0);
-	}
-
 	// FUNCTION: ENGINE 0x108E0930
 	template<> void* MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose*>, 1>::Create()
 	{
@@ -103,6 +97,5 @@ namespace content
 	template MetaInstanceCreatorImpl<engine::ConstAttribute<int>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
 	template MetaInstanceCreatorImpl<engine::Attribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
 	template MetaInstanceCreatorImpl<engine::ConstAttribute<float>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
-	template MetaInstanceCreatorImpl<engine::Attribute<pure3d::Pose*>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
 	template MetaInstanceCreatorImpl<engine::ConstAttribute<pure3d::Pose*>, 1>::MetaInstanceCreatorImpl(const char*, unsigned short, ClassMetaType*);
 }
