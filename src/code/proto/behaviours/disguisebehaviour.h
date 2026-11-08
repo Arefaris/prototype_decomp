@@ -50,6 +50,15 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// 0x103CFC80 (deleting destructor 0x103CFFD0)
+		virtual ~DisguiseBehaviour();
+		// vftable slots 1 (0x103CC940), 4 (0x103CFD80), 5 (0x103CA0E0) and 6 (0x103D0600); the first, the second and the
+		// last are left to the engine
+		virtual void Slot1();
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnPostedMessage(engine::Message* message);
+		virtual void OnMessage(engine::Message* message);
+
 		// DBObserver slots 0 (0x103CA6F0) and 1 (0x103CA740)
 		virtual void OnDBSlot0(int a, int b);
 		virtual void OnDBSlot1(int a, int b);

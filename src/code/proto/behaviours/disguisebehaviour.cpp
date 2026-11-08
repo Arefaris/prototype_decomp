@@ -20,6 +20,11 @@ namespace proto
 	// 0x11087D44: a float of the engine's data (0.5f; name guess)
 	extern float gUnknown11087D44;
 
+	// FUNCTION: ENGINE 0x103CA0E0
+	void DisguiseBehaviour::OnPostedMessage(engine::Message* message)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x103CA100
 	int DisguiseBehaviour::IsSeenState()
 	{
