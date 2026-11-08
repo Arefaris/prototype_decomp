@@ -17,9 +17,9 @@
 #include "code/engine/secondaryphysicsjoints.h"
 #include "code/math/matrix.h"
 #include "code/math/vector.h"
-#include "code/pure3d/loaders/loader1067f4d0.h"
 #include "code/pure3d/pose.h"
 #include "code/ravenphysics/massproperties.h"
+#include "code/ravenphysics/physicsobjectfactory.h"
 
 namespace engine
 {
@@ -80,10 +80,7 @@ namespace engine
 				return &jointName;
 			}
 			// 0x1090DF80 / 0x1090DF90 / 0x1090DFA0 / 0x1090DFB0
-			ravenphysics::MassProperties* GetMassProperties() const
-			{
-				return massProperties;
-			}
+			ravenphysics::MassProperties* GetMassProperties() const;
 			bool IsGravityEnabled() const
 			{
 				return gravityEnabled;
@@ -107,6 +104,8 @@ namespace engine
 			int GetHandleCount() const;
 			// 0x1090E4D0: hands every driver its run of the handle range (the handles are set to fresh constraints)
 			void CreateConstraints(SecondaryPhysicsHandleRange* range);
+			// 0x1090F200: the factory of the joint's volume, in the joint's orientation
+			ravenphysics::CollisionVolumeFactory* CreateVolumeFactory();
 			// 0x1090E7A0: lets every driver act on the shape
 			void ApplyDrivers(ravenphysics::CollisionShape* shape, const math::Matrix* matrix);
 
@@ -141,7 +140,7 @@ namespace engine
 		// vftable slot 6 (0x1090E0D0): the name is not kept
 		virtual void SetName(const core::Name<core::CaseSensitiveKey>& name);
 
-		pure3d::Loaded1066F430* physicsData;  // +8
+		ravenphysics::PhysicsObjectFactory* physicsData;  // +8
 		JointArray joints;  // +0xC
 		// The word behind the array (the arrays of this kind are followed by one; never touched here)
 		int unknown18;  // +0x18

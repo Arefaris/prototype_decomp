@@ -167,32 +167,68 @@ namespace pure3d
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x106DDD20
+	SkeletonLimb* Skeleton::FindLimb(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		unsigned int i = 0;
+		unsigned int count = mData.mLimbCount;
+		if (i < count)
+		{
+			SkeletonLimb* limb = mData.mLimbs;
+			do
+			{
+				if (limb->name == name)
+				{
+					return limb;
+				}
+				i++;
+				limb++;
+			}
+			while (i < count);
+		}
+		return 0;
+	}
+
+	// A joint mask of that many joints, every word cleared
+	static __forceinline JointMask* CreateMask(unsigned int jointCount)
+	{
+		unsigned int words = (jointCount + 31) >> 5;
+		unsigned int* mask = new unsigned int[words + 1];
+		mask[0] = jointCount;
+		unsigned int* word = mask + 1;
+		for (unsigned int i = 0; i < words; i++)
+		{
+			word[i] = 0;
+		}
+		return (JointMask*)mask;
+	}
+
+	// FUNCTION: ENGINE 0x106DDE80
+	void Unknown106DDE80()
+	{
+		gRootPartition.name = core::Name<core::CaseSensitiveKey>("root", 1);
+		JointMask* mask = CreateMask(0x201);
+		gRootPartition.joints = mask;
+		unsigned int count = (mask->jointCount + 31) >> 5;
+		unsigned int* word = mask->words;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			word[i] = 0xFFFFFFFF;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x106DDF20
-	// NONMATCHING: register allocation: the engine moves this to ebx and keeps the partition count in esi (15.3 %)
+	// NONMATCHING: register allocation: the engine keeps this in ebx, the partition count in esi and the partitions in edi, and saves ebp only inside the loop (15.4 %)
 #ifdef NONMATCHING
 	Skeleton::Skeleton(unsigned int jointCount, unsigned int newPartitionCount, unsigned int limbCount)
 		: mData(jointCount, limbCount)
 	{
 		partitionCount = newPartitionCount;
 		debugInfo = 0;
-		if (newPartitionCount != 0)
+		partitions = newPartitionCount > 0 ? new Partition[newPartitionCount] : 0;
+		for (unsigned int i = 0; i < newPartitionCount; i++)
 		{
-			partitions = new Partition[newPartitionCount];
-			unsigned int words = (jointCount + 31) >> 5;
-			for (unsigned int i = 0; i < newPartitionCount; i++)
-			{
-				unsigned int* mask = new unsigned int[words + 1];
-				mask[0] = jointCount;
-				for (unsigned int word = 0; word < words; word++)
-				{
-					mask[1 + word] = 0;
-				}
-				partitions[i].joints = (JointMask*)mask;
-			}
-		}
-		else
-		{
-			partitions = 0;
+			partitions[i].joints = CreateMask(jointCount);
 		}
 	}
 #endif

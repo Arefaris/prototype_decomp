@@ -11,6 +11,8 @@
 namespace mgraph
 {
 	class GraphConnectionBase;
+	class ContextConnectionBase;
+	class ConnectionOwner;
 	class AbstractOutputPinBase;
 	class AbstractInputPinBase;
 	// 0x10AD2F00: the reflection of a type found in the registry of the graph library (name guessed)
@@ -108,7 +110,8 @@ namespace mgraph
 		// 0x10AD1C60 (the deleting destructor is 0x10AD1CA0)
 		virtual ~ConcreteInputPinBase();
 		virtual GraphConnectionBase* MakeConnection(Pin* other) = 0;
-		virtual void Slot4() = 0;
+		// Makes the connection the pin has in a context (name guessed)
+		virtual ContextConnectionBase* Slot4(ConnectionOwner* creator, void* argument) = 0;
 		virtual PinChannelData* GetChannelData() = 0;
 		virtual void SetChannelOwner(void* newOwner) = 0;
 		virtual bool IsChannelOwner(void* checkOwner) = 0;
@@ -120,9 +123,9 @@ namespace mgraph
 	class ConcreteOutputPinBase : public OutputPinBase
 	{
 	public:
-		ConcreteOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex) :
+		ConcreteOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex, unsigned int newUnknown30) :
 			OutputPinBase(newName, 0, newNode, newIndex),
-			unknown30(0x10)
+			unknown30(newUnknown30)
 		{
 		}
 		// 0x10AD16A0
@@ -298,7 +301,7 @@ namespace mgraph
 			return cache;
 		}
 		virtual GraphConnectionBase* MakeConnection(Pin* other);
-		virtual void Slot4();
+		virtual ContextConnectionBase* Slot4(ConnectionOwner* creator, void* argument);
 		virtual PinChannelData* GetChannelData()
 		{
 			return &value;
@@ -482,6 +485,10 @@ namespace mgraph
 		}
 		void* memory = creator->allocator.Allocate("Event", sizeof(ContextConnection), __alignof(ContextConnection));
 		return ::new (memory) ContextConnection(creator, argument, inputPin);
+	}
+	template<class P> ContextConnectionBase* InputPin<P>::Slot4(ConnectionOwner* creator, void* argument)
+	{
+		return ContextConnection<P>::Create(creator, argument, this);
 	}
 	template<class P> void ContextConnection<P>::Destroy()
 	{

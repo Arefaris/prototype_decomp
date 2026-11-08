@@ -7,7 +7,7 @@ namespace proto
 {
 	// FUNCTION: ENGINE 0x103A61D0
 	PatrolPathFollowing::PatrolPathFollowing(Follower* newFollower, Notifier* newNotifier) :
-		notifier(newNotifier), unknown4(0), unknown8(0), follower(newFollower), unknown14(math::kZeroVector),
+		notifier(newNotifier), unknown4(0), path(0), follower(newFollower), unknown14(math::kZeroVector),
 		unknown20(math::kZeroVector), unknown2C(-1), unknown30(-1), unknown34(0.0f)
 	{
 	}

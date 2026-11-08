@@ -43,7 +43,7 @@ namespace engine
 		class DrawableCreator;
 		class DrawableModifier;
 		class ParameterSet;
-		class SourceDrawable;
+		class DrawableArchetype;
 		struct EffectBiases;
 		struct EffectOverrides;
 
@@ -151,15 +151,15 @@ namespace engine
 			// The factories make a handle (0x10818790) and queue the creation of the render object. The heap the
 			// render thread allocates from is the current one, or the game object heap when the allocator says so.
 			// A drawable that is an instance of a source drawable (the flag is passed on to the render side)
-			static Drawable CreateInstance(SourceDrawable* source, bool registerOnCreate, bool flag);
-			static Drawable CreateInstance(SourceDrawable* source, const InstanceOptions& options,
+			static Drawable CreateInstance(DrawableArchetype* source, bool registerOnCreate, bool flag);
+			static Drawable CreateInstance(DrawableArchetype* source, const InstanceOptions& options,
 				bool registerOnCreate);
 			// A drawable whose render object the creator makes
 			static Drawable Create(DrawableCreator* creator, bool registerOnCreate);
 			// A new instance of the same source as another drawable
 			static Drawable CreateInstanceOf(Drawable other);
 			// A handle without a render object
-			static Drawable Allocate(SourceDrawable* source);
+			static Drawable Allocate(DrawableArchetype* source);
 			// Queues the destruction and clears the handle
 			static void Destroy(Drawable* drawable);
 			// The engine's callers also push a second word (0 or 4); the function ignores it (the same code, 0x107ED750)

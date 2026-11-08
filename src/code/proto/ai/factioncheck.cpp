@@ -25,7 +25,7 @@ namespace proto
 		// FUNCTION: ENGINE 0x103B9F50
 		bool FactionCheck_Ally::Check(const Faction* faction)
 		{
-			if (faction->GetRelation(name) == 1)
+			if (faction->GetRelationTo(other) == 1)
 			{
 				return true;
 			}
@@ -35,7 +35,7 @@ namespace proto
 		// FUNCTION: ENGINE 0x103B9F70
 		bool FactionCheck_Enemy::Check(const Faction* faction)
 		{
-			if (faction->GetRelation(name) == 0)
+			if (faction->GetRelationTo(other) == 0)
 			{
 				return true;
 			}

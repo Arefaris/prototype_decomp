@@ -55,6 +55,11 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106E29D0
+	LockableRefCounted::~LockableRefCounted()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x106E2A30
 	void LockableRefCounted::Lock()
 	{

@@ -69,7 +69,7 @@ namespace container
 {
 	template class ArrayDynamic<engine::driving::WheelData, AllocatorNew>;
 }
-
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10907070
@@ -107,3 +107,7 @@ namespace container
 // FUNCTION: ENGINE 0x10907AD0
 // FUNCTION: ENGINE 0x10907C20
 // FUNCTION: ENGINE 0x10907840
+// FUNCTION: ENGINE 0x10907BF0
+// FUNCTION: ENGINE 0x109079A0
+// FUNCTION: ENGINE 0x10907800
+// FUNCTION: ENGINE 0x10907530

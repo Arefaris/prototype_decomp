@@ -9,6 +9,17 @@
 
 namespace mgraph
 {
+	// FUNCTION: ENGINE 0x10AC61D0
+	ConnectionData::ConnectionData()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10AD3AE0
+	MemoryBufferCopy& MemoryBufferCopy::operator=(const MemoryBufferCopy& other)
+	{
+		return Copy(other);
+	}
+
 	// FUNCTION: ENGINE 0x10AD3A70
 	GraphConnectionBase* ConnectionData::MakeConnection(Graph* graph)
 	{
@@ -44,7 +55,7 @@ namespace mgraph
 		outputPin = other.outputPin;
 		inputNode = other.inputNode;
 		inputPin = other.inputPin;
-		buffer = other.buffer;
+		buffer.Copy(other.buffer);
 	}
 
 	// The connection a link of the graph's list belongs to, null for no link
@@ -65,7 +76,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10AD3D00
 	GraphConnectionBase* Graph::FindConnection(const om::ClassName& toNode, const om::ClassName& toPin, const om::ClassName& fromNode, const om::ClassName& fromPin)
 	{
-		GraphConnectionBase* connection = ConnectionOfLink(firstConnection);
+		GraphConnectionBase* connection = ConnectionOfLink(connections.head);
 		if (connection != 0)
 		{
 			do

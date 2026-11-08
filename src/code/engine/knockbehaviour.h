@@ -18,9 +18,7 @@ namespace engine
 		// 0x1091ECB0
 		explicit KnockBehaviour(GameObject* newOwner);
 		// 0x1091ED10 (deleting destructor 0x1091ED80)
-		virtual ~KnockBehaviour()
-		{
-		}
+		virtual ~KnockBehaviour();
 
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();

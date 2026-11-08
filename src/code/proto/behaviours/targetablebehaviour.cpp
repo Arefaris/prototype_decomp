@@ -1,9 +1,44 @@
 #include "code/proto/behaviours/targetablebehaviour.h"
+#include "code/engine/attributemessage.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/proto/behaviours/targetlockmessages.h"
 #include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/proto/fightitems/motion/motionmessages.h"
+#include "code/pure3d/pose.h"
 #include <new>
 
 namespace proto
 {
+	extern content::ObjectName gDrawableAttributeName;
+}
+
+namespace proto
+{
+	// RTTI proto::GetCanCauseStrikeTeamCallTargetMessage (id 6) and proto::TransferTargetLocksMessage (id 9)
+	struct GetCanCauseStrikeTeamCallTargetMessage : public TargetableMessage
+	{
+		GetCanCauseStrikeTeamCallTargetMessage() : TargetableMessage(6), canCause(false)
+		{
+		}
+		virtual ~GetCanCauseStrikeTeamCallTargetMessage()
+		{
+		}
+
+		bool canCause;  // +0xC
+	};
+
+	struct TransferTargetLocksMessage : public TargetableMessage
+	{
+		explicit TransferTargetLocksMessage(engine::GameObject* newTarget) : TargetableMessage(9), target(newTarget)
+		{
+		}
+		virtual ~TransferTargetLocksMessage()
+		{
+		}
+
+		engine::GameObject* target;  // +0xC
+	};
+
 #define PROTO_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 
@@ -120,8 +155,6 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102B1610
-	// NONMATCHING: the engine keeps the new tail in a register across the loop (81.0 %)
-#ifdef NONMATCHING
 	bool TargetableBehaviour::AddTargeters(Targeter* targeter)
 	{
 		if (targeter == 0)
@@ -138,18 +171,13 @@ namespace proto
 			lastTargeter->next = targeter;
 		}
 		lastTargeter = targeter;
-		if (targeter->next != 0)
+		while (lastTargeter->next != 0)
 		{
-			do
-			{
-				lastTargeter->next->target = owner;
-				lastTargeter = lastTargeter->next;
-			}
-			while (lastTargeter->next != 0);
+			lastTargeter->next->target = owner;
+			lastTargeter = lastTargeter->next;
 		}
 		return true;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102B1680
 	bool TargetableBehaviour::RemoveTargeter(Targeter* targeter)
@@ -186,20 +214,19 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x102B16F0
-	// NONMATCHING: register allocation of the loop, the engine takes the address of the next link first (25.7 %)
-#ifdef NONMATCHING
 	void TargetableBehaviour::ClearTargeters()
 	{
-		for (Targeter* targeter = firstTargeter; targeter != 0;)
+		Targeter* targeter = firstTargeter;
+		while (targeter != 0)
 		{
-			Targeter* next = targeter->next;
-			targeter->target = 0;
-			targeter->next = 0;
-			targeter = next;
+			Targeter* current = targeter;
+			targeter = current->next;
+			current->target = 0;
+			current->next = 0;
 		}
+		firstTargeter = 0;
 		lastTargeter = 0;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x102B1980
 	bool TargetableBehaviour::TargetPoint::GetTargetFilterLockOn() const
@@ -299,6 +326,70 @@ namespace proto
 		ClearTargeters();
 	}
 
+	// FUNCTION: ENGINE 0x102B1E60
+	void TargetableBehaviour::GetTargetableInfo(GetTargetableInfoMessage* message)
+	{
+		message->targetable = isTargetable;
+		message->unknownD = targetableEvenWhenAttached;
+		message->unknownE = targetableWhenAttachedToTargeter;
+		message->targetClass = currentTargetClass;
+		message->unknown14 = targetRadius;
+		float radius = targetRadius;
+		float sight = lineOfSightRadius;
+		message->unknown18 = sight > radius ? sight : radius;
+	}
+
+	// FUNCTION: ENGINE 0x102B1EC0
+	void TargetableBehaviour::TransferTargetLocks(engine::GameObject* newTarget)
+	{
+		if (newTarget == 0)
+		{
+			ClearTargeters();
+			return;
+		}
+		if (firstTargeter != 0)
+		{
+			AddTargetLockMessage message((engine::GameObject**)firstTargeter);
+			newTarget->SendMessage(&message);
+			if (!message.flag)
+			{
+				ClearTargeters();
+			}
+		}
+		firstTargeter = 0;
+		lastTargeter = 0;
+	}
+
+	// FUNCTION: ENGINE 0x102B24F0
+	void TargetableBehaviour::RebuildTargetPoints()
+	{
+		pure3d::Skeleton* skeleton = 0;
+		engine::Attribute<pure3d::Pose*>* drawable = (engine::Attribute<pure3d::Pose*>*)owner->FindAttribute(gDrawableAttributeName);
+		if (drawable != 0)
+		{
+			pure3d::Pose** pose = &drawable->value;
+			if (pose != 0 && *pose != 0)
+			{
+				skeleton = (*pose)->mSkeleton;
+			}
+		}
+		unsigned int filters = 0;
+		for (TargetPoint* point = targetPoints.begin; point != targetPoints.end; ++point)
+		{
+			if (skeleton != 0 && !point->jointName.IsEmpty())
+			{
+				int joint = skeleton->FindJoint(point->jointName);
+				if (joint != 0xffff)
+				{
+					point->jointIndex = joint;
+				}
+			}
+			filters |= point->filters;
+		}
+		rootTargetFilter &= ~filters;
+		combinedFilters = rootTargetFilter | filters;
+	}
+
 	// FUNCTION: ENGINE 0x102B3760
 	content::MemberList* TargetableBehaviour::TargetPoint::GetMembers()
 	{
@@ -331,6 +422,58 @@ namespace proto
 	{
 		RebuildTargetPoints();
 		ResetTargeters();
+	}
+
+	// FUNCTION: ENGINE 0x102B3990
+	void TargetableBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 1:
+			if (((engine::AttributeUpdatedMessage*)message)->name == gDrawableAttributeName)
+			{
+				RebuildTargetPoints();
+			}
+			break;
+		case 2:
+			ResetTargeters();
+			break;
+		case 0x3b:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				HandleTargetPointMessage0(message);
+				break;
+			case 1:
+				HandleTargetPointMessage1(message);
+				break;
+			case 2:
+				GetTargetableInfo((GetTargetableInfoMessage*)message);
+				break;
+			case 3:
+				currentTargetClass = ((SetTargetClassMessage*)message)->targetClass;
+				break;
+			case 4:
+				currentTargetClass = targetClass;
+				break;
+			case 5:
+				isTargetable = ((SetTargetableTargetMessage*)message)->target;
+				break;
+			case 6:
+				((GetCanCauseStrikeTeamCallTargetMessage*)message)->canCause = canCauseStrikeTeamCall;
+				break;
+			case 7:
+				((AddTargetLockMessage*)message)->flag = AddTargeters((Targeter*)((AddTargetLockMessage*)message)->lock);
+				break;
+			case 8:
+				RemoveTargeter((Targeter*)((RemoveTargetLockMessage*)message)->lock);
+				break;
+			case 9:
+				TransferTargetLocks(((TransferTargetLocksMessage*)message)->target);
+				break;
+			}
+			break;
+		}
 	}
 
 	// FUNCTION: ENGINE 0x102B3CE0
@@ -372,7 +515,7 @@ namespace proto
 	TargetableBehaviour::TargetableBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner),
 		isTargetable(true), canCauseStrikeTeamCall(true), targetableEvenWhenAttached(false),
 		targetableWhenAttachedToTargeter(false), targetClass(0), currentTargetClass(0), targetRadius(0.0f),
-		lineOfSightRadius(0.0f), rootTargetFilter(-1), rootTargetOffset(0.0f, 0.0f, 0.0f), unknown40(0),
+		lineOfSightRadius(0.0f), rootTargetFilter(-1), rootTargetOffset(0.0f, 0.0f, 0.0f), combinedFilters(0),
 		firstTargeter(0), lastTargeter(0)
 	{
 		Listen(1, true);
@@ -401,22 +544,35 @@ namespace proto
 		}
 	}
 
+	// FUNCTION: ENGINE 0x102B43B0
+	void TargetableBehaviour::GetAllBegin(container::DoubleListBase::Node** position)
+	{
+		*position = sAll.head;
+	}
+
+	// FUNCTION: ENGINE 0x102B43C0
+	container::DoubleListBase::Node** TargetableBehaviour::GetAllEnd(container::DoubleListBase::Node** position)
+	{
+		*position = 0;
+		return position;
+	}
+
 	// FUNCTION: ENGINE 0x102B4480
-	// NONMATCHING: the engine walks the list through out-of-line begin and end functions (0x102B43B0 / 0x102B43C0) (31.4 %)
-#ifdef NONMATCHING
 	void TargetableBehaviour::RemoveFromAll(TargetableBehaviour* behaviour)
 	{
-		for (container::DoubleListBase::Node* node = sAll.head; node != 0; node = node->next)
+		container::DoubleListBase::Node* position;
+		container::DoubleListBase::Node* end;
+		GetAllBegin(&position);
+		for (; position != *GetAllEnd(&end); position = position->next)
 		{
-			if (((Node*)node)->behaviour == behaviour)
+			if (((Node*)position)->behaviour == behaviour)
 			{
-				sAll.Remove(node);
-				operator delete[](node);
+				sAll.Remove(position);
+				operator delete[](position);
 				return;
 			}
 		}
 	}
-#endif
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -443,3 +599,20 @@ namespace proto
 // FUNCTION: ENGINE 0x102B3540
 // FUNCTION: ENGINE 0x102B35C0
 // FUNCTION: ENGINE 0x102B3AE0
+// FUNCTION: ENGINE 0x102B1960
+// FUNCTION: ENGINE 0x102B2100
+// FUNCTION: ENGINE 0x102B2110
+// FUNCTION: ENGINE 0x102B2170
+// FUNCTION: ENGINE 0x102B2180
+// FUNCTION: ENGINE 0x102B21B0
+// FUNCTION: ENGINE 0x102B2250
+// FUNCTION: ENGINE 0x102B22B0
+// FUNCTION: ENGINE 0x102B23A0
+// FUNCTION: ENGINE 0x102B2470
+// FUNCTION: ENGINE 0x102B3630
+// FUNCTION: ENGINE 0x102B36A0
+// FUNCTION: ENGINE 0x102B36E0
+// FUNCTION: ENGINE 0x102B3B40
+// FUNCTION: ENGINE 0x102B3B80
+// FUNCTION: ENGINE 0x102B3C90
+// FUNCTION: ENGINE 0x102A9DD0

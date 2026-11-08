@@ -247,6 +247,117 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x102055B0
+			PatrolAction::PatrolAction(PatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), follower(newTarget.Get()), notifier(newTarget.Get()), following(&follower, &notifier), unknown74(choreo::gMinusOne)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10205380
+			PatrolAction::~PatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102053C0
+			bool PatrolAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = object->transform->value;
+				math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+				following.Update(&position, value);
+				BroadcastPatrolPointAIMsg message(following.unknown2C);
+				object->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10205930
+			bool PathPatrolAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetPatrolMovementMessage getMessage;
+				object->SendMessage(&getMessage);
+				if (getMessage.path == 0)
+				{
+					return false;
+				}
+				path = getMessage.path;
+				GotoPathMovementMessage message(path->GetSpeed());
+				int count = path->GetPointCount();
+				for (int i = 0; i < count; i++)
+				{
+					const PatrolPathPoint* point = path->GetPoint(i);
+					message.points.PushBack(point->position);
+				}
+				unknown78 = count - 1;
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10205B10
+			bool PathPatrolAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (Unknown103B8440(object))
+				{
+					GotoPathMovementMessage message(path->GetSpeed());
+					int count = path->GetPointCount();
+					int index = unknown78;
+					for (int i = 0; i < count; i++)
+					{
+						const PatrolPathPoint* point = path->GetPoint(index);
+						message.points.PushBack(point->position);
+						index = (index + 1) % count;
+					}
+					unknown78 = unknown78 - 1;
+					if (unknown78 < 0)
+					{
+						unknown78 = count - 1;
+					}
+					target.Get()->SendMessage(&message);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10205890
+			fight::Action* PatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PatrolAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102056E0
+			PathPatrolAction::PathPatrolAction(PathPatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), follower(newTarget.Get()), notifier(newTarget.Get()), following(&follower, &notifier), unknown78(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102054C0
+			PathPatrolAction::~PathPatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10205010
+			void PathPatrolAction::Slot6()
+			{
+				following.SetPath(0);
+			}
+
+			// FUNCTION: ENGINE 0x102058E0
+			fight::Action* PathPatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PathPatrolAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<HasPatrolPathCondition>;
 			template class fight::ConditionFactoryTemplate<HasPatrolPathCondition>;
@@ -262,6 +373,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102050C0
 // FUNCTION: ENGINE 0x10243970
 // FUNCTION: ENGINE 0x102439A0
 // FUNCTION: ENGINE 0x102439D0
@@ -292,3 +404,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10204F50
 // FUNCTION: ENGINE 0x1020BE30
 // FUNCTION: ENGINE 0x1020C180
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102056B0
+// FUNCTION: ENGINE 0x102057D0

@@ -27,6 +27,9 @@ namespace engine
 		void Unknown108948D0(bool focused);
 		// 0x108951B0: reloads the zones when the level changes (name unknown)
 		void Unknown108951B0();
+		// 0x108951F0: takes a zone away that was added (name unknown; the advertisement mappings hand it the word they
+		// keep at +0x90)
+		void Unknown108951F0(void* zone);
 
 		int unknown0;
 		const char* name;  // +4

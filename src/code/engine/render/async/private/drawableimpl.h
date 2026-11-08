@@ -7,6 +7,7 @@
 #include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/engine/render/async/drawable.h"
+#include "code/engine/render/drawablearchetype.h"
 #include "code/math/matrix.h"
 #include "code/math/pddicolour.h"
 #include "code/math/vector4.h"
@@ -25,21 +26,6 @@ namespace engine
 		typedef pure3d::PartBindingSource PartBindingSource;
 		typedef pure3d::PartAnimationFlags PartAnimationFlags;
 		typedef pure3d::PartAnimationState PartAnimationState;
-
-		// The object a drawable was instanced from (its unit is around 0x10825xxx; called a source drawable by
-		// renderglobals.cpp's assert "0 == drawableData->sourceDrawable")
-		class SourceDrawable
-		{
-		public:
-			// 0x108258E0: vftable slot 0x17 of the drawable's +0x78 object
-			void* GetParameters();
-
-			int unknown0;
-			int unknown4;
-			DrawableImpl* drawable;
-			unsigned char unknownC[0x18];
-			unsigned char flags24;
-		};
 
 		// A slot of the drawable table (16 bytes)
 		struct DrawableData
@@ -61,7 +47,7 @@ namespace engine
 			// Put in the render list when created
 			bool registerOnCreate;
 			bool created;
-			SourceDrawable* sourceDrawable;
+			DrawableArchetype* sourceDrawable;
 		};
 
 		// The list the render thread draws (0x1130CCC0; 0x10817B10 returns it) is the pure3d scene
@@ -80,7 +66,7 @@ namespace engine
 		// 0x10817B40: deletes the entity once the render thread is done with it
 		void DeferDelete(pure3d::Entity* entity);
 		// 0x10818790 / 0x10818850
-		Drawable AllocateDrawable(SourceDrawable* source, bool registerOnCreate);
+		Drawable AllocateDrawable(DrawableArchetype* source, bool registerOnCreate);
 		void FreeDrawable(Drawable drawable, DestroyMode mode);
 
 

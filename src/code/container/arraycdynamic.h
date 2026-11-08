@@ -6,6 +6,7 @@
 #define CONTAINER_ARRAYCDYNAMIC_H
 
 #include "code/container/arraydynamic.h"
+#include "code/container/constructcopies.h"
 #include <new>
 
 namespace container
@@ -22,6 +23,16 @@ namespace container
 	// Copies [first, last) to dest, front to back; answers the end of the copies (the engine's copy of the wave
 	// generators' array, name guessed)
 	template<class T> T* CopyRangeEnd(T* first, T* last, T* dest)
+	{
+		for (; first != last; first++, dest++)
+		{
+			*dest = *first;
+		}
+		return dest;
+	}
+
+	// The same for a source that is not to be changed
+	template<class T> T* CopyRangeEnd(const T* first, const T* last, T* dest)
 	{
 		for (; first != last; first++, dest++)
 		{
@@ -71,9 +82,30 @@ namespace container
 		{
 			end = Items();
 		}
+		// Copies the elements of other (the same engine form as the assignment below)
+		ArrayCDynamic(const ArrayCDynamic& other)
+		{
+			T* dest = Items();
+			int count = other.Size();
+			end = ConstructCopiesN(other.Items(), count, dest);
+		}
 		~ArrayCDynamic()
 		{
 			end = Items();
+		}
+		ArrayCDynamic& operator=(const ArrayCDynamic& other)
+		{
+			unsigned int count = other.Size();
+			unsigned int size = Size();
+			if (count <= size)
+			{
+				end = CopyRangeEnd(other.Items(), other.end, Items());
+				return *this;
+			}
+			const T* middle = other.Items() + size;
+			CopyRangeEnd(other.Items(), middle, Items());
+			end = ConstructCopiesN(middle, count - size, end);
+			return *this;
 		}
 		void Clear()
 		{
@@ -156,7 +188,7 @@ namespace container
 	template<class T, int N> T* ArrayCDynamic<T, N>::Insert(T* position, unsigned int count, const T& value)
 	{
 		T* last = end;
-		if ((unsigned int)(Size() + count) < N + 1)
+		if ((unsigned int)(Size() + count) <= N)
 		{
 			ShiftUp(position, count);
 			UninitializedFill(position, count, value);

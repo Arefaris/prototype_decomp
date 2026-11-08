@@ -113,6 +113,14 @@ namespace proto
 	template class GlobalShaderRig::Param<math::Colour128>;
 }
 
+namespace container
+{
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<float>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector2>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Colour128>, AllocatorNew>;
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1054D740
 // FUNCTION: ENGINE 0x1054D7A0

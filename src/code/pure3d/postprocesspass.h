@@ -52,6 +52,8 @@ namespace pure3d
 		// 0x1075DB10 / 0x1075D6E0 (another unit): the two settings of the blur the bloom makes from its sizes
 		void SetBlurSize(float value);
 		void SetBlurRatio(float value);
+		// 0x1075D660 (another unit): the three textures the blur works with (names guessed)
+		void SetTextures(Texture* first, Texture* second, Texture* third);
 
 		char unknownE8[0x540 - 0xE8];
 	};
@@ -408,6 +410,8 @@ namespace pure3d
 		// 0x1075F4A0 / 0x1075F4B0: the pass kept at +0xFC
 		void SetPassFC(Pass* pass);
 		Pass* GetPassFC();
+		// 0x1075F1B0 (another unit): the three textures of the vision passes (names guessed)
+		void SetTextures(Texture* first, Texture* second, Texture* third);
 
 		ProtoToneMapPass* toneMapPass;               // +0xE8
 		ProtoBloomPass* bloomPass;                   // +0xEC

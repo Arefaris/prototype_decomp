@@ -13,11 +13,47 @@
 #include "code/engine/driving/vehicleintentionbehaviour.h"
 #include "code/engine/driving/wheelcollectiondata.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/engine/message.h"
 
 namespace engine
 {
 	namespace driving
 	{
+		// The messages the intention behaviours answer (type 0x13; the id says which kind of vehicle asks): they hand out
+		// the intention of the controlling player. The destructors are out of line; the constructors of the kinds are
+		// expanded where the messages are made
+		struct VehicleQueryMessage : public IntrusiveMessage
+		{
+			explicit VehicleQueryMessage(short newId) : IntrusiveMessage(0x13, newId)
+			{
+			}
+			// Deleting destructor 0x1091D160
+			virtual ~VehicleQueryMessage()
+			{
+			}
+
+			void* intention;  // +0xC
+		};
+
+		struct VehicleQueryCarIntentionMessage : public VehicleQueryMessage
+		{
+			// 0x1091CFF0
+			VehicleQueryCarIntentionMessage();
+			// Deleting destructor 0x1091D180
+			virtual ~VehicleQueryCarIntentionMessage()
+			{
+			}
+		};
+
+		struct VehicleQueryHelicopterIntentionMessage : public VehicleQueryMessage
+		{
+			VehicleQueryHelicopterIntentionMessage();
+			// Deleting destructor 0x1091DCB0
+			virtual ~VehicleQueryHelicopterIntentionMessage()
+			{
+			}
+		};
+
 		// The base of the physics behaviours (0xFC bytes; the constructor is 0x10938B70, the destructor body 0x10938500)
 		class VehiclePhysicsBehaviour : public Behaviour
 		{

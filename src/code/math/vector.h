@@ -99,6 +99,8 @@ namespace math
 		bool IsNear(const Vector& other, float tolerance) const;
 		// The engine's second out-of-line copy of IsNear (0x10070B70), the one the camera path sampling calls
 		bool IsNearOther(const Vector& other, float tolerance) const;
+		// 0x100ECF10 (another unit): the squared distance to a point (name guessed)
+		float DistanceSquaredTo(const Vector* other) const;
 		// Sets this vector to a vector perpendicular to v: X cross v, or Y when v lies along X
 		void Perpendicular(const Vector& v);
 		// Sets this vector to a cross b; when that is (nearly) zero, to a vector perpendicular to a, returning true

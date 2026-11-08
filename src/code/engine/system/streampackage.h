@@ -13,6 +13,7 @@
 #include "code/content/metatype.h"
 #include "code/content/stringmetatype.h"
 #include "code/core/name.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/system/tagset.h"
 #include "code/math/vector.h"
 
@@ -79,6 +80,7 @@ namespace engine
 	};
 
 	class StreamSlotGroup;
+	class StreamTrigger;
 
 	// Makes the heap of a slot of group (the slot's handle, the group, the heap's name); the engine's default is 0x1083EB80
 	typedef core::IMemoryAllocator* (*SlotHeapFactory)(int handle, StreamSlotGroup* group, const char* name);
@@ -210,23 +212,59 @@ namespace engine
 		static void FindClients(container::ArrayDynamicStatic<StreamClient*, StreamAllocator>* clients,
 			const TagSet* tags);
 		static void RemoveActive(StreamPackage* package);
+		// 0x1082BE90: the manager's state goes from 0 to 1 and from 1 to 2 (name guessed)
+		static void AdvanceState();
+		// 0x1082BF70 / 0x1082BFA0 / 0x1082BFD0 / 0x1082BFF0: the package a startup group (0 - 3) is loading: whether it
+		// is loaded, whether it has no instance, its inventory and the package itself (names guessed)
+		static int IsGroupLoaded(int group);
+		static int IsGroupWithoutInstance(int group);
+		static content::LoadInventory* GetGroupInventory(int group);
+		static StreamPackage* GetGroupPackage(int group);
+		// 0x1082C050
+		static StreamPackage* GetCurrentPackage();
 		static void Register(StreamPackage* package);
 		static void AddActive(StreamPackage* package);
 		static StreamSlotGroup* FindSlotGroup(const content::ObjectName& name);
 		static void Unregister(StreamPackage* package);
 		// 0x1082CF10: takes a client out of the manager's list (the client's flag at +0x18 says whether it is in)
 		static void UnregisterClient(StreamClient* client);
+		// 0x1082CED0: puts a client in the list its flag at +0x18 names (when there is room)
+		static void RegisterClient(StreamClient* client);
+		// 0x1082C420 / 0x1082C510 (names guessed): makes the package of a startup group (0 - 2) from its resources and
+		// prerequisites and loads it; stops the group's package and forgets its name
+		static void LoadStartupPackage(int group, const core::Name<core::CaseSensitiveKey>& newName,
+			const container::String* resources, const container::String* prerequisites);
+		static void UnloadStartupPackage(int group);
 
-		unsigned char unknown1C[0x4c - 0x1C];
+		// The clients that take packages as they load: those whose flag at +0x18 is clear (+0x1C) and those whose flag is
+		// set (+0x2C) (names guessed)
+		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> clients;
+		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> flaggedClients;
+		// The slot groups (made by CreateSlotGroup, RegisterSlotGroup)
+		container::ArrayDynamicStatic<StreamSlotGroup*, StreamAllocator> slotGroups;  // +0x3C
 		Settings settings;
 		unsigned char unknown74[0x88 - 0x74];
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
 		SlotHeapFactory slotHeapFactory;
 		SlotHeapDestroyer slotHeapDestroyer;
-		unsigned char unknown90[0xF0 - 0x90];
+		unsigned char unknown90[8];
+		// The package each startup group is loading
+		StreamPackage* groupPackages[4];  // +0x98
+		// The names the startup groups' packages were loaded under
+		core::Name<core::CaseSensitiveKey> startupNames[3];  // +0xA8
+		// The stream drivers' handles, one for each player
+		GameObjectHandle* streamDrivers;  // +0xC0
+		int streamDriverCount;            // +0xC4
+		// The packages that are loading, by priority (AddActive puts one in, RemoveActive takes it out)
+		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> activePackages;  // +0xC8
+		// The slot heap handles that are free (AllocateSlotHandle takes the last, FreeSlotHandle puts one back)
+		container::ArrayDynamicStatic<int, StreamAllocator> freeSlotHandles;  // +0xD8
+		unsigned char unknownE8[0xF0 - 0xE8];
 		// The packages that are known (Register adds one, 0x1082D080)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> knownPackages;
-		unsigned char unknown100[0x114 - 0x100];
+		unsigned char unknown100[4];
+		// The stream triggers that are known (RegisterStreamTrigger puts one in)
+		container::ArrayDynamicStatic<StreamTrigger*, StreamAllocator> triggers;  // +0x104
 		int unknown114;
 		// The package that is loading now (0x1082C060)
 		StreamPackage* currentPackage;
@@ -235,6 +273,15 @@ namespace engine
 	};
 
 	extern StreamManager* gStreamManager;
+
+	// 0x1082C040 / 0x1082D480 / 0x1082C010 (the stream manager's unit): how many stream drivers there are, the object of
+	// one and the object the handle of one is taken from (names guessed)
+	int GetStreamDriverCount();
+	GameObject* GetStreamDriver(int index);
+	void SetStreamDriver(int index, GameObject* object);
+	// 0x1082DC00 / 0x1082D4C0: makes the handles of that many drivers (all empty) / lets the drivers go
+	void SetStreamDriverCount(int count);
+	void DestroyStreamDrivers();
 
 	// 0x1130D388: the slot group name loads without a group of their own are made with (name guess)
 	extern content::ObjectName gNoSlotGroup;
@@ -567,6 +614,22 @@ namespace engine
 		float unknown58;
 		unsigned int inventoryInitialSize;
 	};
+}
+
+namespace proto
+{
+	// The heap a slot group's slots use: its size, a flag and an alignment (the group copies the three words)
+	struct SlotGroupConfig
+	{
+		unsigned int size;
+		bool flag;
+		unsigned int alignment;
+	};
+
+	// 0x1082D550 (the stream manager's unit): makes a slot group of that many slots and registers it with the stream
+	// manager (name guess)
+	engine::StreamSlotGroup* CreateSlotGroup(const core::Name<core::CaseSensitiveKey>& name, unsigned int slotCount,
+		const SlotGroupConfig* config, bool shared, bool unknown, engine::SlotHeapFactory factory, int unknown60);
 }
 
 #endif

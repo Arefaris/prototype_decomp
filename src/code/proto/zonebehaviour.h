@@ -42,11 +42,21 @@ namespace proto
 		float GetZoneStrength() const;
 		// 0x10572A70: the strength the zone has now
 		float GetStrength() const;
+		// 0x10572830: takes the zone's effects down again (name guessed)
+		void ResetEffects();
 		// 0x10572B50: tells the HUD about the zone's position and strength
 		void UpdateEffects();
 
+		// The look of the zone's effects: twelve numbers the HUD and the ambient manager read (names unknown)
+		struct Effects
+		{
+			float values[12];
+		};
+
 		float targetStrength;  // +0xC
-		unsigned char unknown10[0xC];
+		float fadeInRate;  // +0x10
+		float holdTime;  // +0x14
+		float fadeOutRate;  // +0x18
 		float radius;  // +0x1C
 		int unknown20;
 		int zoneType;  // +0x24
@@ -54,7 +64,11 @@ namespace proto
 		bool unknown29;
 		bool renderEffectsState;  // +0x2A
 		float strength;  // +0x2C
-		unsigned char unknown30[0x40];
+		float unknown30;
+		Effects effects;  // +0x34
+		float lastX;  // +0x64
+		float lastY;
+		float lastZ;
 	};
 }
 

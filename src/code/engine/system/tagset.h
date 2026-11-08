@@ -13,6 +13,8 @@ namespace engine
 	public:
 		// 0x10834D60
 		TagSet();
+		// 0x10835190: the tags of the list in text
+		explicit TagSet(const char* text);
 
 		// 0x108342A0: true when the sets share a tag (or either is "all")
 		bool Intersects(const TagSet& other) const;

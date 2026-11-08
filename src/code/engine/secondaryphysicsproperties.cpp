@@ -1,5 +1,6 @@
 #include "code/engine/secondaryphysicsproperties.h"
 #include "code/core/refptr.h"
+#include "code/ravenphysics/collision/collisionobject.h"
 #include <new>
 
 namespace math
@@ -164,6 +165,28 @@ namespace engine
 		return count;
 	}
 
+	// FUNCTION: ENGINE 0x1090E4D0
+	void Properties::JointData::CreateConstraints(SecondaryPhysicsHandleRange* range)
+	{
+		ravenphysics::CollisionHandle* handles = range->begin;
+		SecondaryPhysicsJointDriver** last = jointDrivers.end;
+		int first = 0;
+		int next = 0;
+		for (SecondaryPhysicsJointDriver** driver = jointDrivers.begin; driver != last; driver++)
+		{
+			SecondaryPhysicsJointDriver* current = *driver;
+			if (current != 0)
+			{
+				next += current->GetHandleCount();
+				SecondaryPhysicsHandleRange part;
+				part.begin = handles + first;
+				part.end = handles + next;
+				current->Slot2(&part);
+				first = next;
+			}
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1090E7A0
 	void Properties::JointData::ApplyDrivers(ravenphysics::CollisionShape* shape, const math::Matrix* matrix)
 	{
@@ -283,11 +306,46 @@ namespace engine
 		core::SafeRelease(massProperties);
 	}
 
+	// FUNCTION: ENGINE 0x1090DF80
+	ravenphysics::MassProperties* Properties::JointData::GetMassProperties() const
+	{
+		return massProperties;
+	}
+
+	// FUNCTION: ENGINE 0x1090F420
+	static void DescribeJoint(ravenphysics::PhysicsObjectFactory::ObjectDescription* description,
+		Properties::JointData* joint, ravenphysics::MassProperties* massProperties)
+	{
+		description->SetCollisionType(ravenphysics::AbstractPhysicsObjectFactory::Simulating);
+		description->SetCreateRigidBody(true);
+		description->SetUnknown1D(true);
+		description->SetMassProperties(massProperties);
+		description->ReserveVolumes(1);
+		description->AddVolume(joint->CreateVolumeFactory());
+	}
+
+	// FUNCTION: ENGINE 0x1090F470
+	bool Properties::Slot5()
+	{
+		int count = joints.Size();
+		if (count != 0)
+		{
+			physicsData->ReserveObjects(count);
+			JointData* last = joints.end;
+			for (JointData* joint = joints.begin; joint != last; joint++)
+			{
+				ravenphysics::PhysicsObjectFactory::ObjectDescription* description = physicsData->AddObject();
+				DescribeJoint(description, joint, joint->GetMassProperties());
+			}
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x109103D0
 	// EQUIVALENT: the engine pushes edi after the first stores of the constructor, ours before them, 95.7 %
 	Properties::SecondaryPhysicsProperties() : physicsData(0)
 	{
-		core::RefAssign(physicsData, new pure3d::Loaded1066F430);
+		core::RefAssign(physicsData, new ravenphysics::PhysicsObjectFactory);
 	}
 
 	// FUNCTION: ENGINE 0x10910430
@@ -307,7 +365,8 @@ namespace container
 	template class ArrayDynamic<engine::SecondaryPhysicsJointDriver*, AllocatorNew>;
 	template class ArrayDynamic<engine::SecondaryPhysicsProperties::JointData, AllocatorNew>;
 }
-
+
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1090DFA0

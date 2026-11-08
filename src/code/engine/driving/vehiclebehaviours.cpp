@@ -7,6 +7,17 @@ namespace engine
 #define ENGINE_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 
+		// FUNCTION: ENGINE 0x1091CFF0
+		VehicleQueryCarIntentionMessage::VehicleQueryCarIntentionMessage() : VehicleQueryMessage(0)
+		{
+			intention = 0;
+		}
+
+		VehicleQueryHelicopterIntentionMessage::VehicleQueryHelicopterIntentionMessage() : VehicleQueryMessage(1)
+		{
+			intention = 0;
+		}
+
 		// FUNCTION: ENGINE 0x1091CD30
 		content::ClassInfo* CarIntentionBehaviour::GetClassInfo()
 		{
@@ -128,3 +139,9 @@ namespace engine
 // FUNCTION: ENGINE 0x1091DE10
 // FUNCTION: ENGINE 0x1091DE50
 // FUNCTION: ENGINE 0x1091D690
+// FUNCTION: ENGINE 0x1091CFE0
+// FUNCTION: ENGINE 0x1091D010
+// FUNCTION: ENGINE 0x1091D160
+// FUNCTION: ENGINE 0x1091D180
+// FUNCTION: ENGINE 0x1091DBF0
+// FUNCTION: ENGINE 0x1091DCB0

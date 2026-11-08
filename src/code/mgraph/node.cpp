@@ -18,6 +18,26 @@ namespace mgraph
 		return cache;
 	}
 
+	// FUNCTION: ENGINE 0x10AC89D0
+	bool Node::OnContextThread()
+	{
+		if (context != 0)
+		{
+			return context->IsOwnerThread();
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10AC89E0
+	bool Node::ContextLocked()
+	{
+		if (context != 0)
+		{
+			return context->IsLocked();
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x10AC88F0
 	bool Node::Slot3(void* argument)
 	{
@@ -218,4 +238,43 @@ namespace mgraph
 	{
 		return true;
 	}
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x10AD1500
+	template<> void DynamicArray<mgraph::OutputPinBase*,unsigned short>::FillElements(mgraph::OutputPinBase** destination, unsigned short count, mgraph::OutputPinBase* const& value)
+	{
+		for (unsigned short i = 0; i < count; i++)
+		{
+			if (destination + i != 0)
+			{
+				::new (destination + i) mgraph::OutputPinBase*(value);
+			}
+		}
+	}
+	// FUNCTION: ENGINE 0x10AD1910
+	template<> void DynamicArray<mgraph::InputPinBase*,unsigned short>::FillElements(mgraph::InputPinBase** destination, unsigned short count, mgraph::InputPinBase* const& value)
+	{
+		for (unsigned short i = 0; i < count; i++)
+		{
+			if (destination + i != 0)
+			{
+				::new (destination + i) mgraph::InputPinBase*(value);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AD1530
+	template void DynamicArray<mgraph::OutputPinBase*,unsigned short>::CopyElements(mgraph::OutputPinBase**, mgraph::OutputPinBase* const*, unsigned short);
+	// FUNCTION: ENGINE 0x10AD16C0
+	template void DynamicArray<mgraph::OutputPinBase*,unsigned short>::Resize(unsigned short, mgraph::OutputPinBase* const&);
+	// FUNCTION: ENGINE 0x10AD1940
+	template void DynamicArray<mgraph::InputPinBase*,unsigned short>::CopyElements(mgraph::InputPinBase**, mgraph::InputPinBase* const*, unsigned short);
+	// FUNCTION: ENGINE 0x10AD1A20
+	template void DynamicArray<mgraph::InputPinBase*,unsigned short>::Resize(unsigned short, mgraph::InputPinBase* const&);
+	// FUNCTION: ENGINE 0x10AC9030
+	template const char* DynamicArray<mgraph::InputPinBase*,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC9040
+	template const char* DynamicArray<mgraph::OutputPinBase*,unsigned short>::AllocationTag();
 }

@@ -1,6 +1,7 @@
 #include "code/proto/frontend/fehudtextlog.h"
 
 #include "code/core/textconvert.h"
+#include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 
 namespace engine
@@ -126,5 +127,32 @@ namespace proto
 		timerTextVisible.Set(FlashValue(false));
 		timerShadowVisible.Set(FlashValue(false));
 		timerBackgroundVisible.Set(FlashValue(false));
+	}
+
+	// FUNCTION: ENGINE 0x104D38F0
+	FEHudTextLog::FEHudTextLog() : text("_level0.mcAnchor.textlogHUD.mcText.htmlText"),
+		logVisible("_level0.mcAnchor.textlogHUD._visible"), active(true),
+		timerVisible("_level0.mcAnchor.timerHUD._visible"), timerTextVisible("_level0.mcAnchor.timerHUD.mcText._visible"),
+		timerShadowVisible("_level0.mcAnchor.timerHUD.mcShadowText._visible"),
+		timerBackgroundVisible("_level0.mcAnchor.timerHUD.mcBG._visible"),
+		timerText("_level0.mcAnchor.timerHUD.mcText.text.htmlText"),
+		timerShadowText("_level0.mcAnchor.timerHUD.mcShadowText.text.htmlText")
+	{
+		timerVisible.Set(FlashValue(true));
+		timerTextVisible.Set(FlashValue(false));
+		timerShadowVisible.Set(FlashValue(false));
+		timerBackgroundVisible.Set(FlashValue(false));
+		ClearTimerText();
+		Hide();
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		manager->SetOwner(this);
+		manager->RegisterMethod("fehudtextlog_SetText", this, &FEHudTextLog::SetText);
+		manager->RegisterMethod("fehudtextlog_Clear", this, &FEHudTextLog::Clear);
+		manager->RegisterMethod("fehudtextlog_Add", this, &FEHudTextLog::Add);
+		manager->RegisterMethod("fehudtextlog_Close", this, &FEHudTextLog::Close);
+		manager->RegisterMethod("fehudtextlog_Hide", this, &FEHudTextLog::Hide);
+		manager->RegisterMethod("fehudtimer_SetText", this, &FEHudTextLog::SetTimerText);
+		manager->RegisterMethod("fehudtimer_ClearText", this, &FEHudTextLog::ClearTimerText);
+		manager->ClearOwner();
 	}
 }

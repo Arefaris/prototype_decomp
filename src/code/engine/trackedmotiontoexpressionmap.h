@@ -179,6 +179,9 @@ namespace engine
 		void ResolveAll();
 		// vftable slot 5 (0x10912AD0)
 		virtual bool Slot5();
+		// 0x10911A30 / 0x10911F80
+		pure3d::ExpressionGroup* GetExpressionGroup() const;
+		int GetJointCount() const;
 
 		pure3d::Skeleton* skeleton;  // +8
 		pure3d::ExpressionGroup* expressionGroup;  // +0xC

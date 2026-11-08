@@ -660,6 +660,7 @@ template proto::fightitems::ai::RooftopDestinationFindTrack* core::Link<proto::f
 template core::Link<proto::fightitems::ai::RooftopDestinationFindTrack>::Link(proto::fightitems::ai::RooftopDestinationFindTrack*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10209490
 // FUNCTION: ENGINE 0x10208C50
 // FUNCTION: ENGINE 0x10208F30
 // FUNCTION: ENGINE 0x10208F40

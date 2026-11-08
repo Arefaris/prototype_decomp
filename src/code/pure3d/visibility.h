@@ -22,6 +22,8 @@ namespace pure3d
 		PartAnimationState() : unknown18(0.0f, 0.0f, 0.0f)
 		{
 		}
+		// 0x1071A780 (the initialiser of the default state calls it): the box, the sphere and the flags
+		PartAnimationState(const math::AABB& box, const math::Sphere& sphere, unsigned int flags);
 
 		// The box and sphere the server tests (the sphere's centre and radius), then the part's flags
 		math::AABB bounds;
@@ -87,6 +89,10 @@ namespace pure3d
 			// 0x1060F6F0 / 0x1060F780: both sets' bits together / either's
 			void SetAnd(const BitSet* first, const BitSet* second);
 			void SetOr(const BitSet* first, const BitSet* second);
+			// 0x1071A620 / 0x1071A650 / 0x1071A680: whether a bit is set, sets or clears it, sets it
+			int Test(unsigned int bit);
+			void Set(unsigned int bit, bool value);
+			void SetBit(unsigned int bit);
 
 			unsigned int bitCount;
 			bool ownsBlock;
@@ -166,7 +172,19 @@ namespace pure3d
 		class Client
 		{
 		public:
+			// Not registered with a server
+			Client() : index(-1), server(0)
+			{
+			}
 			virtual ~Client();
+			// 0x1071A7F0: a client in a region of the server at a place of it
+			Client(Server* newServer, int region, int slot);
+			// 0x1071A6E0 / 0x1071A730 / 0x1071A6F0 / 0x1071A710 (names guessed): the server, the index from a region and a
+			// place, and the unregistered state
+			void SetServer(Server* newServer);
+			Server* GetServer();
+			void SetIndex(int region, unsigned int slot);
+			void Clear();
 
 			// 0x1071A720 / 0x1071A740: the region of the client's index (its top four bits) and its place in the region
 			unsigned int GetRegion() const;

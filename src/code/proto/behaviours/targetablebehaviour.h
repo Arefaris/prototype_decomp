@@ -63,8 +63,7 @@ namespace proto
 			void SetTargetFilterAlertObject(bool on);
 
 			int jointIndex;  // +0x0 (0xFFFF: none)
-			int unknown4;
-			core::Name<core::CaseSensitiveKey> jointName;  // +0x8
+			__declspec(align(8)) core::Name<core::CaseSensitiveKey> jointName;  // +0x8
 			math::Vector offset;  // +0x10
 			unsigned int filters;  // +0x1C
 		};
@@ -100,9 +99,19 @@ namespace proto
 		void ResetTargeters();
 		// 0x102B4450 / 0x102B4480: puts the behaviour on the list of all targetable behaviours, takes it off again
 		static void AddToAll(TargetableBehaviour* behaviour);
+		// 0x102B43B0 / 0x102B43C0 (names guessed): the first and the end position of the list of all targetable behaviours
+		static void GetAllBegin(container::DoubleListBase::Node** position);
+		static container::DoubleListBase::Node** GetAllEnd(container::DoubleListBase::Node** position);
 		static void RemoveFromAll(TargetableBehaviour* behaviour);
 		// 0x102B24F0 (name guess): builds the target points from the object's drawable
 		void RebuildTargetPoints();
+		// 0x102B1E60: tells what the object can be targeted as (the message with id 2)
+		void GetTargetableInfo(GetTargetableInfoMessage* message);
+		// 0x102B1EC0: hands the targeters over to another object (the message with id 9; none: they are dropped)
+		void TransferTargetLocks(engine::GameObject* newTarget);
+		// 0x102B25A0 / 0x102B2B40 (not reconstructed; names guessed): the messages with ids 0 and 1 find a target point
+		void HandleTargetPointMessage0(engine::Message* message);
+		void HandleTargetPointMessage1(engine::Message* message);
 
 		bool isTargetable;  // +0xC
 		bool canCauseStrikeTeamCall;  // +0xD
@@ -116,7 +125,7 @@ namespace proto
 		math::Vector rootTargetOffset;  // +0x24
 		TargetPointArray targetPoints;  // +0x30
 		int unknown3C;
-		int unknown40;
+		unsigned int combinedFilters;  // +0x40 (the point filters and what is left of the root filter)
 		Targeter* firstTargeter;  // +0x44
 		Targeter* lastTargeter;  // +0x48
 

@@ -148,17 +148,6 @@ namespace proto
 	core::Name<core::CaseSensitiveKey> gGroupName11316F28("NISStreamGroup", 0);
 	core::Name<core::CaseSensitiveKey> gGroupName11316F58("NISAnimStreamGroup", 0);
 
-	// The heap a slot group's slots use: its size, a flag and an alignment (the group copies the three words)
-	struct SlotGroupConfig
-	{
-		unsigned int size;
-		bool flag;
-		unsigned int alignment;
-	};
-
-	// 0x1082D550: makes a slot group of that many slots and registers it with the stream manager (name guess)
-	engine::StreamSlotGroup* CreateSlotGroup(const core::Name<core::CaseSensitiveKey>& name, unsigned int slotCount,
-		const SlotGroupConfig* config, bool shared, bool unknown, engine::SlotHeapFactory factory, int unknown60);
 }
 
 namespace proto
@@ -347,7 +336,7 @@ namespace proto
 			}
 			GetControllerHandler()->LockController(0);
 			GetFrontEndHud()->Unknown104B1470(1);
-			frontEndState->Unknown104DD8B0(0);
+			frontEndState->SetStartUpFlowActive(false);
 			engine::RequestGameState(2, 0, 0);
 			return;
 		}

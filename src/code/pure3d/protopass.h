@@ -107,6 +107,9 @@ namespace pure3d
 		virtual ~LetterBoxPass();
 		// Slot 4 (0x10765C90, a jump to RunChildren)
 		virtual void Render(PassContext* context);
+		// 0x10765CA0 / 0x10765CB0: do nothing (the scheme's slots 4 and 5 call them; names guessed)
+		void Unknown10765CA0(int a);
+		void Unknown10765CB0(int a, int b, int c, int d);
 	};
 
 	// The root of the pass tree (vftable 0x10E5F320): tells the scene the frame starts, then runs the children
@@ -330,6 +333,9 @@ namespace pure3d
 
 		// 0x10766170: puts the parts in drawing order (by their primitive's and binding's sort key)
 		void SortParts(PartList* parts);
+
+		// 0x10765DD0 (another unit): takes the colour as its four channels in the order the pass keeps them (name guess)
+		void Unknown10765DD0(const math::pddiColour* colour);
 
 		PassEntries unknownB0;  // +0xB0
 		PassEntries unknown138; // +0x138

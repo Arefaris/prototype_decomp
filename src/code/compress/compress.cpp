@@ -169,16 +169,9 @@ namespace compress
 	}
 
 	// FUNCTION: ENGINE 0x106DC1A0
-	// NONMATCHING: the engine loads the mode before the level and stores it first (83.3 %)
-#ifdef NONMATCHING
 	Stream::Stream(int newLevel, int newMode, int heap)
+		: status(1), usedInput(0), usedOutput(0), level(newLevel), mode(newMode), compressor(0)
 	{
-		mode = newMode;
-		status = 1;
-		usedInput = 0;
-		usedOutput = 0;
-		level = newLevel;
-		compressor = 0;
 		callback.SetStream(this);
 		core::CriticalSectionInit(lock);
 		core::EventInit(event, 0);
@@ -192,7 +185,6 @@ namespace compress
 			break;
 		}
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x106DC230
 	Stream::~Stream()
@@ -366,6 +358,69 @@ namespace compress
 		result.usedInput = 0;
 		result.usedOutput = 0;
 		result.status = 1;
+	}
+
+	// What the relocation of the decompressor reaches in zlib's inflate state: the window, the two decoding tables and
+	// the code buffer
+	struct InflateCode;
+	struct InflateState
+	{
+		unsigned char unknown0[0x34];
+		unsigned char* window;
+		unsigned char unknown38[0x4C - 0x38];
+		const InflateCode* lengthCodes;
+		const InflateCode* distanceCodes;
+		unsigned char unknown54[0x6C - 0x54];
+		unsigned short* next;
+	};
+
+	// A pointer into the block, moved with the block (the engine has one copy per pointer type)
+	template<class T> static T* Move(T* pointer, int distance)
+	{
+		if (pointer == 0)
+		{
+			return pointer;
+		}
+		return (T*)((char*)pointer + distance);
+	}
+
+	// The five copies of the helper the engine keeps, one per pointer type
+	// FUNCTION: ENGINE 0x106DC580
+	template InflateState* Move<InflateState>(InflateState*, int);
+	// FUNCTION: ENGINE 0x106DC590
+	template unsigned char* Move<unsigned char>(unsigned char*, int);
+	// FUNCTION: ENGINE 0x106DC5A0
+	template const InflateCode* Move<const InflateCode>(const InflateCode*, int);
+	// FUNCTION: ENGINE 0x106DC5B0
+	template unsigned short* Move<unsigned short>(unsigned short*, int);
+	// FUNCTION: ENGINE 0x106DC5C0
+	template void* Move<void>(void*, int);
+
+	// FUNCTION: ENGINE 0x106DC680
+	// The object moved from one address to another: every pointer zlib keeps inside the block follows
+	void RelocateDecompressor(Decompressor_Zlib* object, char* newBase, char* oldBase,
+		void* (*allocate)(void*, unsigned int, unsigned int), void (*release)(void*, void*), void* opaque, bool keepState)
+	{
+		int distance = newBase - oldBase;
+		InflateState* state = (InflateState*)object->stream.state;
+		if (!keepState)
+		{
+			state = Move(state, distance);
+		}
+		state->window = Move(state->window, distance);
+		state->lengthCodes = Move(state->lengthCodes, distance);
+		state->distanceCodes = Move(state->distanceCodes, distance);
+		state->next = Move(state->next, distance);
+		object->stream.state = Move(object->stream.state, distance);
+		object->stream.zalloc = allocate;
+		object->stream.zfree = release;
+		object->stream.opaque = opaque;
+	}
+
+	// FUNCTION: ENGINE 0x106DC700
+	Decompressor_Zlib::Decompressor_Zlib(Decompressor_Zlib* from)
+	{
+		RelocateDecompressor(this, (char*)this, (char*)from, AllocateInObject, FreeInObject, this, false);
 	}
 
 	// FUNCTION: ENGINE 0x106DC740

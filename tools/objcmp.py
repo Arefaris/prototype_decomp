@@ -135,8 +135,9 @@ def checkConstants(coff, symbol, original, image, base, known=None):
 
 
 def followThunks(image, base, address):
-	"""The incremental link table holds `jmp rel32` thunks; follow up to two of them to the code they lead to."""
-	for _ in range(2):
+	"""The incremental link table holds `jmp rel32` thunks; follow up to four of them (a table thunk, a function that is
+	only a jump, and its own table thunk) to the code they lead to."""
+	for _ in range(4):
 		at = address - base
 		if not 0 <= at < len(image) - 5 or image[at] != 0xE9:
 			break

@@ -9,6 +9,21 @@ namespace engine
 
 namespace mgraph
 {
+	// FUNCTION: ENGINE 0x10AD2ED0
+	void UnregisterPinDataType(PinDataTypeBase* dataType)
+	{
+		om::TreeNode* node;
+		if (dataType != 0)
+		{
+			node = &dataType->treeNode;
+		}
+		else
+		{
+			node = 0;
+		}
+		engine::gTreeHeadObject11.Erase(node);
+	}
+
 	// FUNCTION: ENGINE 0x10AD2F00
 	// NONMATCHING: shrink-wrap: the engine saves ebx, esi and edi before the first lookup, ours behind the first test (63.3 %)
 #ifdef NONMATCHING

@@ -21,6 +21,8 @@ namespace core
 		void Clear(T bit);
 		bool Test(T bit) const;
 		void Set(T bit, bool value);
+		// 0x1071A770 (a copy in the visibility unit): takes the whole word
+		void SetBits(T bits);
 
 		// The users that set flags in place or a mask in
 		void SetMask(T mask)
@@ -39,6 +41,11 @@ namespace core
 	template<class T> BitField<T>::BitField()
 	{
 		mBits = 0;
+	}
+
+	template<class T> void BitField<T>::SetBits(T bits)
+	{
+		mBits = bits;
 	}
 
 	template<class T> void BitField<T>::ClearAll()

@@ -254,14 +254,8 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1021A710
-			// EQUIVALENT: scheduling; the integer store of the state sits behind the vector's stores in the engine, ours hoists it; the same stores
-			ZiplineTakeOffAction::ZiplineTakeOffAction(ZiplineTakeOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
+			ZiplineTakeOffAction::ZiplineTakeOffAction(ZiplineTakeOffTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), position(0.0f, 0.0f, 0.0f), elapsed(0.0f), state(0)
 			{
-				position.x = 0.0f;
-				position.y = 0.0f;
-				position.z = 0.0f;
-				state = 0;
-				elapsed = 0.0f;
 			}
 
 			// FUNCTION: ENGINE 0x1021A550

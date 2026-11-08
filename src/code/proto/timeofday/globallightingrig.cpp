@@ -483,6 +483,15 @@ namespace proto
 	template class TimeOfDayVarChannel<GlobalLightingRig::Light::LightData>;
 }
 
+namespace container
+{
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalLightingRig::SkyParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalLightingRig::GlobalLightParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalLightingRig::CloudParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalLightingRig::Light::LightData>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalLightingRig::Light, AllocatorNew>;
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1053DCB0
 // FUNCTION: ENGINE 0x1053DD90
@@ -692,3 +701,26 @@ namespace proto
 // FUNCTION: ENGINE 0x1053ED50
 // FUNCTION: ENGINE 0x1053E910
 // FUNCTION: ENGINE 0x1053EBE0
+// FUNCTION: ENGINE 0x1053e710
+// FUNCTION: ENGINE 0x1053e790
+// FUNCTION: ENGINE 0x1053e7f0
+// FUNCTION: ENGINE 0x1053e850
+// FUNCTION: ENGINE 0x1053DDA0
+// FUNCTION: ENGINE 0x1053DE60
+// FUNCTION: ENGINE 0x1053DF30
+// FUNCTION: ENGINE 0x1053DFF0
+// FUNCTION: ENGINE 0x1053E0C0
+// FUNCTION: ENGINE 0x1053DDB0
+// FUNCTION: ENGINE 0x1053DE70
+// FUNCTION: ENGINE 0x1053DF40
+// FUNCTION: ENGINE 0x1053E000
+// FUNCTION: ENGINE 0x1053E0D0
+// FUNCTION: ENGINE 0x1053F110
+// FUNCTION: ENGINE 0x1053F120
+// FUNCTION: ENGINE 0x1053F130
+// FUNCTION: ENGINE 0x1053F140
+// FUNCTION: ENGINE 0x1053F150
+// FUNCTION: ENGINE 0x1053F180
+// FUNCTION: ENGINE 0x1053DC60
+// FUNCTION: ENGINE 0x1053DC90
+// FUNCTION: ENGINE 0x1053DCA0

@@ -207,6 +207,7 @@ namespace mgraph
 	template<class Op> class __declspec(align(8)) CommutativeMath : public Node
 	{
 		MGRAPH_NODE_BODY_PLAIN(CommutativeMath);
+		virtual void Slot16(EvaluationFrame* frame);
 	};
 	template<class Op> const char* CommutativeMath<Op>::AllocationTag()
 	{
@@ -581,15 +582,15 @@ namespace mgraph
 		// Slot 2: the reflection of the node class
 		virtual om::MetaTypeBase* GetMetaType() = 0;
 
-		// 0x10AD10E0: takes the node type out of the registry
-		void Unregister();
-
 		int instanceCount;  // 8: how many nodes of the class there are
 		om::ClassName name;  // 0x10
 		unsigned int flags;  // 0x18
 		om::TreeNode treeNode;  // 0x1C: the node type in the registry of the node types
 		unsigned int unknown2C;
 	};
+
+	// 0x10AD10E0: takes a node type out of the registry (name guessed)
+	void UnregisterNodeType(NodeTypeBase* nodeType);
 
 	// 0x10AD1460: enters a node type in the registry (name guessed)
 	void RegisterNodeType(NodeTypeBase* nodeType);

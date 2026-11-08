@@ -41,7 +41,7 @@ namespace proto
 			virtual bool Check(const Faction* faction);
 
 			unsigned char unknown4[4];
-			core::Name<core::CaseSensitiveKey> name;  // +8
+			Faction other;  // +8
 		};
 
 		struct FactionCheck_Enemy : public FactionCheck
@@ -50,7 +50,7 @@ namespace proto
 			virtual bool Check(const Faction* faction);
 
 			unsigned char unknown4[4];
-			core::Name<core::CaseSensitiveKey> name;  // +8
+			Faction other;  // +8
 		};
 
 		struct FactionCheck_ExactFaction : public FactionCheck

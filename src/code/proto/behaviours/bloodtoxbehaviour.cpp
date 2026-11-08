@@ -7,6 +7,30 @@ namespace proto
 #define PROTO_RAW_OFFSET(type, member) \
 	((int)&((type*)0)->member)
 
+	// The messages the cloud answers: type 0x14 id 0x17 gives the sizes and times to use, type 0x2B id 0xD the object it
+	// follows (read through the message's type; never constructed)
+	struct BloodtoxSizesMessage : public engine::Message
+	{
+		BloodtoxSizesMessage() : engine::Message(0, 0)
+		{
+		}
+
+		int unknownC;
+		int unknown10;
+		math::Vector finalScale;  // +0x14
+		float scaleTime;  // +0x20
+		float lifeTime;
+	};
+
+	struct BloodtoxFollowMessage : public engine::Message
+	{
+		BloodtoxFollowMessage() : engine::Message(0, 0)
+		{
+		}
+
+		engine::GameObjectHandle followed;  // +0xC
+	};
+
 	// FUNCTION: ENGINE 0x103C90D0
 	content::ClassInfo* BloodtoxBehaviour::GetClassInfo()
 	{
@@ -80,6 +104,38 @@ namespace proto
 		sList.count = 6;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x103C9CA0
+	// NONMATCHING: the engine copies the vector with x87 loads even after comparing the first component (91.4 %)
+#ifdef NONMATCHING
+	void BloodtoxBehaviour::OnMessage(engine::Message* message)
+	{
+		if (message->type != 0x14)
+		{
+			if (message->type == 0x2b && message->id == 0xd)
+			{
+				unknownDC = ((BloodtoxFollowMessage*)message)->followed;
+				unknownE0 = unknownDC.Exists();
+			}
+		}
+		else if (message->id == 0x17)
+		{
+			BloodtoxSizesMessage* sizes = (BloodtoxSizesMessage*)message;
+			if (sizes->finalScale.x >= 0.0f)
+			{
+				finalVolumeScale = sizes->finalScale;
+			}
+			if (sizes->scaleTime > 0.0f)
+			{
+				scaleTime = sizes->scaleTime;
+			}
+			if (sizes->lifeTime > 0.0f)
+			{
+				lifeTime = sizes->lifeTime;
+			}
+		}
+	}
+#endif
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):

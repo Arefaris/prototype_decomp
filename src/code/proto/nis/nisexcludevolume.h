@@ -39,6 +39,18 @@ namespace proto
 		bool SetDeleteDeadBodies(bool value);
 		bool SetMaxHiddenObjects(int value);
 
+		// The members' getters (0x10576010 - 0x105760B0; names guessed from the setters)
+		const fight::Name& GetVolumeName1() const;
+		const fight::Name& GetVolumeName2() const;
+		const fight::Name& GetVolumeName3() const;
+		int GetActionOnProps() const;
+		bool GetHideAndBlockAmbients() const;
+		bool GetHideAndBlockDrivables() const;
+		bool GetHideAndBlockWalkers() const;
+		bool GetHideAndBlockHunters() const;
+		bool GetDeleteDeadBodies() const;
+		int GetMaxHiddenObjects() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();

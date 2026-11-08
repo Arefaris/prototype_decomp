@@ -40,6 +40,7 @@ namespace proto
 		bool stealthActive;  // +0x21
 		bool stealthConsuming;  // +0x22
 		FEHudVariableTemplate<SymbolPathStoragePolicy_Literal, 0> visible;  // +0x28
+		unsigned char unknownD0[8];  // +0xD0 (the engine allocates 0xD8 bytes)
 	};
 }
 

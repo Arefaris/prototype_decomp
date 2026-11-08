@@ -15,6 +15,66 @@ namespace proto
 
 	fight::Property** gNISExcludeVolumeTrackProperties;  // 0x112738AC
 
+	// FUNCTION: ENGINE 0x10576010
+	const fight::Name& NISExcludeVolumeTrack::GetVolumeName1() const
+	{
+		return volumeName1;
+	}
+
+	// FUNCTION: ENGINE 0x10576020
+	const fight::Name& NISExcludeVolumeTrack::GetVolumeName2() const
+	{
+		return volumeName2;
+	}
+
+	// FUNCTION: ENGINE 0x10576030
+	const fight::Name& NISExcludeVolumeTrack::GetVolumeName3() const
+	{
+		return volumeName3;
+	}
+
+	// FUNCTION: ENGINE 0x10576040
+	int NISExcludeVolumeTrack::GetActionOnProps() const
+	{
+		return actionOnProps;
+	}
+
+	// FUNCTION: ENGINE 0x10576050
+	bool NISExcludeVolumeTrack::GetHideAndBlockAmbients() const
+	{
+		return hideAndBlockAmbients;
+	}
+
+	// FUNCTION: ENGINE 0x10576060
+	bool NISExcludeVolumeTrack::GetHideAndBlockDrivables() const
+	{
+		return hideAndBlockDrivables;
+	}
+
+	// FUNCTION: ENGINE 0x10576070
+	bool NISExcludeVolumeTrack::GetHideAndBlockWalkers() const
+	{
+		return hideAndBlockWalkers;
+	}
+
+	// FUNCTION: ENGINE 0x10576080
+	bool NISExcludeVolumeTrack::GetHideAndBlockHunters() const
+	{
+		return hideAndBlockHunters;
+	}
+
+	// FUNCTION: ENGINE 0x10576090
+	bool NISExcludeVolumeTrack::GetDeleteDeadBodies() const
+	{
+		return deleteDeadBodies;
+	}
+
+	// FUNCTION: ENGINE 0x105760A0
+	int NISExcludeVolumeTrack::GetMaxHiddenObjects() const
+	{
+		return maxHiddenObjects;
+	}
+
 	// FUNCTION: ENGINE 0x10577D10
 	bool NISExcludeVolumeTrack::SetTimeBegin(float value)
 	{

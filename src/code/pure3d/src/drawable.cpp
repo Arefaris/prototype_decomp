@@ -9,8 +9,10 @@
 #include "code/math/sphere.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/drawable.h"
+#include "code/pure3d/shader.h"
 
 #include <math.h>
+#include <new>
 
 // The flag sets' members the unit uses (their kept copies)
 // FUNCTION: ENGINE 0x106DEA40
@@ -268,16 +270,88 @@ namespace pure3d
 		Get()->SetBinding(binding);
 	}
 
+	// FUNCTION: ENGINE 0x106E14B0
+	void PartRef::Unknown106E14B0(bool value)
+	{
+		owner->SetPartUpdated(index, value);
+	}
+
 	// FUNCTION: ENGINE 0x106DFE00
 	PartBinding* PartRef::GetBinding() const
 	{
 		return Get()->binding;
 	}
 
+	// FUNCTION: ENGINE 0x106DFD70
+	// Gives a part without a state the state of its primitive (only a mesh gets one made)
+	void PartRef::Unknown106DFD70()
+	{
+		DrawablePart* part = Get();
+		PrimitiveState* state = 0;
+		int type = part->primitive->type;
+		if (type == 2)
+		{
+			state = new MeshState((Mesh*)part->primitive, 0, 0);
+		}
+		else if (type == 4)
+		{
+			return;
+		}
+		part->SetState(state);
+	}
+
+	// FUNCTION: ENGINE 0x106DFE20
+	// Gives the part's state a shader animation controller and answers it (null for a primitive that has none)
+	FrameController* PartRef::Unknown106DFE20()
+	{
+		DrawablePart* part = Get();
+		int type = part->primitive->type;
+		if (type == 2)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((MeshState*)part->state)->SetController1(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		if (type == 4)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((SkinState*)part->state)->SetController1(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		if (type == 0x4000)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((GpuSkinState*)part->state)->SetShaderController(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		return 0;
+	}
+
 	// FUNCTION: ENGINE 0x106DFF80
 	FrameController* Drawable::GetUnknown80()
 	{
 		return unknown80;
+	}
+
+	// FUNCTION: ENGINE 0x106DFF90
+	void Drawable::SetUnknown80(FrameController* controller)
+	{
+		FrameController* old = unknown80;
+		if (old != controller)
+		{
+			unknown80 = controller;
+			if (controller)
+			{
+				controller->AddRef();
+			}
+			if (old)
+			{
+				old->Release();
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x106DFFD0
@@ -947,6 +1021,185 @@ namespace pure3d
 		return 0;
 	}
 
+	// FUNCTION: ENGINE 0x106DF020
+	DrawablePart::DrawablePart(Primitive* newPrimitive, PrimitiveState* newState)
+		: flags((unsigned char*)0xFFFFFFFF), unknown4(0), unknown18(0.0f), unknown1C(1.0f),
+		unknown2C(1.0f), unknown30(0.0f), unknown34(1), primitive(0), state(0), binding(0),
+		unknown9C(0)
+	{
+		unknownIndex = 0;
+		unknownCC = 0;
+		unknown12A = 0;
+		core::RefAssign(primitive, newPrimitive);
+		core::RefAssign(state, newState);
+		jointMatrix.Identity();
+		batch.worldMatrix.Identity();
+		batch.unknown72 = 0xFFFF;
+		renderBits.Set(9, true);
+		renderBits.Set(10, true);
+	}
+
+	// FUNCTION: ENGINE 0x106DF110
+	DrawablePart::DrawablePart(const DrawablePart& other)
+		: flags(other.flags), unknown4(other.unknown4), unknown18(other.unknown18), unknown1C(other.unknown1C),
+		unknown2C(other.unknown2C), unknown30(other.unknown30), unknown34(other.unknown34), primitive(0), state(0),
+		binding(0), unknown9C(other.unknown9C)
+	{
+		unknownCC = other.unknownCC;
+		unknown12A = other.unknown12A;
+		unknownIndex = other.unknownIndex;
+		core::RefAssign(primitive, other.primitive);
+		core::RefAssign(state, other.state);
+		for (unsigned int i = 0; i < other.unknown12A; i++)
+		{
+			unknown8[i] = other.unknown8[i];
+		}
+		unknown38 = other.unknown38;
+		jointMatrix.Identity();
+		math::Matrix& to = batch.worldMatrix;
+		const math::Matrix& from = other.batch.worldMatrix;
+		to.m[0][0] = from.m[0][0];
+		to.m[0][1] = from.m[0][1];
+		to.m[0][2] = from.m[0][2];
+		to.m[0][3] = from.m[0][3];
+		to.m[1][0] = from.m[1][0];
+		to.m[1][1] = from.m[1][1];
+		to.m[1][2] = from.m[1][2];
+		to.m[1][3] = from.m[1][3];
+		to.m[2][0] = from.m[2][0];
+		to.m[2][1] = from.m[2][1];
+		to.m[2][2] = from.m[2][2];
+		to.m[2][3] = from.m[2][3];
+		to.m[3][0] = from.m[3][0];
+		to.m[3][1] = from.m[3][1];
+		to.m[3][2] = from.m[3][2];
+		to.m[3][3] = from.m[3][3];
+		batch.unknown72 = 0xFFFF;
+		renderBits.Set(9, true);
+		renderBits.Set(10, other.renderBits.Test(10));
+	}
+
+	// FUNCTION: ENGINE 0x106DEC50
+	DrawablePart& DrawablePart::operator=(const DrawablePart& other)
+	{
+		flags = other.flags;
+		unknown4 = other.unknown4;
+		unknown12A = other.unknown12A;
+		unknownIndex = other.unknownIndex;
+		unknown18 = other.unknown18;
+		unknown1C = other.unknown1C;
+		unknown9C = other.unknown9C;
+		core::RefAssign(primitive, other.primitive);
+		core::RefAssign(state, other.state);
+		core::RefAssign(reinterpret_cast<Shader*&>(binding), reinterpret_cast<Shader*>(other.binding));
+		for (unsigned int i = 0; i < other.unknown12A; i++)
+		{
+			unknown8[i] = other.unknown8[i];
+		}
+		unknown2C = other.unknown2C;
+		unknown30 = other.unknown30;
+		unknown34 = other.unknown34;
+		math::Matrix& joint = jointMatrix;
+		const math::Matrix& otherJoint = other.jointMatrix;
+		joint.m[0][0] = otherJoint.m[0][0];
+		joint.m[0][1] = otherJoint.m[0][1];
+		joint.m[0][2] = otherJoint.m[0][2];
+		joint.m[0][3] = otherJoint.m[0][3];
+		joint.m[1][0] = otherJoint.m[1][0];
+		joint.m[1][1] = otherJoint.m[1][1];
+		joint.m[1][2] = otherJoint.m[1][2];
+		joint.m[1][3] = otherJoint.m[1][3];
+		joint.m[2][0] = otherJoint.m[2][0];
+		joint.m[2][1] = otherJoint.m[2][1];
+		joint.m[2][2] = otherJoint.m[2][2];
+		joint.m[2][3] = otherJoint.m[2][3];
+		joint.m[3][0] = otherJoint.m[3][0];
+		joint.m[3][1] = otherJoint.m[3][1];
+		joint.m[3][2] = otherJoint.m[3][2];
+		joint.m[3][3] = otherJoint.m[3][3];
+		unknownCC = other.unknownCC;
+		renderBits.Set(9, true);
+		renderBits.Set(10, other.renderBits.Test(10));
+		math::Matrix& to = batch.worldMatrix;
+		const math::Matrix& from = other.batch.worldMatrix;
+		to.m[0][0] = from.m[0][0];
+		to.m[0][1] = from.m[0][1];
+		to.m[0][2] = from.m[0][2];
+		to.m[0][3] = from.m[0][3];
+		to.m[1][0] = from.m[1][0];
+		to.m[1][1] = from.m[1][1];
+		to.m[1][2] = from.m[1][2];
+		to.m[1][3] = from.m[1][3];
+		to.m[2][0] = from.m[2][0];
+		to.m[2][1] = from.m[2][1];
+		to.m[2][2] = from.m[2][2];
+		to.m[2][3] = from.m[2][3];
+		to.m[3][0] = from.m[3][0];
+		to.m[3][1] = from.m[3][1];
+		to.m[3][2] = from.m[3][2];
+		to.m[3][3] = from.m[3][3];
+		batch.unknown72 = 0xFFFF;
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x106DF340
+	DrawablePart::~DrawablePart()
+	{
+		core::SafeRelease(primitive);
+		core::SafeRelease(state);
+		core::SafeRelease(reinterpret_cast<Shader*&>(binding));
+	}
+
+	// The binding source a part's shader comes from (inline in the engine's SetBinding)
+	static __forceinline PartBindingSource* SourceOf(DrawablePart* part)
+	{
+		if (part->binding)
+		{
+			return (PartBindingSource*)part->binding;
+		}
+		if (part->state && part->state->GetBindingSource())
+		{
+			return (PartBindingSource*)part->state->GetBindingSource();
+		}
+		if (part->primitive && part->primitive->unknown18)
+		{
+			return (PartBindingSource*)part->primitive->unknown18;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106DE950
+	void DrawablePart::SetBinding(PartBinding* newBinding)
+	{
+		if (newBinding)
+		{
+			newBinding->AddRef();
+			newBinding->Attach(this);
+		}
+		if (binding)
+		{
+			binding->Detach(this);
+			binding->Release();
+		}
+		binding = newBinding;
+		if (state)
+		{
+			state->Unknown8(newBinding);
+		}
+		batch.shader = SourceOf(this)->shader;
+	}
+
+	// FUNCTION: ENGINE 0x106DEB80
+	bool DrawablePart::GetRenderFlag3()
+	{
+		PartBinding* source = GetRenderBinding();
+		if (source)
+		{
+			return source->flags.Test(3);
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x106DEEC0
 	void DrawablePart::SetPrimitive(Primitive* newPrimitive)
 	{
@@ -968,7 +1221,7 @@ namespace pure3d
 		bool filled = primitive->FillBatch(&batch, state, &unknown);
 		if (filled)
 		{
-			unknown10C = GetBindingSource()->shader;
+			batch.shader = GetBindingSource()->shader;
 		}
 		renderBits.Set(9, filled);
 		return unknown;
@@ -978,7 +1231,7 @@ namespace pure3d
 	math::Matrix* DrawablePart::GetWorldMatrix()
 	{
 		renderBits.Set(10, false);
-		return &worldMatrix;
+		return &batch.worldMatrix;
 	}
 
 	// FUNCTION: ENGINE 0x106E14E0
@@ -1030,20 +1283,20 @@ namespace pure3d
 				{
 					part.jointMatrix = math::Matrix::IDENTITY;
 					part.renderBits.Set(10, false);
-					part.worldMatrix.Multiply(*jointMatrix, transform);
+					part.batch.worldMatrix.Multiply(*jointMatrix, transform);
 				}
 			}
 			else
 			{
 				if (transform == math::Matrix::IDENTITY)
 				{
-					part.worldMatrix.Identity();
+					part.batch.worldMatrix.Identity();
 					part.renderBits.Set(10, true);
 				}
 				else
 				{
 					part.renderBits.Set(10, false);
-					part.worldMatrix = transform;
+					part.batch.worldMatrix = transform;
 				}
 				part.jointMatrix = math::Matrix::IDENTITY;
 			}

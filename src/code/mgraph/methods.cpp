@@ -11,6 +11,22 @@ namespace om
 {
 	using namespace mgraph;
 
+	// The engine expands the binary reader of the vector in line here
+	inline bool ReadBinary(BinaryStream* stream, Vector* value)
+	{
+		return ReadBinary(stream, &value->values[0]) && ReadBinary(stream, &value->values[1]) && ReadBinary(stream, &value->values[2]);
+	}
+	// The vector the call is given starts with its numbers set in order
+	template<> struct ArgumentReader<Vector>
+	{
+		static Vector Read(BinaryStream* stream, GarbageList* list)
+		{
+			Vector value((VectorInOrder()));
+			ReadBinary(stream, &value);
+			return value;
+		}
+	};
+
 	// FUNCTION: ENGINE 0x10B12170
 	template void MetaMethod0Const<mgraph::Throw<mgraph::Packet<bool> >,mgraph::Throw<mgraph::Packet<bool> >,Name<CaseSensitive64BitKey> const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B12200
@@ -51,6 +67,8 @@ namespace om
 	template void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<Complex> >,mgraph::PropertyNode<mgraph::Packet<Complex> >,Complex const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B2D5E0
 	template void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::PropertyNode<mgraph::Packet<mgraph::EnvelopeData> >,mgraph::EnvelopeData const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
+	// FUNCTION: ENGINE 0x10B32140
+	template void MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B32630
 	template void MetaMethod1<mgraph::Rand<float>,mgraph::Rand<float>,void,float>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 	// FUNCTION: ENGINE 0x10B32710

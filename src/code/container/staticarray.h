@@ -68,6 +68,16 @@ namespace container
 			}
 			return false;
 		}
+		// The last element, taken out (the count check is made again; the stream manager's handles use it)
+		T PopBack()
+		{
+			T value = end[-1];
+			if (begin != end)
+			{
+				end--;
+			}
+			return value;
+		}
 		T* Find(const T& value)
 		{
 			T* item = begin;
@@ -75,6 +85,16 @@ namespace container
 			{
 				item++;
 			}
+			return item;
+		}
+		// Puts value in front of the first element that is not below it by less (a binary search); answers where it went,
+		// or the old end when the array is full (0x1082DEB0 for the stream packages)
+		T* InsertSorted(const T& value, bool (*less)(const T*, const T*));
+		// Removes item by moving the elements behind it down
+		T* Erase(T* item)
+		{
+			Copy(item + 1, end, item);
+			end--;
 			return item;
 		}
 		// Removes item by moving the last element into its place

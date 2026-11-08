@@ -3,6 +3,17 @@
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/math/worldbounds.h"
+
+namespace engine
+{
+	// 0x1009E210 (the motion units' copy, another unit): stores a reference counted object in a slot, releasing the previous one
+	void AssignRefCountedCopy5(core::IRefCount** slot, core::IRefCount* value);
+	// 0x112539D0: the name "HunterLandedMotionEvent" (another unit)
+	extern core::Name<core::CaseSensitiveKey> gHunterLandedMotionEvent;
+}
 
 namespace proto
 {
@@ -3142,7 +3153,6 @@ namespace proto
 #endif
 
 			// FUNCTION: ENGINE 0x10200A20
-			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %
 			bool HaveDestinationCondition::Evaluate(int a, int b, int c, int d)
 			{
 				bool result = false;
@@ -3151,10 +3161,7 @@ namespace proto
 				{
 					GetDestinationMessage message;
 					object->SendMessage(&message);
-					if (message.hasDestination && message.unknownD)
-					{
-						result = true;
-					}
+					result = message.hasDestination && message.unknownD;
 				}
 				return result;
 			}
@@ -3174,8 +3181,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10200BE0
-			// NONMATCHING: the engine keeps the zero in ebx for the message flags and compares the flag with it, ours zeroes bl and tests the pointer, best 62 %
-#ifdef NONMATCHING
 			bool InHotZoneCondition::Evaluate(int a, int b, int c, int d)
 			{
 				bool result = false;
@@ -3187,12 +3192,11 @@ namespace proto
 					result = message.inHotZone == in;
 					if (result && requireStayOnGround)
 					{
-						return message.onGround;
+						result = message.onGround;
 					}
 				}
 				return result;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x101FFE60
 			bool StopAction::Slot7(int arg, float value)
@@ -3206,6 +3210,229 @@ namespace proto
 				return true;
 			}
 
+
+			// FUNCTION: ENGINE 0x10201800
+			DestinationGoToAction::DestinationGoToAction(DestinationGoToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10201990
+			DestinationFlyToAction::DestinationFlyToAction(DestinationFlyToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10201A50
+			DestinationJumpToAction::DestinationJumpToAction(DestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203BA0
+			fight::Action* DestinationGoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationGoToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203C20
+			fight::Action* DestinationFlyToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationFlyToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203CA0
+			fight::Action* DestinationJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationJumpToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x102018C0
+			// NONMATCHING: the engine's failure return sits in front of the body after the test of the event (ours behind it), instructions otherwise the same, 29 % by bytes
+#ifdef NONMATCHING
+			bool DestinationGoToAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0 && event != 0)
+				{
+					MoveParams params;
+					params.tolerance = link.Get()->tolerance;
+					params.braking = link.Get()->brake;
+					params.ignoreRestrictions = link.Get()->ignoreRestrictions;
+					params.unknown6 = link.Get()->stayOnGround;
+					Unknown103B8330(object, &((motion::JumpDestinationEvent*)event)->position, &params);
+					return true;
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10201B10
+			// NONMATCHING: the engine's one failure return sits behind the first test (ours at the end), 25 % by bytes
+#ifdef NONMATCHING
+			bool DestinationJumpToAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0 && event != 0)
+					{
+						JumpToDestination(object, link.Get()->reverseFacing);
+						return true;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10201B70
+			// NONMATCHING: the engine keeps the flag in a stack byte and a zero in edi, the object in ebp and this in ebx (registers of the loop), 23 % by bytes
+#ifdef NONMATCHING
+			bool DestinationJumpToAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0 || link.Get() == 0)
+				{
+					return false;
+				}
+				GetEventsAIMsg message;
+				object->SendMessage(&message);
+				bool found = false;
+				if (message.events != 0)
+				{
+					for (AIEvent* item = message.events->events; item != message.events->end; item++)
+					{
+						if (item->name == engine::gHunterLandedMotionEvent)
+						{
+							found = true;
+							break;
+						}
+					}
+				}
+				if (!found)
+				{
+					JumpToDestination(object, link.Get()->reverseFacing);
+				}
+				return !found;
+			}
+#endif
+
+
+			// FUNCTION: ENGINE 0x10202030
+			void TargetGoToAction::MoveToPosition(engine::GameObject* object)
+			{
+				MoveParams params;
+				TargetGoToTrack* track = link.Get();
+				params.tolerance = track->tolerance;
+				params.braking = track->brake;
+				params.ignoreRestrictions = track->ignoreRestrictions;
+				params.unknown6 = track->stayOnGround;
+				Unknown103B8330(object, &unknown1C, &params);
+			}
+
+			// FUNCTION: ENGINE 0x10203D70
+			// NONMATCHING: the engine copies the target's position with SSE loads and the second vector from memory with x87 loads, ours forwards the registers, about 50 %
+#ifdef NONMATCHING
+			bool TargetGoToAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0 || link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* targetObject = GetTargetObject(object);
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = targetObject->transform->value;
+				math::Vector place(world.m[3][0], world.m[3][1], world.m[3][2]);
+				unknown1C.x = place.x;
+				unknown1C.y = place.y;
+				unknown1C.z = place.z;
+				unknown28.x = unknown1C.x;
+				unknown28.y = unknown1C.y;
+				unknown28.z = unknown1C.z;
+				if (link.Get()->targetClimbing)
+				{
+					unknown1C.x = unknown1C.x + (math::WORLD_MIN - world.m[2][0]);
+					unknown1C.y = unknown1C.y + (math::WORLD_MIN - world.m[2][1]);
+					unknown1C.z = unknown1C.z + (math::WORLD_MIN - world.m[2][2]);
+				}
+				if (link.Get()->useRandomOvershoot)
+				{
+					AddOvershoot(targetObject);
+				}
+				MoveToPosition(object);
+				unknown34 = link.Get()->minTimeBetweenPathfind;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10203ED0
+			// NONMATCHING: the registers of the object and the target object differ (ebp / ebx in the engine), 74 %
+#ifdef NONMATCHING
+			bool TargetGoToAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				if (unknown34 >= choreo::gZero)
+				{
+					unknown34 = unknown34 - value;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* targetObject = GetTargetObject(object);
+				if (targetObject == 0)
+				{
+					return false;
+				}
+				if (unknown34 < 0.0f)
+				{
+					math::Vector position;
+					GetTargetPosition(&position, targetObject);
+					float dx = position.x - unknown28.x;
+					float dy = position.y - unknown28.y;
+					float dz = position.z - unknown28.z;
+					float tolerance = link.Get()->toleranceRePathfind;
+					float limit = tolerance * tolerance;
+					if (dx * dx + dy * dy + dz * dz > limit)
+					{
+						if (position.DistanceSquaredTo(&unknown1C) > limit)
+						{
+							unknown28.x = position.x;
+							unknown28.y = position.y;
+							unknown28.z = position.z;
+							unknown1C.x = position.x;
+							unknown1C.y = position.y;
+							unknown1C.z = position.z;
+							if (link.Get()->useRandomOvershoot)
+							{
+								AddOvershoot(targetObject);
+							}
+							MoveToPosition(object);
+							unknown34 = link.Get()->minTimeBetweenPathfind;
+						}
+					}
+				}
+				return !Unknown103B8440(object);
+			}
+#endif
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;
@@ -3354,6 +3581,15 @@ template proto::fightitems::ai::TargetGoToTrack* core::Link<proto::fightitems::a
 template core::Link<proto::fightitems::ai::TargetGoToTrack>::Link(proto::fightitems::ai::TargetGoToTrack*);
 template proto::fightitems::ai::DestinationSetDeadBodyTrack* core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Get() const;
 template core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Link(proto::fightitems::ai::DestinationSetDeadBodyTrack*);
+template core::Link<proto::fightitems::ai::DestinationGoToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DestinationFlyToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DestinationJumpToTrack>::~Link();
+template proto::fightitems::ai::DestinationGoToTrack* core::Link<proto::fightitems::ai::DestinationGoToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationGoToTrack>::Link(proto::fightitems::ai::DestinationGoToTrack*);
+template proto::fightitems::ai::DestinationFlyToTrack* core::Link<proto::fightitems::ai::DestinationFlyToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationFlyToTrack>::Link(proto::fightitems::ai::DestinationFlyToTrack*);
+template proto::fightitems::ai::DestinationJumpToTrack* core::Link<proto::fightitems::ai::DestinationJumpToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationJumpToTrack>::Link(proto::fightitems::ai::DestinationJumpToTrack*);
 
 namespace proto
 {
@@ -3376,6 +3612,13 @@ namespace proto
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10201890
+// FUNCTION: ENGINE 0x10201A20
+// FUNCTION: ENGINE 0x10201AE0
+// FUNCTION: ENGINE 0x10201D30
+// FUNCTION: ENGINE 0x10202A80
+// FUNCTION: ENGINE 0x10203360
+// FUNCTION: ENGINE 0x10203600
 // FUNCTION: ENGINE 0x10202370
 // FUNCTION: ENGINE 0x10202570
 // FUNCTION: ENGINE 0x10202620

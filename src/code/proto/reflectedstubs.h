@@ -5,6 +5,7 @@
 #ifndef PROTO_REFLECTEDSTUBS_H
 #define PROTO_REFLECTEDSTUBS_H
 
+#include "code/proto/behaviours/drivablevehiclehealthmodifier.h"
 #include "code/proto/navmeshreflection.h"
 #include "code/proto/coopbehaviour.h"
 #include "code/proto/shaders/shaderpalette.h"
@@ -28,6 +29,7 @@
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
 #include "code/proto/behaviours/randomdeadpedbehaviour.h"
 #include "code/proto/behaviours/alertbehaviour.h"
+#include "code/proto/behaviours/disguisebehaviour.h"
 #include "code/proto/behaviours/testwalkbehaviour.h"
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
@@ -272,15 +274,6 @@ namespace proto
 		unsigned char unknown0[0x60];
 	};
 
-	class DisguiseBehaviour : public engine::FightTreeBehaviour
-	{
-	public:
-		explicit DisguiseBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x560 - sizeof(engine::FightTreeBehaviour)];
-	};
 
 	class MovementBehaviour : public engine::Behaviour
 	{
@@ -700,16 +693,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
-	class DrivableVehicleHealthModifierBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DrivableVehicleHealthModifierBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
 	};
 
 }

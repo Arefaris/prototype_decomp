@@ -9,6 +9,21 @@ namespace engine
 
 namespace mgraph
 {
+	// FUNCTION: ENGINE 0x10AD10E0
+	void UnregisterNodeType(NodeTypeBase* nodeType)
+	{
+		om::TreeNode* node;
+		if (nodeType != 0)
+		{
+			node = &nodeType->treeNode;
+		}
+		else
+		{
+			node = 0;
+		}
+		engine::gTreeHeadObject10.Erase(node);
+	}
+
 	// FUNCTION: ENGINE 0x10AD1860
 	NodeTypeBase::NodeTypeBase(const unsigned int& newFlags, const om::ClassName& newName) :
 		instanceCount(0),
@@ -19,13 +34,10 @@ namespace mgraph
 	}
 
 	// FUNCTION: ENGINE 0x10AD1840
-	// NONMATCHING: the engine keeps a stack slot and calls the helper without a tail call (72.7 %)
-#ifdef NONMATCHING
 	NodeTypeBase::~NodeTypeBase()
 	{
-		Unregister();
+		UnregisterNodeType(this);
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x10AD1180
 	// NONMATCHING: the engine saves ebx, esi and edi before the first lookup and shares the exits (22.2 %)

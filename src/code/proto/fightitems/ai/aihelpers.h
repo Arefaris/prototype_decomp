@@ -44,9 +44,6 @@ namespace proto
 		// 0x10384BA0: makes the request of a kind for a player (name guess)
 		void Unknown10384BA0(int kind, engine::GameObject* player, engine::GameObjectHandle requester);
 
-		unsigned char unknown0[4];
-		PlayerRequest requests[64];  // +0x4; the kinds of requests follow one another from the number of the player
-
 		// 0x10383FF0: gives the object a token for a time (name guess)
 		bool Unknown10383FF0(engine::GameObjectHandle handle, float time);
 		// 0x10381E10 / 0x10381E20: counts a commander in or out of combat (name guess)
@@ -74,6 +71,11 @@ namespace proto
 		// 0x10384460 / 0x103844F0: reserves a position for a time (name guesses)
 		void Unknown10384460(const math::Vector* position, float time, bool targets);
 		void Unknown103844F0(const math::Vector* position, float time);
+
+		unsigned char unknown0[4];
+		PlayerRequest requests[64];  // +0x4; the kinds of requests follow one another from the number of the player
+		unsigned char unknown704[0x19F4 - 0x704];
+		bool unknown19F4;
 	};
 
 	// The base alert (gAISystem +0x20; name guess)

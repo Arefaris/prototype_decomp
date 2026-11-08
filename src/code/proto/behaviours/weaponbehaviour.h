@@ -37,14 +37,7 @@ namespace proto
 		SHOOTLOOKAT_UNKNOWN = 0
 	};
 
-	// The table of the progress flags (the global at 0x112738B8; another unit)
-	class UnlockTable
-	{
-	public:
-		// 0x10579600: how many of the unlockables from first to last are unlocked
-		int CountUnlocked(int first, int last);
-	};
-	extern UnlockTable* gUnlockTable;
+	// The table of the progress flags (the global at 0x112738B8; proto/unlockables.h)
 
 	// What the ammunition of a weapon is made of (RTTI proto::AmmoProfileBase; 0x68 bytes)
 	struct AmmoProfileBase : public content::MetaLoadObject
