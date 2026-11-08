@@ -28,7 +28,13 @@ namespace mgraph
 			alignment(0)
 		{
 		}
-		MemoryBufferCopy& operator=(const MemoryBufferCopy& other)
+		__forceinline ~MemoryBufferCopy()
+		{
+			om::Release(data, size, alignment);
+		}
+		// 0x10AD3AE0 (the engine's constructors of ConnectionData copy the block in line)
+		MemoryBufferCopy& operator=(const MemoryBufferCopy& other);
+		__forceinline MemoryBufferCopy& Copy(const MemoryBufferCopy& other)
 		{
 			if (&other != this)
 			{
@@ -53,6 +59,9 @@ namespace mgraph
 	public:
 		// 0x10AD3B30
 		ConnectionData(const ConnectionData& other);
+		__forceinline ~ConnectionData()
+		{
+		}
 		// Slot 0 (0x10AD3E20): reads the names from the text nodes "Output" and "Input" (each with a "NodeName" and a "PinName")
 		virtual bool ReadText(const om::TextValue* text);
 		// Slot 1 (0x10AD3DC0): reads the four names from a binary stream

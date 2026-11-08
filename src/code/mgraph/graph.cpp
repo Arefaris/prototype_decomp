@@ -1,7 +1,20 @@
 // The graph of the mgraph library (0x10AC5CF0, 0x10AC7730 - 0x10AC78D0).
 #include "code/mgraph/graph.h"
+#include "code/mgraph/connectiondata.h"
 #include "code/mgraph/nodes.h"
 #include "code/mgraph/pins.h"
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x10AC6870
+	template<> void DynamicArray<mgraph::ConnectionData,unsigned short>::DestroyElements(mgraph::ConnectionData* elements, unsigned short count)
+	{
+		for (unsigned short i = 0; i < count; i++)
+		{
+			elements[i].~ConnectionData();
+		}
+	}
+}
 
 namespace mgraph
 {
@@ -13,9 +26,7 @@ namespace mgraph
 		context(0),
 		attachCount(0),
 		numChannels(0),
-		unknown34(0),
-		unknown38(0),
-		unknown3A(0),
+		connectionData(),
 		firstConnection(0),
 		lastConnection(0),
 		nodes(),
@@ -179,6 +190,56 @@ namespace mgraph
 		return 0;
 	}
 #endif
+
+	// Takes a link out of the list it is in (the head and the tail of a list are two consecutive pointers)
+	static __forceinline void Unlink(NodeLink** list, NodeLink* link)
+	{
+		if (link->previous == 0)
+		{
+			list[0] = link->next;
+		}
+		else
+		{
+			link->previous->next = link->next;
+		}
+		if (link->next == 0)
+		{
+			list[1] = link->previous;
+		}
+		else
+		{
+			link->next->previous = link->previous;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AC6840
+	void DeleteAllNodes(om::TreeHead* tree)
+	{
+		for (;;)
+		{
+			Node* node = NodeOfTreeNode(tree->First());
+			if (node == 0)
+			{
+				return;
+			}
+			delete node;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10AC77D0
+	Graph::~Graph()
+	{
+		if (group != 0)
+		{
+			Unlink(&group->head, &groupLink);
+			if (group->GetCount() == 0 && group != 0)
+			{
+				delete group;
+			}
+		}
+		DeleteAllNodes(&nodes);
+		connectionData.Empty();
+	}
 
 	// FUNCTION: ENGINE 0x10AC6A30
 	Graph* Graph::FirstInGroup()
@@ -356,6 +417,43 @@ namespace mgraph
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x10AC78E0
+	bool Graph::Slot8(void* argument)
+	{
+		if (unknown28)
+		{
+			return true;
+		}
+		bool ok = true;
+		for (Node* node = FirstNode(); node != 0; node = NextNode(node))
+		{
+			bool valid = node->Slot8(argument);
+			if (ok && valid)
+			{
+				ok = true;
+			}
+			else
+			{
+				ok = false;
+			}
+		}
+		for (unsigned int i = 0; i < connectionData.size; i++)
+		{
+			bool made = connectionData[i].MakeConnection(this) != 0;
+			if (ok && made)
+			{
+				ok = true;
+			}
+			else
+			{
+				ok = false;
+			}
+		}
+		connectionData.Clear();
+		unknown28 = true;
+		return ok;
+	}
+
 	// FUNCTION: ENGINE 0x10AC6F60
 	void Graph::Detach(Context* oldContext)
 	{
@@ -375,4 +473,10 @@ namespace mgraph
 		}
 		attachCount--;
 	}
+}
+
+namespace om
+{
+	// FUNCTION: ENGINE 0x10AC7480
+	template void DynamicArray<mgraph::ConnectionData,unsigned short>::Clear();
 }

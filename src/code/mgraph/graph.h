@@ -4,6 +4,7 @@
 #define MGRAPH_GRAPH_H
 
 #include "code/mgraph/node.h"
+#include "code/om/dynamicarray.h"
 #include "code/om/entity.h"
 
 namespace mgraph
@@ -21,11 +22,16 @@ namespace mgraph
 	// The list of the graphs that belong together (name guessed): the graphs link themselves in with the links at 0x84
 	struct GraphGroup
 	{
+		// 0x10AAC0A0: how many graphs are in the group
+		unsigned int GetCount();
+		OM_ALLOCATION(GraphGroup);
+
 		NodeLink* head;
 		NodeLink* tail;
 	};
 
 	class Abstraction;
+	class ConnectionData;
 	class GraphConnectionBase;
 
 	class __declspec(align(8)) Graph : public om::Entity
@@ -36,7 +42,7 @@ namespace mgraph
 		// 0x10AC77D0 (the deleting destructor is 0x10AC8430)
 		virtual ~Graph();
 		// The entity's slots: 0x10AC5CF0 answers true; 3 and 4 read and write the graph as text (nodes and connections), 6 and 7 in
-		// binary form, 8 checks the connections (not reconstructed); the last is the entity type
+		// binary form, 8 makes the connections the graph read (the nodes check themselves first); the last is the entity type
 		virtual bool Slot1();
 		virtual bool Slot3(void* argument);
 		virtual void Slot4(void* argument);
@@ -81,9 +87,8 @@ namespace mgraph
 		bool unknown28;
 		int attachCount;  // 0x2C
 		unsigned int numChannels;  // 0x30
-		void* unknown34;
-		unsigned short unknown38;
-		unsigned short unknown3A;
+		// The connections the graph read from its text or binary form and has not made yet (name guessed)
+		om::DynamicArray<ConnectionData, unsigned short> connectionData;  // 0x34
 		NodeLink* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
 		NodeLink* lastConnection;  // 0x40
 		NodeTree nodes;  // 0x44
@@ -100,6 +105,9 @@ namespace mgraph
 		bool unknown80;
 		NodeLink groupLink;  // 0x84
 	};
+
+	// 0x10AC6840 (name guessed): deletes every node of a tree of nodes
+	void DeleteAllNodes(om::TreeHead* tree);
 
 	// 0x105B9740: the graph of a name, null when there is none (name guessed)
 	Graph* FindGraph(const om::ClassName& graphName);
