@@ -108183,3 +108183,7 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ?SetBlown@DisguiseBehaviour@proto@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@_N@Z = 0x103CD300 ; function size:0xB3 | proto::DisguiseBehaviour::SetBlown (name guess)
 ?SetWatcherSuspicion@DisguiseBehaviour@proto@@QAEXABV?$Name@UCaseSensitiveKey@core@@@core@@M@Z = 0x103CD3E0 ; function size:0x24 | proto::DisguiseBehaviour::SetWatcherSuspicion (name guess)
 ?HoldOwnFaction@DisguiseBehaviour@proto@@QAEXXZ = 0x103CD410 ; function size:0x42 | proto::DisguiseBehaviour::HoldOwnFaction (name guess)
+?AddListed@DisguiseBehaviour@proto@@QAEXH@Z = 0x103CCDD0 ; function size:0x44 | proto::DisguiseBehaviour::AddListed (name guess)
+?RemoveListed@DisguiseBehaviour@proto@@QAEXH@Z = 0x103CCE30 ; function size:0x3F | proto::DisguiseBehaviour::RemoveListed (name guess)
+?IsNoticed@DisguiseBehaviour@proto@@QAE_NPAM0PA_N@Z = 0x103CD0D0 ; function size:0xB2 | proto::DisguiseBehaviour::IsNoticed (name guess)
+?IsHeld@DisguiseBehaviour@proto@@QAE_NPAM@Z = 0x103CD1B0 ; function size:0x80 | proto::DisguiseBehaviour::IsHeld (name guess)

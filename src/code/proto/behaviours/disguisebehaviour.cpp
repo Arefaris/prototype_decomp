@@ -470,4 +470,138 @@ namespace proto
 			watcher->hold = unknown33C;
 		}
 	}
+
+	// The list at +0x418 in the engine's form: the inlined members take the list by address
+	typedef container::ArrayCDynamic<int, 80> ListedValues;
+
+	static __forceinline bool IsFull(ListedValues* list)
+	{
+		return list->Size() == 80;
+	}
+
+	static __forceinline void Push(ListedValues* list, int value)
+	{
+		if (!IsFull(list))
+		{
+			int* position = list->end;
+			list->end = position + 1;
+			if (position != 0)
+			{
+				*position = value;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x103CCDD0
+	// NONMATCHING: the engine tests the full list twice without merging the two tests (24 %)
+#ifdef NONMATCHING
+	void DisguiseBehaviour::AddListed(int value)
+	{
+		ListedValues* list = &list418;
+		if (!IsFull(list))
+		{
+			Push(list, value);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103CCE30
+	// NONMATCHING: the engine walks the list through the object that holds it (31 %)
+#ifdef NONMATCHING
+	void DisguiseBehaviour::RemoveListed(int value)
+	{
+		ListedValues* list = &list418;
+		int* it = list->Begin();
+		int* last = list->End();
+		if (it != last)
+		{
+			while (*it != value)
+			{
+				it++;
+				if (it == last)
+				{
+					return;
+				}
+			}
+			list->Erase(it);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103CD0D0
+	// NONMATCHING: the engine stores the held flag through a register and moves the cleared branch out of line (75 %)
+#ifdef NONMATCHING
+	bool DisguiseBehaviour::IsNoticed(float* time, float* limit, bool* held)
+	{
+		if (unknown340)
+		{
+			return true;
+		}
+		Faction ownFaction = GetObjectFaction(owner);
+		Watcher* watcher = FindWatcher(ownFaction.name);
+		bool result = false;
+		if (watcher != watchers.End())
+		{
+			if (watcher->suspicion > 0.0f)
+			{
+				result = true;
+				if (time != 0)
+				{
+					*time = watcher->suspicion;
+				}
+				if (limit != 0)
+				{
+					*limit = unknown33C;
+				}
+			}
+			else
+			{
+				result = false;
+			}
+			if (held != 0)
+			{
+				if (0.0f < watcher->hold)
+				{
+					*held = true;
+					return result;
+				}
+				*held = false;
+			}
+		}
+		return result;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103CD1B0
+	bool DisguiseBehaviour::IsHeld(float* time)
+	{
+		if (unknown340)
+		{
+			return true;
+		}
+		Faction ownFaction = GetObjectFaction(owner);
+		Watcher* watcher = FindWatcher(ownFaction.name);
+		bool result = false;
+		float value;
+		if (watcher != watchers.End())
+		{
+			value = watcher->hold;
+			result = choreo::gZero < value;
+			if (time == 0)
+			{
+				goto done;
+			}
+		}
+		else
+		{
+			if (time == 0)
+			{
+				goto done;
+			}
+			value = 0.0f;
+		}
+		*time = value;
+done:
+		return result;
+	}
 }

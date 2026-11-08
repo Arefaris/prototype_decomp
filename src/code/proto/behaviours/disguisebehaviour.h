@@ -87,6 +87,14 @@ namespace proto
 		void SetWatcherSuspicion(const core::Name<core::CaseSensitiveKey>& faction, float suspicion);
 		// 0x103CD410: holds the suspicion of the faction the object is in
 		void HoldOwnFaction();
+		// 0x103CCDD0 / 0x103CCE30: puts a value into / takes it out of the list at +0x418
+		void AddListed(int value);
+		void RemoveListed(int value);
+		// 0x103CD0D0: whether the faction of the owner notices the object, for how long and up to what, and whether it
+		// holds the suspicion
+		bool IsNoticed(float* time, float* limit, bool* held);
+		// 0x103CD1B0: whether the faction of the owner holds the suspicion, and for how long
+		bool IsHeld(float* time);
 		// 0x103CB240: forgets the held suspicion of the watchers that ran out
 		void ClearExpiredWatchers();
 		// 0x103CCBE0: puts the behaviour back to its beginning
