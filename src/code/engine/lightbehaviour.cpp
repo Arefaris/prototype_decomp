@@ -417,6 +417,18 @@ namespace engine
 		MarkDirty();
 	}
 
+	// FUNCTION: ENGINE 0x108A0520
+	LightBehaviour::~LightBehaviour()
+	{
+		render::Light handle = light;
+		for (unsigned int i = 0; i < (unsigned int)lightGroups.Size(); i++)
+		{
+			handle.RemoveFromGroup(lightGroups.begin[i]);
+		}
+		render::Light::Destroy(&light);
+		DestroyController();
+	}
+
 	// FUNCTION: ENGINE 0x1089C500
 	void LightBehaviour::Slot1()
 	{

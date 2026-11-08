@@ -149,6 +149,8 @@ namespace engine
 		bool SetPrimitiveCount(int newCount);
 		// 0x108AF790: forgets the time and the primitives
 		void Reset();
+		// 0x108AF320: forgets the primitives
+		void ClearPrimitives();
 		// The block the primitives are in starts with their count
 		void FreePrimitives()
 		{

@@ -36,6 +36,13 @@ namespace engine
 			virtual void UnpackAll(PlayerInput* players, unsigned char* buffer, int size) = 0;
 			// The same, answering false at the first state that does not read
 			virtual bool VerifyAll(PlayerInput* players, unsigned char* buffer, int size) = 0;
+
+			int packedBytes;  // +4
+			int bufferSize;  // +8
+
+		protected:
+			// 0x108A2290 (the derived constructors inline it; the engine keeps this copy)
+			IControllerPacker();
 		};
 
 		// RTTI: ControllerPacker (0xC bytes): the size of one packed player is measured by packing a default one
@@ -50,9 +57,6 @@ namespace engine
 			virtual int PackAll(PlayerInput* players, unsigned char* buffer, int size, bool localOnly, unsigned int flags);
 			virtual void UnpackAll(PlayerInput* players, unsigned char* buffer, int size);
 			virtual bool VerifyAll(PlayerInput* players, unsigned char* buffer, int size);
-
-			int packedBytes;  // +4
-			int bufferSize;  // +8
 		};
 
 		// RTTI: ControllerPackerLossLess (0xC bytes): the same with the axes as whole floats

@@ -11,6 +11,7 @@
 #include "code/core/name.h"
 #include "code/engine/fight/sequencer.h"
 #include "code/engine/gameobject/gameobjectparams.h"
+#include "code/engine/nis/nisparams.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/message.h"
 #include "code/engine/scenariomessage.h"
@@ -31,26 +32,6 @@ namespace engine
 	{
 		unsigned char unknown0[0x8C];
 		float length;  // +0x8C
-	};
-
-	// RTTI: engine::NISParams (3 vftable slots, 0x28 bytes, base engine::GameObjectParams, vftable 0x10E791D4; the
-	// constructor is expanded where the behaviour makes it): what the sequence's actions are given. The members are
-	// guesses.
-	class NISParams : public GameObjectParams
-	{
-	public:
-		NISParams() : GameObjectParams(0x10006)
-		{
-			unknown18 = 0;
-			action = 0;
-		}
-		// 0x108A82A0 (deleting destructor 0x108A71B0)
-		virtual ~NISParams();
-
-		int unknown18;  // +0x18: the load inventory of the sequence's stream package
-		int unknown1C;
-		fight::Action* action;  // +0x20: the action that plays the sequence
-		int unknown24;
 	};
 
 	class NISPlayerBehaviour : public Behaviour
