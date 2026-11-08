@@ -8,14 +8,46 @@
 
 #include "code/content/metatype.h"
 #include "code/core/name.h"
+#include "code/proto/autotargetprioritylist.h"
 #include "code/proto/behaviours/targetingbehaviour.h"
 
 namespace proto
 {
+	class GetAutoTargetMessage;
+	class SetAutoTargetMessage;
+
 	class AutoTargetingBehaviour : public TargetingBehaviour
 	{
 	public:
+		// 0x102A8390 (the destructor is 0x102A85D0, the deleting destructor 0x102A89C0)
+		explicit AutoTargetingBehaviour(engine::GameObject* newOwner);
+		virtual ~AutoTargetingBehaviour();
 		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// vftable slots 1, 6 and 8 (0x102A83E0, 0x102A9CA0, 0x102A8610): the target is cleared again
+		virtual void Slot1();
+		virtual void OnMessage(engine::Message* message);
+		virtual void ClearTarget();
+
+		// 0x102A83F0 / 0x102A8400: the messages with ids 5 and 6 carry the last target out, take it in
+		void GetLastTarget(GetAutoTargetMessage* message);
+		void SetLastTarget(SetAutoTargetMessage* message);
+		// 0x102A8650: the entry of the marker list for a target class takes over what is better than the result so far
+		void ApplyMarkerEntry(int targetClass, TargetClassPriority* result);
+		// 0x102A86E0 (name guess): the priority of a target class for an object (the list of the behaviour, then the one
+		// of the object's marker icon)
+		void GetTargetClassPriority(engine::GameObject* object, int targetClass, unsigned int flags,
+			TargetClassPriority* result);
+		// 0x102A91E0 / 0x102A9760 / 0x102A8880 (not reconstructed; names guessed): the messages with ids 3, 4 and 7
+		void OnGetAutoTarget(engine::Message* message);
+		void OnSetAutoTarget(engine::Message* message);
+		void OnMessage7(engine::Message* message);
+
+		AutoTargetPriorityList* defaultAutoTargetPriorityList;  // +0x10
+		AutoTargetPriorityList* currentAutoTargetPriorityList;  // +0x14
+		AutoTargetPriorityList* markerOverrideAutoTargetPriorityList;  // +0x18
+		engine::GameObjectHandle lastTarget;  // +0x1C
 	};
 
 	class LockOnTargetingBehaviour : public AutoTargetingBehaviour
