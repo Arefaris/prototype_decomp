@@ -1205,6 +1205,69 @@ namespace proto
 				core::Link<DestinationSetDeadBodyTrack> link;  // +0x2C
 				engine::GameObjectHandle target;  // +0x38
 			};
+			// RTTI: proto::fightitems::ai::DestinationGoToAction (9 vftable slots, 0x30 bytes)
+			class DestinationGoToAction : public fight::Action
+			{
+			public:
+				// 0x10201800
+				DestinationGoToAction(DestinationGoToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x101FFBD0 (another unit)
+				virtual ~DestinationGoToAction();
+
+				// vftable slot 5 (0x102018C0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x101FED00)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FFC10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<DestinationGoToTrack> link;  // +0x1C
+				core::IRefCount* event;  // +0x28
+				engine::GameObjectHandle target;  // +0x2C
+			};
+			// RTTI: proto::fightitems::ai::DestinationFlyToAction (9 vftable slots, 0x30 bytes)
+			class DestinationFlyToAction : public fight::Action
+			{
+			public:
+				// 0x10201990
+				DestinationFlyToAction(DestinationFlyToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x101FFC80 (another unit)
+				virtual ~DestinationFlyToAction();
+
+				// vftable slot 5 (0x102046F0)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102048B0)
+				virtual void Slot6();
+				// vftable slot 7 (0x101FFCC0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<DestinationFlyToTrack> link;  // +0x1C
+				core::IRefCount* event;  // +0x28
+				engine::GameObjectHandle target;  // +0x2C
+			};
+			// RTTI: proto::fightitems::ai::DestinationJumpToAction (9 vftable slots, 0x30 bytes)
+			class DestinationJumpToAction : public fight::Action
+			{
+			public:
+				// 0x10201A50
+				DestinationJumpToAction(DestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x101FFD30 (another unit)
+				virtual ~DestinationJumpToAction();
+
+				// vftable slot 5 (0x10201B10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10204A40)
+				virtual void Slot6();
+				// vftable slot 7 (0x10201B70)
+				virtual bool Slot7(int arg, float value);
+
+				// 0x101FF1D0 (another unit): sends the object to the event's destination, facing it or away from it (name guess)
+				void JumpToDestination(engine::GameObject* object, bool reverseFacing);
+
+				core::Link<DestinationJumpToTrack> link;  // +0x1C
+				core::IRefCount* event;  // +0x28
+				engine::GameObjectHandle target;  // +0x2C
+			};
 			// ---- actions end
 		}
 	}

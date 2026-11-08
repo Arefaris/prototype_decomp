@@ -3,6 +3,16 @@
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
 #include "code/proto/fightitems/ai/aicodecommon.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
+
+namespace engine
+{
+	// 0x1009E210 (the motion units' copy, another unit): stores a reference counted object in a slot, releasing the previous one
+	void AssignRefCountedCopy5(core::IRefCount** slot, core::IRefCount* value);
+	// 0x112539D0: the name "HunterLandedMotionEvent" (another unit)
+	extern core::Name<core::CaseSensitiveKey> gHunterLandedMotionEvent;
+}
 
 namespace proto
 {
@@ -3206,6 +3216,118 @@ namespace proto
 				return true;
 			}
 
+
+			// FUNCTION: ENGINE 0x10201800
+			DestinationGoToAction::DestinationGoToAction(DestinationGoToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10201990
+			DestinationFlyToAction::DestinationFlyToAction(DestinationFlyToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10201A50
+			DestinationJumpToAction::DestinationJumpToAction(DestinationJumpToTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent) : fight::Action(0xE00), link(newTrack), event(0), target(newTarget)
+			{
+				engine::AssignRefCountedCopy5(&event, newEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203BA0
+			fight::Action* DestinationGoToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationGoToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203C20
+			fight::Action* DestinationFlyToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationFlyToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x10203CA0
+			fight::Action* DestinationJumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* jumpEvent = motion::AsJumpDestinationEvent(owner);
+				return new DestinationJumpToAction(this, handle, jumpEvent);
+			}
+
+			// FUNCTION: ENGINE 0x102018C0
+			// NONMATCHING: the engine's failure return sits in front of the body after the test of the event (ours behind it), instructions otherwise the same, 29 % by bytes
+#ifdef NONMATCHING
+			bool DestinationGoToAction::Slot5(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object != 0 && event != 0)
+				{
+					MoveParams params;
+					params.tolerance = link.Get()->tolerance;
+					params.braking = link.Get()->brake;
+					params.ignoreRestrictions = link.Get()->ignoreRestrictions;
+					params.unknown6 = link.Get()->stayOnGround;
+					Unknown103B8330(object, &((motion::JumpDestinationEvent*)event)->position, &params);
+					return true;
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10201B10
+			// NONMATCHING: the engine's one failure return sits behind the first test (ours at the end), 25 % by bytes
+#ifdef NONMATCHING
+			bool DestinationJumpToAction::Slot5(int arg, float value)
+			{
+				if (link.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0 && event != 0)
+					{
+						JumpToDestination(object, link.Get()->reverseFacing);
+						return true;
+					}
+				}
+				return false;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10201B70
+			// NONMATCHING: the engine keeps a flag byte on the stack that it negates for the result and holds the event list in other registers, 14 % by bytes
+#ifdef NONMATCHING
+			bool DestinationJumpToAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0 || link.Get() == 0)
+				{
+					return false;
+				}
+				GetEventsAIMsg message;
+				object->SendMessage(&message);
+				if (message.events != 0)
+				{
+					for (AIEvent* item = message.events->events; item != message.events->end; item++)
+					{
+						if (item->name == engine::gHunterLandedMotionEvent)
+						{
+							return true;
+						}
+					}
+				}
+				JumpToDestination(object, link.Get()->reverseFacing);
+				return true;
+			}
+#endif
+
 			// ---- actions end
 			template class fight::PropertyBool<InReservedAreaCondition>;
 			template class fight::ConditionFactoryTemplate<InReservedAreaCondition>;
@@ -3354,6 +3476,15 @@ template proto::fightitems::ai::TargetGoToTrack* core::Link<proto::fightitems::a
 template core::Link<proto::fightitems::ai::TargetGoToTrack>::Link(proto::fightitems::ai::TargetGoToTrack*);
 template proto::fightitems::ai::DestinationSetDeadBodyTrack* core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Get() const;
 template core::Link<proto::fightitems::ai::DestinationSetDeadBodyTrack>::Link(proto::fightitems::ai::DestinationSetDeadBodyTrack*);
+template core::Link<proto::fightitems::ai::DestinationGoToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DestinationFlyToTrack>::~Link();
+template core::Link<proto::fightitems::ai::DestinationJumpToTrack>::~Link();
+template proto::fightitems::ai::DestinationGoToTrack* core::Link<proto::fightitems::ai::DestinationGoToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationGoToTrack>::Link(proto::fightitems::ai::DestinationGoToTrack*);
+template proto::fightitems::ai::DestinationFlyToTrack* core::Link<proto::fightitems::ai::DestinationFlyToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationFlyToTrack>::Link(proto::fightitems::ai::DestinationFlyToTrack*);
+template proto::fightitems::ai::DestinationJumpToTrack* core::Link<proto::fightitems::ai::DestinationJumpToTrack>::Get() const;
+template core::Link<proto::fightitems::ai::DestinationJumpToTrack>::Link(proto::fightitems::ai::DestinationJumpToTrack*);
 
 namespace proto
 {
@@ -3376,6 +3507,13 @@ namespace proto
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10201890
+// FUNCTION: ENGINE 0x10201A20
+// FUNCTION: ENGINE 0x10201AE0
+// FUNCTION: ENGINE 0x10201D30
+// FUNCTION: ENGINE 0x10202A80
+// FUNCTION: ENGINE 0x10203360
+// FUNCTION: ENGINE 0x10203600
 // FUNCTION: ENGINE 0x10202370
 // FUNCTION: ENGINE 0x10202570
 // FUNCTION: ENGINE 0x10202620
