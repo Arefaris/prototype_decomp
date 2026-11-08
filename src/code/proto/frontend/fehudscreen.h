@@ -27,6 +27,7 @@
 #include "code/proto/frontend/fehudkeycard.h"
 #include "code/proto/frontend/fehudmeter.h"
 #include "code/proto/frontend/fehudtextlog.h"
+#include "code/proto/frontend/fehudtypewriter.h"
 #include "code/proto/frontend/fehudvehiclehealth.h"
 
 namespace proto
@@ -94,24 +95,6 @@ namespace proto
 		void Unknown104CAEA0();
 
 		unsigned char unknownC[0x2538 - 0xC];
-	};
-
-	// The typewriter of the subtitles and texts of the head-up display (not an element)
-	class FEHUDTypewriter : public engine::IRealTimeTask
-	{
-	public:
-		// 0x104DA760
-		FEHUDTypewriter();
-		// 0x104DA160
-		~FEHUDTypewriter();
-
-		virtual void Update(engine::UpdateContext context);
-
-		// 0x104D9740 / 0x104D9A90
-		void Update(bool force);
-		void Unknown104D9A90(bool flag);
-
-		unsigned char unknown4[0x13B8 - 4];
 	};
 
 	class FEHudScreen

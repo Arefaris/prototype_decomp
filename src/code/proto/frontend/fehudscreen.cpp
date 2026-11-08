@@ -538,7 +538,7 @@ namespace proto
 	{
 		if (created)
 		{
-			typewriter->Unknown104D9A90(false);
+			typewriter->SetTaskActive(false);
 			powers->Unknown104C6420();
 		}
 	}
@@ -552,7 +552,7 @@ namespace proto
 			evolutionPoints->Unknown104D0A90();
 			disguisePerception->ResendDisguises();
 			health->Unknown104D4EE0();
-			typewriter->Unknown104D9A90(true);
+			typewriter->SetTaskActive(true);
 			combatConclusion->Reset();
 			Update(true);
 		}
