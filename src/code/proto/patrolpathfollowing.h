@@ -21,6 +21,48 @@ namespace proto
 			virtual void LookAt(const math::Vector* direction) = 0;
 			virtual int GetState(int unused) = 0;
 		};
+
+		// Tells what happens when a destination is reached (RTTI: PatrolPathFollowing::Notifier, one pure slot)
+		struct Notifier
+		{
+			virtual void Notify(void* path) = 0;
+		};
+
+		// 0x103A61D0
+		PatrolPathFollowing(Follower* newFollower, Notifier* newNotifier);
+		// 0x103A6270 (deleting destructor 0x103A6C80)
+		virtual ~PatrolPathFollowing();
+
+		int unknown4;
+		void* unknown8;
+		Follower* follower;  // +0xC
+		Notifier* notifier;  // +0x10
+		math::Vector unknown14;
+		math::Vector unknown20;
+		int unknown2C;
+		int unknown30;
+		float unknown34;
+	};
+
+	// RTTI: proto::SimplePathFollowing (no base class): the same members as PatrolPathFollowing and a float behind
+	// them; it frees the block at +8 (0x103A6600, destructor 0x103A66B0, deleting destructor 0x103A7190)
+	class SimplePathFollowing
+	{
+	public:
+		SimplePathFollowing(PatrolPathFollowing::Follower* newFollower, PatrolPathFollowing::Notifier* newNotifier,
+			float newUnknown38);
+		virtual ~SimplePathFollowing();
+
+		int unknown4;
+		void* unknown8;
+		PatrolPathFollowing::Follower* follower;  // +0xC
+		PatrolPathFollowing::Notifier* notifier;  // +0x10
+		math::Vector unknown14;
+		math::Vector unknown20;
+		int unknown2C;
+		int unknown30;
+		float unknown34;
+		float unknown38;
 	};
 
 	// Moves a game object through its movement behaviour (0x103A6390 - 0x103A64E0; slot 2 is 0x103A63F0)

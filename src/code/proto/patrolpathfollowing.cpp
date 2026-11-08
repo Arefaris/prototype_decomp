@@ -5,6 +5,35 @@
 
 namespace proto
 {
+	// FUNCTION: ENGINE 0x103A61D0
+	PatrolPathFollowing::PatrolPathFollowing(Follower* newFollower, Notifier* newNotifier) :
+		notifier(newNotifier), unknown4(0), unknown8(0), follower(newFollower), unknown14(math::kZeroVector),
+		unknown20(math::kZeroVector), unknown2C(-1), unknown30(-1), unknown34(0.0f)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x103A6270
+	PatrolPathFollowing::~PatrolPathFollowing()
+	{
+	}
+
+	// FUNCTION: ENGINE 0x103A6600
+	SimplePathFollowing::SimplePathFollowing(PatrolPathFollowing::Follower* newFollower,
+		PatrolPathFollowing::Notifier* newNotifier, float newUnknown38) :
+		notifier(newNotifier), unknown4(0), unknown8(0), follower(newFollower), unknown14(math::kZeroVector),
+		unknown20(math::kZeroVector), unknown34(0.0f), unknown2C(-1), unknown30(-1), unknown38(newUnknown38)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x103A66B0
+	SimplePathFollowing::~SimplePathFollowing()
+	{
+		if (unknown8 != 0)
+		{
+			operator delete(unknown8);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x103A6390
 	void CharacterFollower::MoveTo(const math::Vector* position, float tolerance, bool braking)
 	{
