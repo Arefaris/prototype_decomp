@@ -7110,4 +7110,179 @@ namespace mgraph
 	template char const* NodeType<ListEntry<EnvelopeData> >::AllocationTag();
 	// FUNCTION: ENGINE 0x10ADE550
 	template char const* NodeType<Switch<Packet<EnvelopeData> > >::AllocationTag();
+
+	// FUNCTION: ENGINE 0x10ACC0B0
+	template NodeTypeBase* CachedNodeType<LinkedGraph>();
+	// FUNCTION: ENGINE 0x10ACD170
+	template NodeTypeBase* CachedNodeType<EmbeddedGraph>();
+	// FUNCTION: ENGINE 0x10AD4B90
+	template NodeTypeBase* CachedNodeType<Rand<om::Vector> >();
+	// FUNCTION: ENGINE 0x10AD4BF0
+	template NodeTypeBase* CachedNodeType<PropertyNodeBase>();
+	// FUNCTION: ENGINE 0x10AD4C40
+	template NodeTypeBase* CachedNodeType<CommutativeMath<VectorAdd> >();
+	// FUNCTION: ENGINE 0x10AD4C70
+	template NodeTypeBase* CachedNodeType<CommutativeMath<FloatAdd> >();
+	// FUNCTION: ENGINE 0x10AD4CA0
+	template NodeTypeBase* CachedNodeType<CommutativeMath<FloatMultiply> >();
+	// FUNCTION: ENGINE 0x10AD4CD0
+	template NodeTypeBase* CachedNodeType<CommutativeMath<BoolOr> >();
+	// FUNCTION: ENGINE 0x10AD4D00
+	template NodeTypeBase* CachedNodeType<CommutativeMath<BoolAnd> >();
+	// FUNCTION: ENGINE 0x10AD4D30
+	template NodeTypeBase* CachedNodeType<CommutativeMath<TriggerAnd> >();
+	// FUNCTION: ENGINE 0x10AD4D60
+	template NodeTypeBase* CachedNodeType<CommutativeMath<TriggerOr> >();
+	// FUNCTION: ENGINE 0x10AD4D90
+	template NodeTypeBase* CachedNodeType<NonCommutativeMath<FloatSub> >();
+	// FUNCTION: ENGINE 0x10AD4DC0
+	template NodeTypeBase* CachedNodeType<Operator2<GreaterThan<float> > >();
+	// FUNCTION: ENGINE 0x10AD4DF0
+	template NodeTypeBase* CachedNodeType<Operator2<GreaterThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AD4E20
+	template NodeTypeBase* CachedNodeType<Operator2<LessThanOrEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AD4E50
+	template NodeTypeBase* CachedNodeType<Operator2<LessThan<float> > >();
+	// FUNCTION: ENGINE 0x10AD4E80
+	template NodeTypeBase* CachedNodeType<Operator2<Equal<float> > >();
+	// FUNCTION: ENGINE 0x10AD4EB0
+	template NodeTypeBase* CachedNodeType<Operator2<NotEqual<float> > >();
+	// FUNCTION: ENGINE 0x10AD4EE0
+	template NodeTypeBase* CachedNodeType<UnaryMath<BoolNot> >();
+	// FUNCTION: ENGINE 0x10AD80E0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AD8110
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8190
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AD81C0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8240
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AD8270
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD82F0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AD8320
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD83A0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10AD83D0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8450
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AD8480
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8500
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8580
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AD85B0
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8630
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AD8660
+	template NodeTypeBase* CachedNodeType<PropertyNode<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD86B0
+	template NodeTypeBase* CachedNodeType<Rand<float> >();
+	// FUNCTION: ENGINE 0x10AD86E0
+	template NodeTypeBase* CachedNodeType<Rand<unsigned int> >();
+	// FUNCTION: ENGINE 0x10AD8760
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AD8790
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AD87C0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD87F0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8860
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AD8890
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AD88C0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD88F0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8960
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AD8990
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AD89C0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD89F0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8A70
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AD8AA0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AD8AD0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8B00
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8B70
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10AD8BA0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10AD8BD0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8C00
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8C80
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AD8CB0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AD8CE0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8D10
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8D80
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AD8DB0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AD8DE0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8E10
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8EA0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AD8ED0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AD8F00
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8F30
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD8FB0
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AD8FE0
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AD9010
+	template NodeTypeBase* CachedNodeType<Inlet<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9040
+	template NodeTypeBase* CachedNodeType<Outlet<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10ADDA90
+	template NodeTypeBase* CachedNodeType<Switch<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10ADDB20
+	template NodeTypeBase* CachedNodeType<Switch<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10ADDBB0
+	template NodeTypeBase* CachedNodeType<Switch<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10ADDC40
+	template NodeTypeBase* CachedNodeType<Switch<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10ADDCD0
+	template NodeTypeBase* CachedNodeType<Switch<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10ADDD30
+	template NodeTypeBase* CachedNodeType<ListEntry<om::Vector> >();
+	// FUNCTION: ENGINE 0x10ADDD60
+	template NodeTypeBase* CachedNodeType<Switch<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10ADDDC0
+	template NodeTypeBase* CachedNodeType<ListEntry<TriggerData> >();
+	// FUNCTION: ENGINE 0x10ADDDF0
+	template NodeTypeBase* CachedNodeType<Switch<Packet<TriggerData> > >();
+	// FUNCTION: ENGINE 0x10ADDE50
+	template NodeTypeBase* CachedNodeType<ListEntry<om::Complex> >();
+	// FUNCTION: ENGINE 0x10ADDE80
+	template NodeTypeBase* CachedNodeType<Switch<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10ADDEE0
+	template NodeTypeBase* CachedNodeType<ListEntry<EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10ADDF10
+	template NodeTypeBase* CachedNodeType<Switch<Packet<EnvelopeData> > >();
 }
