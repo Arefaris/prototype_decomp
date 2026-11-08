@@ -3,9 +3,20 @@
 // "properties" array are reconstructed.
 #include "code/engine/physicsbehaviour.h"
 #include "code/core/refptr.h"
+#include "code/engine/attributemessage.h"
+#include "code/engine/physics/physicsmessages.h"
+#include "code/ravenphysics/physicsobject.h"
 
 namespace engine
 {
+	// The attribute names the behaviour works with (0x11283510, 0x112834D8)
+	extern core::Name<core::CaseSensitiveKey> gTransformName;
+	extern core::Name<core::CaseSensitiveKey> gAsleepName;
+
+	// 0x1084C3E0 (another unit; name guess): places the physics object by the matrix of the owner
+	void SetPhysicsObjectTransform(math::Matrix& transform, Attribute<proto::PartLookup*>* drawable, math::Vector* scale,
+		ravenphysics::ObjectHandle* handle);
+
 #define ENGINE_OFFSET(type, member) \
 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
 #define ENGINE_NAME_OFFSET(type, member) \
@@ -92,6 +103,119 @@ namespace engine
 	// FUNCTION: ENGINE 0x10921970
 	void PhysicsBehaviour::SetAutoPoseSync(bool value)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10923380
+	void PhysicsBehaviour::UpdatePhysicsTransform()
+	{
+		math::Vector* scalePointer = hasScale ? &scale : 0;
+		if (owner->transform == 0)
+		{
+			owner->transform = (Attribute<math::Matrix>*)owner->FindAttribute(gTransformName);
+		}
+		math::Matrix& transform = owner->transform->Get();
+		SetPhysicsObjectTransform(transform, drawable, scalePointer, &physicsObjectHandle);
+	}
+
+	// FUNCTION: ENGINE 0x10923BF0
+	// NONMATCHING: the engine loads the flag before the lookup of the object and stores the handle copy of the sleep path behind the push of ebp (86.3 %)
+#ifdef NONMATCHING
+	void PhysicsBehaviour::SetAwake(bool awake)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObjectSecond();
+			if (awake)
+			{
+				if (object->asleep)
+				{
+					return;
+				}
+				UpdatePhysicsTransform();
+				ravenphysics::gContext->WakeObject(physicsObjectHandle);
+			}
+			else
+			{
+				if (!object->asleep)
+				{
+					return;
+				}
+				ravenphysics::ObjectHandle handle = physicsObjectHandle;
+				ravenphysics::Context* context = ravenphysics::gContext;
+				context->SleepObject(handle.GetObjectSecond());
+			}
+			PhysicsObjectAddedRemovedMessage message(awake, physicsObjectHandle);
+			owner->SendMessage(&message);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10923CC0
+	void PhysicsBehaviour::UpdateAwake()
+	{
+		if (enabled && requested.Test(7) && physicsObjectHandle.IsValid() &&
+			physicsObjectHandle.GetObject()->GetActiveCount() != 0)
+		{
+			SetAwake(true);
+			if (unknown5D)
+			{
+				Listen2(0x20, true);
+			}
+			else
+			{
+				Listen2(0x20, false);
+			}
+			BaseAttribute* asleep = owner->FindAttribute(gAsleepName);
+			if (asleep != 0 && ((Attribute<bool>*)asleep)->value)
+			{
+				Listen2(0x40, false);
+				return;
+			}
+			Listen2(0x40, true);
+			return;
+		}
+		Listen2(0x20, false);
+		Listen2(0x40, false);
+		SetAwake(false);
+	}
+
+	// FUNCTION: ENGINE 0x10921EA0
+	void PhysicsBehaviour::SetKeyframedCollision(bool keyframed)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			if ((physicsObjectHandle.GetObject()->collisionMode & 3) != 0)
+			{
+				if (keyframed)
+				{
+					ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+					unsigned int count = object->objectCount;
+					for (unsigned int index = 0; index < count; index++)
+					{
+						object->objects[index]->Clear();
+					}
+					object->SetCollisionMode(1);
+					return;
+				}
+				physicsObjectHandle.GetObject()->SetCollisionMode(2);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10924310
+	void PhysicsBehaviour::Enable()
+	{
+		enabled = true;
+		UpdateAwake();
+		UpdatePhysicsTransform();
+		SetKeyframedCollision(true);
+	}
+
+	// FUNCTION: ENGINE 0x10923EE0
+	void PhysicsBehaviour::OnActiveChanged(bool active)
+	{
+		Behaviour::OnActiveChanged(active);
+		UpdateAwake();
 	}
 
 	// FUNCTION: ENGINE 0x109239B0

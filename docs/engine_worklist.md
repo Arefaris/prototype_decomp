@@ -7893,3 +7893,18 @@ Of 2257 open functions about 1940 have no name; the rest are dead copies of 1 - 
   `DynamicArray<Packet<T>>::FillElements / CopyElements / Resize` (82 % / 70 %: the engine strength-reduces the source pointer), and the roughly 300 second copies of template instances.
 - Shared header changes: `mgraph/nodes.h` (`InletBase`, `OutletBase`, `Inlet`, `Outlet`, `Abstraction::Refresh`, `PropertyNodeBase` / `PropertyNode` constructors, `PropertyValueAccess<Vector>`),
   `mgraph/pins.h` (the abstract pin constructors, `AddSource`, `AddTarget`), `mgraph/listnodes.h`, `mgraph/throw.h`.
+## sn-ew: the range 0x10920000 - 0x10940000, third pass (physics behaviour reflection, audio emitter, behaviour creators)
+845 functions of the range were open at the start; most of the rest are the byte-identical `Link<T>` constructors and one-line accessors of fight tracks (nothing orders their copies), packet and socket structures of classes no RTTI name reaches, and
+the large action slots.
+- `engine/physicsbehaviour.{h,cpp}`: the real `PhysicsBehaviour` (replaces the entry of reflectedclasses.h; bases `Behaviour` and `ravenphysics::BroadPhaseObjectNotifier` at +0xC, so the member pointers of its accessors are 8 bytes): the reflection
+  (`PhysicsProperties` with its class info and member list, `GetMembers` with the two factory references, the override material and intersection properties, the `properties` array, the flags and the
+  physics-to-pose blend factor), the accessors the reflection reaches the members through (`GetPhysicsObject` ... `SetAutoPoseSync`), the `properties` array helper (an explicit `ArrayDynamicHelper` specialisation with the default element in a static of
+  `Default()`; the element is 0x10 bytes because the engine's names are 8-byte aligned, its copies leave the word behind the mass alone) and the 48 template instances kept by the unit. `UpdatePhysicsTransform`, `SetAwake`,
+  `UpdateAwake`, `OnActiveChanged`, `SetKeyframedCollision` and `Enable` follow. The blend factor object (0x108D4410 / 0x108D4450) belongs to another unit and is only declared.
+- `engine/audio/audioemitterbehaviour.{h,cpp}`: `AudioEmitterBehaviour` (0x58 bytes; the sound list at +0x10 is 8-byte aligned, the manager's list node at +0x50; vftable slot 8 is the time step of the manager's `AudioUpdatable` view). The
+  position and velocity of an emitter, `Initialize`, constructor, destructor, `Slot1`, `OnMessage`, `UpdateSound` and `AudioSound::SetSpatial` match. `UpdateSounds` (0x1093C650, 57.6 %: the engine keeps the two node conversions of the
+  walk apart and the compiler merges the zeros) and `UpdateAudio` (0x1093C730, 11.9 %: the engine loads the owner's position before the time step test) are NONMATCHING. `RegisterMoreMetaBehaviourCreators` (0x1092B450) and the instances of the three audio behaviours
+  (class meta type, creator, registration) are in moremetafactories.cpp. Shared headers: audiomessage.h (`AudioSound` got the three property pointers at +0x78 .. +0x80 and `volume` at +0x1C, `AudioBank::unknownE`),
+  audioglobalsettings.h (`AudioListener::x/y/z` at +0xC), audiozonebehaviour.h (`zoneName` is 8-byte aligned: the class is 0x40 bytes, as the engine's creator allocates).
+- `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
+- networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.

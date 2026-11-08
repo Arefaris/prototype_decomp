@@ -138,6 +138,31 @@ namespace engine
 		bool preserve;  // +0xC
 		bool preserveAgain;  // +0xD
 	};
+
+	// Tells the character solver that the ragdoll took over or gave back the character (type 0x11, id 0xB); the
+	// engine keeps the constructor out of line (0x10924FA0)
+	struct CharacterSolverRagdollActivatedMessage : public IntrusiveMessage
+	{
+		explicit CharacterSolverRagdollActivatedMessage(bool newActivated);
+		virtual ~CharacterSolverRagdollActivatedMessage()
+		{
+		}
+
+		bool activated;  // +0xC
+	};
+
+	// Tells that the physics object of the ragdoll was added to the world or taken out of it (type 6, id 1); the
+	// engine keeps the constructor out of line (0x10925010)
+	struct RagdollPhysicsObjectAddedRemovedMessage : public IntrusiveMessage
+	{
+		RagdollPhysicsObjectAddedRemovedMessage(bool newAdded, int newPhysicsObject);
+		virtual ~RagdollPhysicsObjectAddedRemovedMessage()
+		{
+		}
+
+		bool added;  // +0xC
+		int physicsObject;  // +0x10
+	};
 }
 
 #endif

@@ -229,6 +229,22 @@ namespace engine
 		float duration;  // +0x10
 		const core::Name<core::CaseSensitiveKey>* joint;  // +0x14
 	};
+
+	// Tells the owner that its physics object went to sleep or woke up (type 6, id 0)
+	struct PhysicsObjectAddedRemovedMessage : public IntrusiveMessage
+	{
+		PhysicsObjectAddedRemovedMessage(bool newAwake, ravenphysics::ObjectHandle newPhysicsObject) : IntrusiveMessage(6, 0)
+		{
+			awake = newAwake;
+			physicsObject = newPhysicsObject;
+		}
+		virtual ~PhysicsObjectAddedRemovedMessage()
+		{
+		}
+
+		bool awake;  // +0xC
+		ravenphysics::ObjectHandle physicsObject;  // +0x10
+	};
 }
 
 #endif

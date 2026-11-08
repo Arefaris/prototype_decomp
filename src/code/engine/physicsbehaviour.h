@@ -12,9 +12,16 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 #include "code/ravenphysics/material.h"
 #include "code/ravenphysics/physicsobjectfactory.h"
+
+namespace proto
+{
+	struct PartLookup;
+}
 
 namespace ravenphysics
 {
@@ -91,6 +98,21 @@ namespace engine
 		bool GetAutoPoseSync() const;
 		void SetAutoPoseSync(bool value);
 
+		// vftable slot 3 (0x10923EE0)
+		virtual void OnActiveChanged(bool active);
+
+		// 0x10923380: puts the physics object where the owner is
+		void UpdatePhysicsTransform();
+		// 0x10923BF0: wakes the physics object or puts it to sleep, and tells the owner
+		void SetAwake(bool awake);
+		// 0x10923CC0: works out whether the object is awake and which updates the behaviour listens to
+		void UpdateAwake();
+		// 0x10921EA0: lets the physics object follow the animation (the collision objects are cleared and the mode is 1) or the
+		// simulation (the mode is 2)
+		void SetKeyframedCollision(bool keyframed);
+		// 0x10924310: turns the behaviour on
+		void Enable();
+
 		ravenphysics::ObjectHandle physicsObjectHandle;  // +0x10
 		ravenphysics::ObjectHandle unknown14;
 		ravenphysics::AbstractPhysicsObjectFactory* physicsObject;  // +0x18
@@ -100,13 +122,13 @@ namespace engine
 		int unknown38;  // behind the array: its allocator word
 		bool manualVelocities;  // +0x3C
 		bool disablePhysicsObjectSelfCollisions;  // +0x3D
-		void* unknown40;
+		Attribute<proto::PartLookup*>* drawable;  // +0x40
 		ravenphysics::MaterialLoader* overrideMaterial;  // +0x44
 		ravenphysics::IntersectionPropertiesLoader* overrideIntersectionProperties;  // +0x48
 		bool preserveJointAnimation;  // +0x4C
-		bool unknown4D;
-		float unknown50[3];
-		bool unknown5C;
+		bool hasScale;  // +0x4D
+		math::Vector scale;  // +0x50
+		bool enabled;  // +0x5C
 		bool unknown5D;
 		bool unknown5E;
 		int unknown60;
