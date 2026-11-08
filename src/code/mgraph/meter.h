@@ -9,9 +9,17 @@ namespace mgraph
 	// Makes the description of the node class and enters it in the registry (called when the library starts)
 	void RegisterMeter();
 
+	// Whether an entry of a float packet is there (0x10B4AE90, name guessed; the engine keeps one copy for each of its users' packets)
+	bool IsPresent(const FrameEntry<float>* entry);
+
 	class __declspec(align(8)) Meter : public Node
 	{
-		MGRAPH_NODE_BODY_OUT(Meter, Node, 0x50);
+	public:
+		Meter(Graph* newGraph, const om::ClassName& newName);
+		virtual void Slot16(EvaluationFrame* frame);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 	};
 
 }

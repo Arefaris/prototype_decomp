@@ -120,6 +120,12 @@ namespace mgraph
 		{
 			Assign(other, 0, 0);
 		}
+		// A packet that holds one value
+		explicit Packet(const T& newValue) :
+			blocks(0),
+			value(newValue)
+		{
+		}
 		virtual void Slot0(int count, om::Allocator* allocator);
 		virtual ~Packet()
 		{
@@ -349,7 +355,7 @@ namespace mgraph
 	{
 		unsigned int unknown0;
 		unsigned int id;
-		unsigned int unknown8;
+		PacketBlock<T>* block;  // 8: the values of the 256 channels when the entry has them
 		T value;
 	};
 	// The flags of a trigger for each of the 256 samples of a frame, kept in a block behind the entry

@@ -48,6 +48,16 @@ namespace mgraph
 		Node::SetNumChannels(newCount);
 	}
 
+	// FUNCTION: ENGINE 0x10B76620
+	Smoother::Smoother(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<Smoother>(), newGraph, newName, 3, 1)
+	{
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("i"), 0, 0, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("rise_rate"), 0, 1, Packet<float>(0.01f));
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("fall_rate"), 0, 2, Packet<float>(0.01f));
+		new OutputPin<Packet<float> >(this, &MGRAPH_NAME("o"), 0, Packet<float>());
+	}
+
 	// FUNCTION: ENGINE 0x10B76A20
 	template<> Node* NodeType<Smoother>::CreateNode(void* graph, const ClassName* nodeName)
 	{

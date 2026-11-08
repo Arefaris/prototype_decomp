@@ -58,6 +58,17 @@ namespace mgraph
 		NodeType<MinMaxDistance>::RegisterDerived(CachedNodeType<Node>(), flags, name);
 	}
 
+	// FUNCTION: ENGINE 0x10B742F0
+	MinMaxDistance::MinMaxDistance(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<MinMaxDistance>(), newGraph, newName, 4, 1)
+	{
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("min"), 0, 0, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("max"), 0, 1, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("distance"), 0, 2, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("noise_floor"), 0, 3, Packet<float>());
+		new OutputPin<Packet<float> >(this, &MGRAPH_NAME("o"), 0, Packet<float>());
+	}
+
 	// FUNCTION: ENGINE 0x10B74750
 	template<> Node* NodeType<MinMaxDistance>::CreateNode(void* graph, const ClassName* nodeName)
 	{
