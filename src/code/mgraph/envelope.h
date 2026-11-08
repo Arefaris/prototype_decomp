@@ -22,6 +22,10 @@ namespace mgraph
 		om::DynamicArray<float, unsigned short> unknown8;
 	};
 
+	// 0x10880010 (another unit; name guess): the value of the curve for an input, with the input taken from the range
+	// between the second and third number and the answer put into the range between the fourth and fifth
+	float EvaluateEnvelope(const EnvelopeData* data, float input, float inputLow, float inputHigh, float outputLow, float outputHigh);
+
 	inline const char* EnvelopeData::AllocationTag()
 	{
 		return "";

@@ -35,7 +35,7 @@ namespace proto
 		virtual bool Slot3();
 		virtual void Slot4();
 		virtual bool Slot5();
-		virtual void Slot7(int a);
+		virtual void Update(unsigned int elapsed);
 
 		// The setters of the properties: the settings that do nothing (they are kept in the data), the strings,
 		// the names of the mix busses, the five envelopes and the numbers

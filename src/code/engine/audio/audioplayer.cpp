@@ -18,7 +18,7 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x104A2E60
-	void AudioPlayer::Slot7(int a)
+	void AudioPlayer::Update(unsigned int elapsed)
 	{
 	}
 

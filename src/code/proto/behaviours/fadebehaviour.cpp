@@ -1,6 +1,9 @@
 #include "code/proto/behaviours/fadebehaviour.h"
 #include "code/core/refptr.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/ravenphysics/physicsobject.h"
 #include "code/engine/render/async/drawable.h"
 
 namespace engine
@@ -10,7 +13,9 @@ namespace engine
 		// 0x10D946E0 / 0x10D95578: 1.0f and 2.0f in the pooled constants (name guesses)
 		extern const float gOne;
 		extern const float gTwo;
+		extern const float gZero;
 	}
+	extern content::ObjectName gPhysicsObjectAttributeName;
 }
 
 namespace proto
@@ -149,6 +154,58 @@ namespace proto
 		lifeLength = gTen;
 	}
 #endif
+
+	// The check ObjectHandle::IsValid makes, expanded as the engine does here
+	static inline bool IsHandleValid(const ravenphysics::ObjectHandle* handle)
+	{
+		if (handle->index >= ravenphysics::gCollisionObjectTable->slotCount)
+		{
+			return false;
+		}
+		return ravenphysics::gCollisionObjectTable->entries.begin[handle->index].serial == handle->unknown2;
+	}
+
+	// FUNCTION: ENGINE 0x10497F40
+	void FadeoutBehaviour::Update(float dt, unsigned short mask)
+	{
+		timeLeft = timeLeft - dt;
+		if (properties->checkPhysicsAtRest)
+		{
+			engine::BaseAttribute* attribute = owner->FindAttribute(engine::gPhysicsObjectAttributeName);
+			if (attribute != 0)
+			{
+				ravenphysics::ObjectHandle* handle = &((engine::Attribute<ravenphysics::ObjectHandle>*)attribute)->value;
+				if (handle != 0)
+				{
+					if (IsHandleValid(handle))
+					{
+						ravenphysics::PhysicsObject* physics = handle->GetObject();
+						if (physics != 0 && (physics->collisionMode & 3) == 2 && physics->IsAsleep())
+						{
+							Restart();
+						}
+					}
+				}
+			}
+		}
+		dt = timeLeft;
+		if (dt <= properties->fadeoutLength && properties->fadeoutLength > engine::driving::gZero)
+		{
+			dt = dt / properties->fadeoutLength;
+			engine::render::Drawable drawable(owner);
+			drawable.SetPartsUnknown2C(dt);
+			if (properties->disablePhysicsForFadeout)
+			{
+				engine::PhysicsSetEnabledMessage message(false);
+				owner->SendMessage(&message);
+			}
+		}
+		if (timeLeft <= 0.0f)
+		{
+			engine::GameObjectHandle handle = engine::GetHandle(owner);
+			handle.DeferUpdate(true);
+		}
+	}
 
 	// FUNCTION: ENGINE 0x10497980
 	FadeoutBehaviour::~FadeoutBehaviour()

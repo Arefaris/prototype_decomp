@@ -20,7 +20,7 @@ namespace engine
 		{
 		}
 		// Slots 1 - 4 (pure)
-		virtual void Update() = 0;
+		virtual void Update(int first) = 0;
 		virtual int Slot2(int first, int second, int third, int fourth) = 0;
 		virtual void Slot3(int first) = 0;
 		virtual core::Name<core::CaseSensitiveKey> GetLanguageName() = 0;

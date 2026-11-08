@@ -4,6 +4,8 @@
 #include "code/core/hash.h"
 #include "code/om/dynamicproperty.h"
 #include "code/om/name.h"
+#include "code/audio/master.h"
+#include "code/engine/driving/carattributes.h"
 
 namespace proto
 {
@@ -18,6 +20,98 @@ namespace proto
 	{
 		audio::gRemotePlayers->Destroy(player);
 	}
+
+	// FUNCTION: ENGINE 0x104A3E60
+	// NONMATCHING: 98.0 %, the stack slots the compiler gives the temporaries differ (the event class's constructor 0x104A34C0, Execute 0x104A34E0,
+	// deleting destructor 0x104A43F0 and operator delete 0x104A34A0 match 100 % but live inside this function)
+#ifdef NONMATCHING
+	void SoundPlayerAmbience::Update(unsigned int elapsed)
+	{
+		// The filter of the ambience is set in the audio thread
+		// (the engine's function has one more local type before it, which the code does not use)
+		struct Unused
+		{
+		};
+		struct RemotePlayerEvent_SetAmbience : public audio::Event
+		{
+			// 0x104A34C0
+			explicit RemotePlayerEvent_SetAmbience(float newCutoff) :
+				cutoff(newCutoff)
+			{
+			}
+			// 0x104A34E0
+			virtual void Execute()
+			{
+				audio::gMaster->filter.Set(0, cutoff, engine::driving::gHalf);
+			}
+			static void* operator new(unsigned int size)
+			{
+				return audio::gEventQueue->Allocate(size);
+			}
+			// 0x104A34A0
+			static void operator delete(void* block)
+			{
+				audio::gEventQueue->Free(block, sizeof(RemotePlayerEvent_SetAmbience));
+			}
+
+			float cutoff;
+		};
+
+		float rooftop = mgraph::EvaluateEnvelope(&rooftopEnv, rooftopVolume, 0.0f, 1.0f, 0.0f, 1.0f);
+		float scale = (1.0f - rooftop) * volume;
+		float trafficIdle = mgraph::EvaluateEnvelope(&trafficIdleEnv, trafficIdleVol, 0.0f, 1.0f, 0.0f, 1.0f) * scale;
+		float trafficPanic = mgraph::EvaluateEnvelope(&trafficPanicEnv, trafficPanicVol, 0.0f, 1.0f, 0.0f, 1.0f) * scale;
+		float crowdPanicLevel = mgraph::EvaluateEnvelope(&crowdPanicEnv, crowdPanicVol, 0.0f, 1.0f, 0.0f, 1.0f) * scale;
+		float infectedLevel = mgraph::EvaluateEnvelope(&infectedEnv, infectedVol, 0.0f, 1.0f, 0.0f, 1.0f) * scale;
+		float city = cityVol * scale;
+		float park = parkVol * scale;
+		float infectedLocalLevel = infectedLocalVol * scale;
+		float crowdLocalLevel = crowdLocalVol * scale;
+		float rooftopLevel = volume * rooftop;
+		audio::gRemotePlayers->SetUnknown3E8(player, 2, reverbSend);
+
+		__declspec(align(8)) dsp::MixVoiceChannelBinVolumes volumes(0.0f);
+		float* v = volumes.volumes;
+		v[0] = city;
+		v[9] = city;
+		v[20] = city;
+		v[29] = city;
+		v[32] = crowd.lf * crowdPanicLevel;
+		v[41] = crowd.rf * crowdPanicLevel;
+		v[36] = crowd.ls * crowdPanicLevel;
+		v[47] = crowd.rs * crowdPanicLevel;
+		v[48] = idle.lf * trafficIdle;
+		v[57] = idle.rf * trafficIdle;
+		v[52] = idle.ls * trafficIdle;
+		v[61] = idle.rs * trafficIdle;
+		v[64] = trafficPanic;
+		v[73] = trafficPanic;
+		v[68] = trafficPanic;
+		v[77] = trafficPanic;
+		v[80] = rooftopLevel;
+		v[89] = rooftopLevel;
+		v[84] = rooftopLevel;
+		v[93] = rooftopLevel;
+		v[96] = park;
+		v[105] = park;
+		v[100] = park;
+		v[109] = park;
+		v[112] = crowdLocal.lf * crowdLocalLevel;
+		v[113] = crowdLocal.rf * crowdLocalLevel;
+		v[116] = crowdLocal.ls * crowdLocalLevel;
+		v[117] = crowdLocal.rs * crowdLocalLevel;
+		v[120] = infLocal.lf * infectedLocalLevel;
+		v[121] = infLocal.rf * infectedLocalLevel;
+		v[124] = infLocal.ls * infectedLocalLevel;
+		v[125] = infLocal.rs * infectedLocalLevel;
+		v[128] = inf.lf * infectedLevel;
+		v[137] = inf.rf * infectedLevel;
+		v[132] = inf.ls * infectedLevel;
+		v[141] = inf.rs * infectedLevel;
+		audio::gRemotePlayers->SetVolumes(player, volumes);
+		new RemotePlayerEvent_SetAmbience(distanceFilter * 16000.0f);
+	}
+#endif
 
 	void SoundPlayerAmbience::SetLoop(bool value)
 	{
