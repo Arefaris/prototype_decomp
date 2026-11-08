@@ -26,7 +26,9 @@ namespace proto
 		// 0x105631E0
 		WOIEpisode();
 		// 0x10563200 (the deleting destructor is 0x10563210)
-		virtual ~WOIEpisode();
+		virtual ~WOIEpisode()
+		{
+		}
 
 		// vftable slots 3 (0x105630C0): the manager learns the episode when it has loaded; 4 (0x105630E0)
 		virtual void Slot3(int unused);

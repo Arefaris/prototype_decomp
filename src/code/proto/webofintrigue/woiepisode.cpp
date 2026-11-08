@@ -31,11 +31,6 @@ namespace proto
 	{
 	}
 
-	// FUNCTION: ENGINE 0x10563200
-	WOIEpisode::~WOIEpisode()
-	{
-	}
-
 	// FUNCTION: ENGINE 0x105630C0
 	void WOIEpisode::Slot3(int unused)
 	{
@@ -57,3 +52,5 @@ namespace proto
 
 // Kept copies (template instances and wrappers of this unit):
 // FUNCTION: ENGINE 0x10563100
+// FUNCTION: ENGINE 0x10563200
+// FUNCTION: ENGINE 0x10563210
