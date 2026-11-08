@@ -8447,3 +8447,29 @@ the large action slots.
 - `RagdollLODBehaviour::Slot2` (0x109263A0) matches. The rest of the ragdoll behaviours (the helpers 0x109263C0 / 0x10925700 / 0x10926460 and the large `RagdollBehaviour` members) are not done.
 - `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
 - networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.
+## sn-fw: the range 0x10B60000 - 0x10B80000, mgraph nodes and om streams (trigger property node, node channel arrays, constructors of the float nodes, inlet and outlet bases)
+613 functions of the range were open at the start (554 of them 150 bytes or smaller); 90 are annotated now: 84 new 100 % matches, 6 NONMATCHING (named below), and two older notes flipped to 100 %.
+- `mgraph/triggerpropertynode.h/.cpp` (new, 0x10B6AC10 - 0x10B6BB90): `PropertyNode<Packet<TriggerData>>` is a class of its own (22 vftable slots: the base's four, `GetValueMetaType`, and a new slot 21 that answers 0), not an instance of the
+  template: a channel is a count and two flags (a trigger waiting to go out, one that went out), the node has `PostInputEvent` / `PostOutputEvent` (non-virtual, unreferenced) and its two events (node at 8, channel at 0xC, the count or the
+  destination at 0x10). The class, its events, `Channel`, `Slot15`, `SetNumChannels`, the event executions, the allocation tags, `CreateNode` and all the `MetaClass` / `NodeType` / `DynamicArray<Channel>` instances (44 functions) match.
+  Dead copies the engine keeps of inline functions (operator new / delete of the node and the events, the event constructors and destructors, the node's destructor) cannot be annotated: they are the engine's explicit instantiation of
+  a template, and a non-template specialization is inlined everywhere (compiling the unit with `/Ob2` inlines the allocation tags and breaks the template instances). Not done: `Slot16` (0x10B6B9A0: the trigger block is allocated from a
+  pin list element whose class no RTTI names).
+- Node units: `DynamicArray<Channel>` constructors, `operator[]` pairs and `DestroyElements` for Delay, Fade, Smoother, MinMaxDistance and the cast nodes (tool: a probe file with one explicit instantiation of each member; the engine's copies
+  are bound by exact bytes in the unit's window), `DynamicArray<unsigned int>` in Fade, `DynamicArray<String>::ReleaseElements` in MinMaxDistance.
+- Constructors (100 %): `Meter`, `Smoother` (the two rate pins start at 0.01: `Packet<float>(0.01f)`, a new constructor of `Packet`), `MinMaxDistance`, `SystemNode` and `CastBoolToTrigger` (both flipped to 100 % by the pin tag renames of sn-du;
+  the NONMATCHING / EQUIVALENT notes are gone). `Meter::Slot16` (root of the mean square over a frame: the loop must read each sample into a local, `float v = samples[i]; sum += v * v;`, for the compiler to unroll it as the engine did),
+  `Smoother::Slot16`, `Delay::Slot16`, `InletBase` / `OutletBase` constructors and destructors (the graph pointer is read once: `Graph* owner = graph;`; the inlet destructor decrements the outlet count, as the engine's does),
+  `OutletBase::GetPin`, `Pin::Pin` / `Pin::~Pin`, `AsyncTaskNode::AsyncTaskNode` (the former `Clear`; `midphasebatcher.cpp` no longer calls it by hand) and `AsyncTaskJob::~AsyncTaskJob`.
+- NONMATCHING: `Delay` constructor (98.3 %), `Delay::Channel::Update` (88.8 %), `GetTriggerOffset` 0x10B6E6A0 (23 %: the engine keeps the entry in ecx), `Smoother::Channel::Update` (93.6 %: the order of the loads of the frame's members),
+  `AsyncTaskJob::AsyncTaskJob` (93 %: the state is stored as an immediate, the timing record from a zero register), `PropertyNode<Packet<TriggerData>>` constructor (96.7 %), `SystemNode::Slot16` (the engine reloads the id into edi).
+- Finding (trigger input pins): every constructor with an `InputPin<Packet<TriggerData>>` (Delay, Fade, CastTriggerToBool, the trigger property node, Chooser) differs by the position of two `push` instructions around the stores of the
+  packet in the pin. `Packet<bool>` gives the engine's order; `TriggerData` with a user constructor does not, and without one the compiler (VS2005) does not zero the byte at all, so the engine's `TriggerData` is neither; nothing tried
+  (bool / unsigned char member, body or list initialisation, explicit constructor, copy constructor, `value(T())` in `Packet`) reaches it.
+- Not done and why: the pin lists of the abstract pins (0x10B698F0 - 0x10B6A130: the list element class has no name), `Chooser` (its channel is a list of 12-byte nodes of the same unnamed list class), `Filter` (a DSP object in every
+  channel), `SelectIntFromTrigger` (channels with a vftable, a dynamic number of inputs), the ten registration functions of the property nodes and the nine per-packet registrations (shrink-wrap), the Switch / Throw instances of the
+  envelope packets (explicit specializations are declared in throw.h), `Fade::Slot16` / `MinMaxDistance::Slot16` (large, with calls into other units), the unit-initial reference count pairs (`lock xadd`, 11 and 9 bytes) and the
+  one-instruction MetaClass slots that precede each class (their class is not named).
+- Shared header changes: `mgraph/nodes.h` (`FrameEntry<T>::block` and `AllocateSamples`, `FrameEntry<TriggerData>` as a specialization with `TriggerSamples`, `EvaluationFrame::allocator`, `Packet(const T&)`), `mgraph/events.h` (`SampleClock`,
+  `Context::clock`), `mgraph/node.h` (`Node::GetSampleRate`), `mgraph/graph.h` (the six inlet / outlet list fields got names), `mgraph/castnodes.h` (`GetTriggerOffset`), `mgraph/meter.h` (`IsPresent`), `core/asynctask.h`
+  (`AsyncTaskNode::Clear` became the constructor). Renamed symbol: `AsyncTaskNode::Clear` -> `AsyncTaskNode::AsyncTaskNode`.
