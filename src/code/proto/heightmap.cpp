@@ -1,5 +1,6 @@
 #include "code/proto/heightmap.h"
 #include <math.h>
+#include <new>
 
 namespace engine
 {
@@ -58,6 +59,63 @@ namespace proto
 		sList.count = 11;
 		return &sList;
 	}
+
+	// FUNCTION: ENGINE 0x103954E0
+	Heightmap::Heightmap() : gridSize(0.0f), inverseGridSize(0.0f), sizeX(0), sizeY(0), marginX(0), marginY(0), minVec(math::kZeroVector), minHeight(0.0f),
+		maxHeight(0.0f), quantum(0.0f)
+	{
+		aabb.Reset();
+		pool.Init(0, 0x14, 0x1000, core::GetCurrentHeap(), "HeightmapPool", 0x10);
+	}
+
+	// FUNCTION: ENGINE 0x10395080
+	Heightmap::~Heightmap()
+	{
+		data.Free();
+		sizeY = 0;
+		sizeX = 0;
+		HeightCache::Iterator iterator(&cache);
+		for (void* item = iterator.First(); item != 0; item = iterator.Next())
+		{
+			pool.Free(item);
+		}
+		cache.Clear();
+	}
+
+	// FUNCTION: ENGINE 0x103902C0
+	// NONMATCHING: the engine walks the old slots and derives the key addresses from the distance of the two arrays, ours walks the keys (24.9 %)
+#ifdef NONMATCHING
+	void HeightCache::Resize(unsigned int count)
+	{
+		core::HeapScope scope(heap);
+		unsigned int oldCount = bucketCount;
+		void** oldSlots = slots;
+		unsigned int* oldKeys = keys;
+		bucketCount = count;
+		slots = new void*[count];
+		keys = new unsigned int[count];
+		usedCount = 0;
+		removedCount = 0;
+		for (unsigned int i = 0; i < bucketCount; i++)
+		{
+			slots[i] = 0;
+			keys[i] = 0;
+		}
+		if (oldSlots != 0)
+		{
+			for (unsigned int i = 0; i < oldCount; i++)
+			{
+				void* item = oldSlots[i];
+				if (item != 0 && item != &removedMarker)
+				{
+					Insert(&oldKeys[i], item);
+				}
+			}
+			operator delete[](oldSlots);
+			operator delete[](oldKeys);
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x103937F0
 	void Heightmap::SetHeight(int x, int y, float height)
@@ -164,7 +222,7 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x103951D0
-	void Heightmap::SetName(const content::ObjectName& name)
+	void Heightmap::Slot3(int unused)
 	{
 	}
 
@@ -186,14 +244,18 @@ template class container::ArrayDynamic<unsigned short, container::AllocatorNew>;
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x103931B0
+// FUNCTION: ENGINE 0x103931C0
 // FUNCTION: ENGINE 0x103931F0
 // FUNCTION: ENGINE 0x10393250
 // FUNCTION: ENGINE 0x103932C0
+// FUNCTION: ENGINE 0x103932F0
 // FUNCTION: ENGINE 0x103933B0
 // FUNCTION: ENGINE 0x103933F0
 // FUNCTION: ENGINE 0x10393400
 // FUNCTION: ENGINE 0x103937E0
+// FUNCTION: ENGINE 0x10393850
 // FUNCTION: ENGINE 0x10393870
+// FUNCTION: ENGINE 0x103938C0
 // FUNCTION: ENGINE 0x103938D0
 // FUNCTION: ENGINE 0x10393910
 // FUNCTION: ENGINE 0x10393950
@@ -225,3 +287,4 @@ template class container::ArrayDynamic<unsigned short, container::AllocatorNew>;
 // FUNCTION: ENGINE 0x10394E60
 // FUNCTION: ENGINE 0x10394F90
 // FUNCTION: ENGINE 0x10395260
+// FUNCTION: ENGINE 0x103952B0

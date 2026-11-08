@@ -9,6 +9,8 @@
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
+#include "code/core/heap.h"
+#include "code/core/memory/memorypool.h"
 #include "code/math/aabb.h"
 #include "code/math/vector.h"
 
@@ -29,9 +31,110 @@ namespace proto
 	// The heights of a window of 6 by 6 cells around the cells being worked on (0x98 bytes; names guessed)
 	struct HeightWindow
 	{
+		HeightWindow() : originX(0), originY(0)
+		{
+		}
+
 		int originX;  // +0
 		int originY;  // +4
 		float values[36];  // +8
+	};
+
+	// The cache of the heights worked out for cells (a hash table of pointers keyed by cell, 0x28 bytes behind the
+	// heights at +0xFC; the name and the member names are guesses). A removed slot holds the address of the table's own last word.
+	struct HeightCache
+	{
+		HeightCache()
+		{
+			usedCount = 0;
+			removedCount = 0;
+			shrinks = false;
+			maxRemoved = 100;
+			maxLoadPercent = 60;
+			slots = 0;
+			keys = 0;
+			removedMarker = 0;
+			bucketCount = 0x2000;
+			heap = core::GetCurrentHeap();
+			Resize(bucketCount);
+		}
+		~HeightCache()
+		{
+			operator delete[](slots);
+			operator delete[](keys);
+		}
+		// 0x103902C0: gives the table room for count buckets (the items move over)
+		void Resize(unsigned int count);
+		// 0x103901B0: files an item under a key
+		void Insert(const unsigned int* key, void* item);
+
+		// Walks the stored items in bucket order (removed slots and empty ones are skipped)
+		class Iterator
+		{
+		public:
+			Iterator(HeightCache* newTable) : table(newTable)
+			{
+			}
+			// 0x103938C0
+			void* First()
+			{
+				index = 0xffffffff;
+				return Next();
+			}
+			// 0x103932F0: the item behind the current one (null at the end)
+			void* Next()
+			{
+				HeightCache* cache = table;
+				unsigned int next = index;
+				void* item;
+				do
+				{
+					next++;
+					if (next >= cache->bucketCount)
+					{
+						break;
+					}
+					item = cache->slots[next];
+				}
+				while (item == 0 || item == &cache->removedMarker);
+				index = next;
+				return Current();
+			}
+			// The item at the current position (null behind the last bucket)
+			void* Current()
+			{
+				if (index >= table->bucketCount)
+				{
+					return 0;
+				}
+				return table->slots[index];
+			}
+
+			HeightCache* table;
+			unsigned int index;
+		};
+
+		// Takes every item out (the slots are cleared; the items are not freed)
+		void Clear()
+		{
+			for (unsigned int i = 0; i < bucketCount; i++)
+			{
+				slots[i] = 0;
+			}
+			usedCount = 0;
+			removedCount = 0;
+		}
+
+		unsigned int bucketCount;  // +0
+		unsigned int usedCount;  // +4
+		unsigned int removedCount;  // +8
+		bool shrinks;  // +0xC
+		unsigned int maxRemoved;  // +0x10
+		unsigned int maxLoadPercent;  // +0x14
+		int heap;  // +0x18
+		void** slots;  // +0x1C
+		unsigned int* keys;  // +0x20
+		void* removedMarker;  // +0x24
 	};
 
 	class Heightmap : public content::MetaLoadObject
@@ -39,7 +142,10 @@ namespace proto
 	public:
 		typedef container::ArrayDynamic<unsigned short, container::AllocatorNew> HeightArray;
 
+		// 0x103954E0
 		Heightmap();
+		// 0x10395080 (not reconstructed: it frees the cached heights through the pool; the deleting form is 0x103952B0)
+		virtual ~Heightmap();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
@@ -59,8 +165,8 @@ namespace proto
 		// 0x1038C1F0: the same moved by half a cell
 		void GetWindowCellCenter(math::Vector* out, int x, int y);
 
-		// Vftable slot 3 (0x103951D0): ignores the name
-		virtual void SetName(const content::ObjectName& name);
+		// Vftable slot 3 (0x103951D0): does nothing
+		virtual void Slot3(int unused);
 		// Vftable slot 5 (0x10393160): works out the factor behind the grid size and the half of the rows
 		virtual bool Slot5();
 
@@ -87,7 +193,8 @@ namespace proto
 		HeightArray data;  // +0x54
 		unsigned char unknown60[4];
 		HeightWindow window;  // +0x64
-		unsigned char unknownFC[0x190 - 0xFC];
+		HeightCache cache;  // +0xFC
+		core::MemoryPool pool;  // +0x124
 	};
 }
 

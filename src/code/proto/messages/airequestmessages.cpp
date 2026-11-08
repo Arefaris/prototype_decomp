@@ -515,6 +515,7 @@ namespace
 #pragma inline_depth()
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D3C80
 // FUNCTION: ENGINE 0x103607D0
 // FUNCTION: ENGINE 0x10360800
 // FUNCTION: ENGINE 0x10360810
@@ -817,6 +818,4 @@ namespace
 // FUNCTION: ENGINE 0x10386340
 // FUNCTION: ENGINE 0x10386370
 // FUNCTION: ENGINE 0x103863A0
-
-// Kept copies (inline members, template instances and compiler-generated functions of this unit):
-// FUNCTION: ENGINE 0x102D3C80
+// FUNCTION: ENGINE 0x103863D0

@@ -9,6 +9,48 @@
 namespace engine
 {
 	extern core::Name<core::CaseSensitiveKey> gSpawner;
+	extern core::Name<core::CaseSensitiveKey> gSoldier3;
+	extern core::Name<core::CaseSensitiveKey> gBlackwatch2;
+	extern core::Name<core::CaseSensitiveKey> gCommander3;
+	extern core::Name<core::CaseSensitiveKey> gPedMPilotCau;
+	extern core::Name<core::CaseSensitiveKey> gCop2;
+	extern core::Name<core::CaseSensitiveKey> gTankGunner2;
+	extern core::Name<core::CaseSensitiveKey> gTankRamMarine2;
+	extern core::Name<core::CaseSensitiveKey> gApcM2Marine2;
+	extern core::Name<core::CaseSensitiveKey> gBloodtoxDriller001;
+	extern core::Name<core::CaseSensitiveKey> gTankRamThermobaric2;
+	extern core::Name<core::CaseSensitiveKey> gHeliGunshipMarineCore2;
+	extern core::Name<core::CaseSensitiveKey> gHeliBhMarine2;
+	extern core::Name<core::CaseSensitiveKey> gF45Thunder001;
+	extern core::Name<core::CaseSensitiveKey> gUav2;
+	extern core::Name<core::CaseSensitiveKey> gSupersoldier3;
+	extern core::Name<core::CaseSensitiveKey> gInfected13;
+	extern core::Name<core::CaseSensitiveKey> gInfected23;
+	extern core::Name<core::CaseSensitiveKey> gBrawler2;
+	extern core::Name<core::CaseSensitiveKey> gStealth;
+	extern core::Name<core::CaseSensitiveKey> gHydra2;
+	extern core::Name<core::CaseSensitiveKey> gLeaderHunter2;
+	extern core::Name<core::CaseSensitiveKey> gGunTurret;
+	extern core::Name<core::CaseSensitiveKey> gSniffer;
+	extern core::Name<core::CaseSensitiveKey> gKarenparker;
+	extern core::Name<core::CaseSensitiveKey> gBwplainclothes2;
+	extern core::Name<core::CaseSensitiveKey> gMissionPed;
+	extern core::Name<core::CaseSensitiveKey> gBwscientist;
+	extern core::Name<core::CaseSensitiveKey> gDanaMercer;
+	extern core::Name<core::CaseSensitiveKey> gFemale2;
+	extern core::Name<core::CaseSensitiveKey> gRagland;
+}
+
+namespace proto
+{
+	// 0x103BB410 (another unit): sends the object a SetGameObjectLODAIMsg when its level of detail differs
+	bool Unknown103BB410(engine::GameObject* object, int levelOfDetail, bool flag);
+
+	namespace HitEffectManager
+	{
+		// 0x112562B8: the name of the attribute that holds an object's class name
+		extern core::Name<core::CaseSensitiveKey> gClassNameAttributeName;
+	}
 }
 
 namespace proto
@@ -217,6 +259,95 @@ namespace proto
 		return false;
 	}
 
+	// FUNCTION: ENGINE 0x10385DA0
+	bool SoldierBudgets::Unknown10385DA0(engine::GameObjectHandle handle)
+	{
+		if (reservedHandle == handle)
+		{
+			unknown2C = 1.0f;
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10385DD0
+	bool SoldierBudgets::Unknown10385DD0(engine::GameObjectHandle handle)
+	{
+		if (reservedHandle == handle)
+		{
+			reserved = 0;
+			reservedHandle.index = 0xffff;
+			reservedHandle.serial = 0;
+			unknown2C = -1.0f;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10385C00
+	void SoldierBudgets::SetObjectLevelOfDetail(engine::GameObject* object, const int* levelOfDetail, bool flag)
+	{
+		Unknown103BB410(object, *levelOfDetail, flag);
+	}
+
+	// FUNCTION: ENGINE 0x10388030
+	// NONMATCHING: the engine keeps the result byte in a stack slot and the object in ebp next to a constant 1 in ebx (15.4 %)
+#ifdef NONMATCHING
+	bool SoldierBudgets::Unknown10388030(engine::GameObjectHandle handle, bool flag)
+	{
+		bool result = false;
+		engine::GameObject* object = handle.Get();
+		CharacterBudgetEntry* entry = Find(handle);
+		if (entry != entries.end)
+		{
+			int kind = GetCharacterClassIndex(object);
+			if (kind == 1 || kind == 2 || kind == 10)
+			{
+				return false;
+			}
+			entry->unknown44 = 2.0f;
+			if (entry->unknown34 == 1)
+			{
+				return true;
+			}
+			if (flag)
+			{
+				unknown20 -= entry->policy.weight;
+				if (unknown20 < 0)
+				{
+					return result;
+				}
+			}
+			int levelOfDetail = 1;
+			SetObjectLevelOfDetail(entry->handle.Get(), &levelOfDetail, true);
+			entry->unknown34 = 1;
+			result = true;
+		}
+		return result;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10388130
+	// NONMATCHING: the engine keeps the result in dl, the registers the callee leaves alone (34.5 %)
+#ifdef NONMATCHING
+	bool SoldierBudgets::Unknown10388130(engine::GameObjectHandle handle)
+	{
+		if (reserved > 0)
+		{
+			bool result = Unknown10388030(handle, false);
+			if (result)
+			{
+				reserved--;
+				if (reserved == 0)
+				{
+					Unknown10385DD0(reservedHandle);
+				}
+			}
+			return result;
+		}
+		return false;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10387FC0
 	void SoldierBudgets::LoadPolicies()
 	{
@@ -267,6 +398,66 @@ namespace proto
 			result = ((engine::ConstAttribute<engine::GameObjectHandle>*)attribute)->value.Get();
 		}
 		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10387800
+	int GetCharacterClassIndex(engine::GameObject* object)
+	{
+		engine::BaseAttribute* attribute = object->FindAttribute(HitEffectManager::gClassNameAttributeName);
+		if (attribute != 0 && &((engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value != 0)
+		{
+			const core::Name<core::CaseSensitiveKey>& name = ((engine::ConstAttribute<core::Name<core::CaseSensitiveKey> >*)attribute)->value;
+			if (name == engine::gSoldier3 || name == engine::gBlackwatch2 || name == engine::gCommander3 || name == engine::gPedMPilotCau || name == engine::gCop2 || name == engine::gTankGunner2)
+			{
+				return 0;
+			}
+			if (name == engine::gTankRamMarine2 || name == engine::gApcM2Marine2 || name == engine::gBloodtoxDriller001 || name == engine::gTankRamThermobaric2)
+			{
+				return 1;
+			}
+			if (name == engine::gHeliGunshipMarineCore2 || name == engine::gHeliBhMarine2 || name == engine::gF45Thunder001)
+			{
+				return 2;
+			}
+			if (name == engine::gUav2)
+			{
+				return 3;
+			}
+			if (name == engine::gSupersoldier3)
+			{
+				return 4;
+			}
+			if (name == engine::gInfected13)
+			{
+				return 5;
+			}
+			if (name == engine::gInfected23)
+			{
+				return 6;
+			}
+			if (name == engine::gBrawler2 || name == engine::gStealth)
+			{
+				return 7;
+			}
+			if (name == engine::gHydra2)
+			{
+				return 8;
+			}
+			if (name == engine::gLeaderHunter2)
+			{
+				return 9;
+			}
+			if (name == engine::gGunTurret || name == engine::gSniffer)
+			{
+				return 10;
+			}
+			if (name == engine::gKarenparker || name == engine::gBwplainclothes2 || name == engine::gMissionPed || name == engine::gBwscientist || name == engine::gDanaMercer || name == engine::gFemale2 || name == engine::gRagland)
+			{
+				return 11;
+			}
+			return 11;
+		}
+		return -1;
 	}
 
 	// FUNCTION: ENGINE 0x103876A0
