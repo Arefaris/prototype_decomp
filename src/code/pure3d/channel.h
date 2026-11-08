@@ -208,6 +208,12 @@ namespace pure3d
 		void Set(ChannelKeys<math::CompressedQuaternion3> newKeys);
 		// 0x106E6D70
 		void Evaluate(FrameTime time, math::Quaternion* out);
+		// 0x106E6CD0 (and 0x106E6D20 for a matrix, a function the analysis did not split off): the frame and the value of
+		// a key
+		void GetKeyAt(unsigned int index, float* frame, math::Quaternion* out);
+		void GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+		// 0x106E6F20: the value at a time as a matrix
+		void Evaluate(float time, math::Matrix* out);
 		// 0x106E6FC0: the rotation that takes the value at the first time to the one at the second
 		void GetDelta(FrameTime from, FrameTime to, math::Quaternion* out);
 		// 0x106E39B0: the keys of the stored form as their base (the base of every form sits in the same place)
@@ -234,6 +240,8 @@ namespace pure3d
 		void Set(const ChannelKeys<Short3>& newKeys);
 		// 0x106E5CC0
 		void Evaluate(FrameTime time, math::Vector* out);
+		// 0x106E5C70: the frame and the value of a key
+		void GetKeyAt(unsigned int index, float* frame, math::Vector* out);
 		// 0x106E5D70: the change of the value between two times
 		void GetDelta(FrameTime from, FrameTime to, math::Vector* out);
 		// 0x106E3980: the keys of the stored form as their base (the base of every form sits in the same place)

@@ -1154,6 +1154,10 @@ namespace pure3d
 		void Unknown106EE500();
 		// 0x106EEC50: the multisample mode the surfaces are made with, from the display's sample count
 		void Unknown106EEC50(int samples);
+		// 0x106EDCD0: starts the query of the current frame; 0x106EDCF0: ends it, marks it started and keeps what its
+		// result is scaled by (names guessed)
+		void StartQuery();
+		void StopQuery(float scale);
 		// 0x106EDC20: the value at +0x1A0 and the budget of the surfaces that goes with it (name guess)
 		void SetUnknown1A0(int value);
 

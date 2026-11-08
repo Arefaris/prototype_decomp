@@ -251,6 +251,20 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106EDCD0
+	void ParticleManager::StartQuery()
+	{
+		pddi->Unknown15(queries[unknown1C0]);
+	}
+
+	// FUNCTION: ENGINE 0x106EDCF0
+	void ParticleManager::StopQuery(float scale)
+	{
+		pddi->Unknown16(queries[unknown1C0]);
+		queryStarted[unknown1C0] = true;
+		queryScale[unknown1C0] = scale;
+	}
+
 	// FUNCTION: ENGINE 0x106EDC20
 	void ParticleManager::SetUnknown1A0(int value)
 	{

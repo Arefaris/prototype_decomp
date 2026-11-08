@@ -1436,45 +1436,31 @@ namespace pure3d
 	static int sAxisPairs[3][2] = {{1, 2}, {0, 2}, {0, 1}};
 
 	// FUNCTION: ENGINE 0x106E4460
-	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (55 %)
-#ifdef NONMATCHING
 	template<> void DOFKeys<float>::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
 	{
 		short key;
 		pure3d::GetKey(frames, index, &key);
 		*frame = (float)key;
-		math::Vector copy(constant.x, constant.y, constant.z);
-		out->x = copy.x;
-		out->y = copy.y;
-		out->z = copy.z;
+		out->Set(constant.x, constant.y, constant.z);
 		float value;
 		pure3d::GetKey(values, index, &value);
 		((float*)out)[axis] = value;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x106E4620
-	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (48 %)
-#ifdef NONMATCHING
 	template<> void DOFKeys<Float2>::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
 	{
 		short key;
 		pure3d::GetKey(frames, index, &key);
 		*frame = (float)key;
-		math::Vector copy(constant.x, constant.y, constant.z);
-		out->x = copy.x;
-		out->y = copy.y;
-		out->z = copy.z;
+		out->Set(constant.x, constant.y, constant.z);
 		Float2 value;
 		pure3d::GetKey(values, index, &value);
 		((float*)out)[sAxisPairs[axis][0]] = value.x;
 		((float*)out)[sAxisPairs[axis][1]] = value.y;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x106E44D0
-	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (30 %)
-#ifdef NONMATCHING
 	template<> void DOFKeys<float>::Evaluate(FrameTime time, math::Vector* out)
 	{
 		FrameTime time0;
@@ -1483,10 +1469,7 @@ namespace pure3d
 		unsigned int index1;
 		int frame0;
 		int frame1;
-		math::Vector copy(constant.x, constant.y, constant.z);
-		out->x = copy.x;
-		out->y = copy.y;
-		out->z = copy.z;
+		out->Set(constant.x, constant.y, constant.z);
 		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
 		time0.SetFrame(frame0);
 		time1.SetFrame(frame1);
@@ -1508,10 +1491,9 @@ namespace pure3d
 		pure3d::GetKey(values, index0, &value);
 		((float*)out)[axis] = value;
 	}
-#endif
 
 	// FUNCTION: ENGINE 0x106E49D0
-	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (27 %)
+	// NONMATCHING: stack frame (48 %: the engine's frame is 8 bytes larger, as for the other Float2 and Vector evaluations)
 #ifdef NONMATCHING
 	template<> void DOFKeys<Float2>::Evaluate(FrameTime time, math::Vector* out)
 	{
@@ -1521,10 +1503,7 @@ namespace pure3d
 		unsigned int index1;
 		int frame0;
 		int frame1;
-		math::Vector copy(constant.x, constant.y, constant.z);
-		out->x = copy.x;
-		out->y = copy.y;
-		out->z = copy.z;
+		out->Set(constant.x, constant.y, constant.z);
 		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
 		time0.SetFrame(frame0);
 		time1.SetFrame(frame1);
@@ -1609,6 +1588,98 @@ namespace pure3d
 		out->z = v.z;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106E5C70
+	void VectorKeys::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
+	{
+		switch (type)
+		{
+		case 0:
+			((DOFKeys<float>*)keys)->GetKeyAt(index, frame, out);
+			break;
+		case 1:
+			((DOFKeys<Float2>*)keys)->GetKeyAt(index, frame, out);
+			break;
+		case 2:
+			((ChannelKeys<math::Vector>*)keys)->GetKeyAt(index, frame, out);
+			break;
+		case 3:
+			((DOFKeys<Short2>*)keys)->GetKeyAt(index, frame, out);
+			break;
+		case 4:
+			((ChannelKeys<Short3>*)keys)->GetKeyAt(index, frame, out);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E6CD0
+	void RotationKeys::GetKeyAt(unsigned int index, float* frame, math::Quaternion* out)
+	{
+		switch (type)
+		{
+		case 0:
+			keys.GetKeyAt(index, frame, out);
+			break;
+		case 1:
+			((ChannelKeys<math::CompressedQuaternion8>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 2:
+			((ChannelKeys<math::CompressedQuaternion6>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 3:
+			((ChannelKeys<math::CompressedQuaternion4>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 4:
+			((ChannelKeys<math::CompressedQuaternion3>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E6F20
+	void RotationKeys::Evaluate(float time, math::Matrix* out)
+	{
+		switch (type)
+		{
+		case 0:
+			keys.Evaluate(time, out);
+			break;
+		case 1:
+			((ChannelKeys<math::CompressedQuaternion8>*)&keys)->Evaluate(time, out);
+			break;
+		case 2:
+			((ChannelKeys<math::CompressedQuaternion6>*)&keys)->Evaluate(time, out);
+			break;
+		case 3:
+			((ChannelKeys<math::CompressedQuaternion4>*)&keys)->Evaluate(time, out);
+			break;
+		case 4:
+			((ChannelKeys<math::CompressedQuaternion3>*)&keys)->Evaluate(time, out);
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E6D20
+	void RotationKeys::GetKeyAt(unsigned int index, float* frame, math::Matrix* out)
+	{
+		switch (type)
+		{
+		case 0:
+			keys.GetKeyAt(index, frame, out);
+			break;
+		case 1:
+			((ChannelKeys<math::CompressedQuaternion8>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 2:
+			((ChannelKeys<math::CompressedQuaternion6>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 3:
+			((ChannelKeys<math::CompressedQuaternion4>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		case 4:
+			((ChannelKeys<math::CompressedQuaternion3>*)&keys)->GetKeyAt(index, frame, out);
+			break;
+		}
+	}
 }
 
 // FUNCTION: ENGINE 0x106E30C0
