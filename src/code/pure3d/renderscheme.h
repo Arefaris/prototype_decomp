@@ -89,6 +89,11 @@ namespace pure3d
 		// Slot 6 (0x1074D920)
 		virtual void Unknown6();
 
+		// 0x1074DB90 / 0x1074DBE0 (not reconstructed): hold a pass the scheme made, false when it cannot be kept; the
+		// second takes the root pass (names guessed)
+		bool RegisterPass(Pass* newPass);
+		bool RegisterRootPass(Pass* newPass);
+
 		unsigned char unknown4[0x30];
 		Pass* pass;
 	};

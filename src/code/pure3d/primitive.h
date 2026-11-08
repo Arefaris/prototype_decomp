@@ -16,6 +16,7 @@
 #include "code/math/vector.h"
 #include "code/math/vector2.h"
 #include "code/math/vector4.h"
+#include "code/pure3d/effects/multiarray.h"
 #include "code/pure3d/effects/particledata.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/framecontroller.h"
@@ -836,6 +837,8 @@ namespace pure3d
 	public:
 		// 0x106F2F20: the type is what the primitive is drawn as (0x4000 for the gpu skin)
 		explicit Primitive(unsigned int newType);
+		// 0x106F2F60: a primitive of the same kind (the shader and the flags are taken over)
+		Primitive(const Primitive& other);
 		virtual ~Primitive();
 		// Draws the primitive in the state of a part with the shader of that name
 		virtual void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, PrimitiveState* state,
@@ -1072,6 +1075,8 @@ namespace pure3d
 		// has (names guessed)
 		int FindEntry(const core::Name<core::CaseInsensitiveKey32>& name);
 		int GetEntryNumber(int index);
+		// 0x106EF970: registers a state with the module
+		void RegisterState(PrimitiveState* state);
 		// 0x106EE6E0: the index of a parameter
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
 		// 0x106EECB0: the most parts a particle drawable may have
@@ -1205,7 +1210,8 @@ namespace pure3d
 		unsigned char unknown268[0x10];
 		// The most particles the generator keeps alive
 		int particleCount;
-		unsigned char unknown27C[4];
+		// Set from the state that holds the generator (0x1070AF70)
+		int unknown27C;
 		float unknown280;
 		unsigned char unknown284[0xD];
 		bool unknown291;
@@ -1644,6 +1650,8 @@ namespace pure3d
 			SkinState* mState;
 		};
 
+		// Slot 2 (the body is 0x1071FE10, the deleting destructor 0x107209E0)
+		virtual ~SkinState();
 		// Slots 3 - 9 and the state's own slot 10 (skin.cpp)
 		virtual PrimitiveState* Unknown3();
 		virtual void Unknown5();
@@ -1777,6 +1785,8 @@ namespace pure3d
 		unsigned int GetUnknown1C();
 		// 0x10720220: takes the primitive's flags from the shader's (called by Unknown4; name guess)
 		void SetFlagsFromShader();
+		// 0x1071ED40: the description of the index buffer at +0x148 (name guess)
+		void GetIndexDescription(IndexBufferDescription* description);
 		// 0x1071FF00 (0x29C bytes): a skin of the streams of the first description (the second and the third are
 		// the mesh's and the state's when the group animates some; argument names guessed)
 		Skin(const ShaderParameters* parameters, const ShaderParameters* meshParameters,
@@ -1923,6 +1933,8 @@ namespace pure3d
 		void SetFlagsFromShader();
 	};
 
+	class ParticleController;
+
 	// The per-instance state of a particle system. The setters and parameter forwarders are inline (0x107E8060 -
 	// 0x107E80D0 and 0x107E8AA0 - 0x107E8B30 are out-of-line copies); the rest is in the particle module.
 	class ParticleSystemState : public PrimitiveState
@@ -1978,6 +1990,36 @@ namespace pure3d
 		virtual void GetBoundingBox(math::AABB* box);
 		// 0x1070C340 (not reconstructed)
 		void Unknown1070C340();
+		// 0x1070BD00 - 0x1070BE20: the arrays of an entry of the lists of the attributes (vectors, four-component
+		// vectors, floats, floats) of the state that owns them (the parent's when inherited)
+		particles::Span GetSpan0(int index);
+		particles::Span GetSpan1(int index);
+		particles::Span GetSpan2(int index);
+		particles::Span GetSpan3(int index);
+		// 0x106E9980: the number of particles of the state that owns them (the parent's when inherited)
+		unsigned int GetParticleCount();
+		// 0x10709C00: starts the update unless the state takes its values from its parent
+		void StartUpdate(float x, float y, float z, bool flag);
+		// 0x10709D90: hands the value on to the generator
+		void SetGeneratorUnknown254(float value);
+		// 0x10709E90 / 0x10709EA0 / 0x10709EB0 / 0x10709F10: the values at +0x494, +0x498, +0x491 and +0x4BA
+		float GetUnknown494();
+		float GetUnknown498();
+		bool GetUnknown491();
+		void SetUnknown4BA(bool value);
+		// 0x10709EE0: the frame rate of the update controller times the value
+		float ScaleByFrameRate(float value);
+		// 0x1070AEB0 - 0x1070AF40: element n of the arrays of values at +0x2E0 (floats), +0x2F8 (pairs), +0x308
+		// (vectors) and +0x32C (matrices) of the state that owns them (the parent's when inherited)
+		float GetValue(int index);
+		float* GetPair(int index);
+		math::Vector* GetVector(int index);
+		math::Matrix* GetMatrix(int index);
+		// 0x1070AB60: makes the state follow another one (the four words at +0x4C4 come from the values) and makes the
+		// vertex buffers its draw needs
+		void SetParent(ParticleSystemState* newParent, const int* values);
+		// 0x1070AF70: holds the generator and tells it the value at +0x4B4
+		void SetGenerator(ParticleGenerator* newGenerator);
 
 		void SetUnknown49C(float value)
 		{
@@ -2103,7 +2145,9 @@ namespace pure3d
 		unsigned char* block;
 		unsigned char unknown2B8[8];
 		ParticleAttributeTable* attributes2C0;
-		unsigned char unknown2C4[0xC];
+		unsigned char unknown2C4[4];
+		ParticleAttributeTable* attributes2C8;
+		unsigned char unknown2CC[4];
 		ParticleAttributeTable* attributes2D0;
 		unsigned char unknown2D4[4];
 		ParticleAttributeTable* attributes2D8;
@@ -2130,8 +2174,8 @@ namespace pure3d
 		RefCountedBoolChannel* unknown3F0;
 		bool unknown3F4;
 		unsigned char unknown3F5[3];
-		FrameController* unknown3F8;
-		FrameController* unknown3FC;
+		ShaderAnimationController* unknown3F8;
+		ParticleController* unknown3FC;
 		RefCountedFloat1Channel* unknown400;
 		RefCountedFloat1Channel* unknown404;
 		RefCountedVectorChannel* unknown408;
@@ -2142,7 +2186,13 @@ namespace pure3d
 		// The box around the particles (UpdateBounds) and the emitter transform
 		math::AABB bounds;
 		math::Matrix transform;
-		unsigned char unknown474[0x1C];
+		// A reference the state holds (released by the destructor, copied by the copy constructor)
+		void* unknown474;
+		unsigned char unknown478[4];
+		unsigned int unknown47C;
+		// The two vertex buffers a state that takes its particles from a parent draws into (0x1070AB60)
+		dxVertexBuffer* vertexBuffers[2];
+		unsigned char unknown488[8];
 		bool unknown490;
 		bool unknown491;
 		unsigned char unknown492[2];
@@ -2155,12 +2205,19 @@ namespace pure3d
 		unsigned char unknown4AC[8];
 		int unknown4B4;
 		bool unknown4B8;
-		unsigned char unknown4B9[3];
+		bool unknown4B9;
+		// Set by 0x10709F10
+		bool unknown4BA;
+		bool unknown4BB;
 		bool unknown4BC;
 		bool inheritUnknown4BC;
 		unsigned char unknown4BE[2];
 		// The state this one was made from
 		ParticleSystemState* parent;
+		int unknown4C4;
+		int unknown4C8;
+		int unknown4CC;
+		int unknown4D0;
 	};
 }
 

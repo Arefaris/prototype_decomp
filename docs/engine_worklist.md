@@ -8076,3 +8076,41 @@ Written into the existing units (`ai_destination`, `ai_target`, `ai_threat`, `ai
 - `lighting/src/light.cpp`: the bit set operations on the light groups (`AndLightBits`, `NandLightBits`, `NorLightBits`, `XorLightBits`, `NotLightBits`, `SetLightBits`, `ClearLightBits`; `CountLightBits` NONMATCHING: the engine tests the bit through a byte temporary and spills two arguments), `Light::Unknown1075C500` / `Unknown1075C570` (three sets of nine floats; the arguments of the first and of `engine::render::Light::ApplyUnknown1075C500` are floats now, both symbols were renamed). The nine float copy needs the loop with `last = first + 9` computed at run time (`CopyNineFloats`).
 - `font/src/texturefont.cpp`: `TextureFont::~TextureFont` (the glyph info array has an empty destructor, so its block starts with the count); the constructor is NONMATCHING (30.7 %: the engine stores the vftable between the two flags and the floats). `src/renderoptions.cpp`: `TargetParams` (the engine's `pure3d::RenderParams`): the destructor matches, the two constructors are NONMATCHING (86 % / 88 %: the engine stores the vftable before the address of the options is taken); the table at +0x24 is the `ArrayFixed<PassView, 8>` of the pass context.
 - Not done: the std::vector / `ArrayFixed` instances of `LightArray` and the render scheme's map (no class names the element types), the particle data loaders and the arrays of `ParticleGeneratorData` (0x1074AF10 - 0x1074C380), `SetParameter*` (they go through the attribute arrays' member functions, unreconstructed), `Light` bounds, the blur / tone map / frame buffer passes (unknown layouts), `ParameterTree` and the render scheme's tree.
+## pure3d 0x10700000 - 0x10720000, third pass: particle system, pass factories, shader forwarders, shadow manager (sn-ed)
+- **ParticleSystem / ParticleRenderer / PSAsyncTaskCallback** (effects/particlesystem.h, effects/src/particlesystem.cpp):
+  the primitive a particle chunk loads as (renderer +0x1C, the box +0x20, the centre +0x38). The renderer reference is a
+  member with a constructor (the copy constructor stores its zero through the member's address) and the centre a member
+  that zeroes its first three components. `Primitive(const Primitive&)` (0x106F2F60) is declared in primitive.h.
+- **ParticleSystemState**: the reference helper copies of the unit (SharedDetails, the three channel kinds, the generator,
+  the update controller, the parent state, the vertex buffer: 0x1070A4E0 - 0x1070A8E0), the accessors (0x10709C00 - 0x10709F10,
+  0x1070AEB0 - 0x1070AF70), `SetParent`, and the four span getters 0x1070BD00 - 0x1070BE20 (a conditional expression of the parent's
+  call and a constructed `Span`: the result goes through a local and is copied to the returned slot). `unknown3F8` is a
+  `ShaderAnimationController*` and `unknown3FC` a `ParticleController*` (the destructor releases them as those).
+  `pddiBaseContext`'s second vertex buffer creator (0x1061B650) answers none and is declared in dxcontext.h.
+- **particles::MultiArray<57> / AttributeData<57> / ParticleData** (effects/multiarray.h, particledata.h): the constructors and the
+  destructor body are inline (the derived constructor contains the base one), `Free` and the derived constructor are not (an
+  out-of-class member is not inlined at /Ob1). The span getters return `Span` by value (a hidden return slot: the engine
+  returns the slot in eax). ParticleData is a vftable and an AttributeData at +4; the state keeps one at +0xE4.
+  `ParticleUpdateData`'s layout in particledata.h does not match its constructor 0x1070B620 (an AttributeData at +8); not touched.
+- **ProtoRenderScheme** (protorenderscheme.h, pass/src/protorenderscheme.cpp): the nineteen pass factories are one member template
+  `CreatePass<Pass, Description>` (find the parent by name, make the pass, keep it, hang it below the parent; a failed registration deletes
+  the pass and returns the cleared variable), `CreateRootPass`, `ViewPassDesc`'s constructor and the x87 form of
+  `pddiColour::FromColour128` (a float to `unsigned int` conversion inline). Ten pass classes were four bytes short of the engine's
+  object (the factory pushes the size): their headers carry a four-byte tail member. `FindPass` (0x107195D0) and `RegisterPass` /
+  `RegisterRootPass` (0x1074DB90 / 0x1074DBE0) are declared and mapped; the scheme's constructor (0x1071A000, with the pass
+  descriptions on the stack) and the tree helpers 0x10719130 - 0x10719570 (the tree is keyed by a `ContextKey`) are not done.
+- **Shader** (loaders/shaderloader.cpp): the forwarders to the device shader (0x107049D0, 0x107049E0, 0x10704B40), the template
+  accessors, the destructor and the input name map's instances (Find twice, Insert, Clear, the comparators and the node deleter).
+  `Shader::Init` (0x10706100) and the constructors (0x107064A0 / 0x10706500) are not done: the engine loads the constant 0.5 for
+  the draw parameters' first float before the vftable store, which no member initialiser reproduces.
+- **Skin**: the body of the skinning task (`&&` of the two stream flags, then `else if` on the first: the second test of the flag is kept),
+  `GetIndexDescription` and `~SkinState` (the empty `AsyncTaskJob` destructor 0x10B7F990 is declared). The constructor 0x1071FF00 is
+  NONMATCHING (89.8 %: the engine fetches the allocator's vtable slot before it works out the block size).
+- **ShadowRenderManager**: the shadow map size and memory helpers (0x10715980, 0x10715A70, a switch whose cases fall into the common 0x800
+  stores), the device states (0x10715940, 0x10715B00, 0x10715CD0) and the shutdown (0x107168B0). Not done: 0x10715AD0 (the surface goes
+  onto the stack before the context is loaded), the destructor 0x10715C00 (the type of the reference at +0xC), `Setup`'s helper 0x10715D90.
+- Not done, with the reason: `CountParticles` 0x1070C560 (the compiler unrolls and allocates the registers differently; 80 %), the
+  setters of the shared attribute arrays 0x1070BE80 - 0x1070C210, the state's constructors, destructor and clones (0x1070D540,
+  0x1070DEE0, 0x1070E060, 0x1070EA40, 0x1070EA90: the type of the reference at +0x474 and the scratch object at +0x3B4 have no name),
+  the scene (0x5800 bytes), the tiny container instances between 0x10709DB0 and 0x1070B650, 0x10710D00 - 0x10712110 and 0x10717A30 -
+  0x10718390 (their element types are not named anywhere).
