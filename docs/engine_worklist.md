@@ -8447,3 +8447,44 @@ the large action slots.
 - `RagdollLODBehaviour::Slot2` (0x109263A0) matches. The rest of the ragdoll behaviours (the helpers 0x109263C0 / 0x10925700 / 0x10926460 and the large `RagdollBehaviour` members) are not done.
 - `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
 - networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.
+
+## 0x10900000 - 0x10920000 (sn-ft): third pass over the physics properties, advertisement, template builder and solver units
+
+- `secondaryphysicsproperties.cpp`: `JointData::CreateConstraints` 0x1090E4D0, `Slot5` 0x1090F470 (makes a description per joint) with its file-local
+  helper `DescribeJoint` 0x1090F420 (register argument, `static`) and `JointData::GetMassProperties` 0x1090DF80 (out of line in the engine: defined in
+  the source file, an inline definition is expanded by the compiler). The physics object the properties hold is a `ravenphysics::PhysicsObjectFactory`
+  (it was typed `pure3d::Loaded1066F430`; `RefAssign` / `SafeRelease` of it were renamed in symbols.txt). `physicsobjectfactory.h` gained
+  `ObjectDescription::ReserveVolumes` / `AddVolume` (0x1066DFB0 / 0x1066E000) and `PhysicsObjectFactory::ReserveObjects` / `AddObject`
+  (0x1066E230 / 0x1066F100), mapped to the engine. `JointData::CreateVolumeFactory` 0x1090F200 is declared and left to the engine (the OBB case needs the
+  vector/matrix constructor of `math::OBB`, which has no such form).
+- `container::ArrayDynamic<T, AllocatorNew>::Resize` and `Erase(first, last)` now have the engine's form (Resize inlines the insertion and the size is
+  computed twice; the range erase destroys the tail): `ArrayDynamic<WheelData>` Resize 0x10907BF0 / 0x109079A0, Erase 0x10907800 and `Destroy` 0x10907530
+  match (the symbol of 0x10907BF0 was `WheelCollectionData::ResizeWheels`: the function belongs to the array). Shared header: arraydynamicallocatornew.h
+  (every unit that includes it was checked with `unitcheck --all`).
+- `advertisementbehaviour.cpp/.h` (new header): `AdvertisementMapping` (0xB0 bytes: primitive group, index, shader input string, the polygon of up to four
+  points as `ArrayCDynamic<math::Vector, 4>`, the slot name) with class info, reflection, constructor and assignment, `AdvertisementBehaviour` (two
+  bases: `Behaviour` and `OnlineAdvertElementCallback` at +0xC; constructor, destructor, reflection; `Slot1`, `Update`, `OnMessage` and the callback slot
+  0x10919060 are left to the engine, mapped) and 55 kept copies of the arrays, helpers and meta types. NONMATCHING: the mapping's copy constructor
+  0x10919690 (the engine loads the end pointer of the polygon into eax first, 39 %). `ArrayCDynamic` got a copy constructor and an assignment
+  (arraycdynamic.h, engine forms) and `Insert` tests `<= N`. Left to the engine: the helpers' `Insert` / `Erase` slots (the engine keeps the default
+  element in a function of its own) and the polygon array's `ShiftUp` / `Erase` / copy constructor (the engine copies the vectors with fld / fstp in
+  loops the template does not give).
+- `gameobjecttemplatebuilder.cpp/.h` (new header, `content::MetaObjectTemplate` gained its two reflection functions): the class (templates array at +0x18,
+  two name lists made when it is loaded), constructor, destructor, reflection, slots 7 / 8 / 10 and 42 kept copies. `Slot5` 0x1090D0B0 and `Create`
+  0x1090C460 (the content writer) are left to the engine.
+- `charactersolverbehaviour.cpp/.h` (new header; the stubs of `CharacterSolverBehaviour`, `SupportingLimbDefinition` and `SupportingLimbDefinitionList`
+  left reflectedclasses.h): the reflection and 31 kept copies (the `SupportingLimb` array, reference and primitive meta types). The constructor
+  0x1090AFF0 needs the struct at +0x1C (constructor 0x10937730, another range).
+- `vehiclebehaviours.cpp/.h`: `VehicleQueryMessage`, `VehicleQueryCarIntentionMessage` (constructor 0x1091CFF0) and `VehicleQueryHelicopterIntentionMessage`
+  with their destructors and deleting destructors. `FirstPersonControlBehaviour` and `KnockBehaviour` have their destructors out of line so that the deleting
+  destructors call them (0x1091E050 / 0x1091ED80; their symbols were the vector deleting `??_E`).
+- Kept copies of the spline path (3), the secondary physics joints (5), the jaw flap (3) and two accessors of `TrackedMotionToExpressionMap`
+  (`GetExpressionGroup` 0x10911A30, `GetJointCount` 0x10911F80).
+- NONMATCHING: `SecondaryPhysicsPoweredJoint::Slot3` 0x10916B10 (91.6 %: the engine sets the loop index and the counter up in another order).
+- Not done (what blocks each): the network layer 0x10900EE0 - 0x10904500 (bandwidth allocator, byte ring, packetizer pools, `MultiTailQueue` with its two
+  bases, `LoopbackConnection`, `ChannelConnection`, `Connection`: no names except the RTTI ones, and the secondary-base slots take the adjusted `this`),
+  the replay driver's four members (they read the file wrapper of 0x10902580 - 0x10902720, an unnamed class), the render events of the occluder
+  unit (0x10904500 - 0x10905A00), `CreateDefaultWheels`, the large solver functions of 0x10908000 - 0x1090C110, the jaw flap's `FindJaw` / `Update` (the
+  free `RefPtr` comparisons), the vehicle behaviours' constructors and slots (the intention structs of 0x10937870 and the base `VehiclePhysicsBehaviour`
+  belong to the next range), the powered / pin joint slots 4 and the pointer arrays' copy constructor and assignment (0x1090EF90 / 0x1090F010: the
+  engine's register use).
