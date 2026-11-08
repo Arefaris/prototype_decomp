@@ -1532,6 +1532,8 @@ namespace ravenphysics
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)
 		void ClearObjects();
+		// Takes a collision object out of the broad phase detector (0x10657D00; name guess)
+		void RemoveCollisionObject(void* object);
 		// Takes the context apart: the world, the tracker, the registry, the detectors and the batches' blocks
 		// (0x10659D50; name guess)
 		void Destroy();

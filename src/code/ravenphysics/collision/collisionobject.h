@@ -324,6 +324,10 @@ namespace ravenphysics
 
 		// Whether the table still holds the object the handle names (0x1065ADF0, out of line)
 		bool IsValid() const;
+		// The object of the slot the handle names, without a check (0x1065AE30; name guess)
+		void* GetObject() const;
+		// Destroys the object the handle names (0x1065AE40; name guess)
+		void Destroy();
 
 		union
 		{

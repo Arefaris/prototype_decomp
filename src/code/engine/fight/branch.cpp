@@ -633,6 +633,24 @@ namespace fight
 		node->branch = 0;
 	}
 
+	// FUNCTION: ENGINE 0x1007E9C0
+	BranchWatch& BranchWatch::Assign(Branch* newBranch)
+	{
+		if (newBranch != branch)
+		{
+			if (branch != 0)
+			{
+				branch->Unregister(this);
+			}
+			branch = newBranch;
+			if (newBranch != 0)
+			{
+				newBranch->Register(this);
+			}
+		}
+		return *this;
+	}
+
 	// FUNCTION: ENGINE 0x105A3A40
 	// EQUIVALENT: instruction selection (the engine loads the listeners' address first and forms the lock's address with an lea, ours loads and adds); 22.7 %
 	void Branch::Register(void* entry)

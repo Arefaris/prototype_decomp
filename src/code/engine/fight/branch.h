@@ -221,7 +221,7 @@ namespace fight
 		}
 
 		// 0x1007E9C0 (the engine's shared copy): watches another branch
-		void Assign(Branch* newBranch);
+		BranchWatch& Assign(Branch* newBranch);
 
 		Branch* branch;
 		BranchWatch* next;

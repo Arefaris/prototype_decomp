@@ -141,6 +141,54 @@ namespace proto
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10071110
+	void IKBehaviour::GetSurfaceFixupEnabled(IKSurfaceFixupQueryMessage* message)
+	{
+		message->enabled = surfaceFixup > 0;
+	}
+
+	// FUNCTION: ENGINE 0x10071130
+	void IKBehaviour::SetSurfaceFixupEnabled(SetIKSurfaceFixupEnabledMessage* message)
+	{
+		if (message->unknownC)
+		{
+			surfaceFixup++;
+		}
+		else
+		{
+			surfaceFixup--;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10071B50
+	void IKBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+		case 0x1a:
+			ResetPose();
+			break;
+		case 0x21:
+			if (message->id == 0xd)
+			{
+				ResetPose();
+			}
+			break;
+		case 0x2c:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				GetSurfaceFixupEnabled(static_cast<IKSurfaceFixupQueryMessage*>(message));
+				break;
+			case 1:
+				SetSurfaceFixupEnabled(static_cast<SetIKSurfaceFixupEnabledMessage*>(message));
+				break;
+			}
+			break;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x100747C0
 	content::MemberList* IKBehaviour::GetMembers()
 	{

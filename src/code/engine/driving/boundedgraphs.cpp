@@ -1,11 +1,18 @@
 // The bounds of the vehicle graphs: see the header.
 #include "code/engine/driving/boundedgraphs.h"
+#include "code/math/mathutils.h"
 #include <math.h>
 
 namespace engine
 {
 	namespace driving
 	{
+		// FUNCTION: ENGINE 0x10069040
+		__declspec(noinline) float ClampFloat(float value, float lo, float hi)
+		{
+			return math::Clamp(value, lo, hi);
+		}
+
 		// FUNCTION: ENGINE 0x1093CE40
 		content::ClassInfo* BoundedSpeedGraphAttributes::GetClassInfo()
 		{
