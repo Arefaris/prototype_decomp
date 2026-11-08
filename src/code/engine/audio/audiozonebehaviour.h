@@ -37,7 +37,7 @@ namespace engine
 		virtual void OnMessage(Message* message);
 
 		int unknownC;
-		core::Name<core::CaseSensitiveKey> zoneName;  // +0x10
+		__declspec(align(8)) core::Name<core::CaseSensitiveKey> zoneName;  // +0x10
 		trigger::OBBVolume* volume;  // +0x18
 		// The engine's names are 8-byte aligned
 		int unknown1C;
