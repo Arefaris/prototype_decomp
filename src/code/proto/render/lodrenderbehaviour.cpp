@@ -5,6 +5,8 @@
 #include "code/pure3d/camera.h"
 #include "code/core/heap.h"
 #include "code/core/refptr.h"
+#include "code/content/namedreference.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/attributemessage.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/math/random.h"
@@ -34,6 +36,9 @@ namespace engine
 
 namespace proto
 {
+	// 0x112834C8 ("pose")
+	extern content::ObjectName gDrawableAttributeName;
+
 	// FUNCTION: ENGINE 0x102D91B0
 	content::ClassInfo* LODRenderData::GetClassInfo()
 	{
@@ -504,9 +509,9 @@ namespace proto
 #endif
 
 	// FUNCTION: ENGINE 0x102DB9F0
-	void LODRenderBehaviour::AddLevel(const LODReady* readyItem)
+	void LODRenderBehaviour::AddLevel(const LODRenderData* data)
 	{
-		engine::render::Drawable drawable = engine::render::Drawable::CreateInstance(readyItem->source, true, false);
+		engine::render::Drawable drawable = engine::render::Drawable::CreateInstance(data->GetSource(), true, false);
 		drawable.SetUnknownCC(4);
 		drawable.SetRegistered(false);
 		LODLevel level(drawable);
@@ -736,10 +741,10 @@ namespace proto
 	// FUNCTION: ENGINE 0x102DA540
 	void LODRenderBehaviour::UpdateFade()
 	{
-		// Reset through a reference: the store then stays ahead of the load and compare of the ready range
+		// Reset through a reference: the store then stays ahead of the load and compare of the lod range
 		float& reset = fade;
 		reset = 1.0f;
-		if (ready.IsEmpty())
+		if (lod.IsEmpty())
 		{
 			return;
 		}
@@ -771,7 +776,7 @@ namespace proto
 	void LODRenderBehaviour::UpdateLevel()
 	{
 		unsigned int wanted = 0;
-		if ((flags & 1) != 0 && !ready.IsEmpty())
+		if ((flags & 1) != 0 && !lod.IsEmpty())
 		{
 			unsigned int size = levels.Size();
 			float t = math::Clamp(fade, 0.0f, 1.0f);
@@ -810,9 +815,9 @@ namespace proto
 		}
 		if ((flags & 8) == 0)
 		{
-			for (unsigned int i = 0; i < ready.Size(); i++)
+			for (unsigned int i = 0; i < lod.Size(); i++)
 			{
-				AddLevel(ready.begin + i);
+				AddLevel(lod.begin + i);
 			}
 			for (unsigned int i = 0; i < levels.Size(); i++)
 			{
@@ -830,9 +835,9 @@ namespace proto
 						pure3d::Animation::CYCLE_MODE_2);
 				}
 			}
-			if (!ready.IsEmpty() && !levels.IsEmpty())
+			if (!lod.IsEmpty() && !levels.IsEmpty())
 			{
-				const math::AABB* box = ready[0].source->GetBounds();
+				const math::AABB* box = ((engine::render::SourceDrawable*)lod[0].source)->GetBounds();
 				float length = HalfDiagonal(*box);
 				distanceLevel = 0;
 				for (int i = 0; i < 3; i++)
@@ -912,6 +917,201 @@ namespace proto
 			}
 		}
 	}
+	// FUNCTION: ENGINE 0x102DAB40
+	LODRenderData::LODRenderData(const LODRenderData& other) : source(other.source), name(other.name)
+	{
+		if (source != 0)
+		{
+			source->AddRef();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DAB10
+	LODRenderData& LODRenderData::operator=(const LODRenderData& other)
+	{
+		source = other.source;
+		name = other.name;
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x102D90A0
+	engine::render::DrawableArchetype* LODRenderData::GetArchetype() const
+	{
+		return static_cast<engine::render::DrawableArchetype*>(source);
+	}
+
+	// FUNCTION: ENGINE 0x102D90B0
+	const content::ObjectName* LODRenderData::GetArchetypeName() const
+	{
+		return &name;
+	}
+
+	// FUNCTION: ENGINE 0x102D98A0
+	void LODRenderData::SetArchetype(engine::render::DrawableArchetype* newArchetype, const content::ObjectName& newName)
+	{
+		name = newName;
+		source = newArchetype;
+		if (newArchetype != 0)
+		{
+			newArchetype->AddRef();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DB940
+	content::MemberList* LODRenderData::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetNamedReferenceMemberMetaType<LODRenderData, engine::render::DrawableArchetype>(
+				&LODRenderData::GetArchetype, &LODRenderData::GetArchetypeName, &LODRenderData::SetArchetype, "p"),
+				0, "drawable" }
+		};
+		sList.members = sMembers;
+		sList.count = 1;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x102D90E0
+	bool LODRenderBehaviour::GetEnableGeoLOD() const
+	{
+		return bits.bound;
+	}
+
+	// FUNCTION: ENGINE 0x102D90F0
+	bool LODRenderBehaviour::GetEnableGeoFade() const
+	{
+		return bits.geoFade;
+	}
+
+	// FUNCTION: ENGINE 0x102D94A0
+	void LODRenderBehaviour::SetEnableGeoFade(bool enable)
+	{
+		bits.geoFade = enable;
+	}
+
+	// FUNCTION: ENGINE 0x102D94C0
+	engine::render::DrawableArchetype* LODRenderBehaviour::GetSource() const
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x102D94D0
+	const content::ObjectName* LODRenderBehaviour::GetSourceName() const
+	{
+		return &sourceName;
+	}
+
+	// FUNCTION: ENGINE 0x102D90C0
+	pure3d::Animation* LODRenderBehaviour::GetAnimation() const
+	{
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x102DBF90
+	void LODRenderBehaviour::SetSource(engine::render::DrawableArchetype* archetype, const content::ObjectName& name)
+	{
+		sourceName = name;
+		heap = core::GetCurrentHeap();
+		unsigned int value;
+		if (core::GetHeapAllocator(heap)->GetStat(0xb, (int*)&value))
+		{
+			heap = engine::GetGameObjectHeap();
+		}
+		bits.deferred = archetype == 0;
+		if (!bits.deferred)
+		{
+			LODRenderData data(archetype);
+			archetype->AddRef();
+			AddLevel(&data);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102DC390
+	content::MemberList* LODRenderBehaviour::GetMembers()
+	{
+		static content::MemberList sList;
+		sList.baseType = content::GetClassMetaType<engine::Behaviour>();
+		static content::BaseClassCasterImpl<engine::Behaviour, LODRenderBehaviour> sCaster;
+		sList.baseCaster = &sCaster;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberMetaType<LODRenderBehaviour, bool, 0>(&LODRenderBehaviour::GetEnableGeoLOD,
+				&LODRenderBehaviour::SetBound, "p"), 0, "enableGeoLOD" },
+			{ content::GetMemberMetaType<LODRenderBehaviour, bool, 1>(&LODRenderBehaviour::GetEnableGeoFade,
+				&LODRenderBehaviour::SetEnableGeoFade, "p"), 0, "enableGeoFade" },
+			{ content::GetNameMetaType<LODRenderBehaviour>(true, true, "pn"),
+				content::MemberOffset(&((LODRenderBehaviour*)0)->packageName, (int)&((LODRenderBehaviour*)0)->packageName),
+				"sourcePackage" },
+			{ content::GetNamedReferenceMemberMetaType<LODRenderBehaviour, engine::render::DrawableArchetype>(
+				&LODRenderBehaviour::GetSource, &LODRenderBehaviour::GetSourceName, &LODRenderBehaviour::SetSource, "p"),
+				0, "drawableSource" },
+			{ content::GetReferenceMemberMetaType<LODRenderBehaviour, pure3d::Animation>(
+				&LODRenderBehaviour::GetAnimation, &LODRenderBehaviour::SetAnimation, "p"), 0, "animSource" },
+			{ content::GetArrayDynamicMetaType<LODRenderBehaviour, container::ArrayDynamic<LODRenderData,
+				container::AllocatorNew> >(content::GetClassMetaType<LODRenderData>(), "p"),
+				content::MemberOffset((container::ArrayDynamic<LODRenderData, container::AllocatorNew>*)
+					&((LODRenderBehaviour*)0)->lod, (int)&((LODRenderBehaviour*)0)->lod), "lod" },
+			{ content::GetMemberReferenceMetaType<LODRenderBehaviour, ShaderPalette, 0>("p"),
+				content::MemberOffset(&((LODRenderBehaviour*)0)->available, (int)&((LODRenderBehaviour*)0)->available),
+				"shaderPalette" },
+			{ content::GetMemberPrimitiveMetaType<LODRenderBehaviour, unsigned int, 0>("p"),
+				content::MemberOffset(&((LODRenderBehaviour*)0)->minimumLevels,
+					(int)&((LODRenderBehaviour*)0)->minimumLevels), "minShadowLODIndex" }
+		};
+		sList.members = sMembers;
+		sList.count = 8;
+		return &sList;
+	}
+
+	// FUNCTION: ENGINE 0x102DCD20
+	// NONMATCHING: the engine loads the constant once at the top of the constructor and stores the level after the address
+	// of the name; ours loads it after the level store (82.5 %)
+#ifdef NONMATCHING
+	LODRenderBehaviour::LODRenderBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner), shownFirst(0),
+		forcedFirst(0), shownLast(0), forcedLast(0), animation(0), available(0), availableIndex(-1), distanceLevel(0),
+		minimumLevels(0), level(-1), fade(engine::driving::gOne), forcedFade(fade),
+		fadeInPosition(fade), fadeInTarget(fade), fadeInScale(fade), fadeScale(fade)
+	{
+		flags = flags & 0xF0;
+		heap = 0;
+		boneData = 0;
+		boneDataSize = 0;
+		Listen2(0x200, true);
+		Listen(0x1A, true);
+		Listen(1, true);
+		Listen(2, true);
+		Listen(7, true);
+		Listen(0x3D, true);
+		Listen(8, true);
+		Listen(10, true);
+		lod.Allocate(4);
+		levels.Allocate(4);
+		poseSource = (LODPoseSource*)owner->FindAttribute(gDrawableAttributeName);
+		if (poseSource != 0 && poseSource->pose != 0)
+		{
+			poseSource->pose->AddRef();
+		}
+		scaleSource = (LODScaleSource*)owner->FindAttribute(engine::gScaleName);
+		if (scaleSource != 0 && fabsf(scaleSource->scale.x - 1.0f) <= 0.00001f &&
+			fabsf(scaleSource->scale.y - 1.0f) <= 0.00001f && fabsf(scaleSource->scale.z - 1.0f) <= 0.00001f)
+		{
+			scaleSource = 0;
+		}
+		int unset = -1;
+		paletteIndexSource = (LODIndexSource*)owner->SetAttributeAndGet<int>(engine::gInstancePaletteIndex, unset, false);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x102DCF80
+	LODRenderBehaviour::~LODRenderBehaviour()
+	{
+		DestroyLevels();
+		core::SafeRelease(animation);
+		core::SafeRelease(available);
+		core::Free(boneData);
+	}
+
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -920,12 +1120,76 @@ namespace proto
 // FUNCTION: ENGINE 0x102D95A0
 // FUNCTION: ENGINE 0x102D95B0
 // FUNCTION: ENGINE 0x102D95C0
-// FUNCTION: ENGINE 0x102D95D0
 // FUNCTION: ENGINE 0x102D95E0
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x102D98F0
-// FUNCTION: ENGINE 0x102DAA60
 // FUNCTION: ENGINE 0x102DB490
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D9080
+// FUNCTION: ENGINE 0x102D9930
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D95D0
+// FUNCTION: ENGINE 0x102D97D0
+// FUNCTION: ENGINE 0x102DABC0
+// FUNCTION: ENGINE 0x102DABF0
+// FUNCTION: ENGINE 0x102DAC10
+// FUNCTION: ENGINE 0x102DAC30
+// FUNCTION: ENGINE 0x102DB4E0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D9710
+// FUNCTION: ENGINE 0x102D9750
+// FUNCTION: ENGINE 0x102D9760
+// FUNCTION: ENGINE 0x102D97E0
+// FUNCTION: ENGINE 0x102D9870
+// FUNCTION: ENGINE 0x102D9890
+// FUNCTION: ENGINE 0x102D9940
+// FUNCTION: ENGINE 0x102D9950
+// FUNCTION: ENGINE 0x102DA940
+// FUNCTION: ENGINE 0x102DAA10
+// FUNCTION: ENGINE 0x102DAA90
+// FUNCTION: ENGINE 0x102DAAA0
+// FUNCTION: ENGINE 0x102DAAC0
+// FUNCTION: ENGINE 0x102DAAE0
+// FUNCTION: ENGINE 0x102DAB80
+// FUNCTION: ENGINE 0x102DAC50
+// FUNCTION: ENGINE 0x102DAC70
+// FUNCTION: ENGINE 0x102DAC90
+// FUNCTION: ENGINE 0x102DACB0
+// FUNCTION: ENGINE 0x102DACE0
+// FUNCTION: ENGINE 0x102DAD00
+// FUNCTION: ENGINE 0x102DAD20
+// FUNCTION: ENGINE 0x102DAD40
+// FUNCTION: ENGINE 0x102DAD60
+// FUNCTION: ENGINE 0x102DAD80
+// FUNCTION: ENGINE 0x102DADA0
+// FUNCTION: ENGINE 0x102DADC0
+// FUNCTION: ENGINE 0x102DAED0
+// FUNCTION: ENGINE 0x102DB580
+// FUNCTION: ENGINE 0x102DB600
+// FUNCTION: ENGINE 0x102DB680
+// FUNCTION: ENGINE 0x102DB720
+// FUNCTION: ENGINE 0x102DB7B0
+// FUNCTION: ENGINE 0x102DB810
+// FUNCTION: ENGINE 0x102DB8C0
+// FUNCTION: ENGINE 0x102DC080
+// FUNCTION: ENGINE 0x102DC0E0
+// FUNCTION: ENGINE 0x102DCAC0
+// FUNCTION: ENGINE 0x102DCC90
+// FUNCTION: ENGINE 0x102DD020
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102DC110
+// FUNCTION: ENGINE 0x102DCBF0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102D9680
+// FUNCTION: ENGINE 0x102D9700
+// FUNCTION: ENGINE 0x102DC060
+// FUNCTION: ENGINE 0x102DCC40
+// FUNCTION: ENGINE 0x102DD0D0
