@@ -15,6 +15,7 @@
 #include "code/engine/online/replay.h"
 #include "code/math/vector.h"
 #include "code/proto/frontend/fehudawareness.h"
+#include "code/proto/frontend/fehudbuttonhint.h"
 #include "code/proto/frontend/fehudcombatconclusion.h"
 #include "code/proto/frontend/fehuddisguiseactions.h"
 #include "code/proto/frontend/fehuddisguiseperception.h"
@@ -104,24 +105,6 @@ namespace proto
 		virtual void OnShow(bool shown);
 
 		unsigned char unknownC[0x128 - 0xC];
-	};
-
-	class FEHudButtonHint : public FEHudElement, public engine::ISimulationTask
-	{
-	public:
-		// 0x104CE960
-		FEHudButtonHint();
-		// 0x104CE570
-		~FEHudButtonHint();
-
-		virtual void Update(bool force);
-		virtual void OnShow(bool shown);
-		virtual void UpdateSimulation(engine::UpdateContext context);
-
-		// 0x104CE490
-		void Unknown104CE490();
-
-		unsigned char unknown10[0x368 - 0x10];
 	};
 
 	class FEHudTargeting : public FEHudElement
