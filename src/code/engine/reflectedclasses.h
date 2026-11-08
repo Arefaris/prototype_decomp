@@ -10,6 +10,7 @@
 #include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/engine/advertisementbehaviour.h"
 #include "code/engine/physicsbehaviour.h"
 #include "code/engine/poseanimationbehaviour.h"
 #include "code/engine/ragdolllodbehaviour.h"
@@ -122,17 +123,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		math::OBB obb;  // +8
-	};
-
-	// AdvertisementBehaviour: constructor 0x10919D70, reflection 0x10917A30 / 0x109197C0
-	class AdvertisementBehaviour : public engine::Behaviour
-	{
-	public:
-		AdvertisementBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x1C];
 	};
 
 	// CharacterSolverBehaviour: constructor 0x1090AFF0, reflection 0x10907ED0 / 0x1090AA30
