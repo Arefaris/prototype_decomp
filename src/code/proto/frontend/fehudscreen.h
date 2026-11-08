@@ -21,6 +21,7 @@
 #include "code/proto/frontend/fehuddisguiseperception.h"
 #include "code/proto/frontend/fehudpopups.h"
 #include "code/proto/frontend/fehudelement.h"
+#include "code/proto/frontend/fehudhealth.h"
 #include "code/proto/frontend/fehudkeycard.h"
 #include "code/proto/frontend/fehudtextlog.h"
 #include "code/proto/frontend/fehudvehiclehealth.h"
@@ -53,25 +54,6 @@ namespace proto
 		void Unknown104C4630(FEHudPoint position);
 
 		unsigned char unknown10[0x35D8 - 0x10];
-	};
-
-	class FEHudHealth : public FEHudElement, public engine::ISimulationTask
-	{
-	public:
-		// 0x104D4BF0
-		FEHudHealth();
-		// 0x104D4370
-		~FEHudHealth();
-
-		virtual void Update(bool force);
-		virtual void OnShow(bool shown);
-		virtual void UpdateSimulation(engine::UpdateContext context);
-
-		// 0x104D3ED0 / 0x104D4EE0
-		void Unknown104D3ED0();
-		void Unknown104D4EE0();
-
-		unsigned char unknown10[0x848 - 0x10];
 	};
 
 	class FEHudPowers : public FEHudElement, public engine::IRealTimeTask
