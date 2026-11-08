@@ -255,4 +255,20 @@ namespace proto
 		flareX.Set(FlashValue((double)(sBarScale * gFifty)));
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x104CD3A0
+	void FEHudMeter::ShowMeter(EIcons leftIcon, EIcons middleIcon, EIcons rightIcon, const char* leftText, const char* rightText,
+		float percentage, EBarColors colour, EBarColors secondColour)
+	{
+		UpdateIcon((EPositions)0, leftIcon);
+		UpdateIcon((EPositions)1, middleIcon);
+		UpdateIcon((EPositions)2, rightIcon);
+		UpdateText((EPositions)0, leftText);
+		UpdateText((EPositions)2, rightText);
+		UpdatePercentage(percentage);
+		UpdateBarColor((EPositions)0, colour);
+		UpdateBarColor((EPositions)2, secondColour);
+		visibleFlag = true;
+		visible.Set(FlashValue(IsShown() != false));
+	}
 }
