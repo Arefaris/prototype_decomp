@@ -1,6 +1,7 @@
 // The description of the whole numbers and the other plain values the om library reflects (0x10AA2770 - 0x10AA2E90): the
 // functions that make one description when there is none yet and let go of a user of it, per type, in the order the
 // compiler emitted them (a guess: the translation unit of the dynamic properties).
+#include "code/om/dictionary.h"
 #include "code/om/dynamicproperty.h"
 #include "code/om/metaproperty.h"
 #include "code/om/metasimpletype.h"
@@ -84,4 +85,17 @@ namespace om
 	template bool MetaSimpleType<ClassName>::WriteBinary(BinaryStream*, void const*);
 	// FUNCTION: ENGINE 0x10AA6EF0
 	template bool MetaSimpleType<ClassName>::ReadText(TextValue const*, void*);
+	typedef Dictionary<ClassName, ClassName, Comparer<ClassName> > NameDictionary;
+	// FUNCTION: ENGINE 0x10AA30C0
+	template void MetaSimpleType<NameDictionary>::Create(ClassName const&);
+	// FUNCTION: ENGINE 0x10AA3120
+	template void MetaSimpleType<NameDictionary>::ReleaseType();
+	// FUNCTION: ENGINE 0x10AA8240
+	template void MetaSimpleType<NameDictionary>::WriteText(TextValue*, void const*);
+	// FUNCTION: ENGINE 0x10AA8260
+	template bool MetaSimpleType<NameDictionary>::WriteBinary(BinaryStream*, void const*);
+	// FUNCTION: ENGINE 0x10AA9890
+	template bool MetaSimpleType<NameDictionary>::ReadText(TextValue const*, void*);
+	// FUNCTION: ENGINE 0x10AA98B0
+	template bool MetaSimpleType<NameDictionary>::ReadBinary(BinaryStream*, void*);
 }
