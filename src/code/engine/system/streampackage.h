@@ -80,6 +80,7 @@ namespace engine
 	};
 
 	class StreamSlotGroup;
+	class StreamTrigger;
 
 	// Makes the heap of a slot of group (the slot's handle, the group, the heap's name); the engine's default is 0x1083EB80
 	typedef core::IMemoryAllocator* (*SlotHeapFactory)(int handle, StreamSlotGroup* group, const char* name);
@@ -256,10 +257,14 @@ namespace engine
 		int streamDriverCount;            // +0xC4
 		// The packages that are loading, by priority (AddActive puts one in, RemoveActive takes it out)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> activePackages;  // +0xC8
-		unsigned char unknownD8[0xF0 - 0xD8];
+		// The slot heap handles that are free (AllocateSlotHandle takes the last, FreeSlotHandle puts one back)
+		container::ArrayDynamicStatic<int, StreamAllocator> freeSlotHandles;  // +0xD8
+		unsigned char unknownE8[0xF0 - 0xE8];
 		// The packages that are known (Register adds one, 0x1082D080)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> knownPackages;
-		unsigned char unknown100[0x114 - 0x100];
+		unsigned char unknown100[4];
+		// The stream triggers that are known (RegisterStreamTrigger puts one in)
+		container::ArrayDynamicStatic<StreamTrigger*, StreamAllocator> triggers;  // +0x104
 		int unknown114;
 		// The package that is loading now (0x1082C060)
 		StreamPackage* currentPackage;

@@ -68,6 +68,16 @@ namespace container
 			}
 			return false;
 		}
+		// The last element, taken out (the count check is made again; the stream manager's handles use it)
+		T PopBack()
+		{
+			T value = end[-1];
+			if (begin != end)
+			{
+				end--;
+			}
+			return value;
+		}
 		T* Find(const T& value)
 		{
 			T* item = begin;

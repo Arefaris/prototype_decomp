@@ -216,6 +216,38 @@ namespace engine
 		return waiting != 0;
 	}
 
+	// FUNCTION: ENGINE 0x1082D630
+	// NONMATCHING: 77.4 %, ours keeps the decremented end pointer in a register the engine does not use (it subtracts
+	// inside the branch)
+#ifdef NONMATCHING
+	int AllocateSlotHandle()
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->freeSlotHandles.IsEmpty())
+		{
+			return -1;
+		}
+		return manager->freeSlotHandles.PopBack();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082D670
+	void FreeSlotHandle(int handle)
+	{
+		StreamManager* manager = gStreamManager;
+		int* end = manager->freeSlotHandles.end;
+		if (end == manager->freeSlotHandles.Find(handle))
+		{
+			manager->freeSlotHandles.PushBack(handle);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082D6C0
+	void RegisterStreamTrigger(StreamTrigger* trigger)
+	{
+		gStreamManager->triggers.PushBack(trigger);
+	}
+
 	// FUNCTION: ENGINE 0x1082C010
 	void SetStreamDriver(int index, GameObject* object)
 	{
