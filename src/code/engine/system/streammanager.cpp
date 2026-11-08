@@ -16,6 +16,74 @@ namespace engine
 		return gStreamManager->unknown114 != 0;
 	}
 
+	// FUNCTION: ENGINE 0x1082BE90
+	void StreamManager::AdvanceState()
+	{
+		StreamManager* manager = gStreamManager;
+		switch (manager->unknown114)
+		{
+		case 0:
+			manager->unknown114 = 1;
+			break;
+		case 1:
+			manager->unknown114 = 2;
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082BEE0
+	bool ComparePackagePriority(StreamPackage* const* first, StreamPackage* const* second)
+	{
+		StreamPackageInstance* firstInstance = (*first)->instance;
+		StreamPackageInstance* secondInstance = (*second)->instance;
+		return secondInstance->GetPriority() < firstInstance->GetPriority();
+	}
+
+	// FUNCTION: ENGINE 0x1082BF70
+	int StreamManager::IsGroupLoaded(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0 && manager->groupPackages[group]->GetState() == 5)
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFA0
+	int StreamManager::IsGroupWithoutInstance(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0 && manager->groupPackages[group]->instance != 0)
+		{
+			return 0;
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFD0
+	content::LoadInventory* StreamManager::GetGroupInventory(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0)
+		{
+			return manager->groupPackages[group]->GetInventory();
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFF0
+	StreamPackage* StreamManager::GetGroupPackage(int group)
+	{
+		return gStreamManager->groupPackages[group];
+	}
+
+	// FUNCTION: ENGINE 0x1082C050
+	StreamPackage* StreamManager::GetCurrentPackage()
+	{
+		return gStreamManager->currentPackage;
+	}
+
 	// FUNCTION: ENGINE 0x1082C060
 	void StreamManager::SetCurrentPackage(StreamPackage* package)
 	{

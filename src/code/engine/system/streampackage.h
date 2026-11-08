@@ -210,6 +210,16 @@ namespace engine
 		static void FindClients(container::ArrayDynamicStatic<StreamClient*, StreamAllocator>* clients,
 			const TagSet* tags);
 		static void RemoveActive(StreamPackage* package);
+		// 0x1082BE90: the manager's state goes from 0 to 1 and from 1 to 2 (name guessed)
+		static void AdvanceState();
+		// 0x1082BF70 / 0x1082BFA0 / 0x1082BFD0 / 0x1082BFF0: the package a startup group (0 - 3) is loading: whether it
+		// is loaded, whether it has no instance, its inventory and the package itself (names guessed)
+		static int IsGroupLoaded(int group);
+		static int IsGroupWithoutInstance(int group);
+		static content::LoadInventory* GetGroupInventory(int group);
+		static StreamPackage* GetGroupPackage(int group);
+		// 0x1082C050
+		static StreamPackage* GetCurrentPackage();
 		static void Register(StreamPackage* package);
 		static void AddActive(StreamPackage* package);
 		static StreamSlotGroup* FindSlotGroup(const content::ObjectName& name);
@@ -223,7 +233,10 @@ namespace engine
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
 		SlotHeapFactory slotHeapFactory;
 		SlotHeapDestroyer slotHeapDestroyer;
-		unsigned char unknown90[0xF0 - 0x90];
+		unsigned char unknown90[8];
+		// The package each startup group is loading
+		StreamPackage* groupPackages[4];  // +0x98
+		unsigned char unknownA8[0xF0 - 0xA8];
 		// The packages that are known (Register adds one, 0x1082D080)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> knownPackages;
 		unsigned char unknown100[0x114 - 0x100];
