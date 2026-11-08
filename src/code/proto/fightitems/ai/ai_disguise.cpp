@@ -1416,7 +1416,7 @@ namespace proto
 					PopupController* popups = GetFrontEndHud()->GetPopups();
 					if (popups->disguiseActions != 0)
 					{
-						popups->disguiseActions->Unknown104CF870();
+						popups->disguiseActions->Hide();
 					}
 				}
 			}
@@ -1433,13 +1433,13 @@ namespace proto
 				{
 					return false;
 				}
-				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
-				if (popup != 0 && popup->GetEnabled())
+				FEHudDisguiseActions* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				if (popup != 0 && popup->IsShown())
 				{
 					Update(popup, object);
 					if (link.object->showAndHideOnly)
 					{
-						popup->Unknown104CF840();
+						popup->Show();
 					}
 					return true;
 				}
@@ -1458,7 +1458,7 @@ namespace proto
 				{
 					return false;
 				}
-				DisguiseActionPopup* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
+				FEHudDisguiseActions* popup = GetFrontEndHud()->GetPopups()->disguiseActions;
 				if (popup != 0)
 				{
 					Update(popup, object);
@@ -1514,7 +1514,7 @@ namespace proto
 				engine::GameObject* object = handle.Get();
 				if (GetFrontEndHud()->GetPopups()->disguiseActions != 0 && object != 0)
 				{
-					result = GetFrontEndHud()->GetPopups()->disguiseActions->GetEnabled();
+					result = GetFrontEndHud()->GetPopups()->disguiseActions->IsShown();
 				}
 				return result;
 			}
