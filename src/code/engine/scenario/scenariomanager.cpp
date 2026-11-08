@@ -1,8 +1,12 @@
 #include "code/content/loadinventory.h"
 #include "code/core/heap.h"
+#include "code/engine/fight/chunk.h"
+#include "code/engine/fight/fightsystem.h"
 #include "code/engine/fight/trackfactory.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/luascriptmanager.h"
+#include "code/engine/scenario/scenarioconditions.h"
+#include "code/engine/scenario/scenariolisters.h"
 #include "code/engine/scenario/scenariomanager.h"
 #include "code/engine/scenario/scenariotreebehaviour.h"
 #include "code/engine/system/streampackage.h"
@@ -59,5 +63,39 @@ namespace engine
 		fight::TrackRegistry* registry = listeners->FindContext(core::Name<core::CaseSensitiveKey>(gScenarioContextName, 1));
 		StartScenario(registry);
 		core::SetCurrentHeap(previous);
+	}
+
+	// FUNCTION: ENGINE 0x10832330
+	void MakeScenarioContext()
+	{
+		fight::TrackRegistry* registry = new fight::TrackRegistry;
+		registry->SetName(core::Name<core::CaseSensitiveKey>(gScenarioContextName, 1));
+		gLoadListeners->AddContext(registry);
+		fight::RegisterNodeBranchFactory(registry);
+		fight::RegisterBankBranchFactory(registry);
+		fight::RegisterStoreBranchFactory(registry);
+		fight::RegisterCoreTrackFactories(registry);
+		fight::RegisterFlowTrackFactories(registry);
+		fight::RegisterCoreFactories(registry);
+		RegisterLightTrackFactory(registry, "light");
+		scenario::RegisterLuaConditionFactory(registry, "lua");
+		scenario::RegisterLuaTrackFactory(registry, "lua");
+		scenario::RegisterScenarioConditionFactories(registry);
+		RegisterOnlineConditionFactories(registry);
+		RegisterAudioTrackFactories(registry);
+		registry->Prepare();
+		registry->Complete();
+		scenario::RegisterMessageKind<ScenarioInitializeMessage>(1, "Game Init");
+		scenario::RegisterMessageKind<ObjectDestroyedMessage>(5, "Object Destroyed");
+		scenario::RegisterMessageKind<ObjectStateChangedMessage>(6, "Object State Changed");
+		scenario::RegisterMessageKind<StringMessage>(2, "String");
+		scenario::RegisterMessageKind<EnterTriggerMessage>(3, "Trigger Volume - Enter");
+		scenario::RegisterMessageKind<ExitTriggerMessage>(4, "Trigger Volume - Exit");
+		scenario::RegisterMessageKind<ScenarioNISBeginMessage>(0xB, "NIS Begin");
+		scenario::RegisterMessageKind<ScenarioNISEndMessage>(0xC, "NIS End");
+		scenario::RegisterMessageKind<ScenarioNISLoadCompleteMessage>(0xD, "NIS Load Complete");
+		scenario::RegisterMessageKind<ScenarioStreamPackageLoadedMessage>(0x10, "Stream Package Loaded");
+		scenario::RegisterMessageKind<ScenarioStreamPackageUnloadedMessage>(0x11, "Stream Package Unloaded");
+		scenario::SortListers();
 	}
 }
