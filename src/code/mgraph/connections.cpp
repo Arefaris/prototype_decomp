@@ -5,6 +5,11 @@
 
 namespace mgraph
 {
+	// 0x10AD2880 / 0x10AD2960 (names guessed): put the context connections of the pins a connection joins in the context, and take
+	// them out of it (the abstract pins are replaced by the concrete pins of their abstractions)
+	bool AttachConnectionPins(Context* context, Pin* from, Pin* to);
+	void DetachConnectionPins(Context* context, Pin* from, Pin* to);
+
 	// Takes a link out of the list it is in (the head and the tail of a list are two consecutive pointers)
 	static __forceinline void Unlink(NodeLink** list, NodeLink* link)
 	{
@@ -52,6 +57,36 @@ namespace mgraph
 		Append(&newFrom->firstConnection, &fromLink);
 		Append(&newTo->firstConnection, &toLink);
 		Append(&graph->firstConnection, &graphLink);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2A40
+	void GraphConnectionBase::Attach(Context* newContext)
+	{
+		AttachConnectionPins(newContext, from, to);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2A60
+	void GraphConnectionBase::Detach(Context* oldContext)
+	{
+		DetachConnectionPins(oldContext, from, to);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2720
+	AbstractToConcreteGraphConnectionBase::AbstractToConcreteGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10AD2740
+	ConcreteToAbstractGraphConnectionBase::ConcreteToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10AD2770
+	AbstractToAbstractGraphConnectionBase::AbstractToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
 	}
 
 	// FUNCTION: ENGINE 0x10AD22B0
