@@ -11,6 +11,8 @@
 
 namespace proto
 {
+	class PatrolPath;
+
 	class PatrolPathFollowing
 	{
 	public:
@@ -21,15 +23,55 @@ namespace proto
 			virtual void LookAt(const math::Vector* direction) = 0;
 			virtual int GetState(int unused) = 0;
 		};
+
+		// Told when the patrol reaches a point (a pure slot; the argument is a guess)
+		struct Notifier
+		{
+			Notifier()
+			{
+			}
+			virtual void Notify(void* arg) = 0;
+		};
+
+		// 0x103A61D0 (another unit): starts with no path, following through the follower and telling the notifier
+		PatrolPathFollowing(Follower* newFollower, Notifier* newNotifier);
+		// 0x103A6270 (deleting destructor 0x103A6C80, another unit)
+		virtual ~PatrolPathFollowing();
+		// 0x103A7400 (another unit): takes a path and starts it over (name guess)
+		void SetPath(PatrolPath* newPath);
+
+		int unknown4;  // +4
+		PatrolPath* path;  // +8
+		Follower* follower;  // +0xC
+		Notifier* notifier;  // +0x10
+		math::Vector unknown14;  // +0x14
+		math::Vector unknown20;  // +0x20
+		int unknown2C;  // +0x2C
+		int unknown30;  // +0x30
+		float unknown34;  // +0x34
 	};
 
 	// Moves a game object through its movement behaviour (0x103A6390 - 0x103A64E0; slot 2 is 0x103A63F0)
 	struct CharacterFollower : public PatrolPathFollowing::Follower
 	{
+		explicit CharacterFollower(engine::GameObject* newOwner) : owner(newOwner)
+		{
+		}
 		virtual void MoveTo(const math::Vector* position, float tolerance, bool braking);
 		virtual void Stop();
 		virtual void LookAt(const math::Vector* direction);
 		virtual int GetState(int unused);
+
+		engine::GameObject* owner;  // +4
+	};
+
+	// Tells the scenario that the patrol of an object has reached its destination (0x103A6570)
+	struct NotifyScenarioDestinationReached : public PatrolPathFollowing::Notifier
+	{
+		explicit NotifyScenarioDestinationReached(engine::GameObject* newOwner) : owner(newOwner)
+		{
+		}
+		virtual void Notify(void* arg);
 
 		engine::GameObject* owner;  // +4
 	};

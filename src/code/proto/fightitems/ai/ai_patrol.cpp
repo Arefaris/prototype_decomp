@@ -247,6 +247,45 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x102055B0
+			PatrolAction::PatrolAction(PatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), follower(newTarget.Get()), notifier(newTarget.Get()), following(&follower, &notifier), unknown74(choreo::gMinusOne)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10205380
+			PatrolAction::~PatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10205890
+			fight::Action* PatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PatrolAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x102056E0
+			PathPatrolAction::PathPatrolAction(PathPatrolTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), follower(newTarget.Get()), notifier(newTarget.Get()), following(&follower, &notifier), unknown78(0)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x102054C0
+			PathPatrolAction::~PathPatrolAction()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10205010
+			void PathPatrolAction::Slot6()
+			{
+				following.SetPath(0);
+			}
+
+			// FUNCTION: ENGINE 0x102058E0
+			fight::Action* PathPatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PathPatrolAction(this, handle);
+			}
 			// ---- actions end
 			template class fight::PropertyBool<HasPatrolPathCondition>;
 			template class fight::ConditionFactoryTemplate<HasPatrolPathCondition>;
@@ -292,3 +331,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10204F50
 // FUNCTION: ENGINE 0x1020BE30
 // FUNCTION: ENGINE 0x1020C180
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102056B0
+// FUNCTION: ENGINE 0x102057D0

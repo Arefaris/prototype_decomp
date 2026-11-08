@@ -6,6 +6,7 @@
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
+#include "code/proto/patrolpathfollowing.h"
 
 namespace proto
 {
@@ -108,6 +109,53 @@ namespace proto
 			void RegisterPathPatrolTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::ai::PatrolAction (9 vftable slots, 0x78 bytes)
+			class PatrolAction : public fight::Action
+			{
+			public:
+				// 0x102055B0
+				PatrolAction(PatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x10205380
+				virtual ~PatrolAction();
+
+				// vftable slot 5 (0x10205D10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10205FF0)
+				virtual void Slot6();
+				// vftable slot 7 (0x102053C0)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PatrolTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				CharacterFollower follower;  // +0x2C
+				NotifyScenarioDestinationReached notifier;  // +0x34
+				PatrolPathFollowing following;  // +0x3C
+				float unknown74;  // +0x74
+			};
+			// RTTI: proto::fightitems::ai::PathPatrolAction (9 vftable slots, 0x7C bytes)
+			class PathPatrolAction : public fight::Action
+			{
+			public:
+				// 0x102056E0
+				PathPatrolAction(PathPatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+				// 0x102054C0
+				virtual ~PathPatrolAction();
+
+				// vftable slot 5 (0x10205930)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10205010)
+				virtual void Slot6();
+				// vftable slot 7 (0x10205B10)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<PathPatrolTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				CharacterFollower follower;  // +0x2C
+				NotifyScenarioDestinationReached notifier;  // +0x34
+				PatrolPathFollowing following;  // +0x3C
+				int unknown74;  // +0x74
+				int unknown78;  // +0x78
+			};
 
 			// ---- actions end
 		}
