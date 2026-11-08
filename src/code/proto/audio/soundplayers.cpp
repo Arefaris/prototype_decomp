@@ -1,6 +1,7 @@
 // The unit of the game's sound players (the ambience, helicopter and vehicle players; 0x104A2D30 - 0x104A9CB0): the
 // members of audio::RemotePlayer and the posting members of the player table that the players use, and the instances
 // of the om arrays their settings hold. The file name is a guess.
+#include <cmath>
 #include "code/audio/remoteplayerevent.h"
 #include "code/mgraph/envelope.h"
 #include "code/mgraph/nodes.h"
@@ -301,6 +302,57 @@ namespace proto
 		table->SetUnknown49C(player20, value);
 	}
 
+	// Moves a value towards its target by the time that passed, with a rate for rising and one for falling (a rate of
+	// about zero jumps to the target)
+	// FUNCTION: ENGINE 0x104A6080
+	static void ApproachHelicopter(float* value, unsigned int elapsed, float target, float rise, float fall)
+	{
+		float current = *value;
+		if (target > current)
+		{
+			if (0.00001f >= fabs(rise))
+			{
+				*value = target;
+				return;
+			}
+			*value = current + elapsed / rise;
+			if (target < *value)
+			{
+				*value = target;
+			}
+		}
+		else
+		{
+			if (0.00001f >= fabs(fall))
+			{
+				*value = target;
+				return;
+			}
+			*value = current - elapsed / fall;
+			if (target > *value)
+			{
+				*value = target;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104A6F50
+	void SoundPlayerHelicopter::Update(unsigned int elapsed)
+	{
+		if (unknown50)
+		{
+			float target = EvaluateEnvelope(unknown50, unknown34, 0.0f, 1.0f, engine::driving::gHalf, engine::driving::gTwo);
+			ApproachHelicopter(&unknown2C, elapsed, target, unknown40, unknown44);
+			audio::gRemotePlayers->SetUnknown51C(player1C, unknown2C);
+		}
+		if (unknown4C)
+		{
+			float target = EvaluateEnvelope(unknown4C, unknown30, 0.0f, 1.0f, engine::driving::gHalf, engine::driving::gTwo);
+			ApproachHelicopter(&unknown28, elapsed, target, unknown38, unknown3C);
+			audio::gRemotePlayers->SetUnknown51C(player0C, unknown28);
+		}
+	}
+
 	bool SoundPlayerHelicopter::Slot1(core::Name<core::CaseSensitiveKey>* name)
 	{
 		if (*name == engine::gPlay3)
@@ -404,6 +456,56 @@ namespace proto
 			audio::gRemotePlayers->Stop(player18);
 		}
 		return true;
+	}
+
+	// The same step as the helicopter's (each player's unit has its own copy)
+	// FUNCTION: ENGINE 0x104A8910
+	static void ApproachVehicle(float* value, unsigned int elapsed, float target, float rise, float fall)
+	{
+		float current = *value;
+		if (target > current)
+		{
+			if (0.00001f >= fabs(rise))
+			{
+				*value = target;
+				return;
+			}
+			*value = current + elapsed / rise;
+			if (target < *value)
+			{
+				*value = target;
+			}
+		}
+		else
+		{
+			if (0.00001f >= fabs(fall))
+			{
+				*value = target;
+				return;
+			}
+			*value = current - elapsed / fall;
+			if (target > *value)
+			{
+				*value = target;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x104A8D60
+	void SoundPlayerVehicle::Update(unsigned int elapsed)
+	{
+		if (unknown3C)
+		{
+			float target = EvaluateEnvelope(unknown3C, unknown1C, 0.0f, 1.0f, engine::driving::gHalf, engine::driving::gTwo);
+			ApproachVehicle(&unknown34, elapsed, target, unknown24, unknown28);
+			audio::gRemotePlayers->SetUnknown51C(player18, unknown34);
+		}
+		if (unknown40)
+		{
+			float target = EvaluateEnvelope(unknown40, unknown20, 0.0f, 1.0f, engine::driving::gHalf, engine::driving::gTwo);
+			ApproachVehicle(&unknown38, elapsed, target, unknown2C, unknown30);
+			audio::gRemotePlayers->SetUnknown51C(playerC, unknown38);
+		}
 	}
 
 	void SoundPlayerVehicle::Slot4()
