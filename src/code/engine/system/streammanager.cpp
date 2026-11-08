@@ -10,6 +10,11 @@
 
 namespace engine
 {
+	extern fight::EnumEntry gStartupGroupTable[3];
+	extern fight::EnumEntry gStartupPackageTable[3];
+	// The text of the tags that keep the startup packages in memory (0x111C41A0)
+	extern const char* const gPersistentText;
+
 	// FUNCTION: ENGINE 0x1082BEC0
 	bool StreamManager::IsBusy()
 	{
@@ -84,13 +89,113 @@ namespace engine
 		return gStreamManager->currentPackage;
 	}
 
+	// FUNCTION: ENGINE 0x1082C420
+	void StreamManager::LoadStartupPackage(int group, const core::Name<core::CaseSensitiveKey>& newName,
+		const container::String* resources, const container::String* prerequisites)
+	{
+		StreamManager* manager = gStreamManager;
+		manager->groupPackages[group] = new (0xC) StreamPackage(gStartupPackageTable[group].name);
+		manager->groupPackages[group]->slotGroup = gStartupGroupTable[group].name;
+		manager->groupPackages[group]->SetResources(resources->ConstData());
+		manager->groupPackages[group]->SetPrerequisites(prerequisites->ConstData());
+		if (group == 0)
+		{
+			manager->groupPackages[0]->tags.FromString("__Persistent__;__NoReload__");
+		}
+		else
+		{
+			manager->groupPackages[group]->tags.FromString(gPersistentText);
+		}
+		manager->groupPackages[group]->Slot3(0);
+		manager->groupPackages[group]->ResolvePrerequisites();
+		manager->groupPackages[group]->Load(0, 0xFFFF, gNoSlotGroup, false);
+		manager->startupNames[group] = newName;
+	}
+
+	// FUNCTION: ENGINE 0x1082C510
+	void StreamManager::UnloadStartupPackage(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0)
+		{
+			manager->groupPackages[group]->instance->SetEvicting(false);
+			manager->groupPackages[group]->Unload(0);
+			manager->startupNames[group].SetText("");
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082CF10
+	void StreamManager::UnregisterClient(StreamClient* client)
+	{
+		StreamManager* manager = gStreamManager;
+		if (client->unknown18)
+		{
+			StreamClient** item = manager->flaggedClients.Find(client);
+			manager->flaggedClients.Erase(item);
+		}
+		else
+		{
+			StreamClient** item = manager->clients.Find(client);
+			manager->clients.Erase(item);
+		}
+		StreamPackage** package = manager->activePackages.Begin();
+		if (package != manager->activePackages.End())
+		{
+			do
+			{
+				if ((*package)->instance != 0)
+				{
+					(*package)->instance->RemoveClient(client);
+				}
+				package++;
+			}
+			while (package != manager->activePackages.End());
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082CFC0
+	// NONMATCHING: 87.5 %, the engine takes the count down before it loads the tag set for the call, ours after
+#ifdef NONMATCHING
+	void StreamManager::FindClients(container::ArrayDynamicStatic<StreamClient*, StreamAllocator>* found,
+		const TagSet* tags)
+	{
+		StreamManager* manager = gStreamManager;
+		int count = manager->clients.Size();
+		while (count != 0)
+		{
+			StreamClient* client = manager->clients[count - 1];
+			count--;
+			if (tags->Intersects(client->tags))
+			{
+				found->PushBack(client);
+			}
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082DFF0
+	void StreamManager::AddActive(StreamPackage* package)
+	{
+		gStreamManager->activePackages.InsertSorted(package, ComparePackagePriority);
+	}
+
+	// FUNCTION: ENGINE 0x1082D020
+	void StreamManager::RemoveActive(StreamPackage* package)
+	{
+		StreamManager* manager = gStreamManager;
+		StreamPackage** item = manager->activePackages.Find(package);
+		if (item != 0)
+		{
+			manager->activePackages.Erase(item);
+		}
+	}
+
 	// FUNCTION: ENGINE 0x1082C060
 	void StreamManager::SetCurrentPackage(StreamPackage* package)
 	{
 		gStreamManager->currentPackage = package;
 	}
 
-	extern fight::EnumEntry gStartupGroupTable[3];
 
 	// FUNCTION: ENGINE 0x1082C560
 	int StreamManager::GetSlotGroupIndex(const content::ObjectName& name)

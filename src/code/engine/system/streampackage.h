@@ -226,8 +226,17 @@ namespace engine
 		static void Unregister(StreamPackage* package);
 		// 0x1082CF10: takes a client out of the manager's list (the client's flag at +0x18 says whether it is in)
 		static void UnregisterClient(StreamClient* client);
+		// 0x1082C420 / 0x1082C510 (names guessed): makes the package of a startup group (0 - 2) from its resources and
+		// prerequisites and loads it; stops the group's package and forgets its name
+		static void LoadStartupPackage(int group, const core::Name<core::CaseSensitiveKey>& newName,
+			const container::String* resources, const container::String* prerequisites);
+		static void UnloadStartupPackage(int group);
 
-		unsigned char unknown1C[0x4c - 0x1C];
+		// The clients that take packages as they load: those whose flag at +0x18 is clear (+0x1C) and those whose flag is
+		// set (+0x2C) (names guessed)
+		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> clients;
+		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> flaggedClients;
+		unsigned char unknown3C[0x4c - 0x3C];
 		Settings settings;
 		unsigned char unknown74[0x88 - 0x74];
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
@@ -236,7 +245,12 @@ namespace engine
 		unsigned char unknown90[8];
 		// The package each startup group is loading
 		StreamPackage* groupPackages[4];  // +0x98
-		unsigned char unknownA8[0xF0 - 0xA8];
+		// The names the startup groups' packages were loaded under
+		core::Name<core::CaseSensitiveKey> startupNames[3];  // +0xA8
+		unsigned char unknownC0[0xC8 - 0xC0];
+		// The packages that are loading, by priority (AddActive puts one in, RemoveActive takes it out)
+		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> activePackages;  // +0xC8
+		unsigned char unknownD8[0xF0 - 0xD8];
 		// The packages that are known (Register adds one, 0x1082D080)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> knownPackages;
 		unsigned char unknown100[0x114 - 0x100];

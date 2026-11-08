@@ -77,6 +77,16 @@ namespace container
 			}
 			return item;
 		}
+		// Puts value in front of the first element that is not below it by less (a binary search); answers where it went,
+		// or the old end when the array is full (0x1082DEB0 for the stream packages)
+		T* InsertSorted(const T& value, bool (*less)(const T*, const T*));
+		// Removes item by moving the elements behind it down
+		T* Erase(T* item)
+		{
+			Copy(item + 1, end, item);
+			end--;
+			return item;
+		}
 		// Removes item by moving the last element into its place
 		void EraseFast(T* item)
 		{
