@@ -51,6 +51,21 @@ namespace mgraph
 		NodeLink* previous;
 	};
 
+	// The head and the tail of such a list
+	struct NodeLinkList
+	{
+		NodeLinkList() :
+			head(0),
+			tail(0)
+		{
+		}
+		// 0x10AAC0A0: how many links are in the list
+		unsigned int GetCount();
+
+		NodeLink* head;
+		NodeLink* tail;
+	};
+
 	class __declspec(align(8)) Node : public GraphItem
 	{
 	public:

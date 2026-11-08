@@ -20,14 +20,9 @@ namespace mgraph
 	};
 
 	// The list of the graphs that belong together (name guessed): the graphs link themselves in with the links at 0x84
-	struct GraphGroup
+	struct GraphGroup : NodeLinkList
 	{
-		// 0x10AAC0A0: how many graphs are in the group
-		unsigned int GetCount();
 		OM_ALLOCATION(GraphGroup);
-
-		NodeLink* head;
-		NodeLink* tail;
 	};
 
 	class Abstraction;
@@ -89,8 +84,7 @@ namespace mgraph
 		unsigned int numChannels;  // 0x30
 		// The connections the graph read from its text or binary form and has not made yet (name guessed)
 		om::DynamicArray<ConnectionData, unsigned short> connectionData;  // 0x34
-		NodeLink* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
-		NodeLink* lastConnection;  // 0x40
+		NodeLinkList connections;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
 		NodeTree nodes;  // 0x44
 		NodeLink* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
 		NodeLink* lastAbstraction;  // 0x5C

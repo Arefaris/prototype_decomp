@@ -3,6 +3,7 @@
 #include "code/mgraph/connectiondata.h"
 #include "code/mgraph/nodes.h"
 #include "code/mgraph/pins.h"
+#include "code/om/metaproperty.h"
 #include "code/om/textvalue.h"
 
 namespace engine
@@ -34,8 +35,7 @@ namespace mgraph
 		attachCount(0),
 		numChannels(0),
 		connectionData(),
-		firstConnection(0),
-		lastConnection(0),
+		connections(),
 		nodes(),
 		firstAbstraction(0),
 		lastAbstraction(0),
@@ -99,6 +99,21 @@ namespace mgraph
 			graph = 0;
 		}
 		return graph;
+	}
+
+	// The tree node of a node, null for no node
+	static __forceinline om::TreeNode* TreeNodeOf(Node* node)
+	{
+		om::TreeNode* treeNode;
+		if (node != 0)
+		{
+			treeNode = &node->treeNode;
+		}
+		else
+		{
+			treeNode = 0;
+		}
+		return treeNode;
 	}
 
 	// The link in the group of a graph, null for no graph
@@ -373,7 +388,7 @@ namespace mgraph
 			{
 				node->Attach(newContext);
 			}
-			GraphConnectionBase* connection = ConnectionOfLink(firstConnection);
+			GraphConnectionBase* connection = ConnectionOfLink(connections.head);
 			while (connection != 0)
 			{
 				connection->Attach(newContext);
@@ -442,11 +457,45 @@ namespace mgraph
 			node->Slot5(value);
 		}
 		om::TextNode* connectionList = new om::TextNode(text, om::String::Wrap("Connections"));
-		for (GraphConnectionBase* connection = ConnectionOfLink(firstConnection); connection != 0; connection = ConnectionOfLink(connection->graphLink.next))
+		for (GraphConnectionBase* connection = ConnectionOfLink(connections.head); connection != 0; connection = ConnectionOfLink(connection->graphLink.next))
 		{
 			om::TextNode* connectionText = new om::TextNode(connectionList, om::String::Wrap("Connection"));
 			connection->Slot5(connectionText);
 		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10AC7FF0
+	// NONMATCHING: the engine copies the 64-bit name keys into the stream's temporaries in another order and loads the slot of the node's writer through edx (87.3 %)
+#ifdef NONMATCHING
+	bool Graph::Slot7(void* argument)
+	{
+		om::BinaryStream* stream = static_cast<om::BinaryStream*>(argument);
+		bool ok = om::WriteBinary(stream, nodes.Count()) != 0;
+		for (Node* node = NodeOfTreeNode(nodes.First()); node != 0; node = NodeOfTreeNode(nodes.Next(TreeNodeOf(node))))
+		{
+			if (ok && om::WriteBinary(stream, node->type->name.key) && om::WriteBinary(stream, false) && om::WriteBinary(stream, node->name.key) && om::WriteBinary(stream, false) && node->Slot6(stream))
+			{
+				ok = true;
+			}
+			else
+			{
+				ok = false;
+			}
+		}
+		om::WriteBinary(stream, connections.GetCount());
+		for (GraphConnectionBase* connection = ConnectionOfLink(connections.head); ok && connection != 0; connection = ConnectionOfLink(connection->graphLink.next))
+		{
+			if (ok && connection->Slot6(stream))
+			{
+				ok = true;
+			}
+			else
+			{
+				ok = false;
+			}
+		}
+		return ok;
 	}
 #endif
 
@@ -492,7 +541,7 @@ namespace mgraph
 	{
 		if (attachCount == 1)
 		{
-			GraphConnectionBase* connection = ConnectionOfLink(firstConnection);
+			GraphConnectionBase* connection = ConnectionOfLink(connections.head);
 			while (connection != 0)
 			{
 				connection->Detach(oldContext);

@@ -76,7 +76,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10AD3D00
 	GraphConnectionBase* Graph::FindConnection(const om::ClassName& toNode, const om::ClassName& toPin, const om::ClassName& fromNode, const om::ClassName& fromPin)
 	{
-		GraphConnectionBase* connection = ConnectionOfLink(firstConnection);
+		GraphConnectionBase* connection = ConnectionOfLink(connections.head);
 		if (connection != 0)
 		{
 			do

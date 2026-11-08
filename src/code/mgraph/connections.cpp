@@ -63,7 +63,7 @@ namespace mgraph
 		from = newFrom;
 		Append(&newFrom->firstConnection, &fromLink);
 		Append(&newTo->firstConnection, &toLink);
-		Append(&graph->firstConnection, &graphLink);
+		Append(&graph->connections.head, &graphLink);
 	}
 
 	// FUNCTION: ENGINE 0x10AD2A40
@@ -101,7 +101,7 @@ namespace mgraph
 	{
 		Unlink(&to->firstConnection, &toLink);
 		Unlink(&from->firstConnection, &fromLink);
-		Unlink(&graph->firstConnection, &graphLink);
+		Unlink(&graph->connections.head, &graphLink);
 	}
 
 	// FUNCTION: ENGINE 0x10AD2350
