@@ -104560,3 +104560,7 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?SetPhysicsObjectHandle@PhysicsBehaviour@engine@@QAEXUObjectHandle@ravenphysics@@_N@Z = 0x10924740 ; function size:0x176 | engine::PhysicsBehaviour::SetPhysicsObjectHandle (name guess)
 ?SetPhysicsObjectHandleAndRemember@PhysicsBehaviour@engine@@QAEXUObjectHandle@ravenphysics@@_N@Z = 0x109248C0 ; function size:0x1F | engine::PhysicsBehaviour::SetPhysicsObjectHandleAndRemember (name guess)
 ?UpdateScale@PhysicsBehaviour@engine@@QAE_NXZ = 0x109233D0 ; function size:0x178 | engine::PhysicsBehaviour::UpdateScale (name guess)
+?WritePose@PhysicsBehaviour@engine@@QAEXM@Z = 0x10922100 ; function size:0x43 | engine::PhysicsBehaviour::WritePose (name guess)
+?Update@PhysicsBehaviour@engine@@UAEXMG@Z = 0x109242C0 ; function size:0x4D | engine::PhysicsBehaviour::Update vftable slot 4
+?StepObject@PhysicsBehaviour@engine@@QAEXM@Z = 0x10924130 ; function size:0x186 | engine::PhysicsBehaviour::StepObject (name guess)
+?WritePhysicsPose@engine@@YAXPAVPhysicsObject@ravenphysics@@MPAUPartLookup@proto@@AAVMatrix@math@@@Z = 0x1084BB10 ; function size:0x1A3 | engine::WritePhysicsPose (another unit; name guess)

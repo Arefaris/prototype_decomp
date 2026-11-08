@@ -52,6 +52,16 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x109263A0
+	bool RagdollLODBehaviour::Slot2()
+	{
+		if (requested.Test(7))
+		{
+			OnActiveChanged(false);
+		}
+		return true;
+	}
+
 	// FUNCTION: ENGINE 0x109274D0
 	content::MemberList* RagdollLODBehaviour::GetMembers()
 	{

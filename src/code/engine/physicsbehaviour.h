@@ -101,6 +101,9 @@ namespace engine
 
 		// vftable slot 3 (0x10923EE0)
 		virtual void OnActiveChanged(bool active);
+		// vftable slot 4 (0x109242C0): the update pass of the pose writes the physics object's pose out (0x10922100), the
+		// other one steps the object (0x10924130)
+		virtual void Update(float dt, unsigned short mask);
 		// the notifier's slot 0 (0x10924400)
 		virtual void OnObjectsChanged();
 
@@ -121,6 +124,9 @@ namespace engine
 		void SetFilterWord2(unsigned int word);
 		// 0x10921E20: gives the physics object the override material and the override intersection properties
 		void ApplyOverrides();
+		// 0x10922100 / 0x10924130
+		void WritePose(float dt);
+		void StepObject(float dt);
 		// 0x10924330: forgets the state of the physics object (and reads the pose of the drawable again when asked to) and wakes
 		// the owner's asleep attribute up
 		void ResetObject(bool readPose);

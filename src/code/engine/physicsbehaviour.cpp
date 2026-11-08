@@ -19,6 +19,9 @@ namespace engine
 	// 0x107E3D40 (physicsmanager.cpp)
 	int NextPhysicsFrame();
 
+	// 0x1084BB10 (another unit; name guess): writes the pose of the physics object out
+	void WritePhysicsPose(ravenphysics::PhysicsObject* object, float dt, proto::PartLookup* lookup, math::Matrix& transform);
+
 	// The attribute names the behaviour works with (0x11283510, 0x112834D8, 0x11283550)
 	extern core::Name<core::CaseSensitiveKey> gTransformName;
 	extern core::Name<core::CaseSensitiveKey> gAsleepName;
@@ -435,6 +438,28 @@ namespace engine
 			unknown14 = newHandle;
 		}
 		SetPhysicsObjectHandle(newHandle, false);
+	}
+
+	// FUNCTION: ENGINE 0x10922100
+	void PhysicsBehaviour::WritePose(float dt)
+	{
+		ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+		proto::PartLookup* lookup = drawable != 0 ? drawable->value : 0;
+		WritePhysicsPose(object, dt, lookup, owner->transform->Get());
+	}
+
+	// FUNCTION: ENGINE 0x109242C0
+	void PhysicsBehaviour::Update(float dt, unsigned short mask)
+	{
+		if (physicsObjectHandle.IsValid() && owner != 0)
+		{
+			if (mask == 0x20)
+			{
+				WritePose(dt);
+				return;
+			}
+			StepObject(dt);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10923EE0
