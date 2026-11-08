@@ -203,6 +203,24 @@ namespace proto
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x102A9F60
+	float LockOnTargetingBehaviour::TargetLockCone::GetArc() const
+	{
+		return arc * 57.295776f;
+	}
+
+	// FUNCTION: ENGINE 0x102A9F70
+	void LockOnTargetingBehaviour::TargetLockCone::SetArc(float degrees)
+	{
+		arc = degrees * 0.017453292f;
+	}
+
+	// FUNCTION: ENGINE 0x102AA3C0
+	LockOnTargetingBehaviour::TargetLockCone::TargetLockCone() : distance(0.0f), arc(0.0f), minTargetCategory(0),
+		minTargetPriority(0), maxTargetCategory(0), maxTargetPriority(0), useFacing(false)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x102AA340
 	content::ClassInfo* LockOnTargetingBehaviour::SoundParams::GetClassInfo()
 	{
@@ -221,6 +239,32 @@ namespace proto
 		sInfo.name = "proto::LockOnTargetingBehaviour";
 		sInfo.code = "pn";
 		return &sInfo;
+	}
+
+	// FUNCTION: ENGINE 0x102AECD0
+	content::MemberList* LockOnTargetingBehaviour::TargetLockCone::GetMembers()
+	{
+		static content::MemberList sList;
+		static content::MemberInfo sMembers[] =
+		{
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, float, 0>("p"), PROTO_OFFSET(TargetLockCone, distance),
+				"distance" },
+			{ content::GetMemberMetaType<TargetLockCone, float, 0>(&TargetLockCone::GetArc, &TargetLockCone::SetArc, "p"),
+				0, "arc" },
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, unsigned int, 0>("p"),
+				PROTO_OFFSET(TargetLockCone, minTargetCategory), "minTargetCategory" },
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, unsigned int, 1>("p"),
+				PROTO_OFFSET(TargetLockCone, minTargetPriority), "minTargetPriority" },
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, unsigned int, 2>("p"),
+				PROTO_OFFSET(TargetLockCone, maxTargetCategory), "maxTargetCategory" },
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, unsigned int, 3>("p"),
+				PROTO_OFFSET(TargetLockCone, maxTargetPriority), "maxTargetPriority" },
+			{ content::GetMemberPrimitiveMetaType<TargetLockCone, bool, 0>("p"), PROTO_OFFSET(TargetLockCone, useFacing),
+				"useFacing" }
+		};
+		sList.members = sMembers;
+		sList.count = 7;
+		return &sList;
 	}
 
 	// FUNCTION: ENGINE 0x102AB5E0
@@ -350,3 +394,15 @@ namespace proto
 // FUNCTION: ENGINE 0x102A84B0
 // FUNCTION: ENGINE 0x102A8FA0
 // FUNCTION: ENGINE 0x102A9000
+// FUNCTION: ENGINE 0x102ABC50
+// FUNCTION: ENGINE 0x102ABC90
+// FUNCTION: ENGINE 0x102ABCD0
+// FUNCTION: ENGINE 0x102ABD10
+// FUNCTION: ENGINE 0x102ABD50
+// FUNCTION: ENGINE 0x102ABD90
+// FUNCTION: ENGINE 0x102AB330
+// FUNCTION: ENGINE 0x102AB400
+// FUNCTION: ENGINE 0x102AC2B0
+// FUNCTION: ENGINE 0x102AC2D0
+// FUNCTION: ENGINE 0x102AC2F0
+// FUNCTION: ENGINE 0x102AE7B0

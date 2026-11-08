@@ -6,6 +6,7 @@
 #ifndef PROTO_BEHAVIOURS_LOCKONTARGETINGBEHAVIOUR_H
 #define PROTO_BEHAVIOURS_LOCKONTARGETINGBEHAVIOUR_H
 
+#include "code/container/arraydynamicallocatornew.h"
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/proto/autotargetprioritylist.h"
@@ -56,7 +57,22 @@ namespace proto
 		// The cone the lock-on takes its targets from (RTTI proto::LockOnTargetingBehaviour::TargetLockCone)
 		struct TargetLockCone
 		{
+			// 0x102AA3C0
+			TargetLockCone();
 			static content::ClassInfo* GetClassInfo();
+			static content::MemberList* GetMembers();
+
+			// 0x102A9F60 / 0x102A9F70: the arc in degrees (kept in radians)
+			float GetArc() const;
+			void SetArc(float degrees);
+
+			float distance;  // +0x0
+			float arc;  // +0x4 (radians)
+			unsigned int minTargetCategory;  // +0x8
+			unsigned int minTargetPriority;  // +0xC
+			unsigned int maxTargetCategory;  // +0x10
+			unsigned int maxTargetPriority;  // +0x14
+			bool useFacing;  // +0x18
 		};
 
 		// The sounds of the lock-on (RTTI proto::LockOnTargetingBehaviour::SoundParams)
@@ -90,6 +106,73 @@ namespace proto
 		};
 
 		static content::ClassInfo* GetClassInfo();
+	};
+}
+
+namespace container
+{
+	template<> struct ArrayEraseInline<proto::LockOnTargetingBehaviour::TargetLockCone>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+}
+
+namespace content
+{
+	template<> class ArrayDynamicHelper<container::ArrayDynamic<proto::LockOnTargetingBehaviour::TargetLockCone,
+		container::AllocatorNew> > : public ArrayDynamicHelperBase
+	{
+	public:
+		typedef container::ArrayDynamic<proto::LockOnTargetingBehaviour::TargetLockCone, container::AllocatorNew> A;
+		typedef A::Element T;
+
+		virtual int Size(void* array)
+		{
+			return ((A*)array)->Size();
+		}
+		virtual void* Get(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void* GetConst(void* array, int index)
+		{
+			return ((A*)array)->begin + index;
+		}
+		virtual void Insert(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			if (a->Size() >= a->Capacity())
+			{
+				a->Reserve(a->Size() + 1);
+			}
+			T* position = a->begin + index;
+			static T sDefault;
+			a->Insert(position, 1, sDefault);
+		}
+		virtual void Erase(void* array, int index, int unused)
+		{
+			A* a = (A*)array;
+			a->Erase(a->begin + index);
+		}
+		virtual int Capacity(void* array)
+		{
+			return ((A*)array)->Capacity();
+		}
+		virtual void Expand(void* array, unsigned int count)
+		{
+			A* a = (A*)array;
+			if (a->Capacity() == 0)
+			{
+				a->Allocate(count);
+			}
+			else if (count + a->Size() > a->Capacity())
+			{
+				a->Reserve(count + a->Size());
+			}
+		}
 	};
 }
 
