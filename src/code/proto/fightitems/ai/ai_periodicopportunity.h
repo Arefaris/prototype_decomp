@@ -108,6 +108,37 @@ namespace proto
 			float FightRandomRange(float low, float high);
 
 			// ---- actions begin
+			// RTTI: proto::fightitems::ai::PeriodicOpportunityAction (9 vftable slots, 0x6C bytes): the engine's opportunity action without its callback
+			class PeriodicOpportunityAction : public fight::Action
+			{
+			public:
+				// 0x102066F0
+				PeriodicOpportunityAction(fight::Track* newListener, PeriodicOpportunityTrack* newTrack, float newDuration, float newHook, fight::Branch* newBranch, int newPriority, fight::Sequencer* newParent, core::IRefCount* newOwner);
+				// 0x102064E0
+				virtual ~PeriodicOpportunityAction();
+
+				// vftable slot 5 (0x10206360)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x10206560)
+				virtual void Slot6();
+				// vftable slot 7 (0x10206820)
+				virtual bool Slot7(int arg, float value);
+				// vftable slot 8 (0x10206980)
+				virtual fight::Action* Slot8(fight::Action* other, core::IRefCount* effect, core::IRefCount* owner);
+
+				engine::TrackWatch watch;  // +0x1C
+				core::Link<PeriodicOpportunityTrack> link;  // +0x28
+				float duration;  // +0x34
+				float hook;  // +0x38
+				fight::BranchWatch branchWatch;  // +0x3C
+				int priority;  // +0x48
+				fight::Sequencer* parent;  // +0x4C
+				core::IRefCount* owner;  // +0x50
+				int first;  // +0x54
+				int second;  // +0x58
+				float elapsed;  // +0x5C
+				fight::BranchWatch started;  // +0x60
+			};
 			// RTTI: proto::fightitems::ai::DelayedSequenceAction (9 vftable slots, 0x44 bytes)
 			class DelayedSequenceAction : public fight::Action
 			{
