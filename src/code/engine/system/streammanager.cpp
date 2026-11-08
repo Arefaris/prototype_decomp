@@ -280,6 +280,61 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1082CD50
+	void StopFirstStartupPackage()
+	{
+		if (!(char)StreamManager::IsGroupWithoutInstance(0))
+		{
+			StreamManager* manager = gStreamManager;
+			StreamManager::AdvanceState();
+			StreamManager::UnloadStartupPackage(0);
+			while (manager->unknown114 == 1)
+			{
+				Unknown1082C6D0();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082CD90
+	// NONMATCHING: 66.1 %, the engine walks the three group packages from a base pointer at +0xA4 and reads one slot
+	// below it (ours folds the offset into the pointer, which makes the load one byte shorter)
+#ifdef NONMATCHING
+	void DestroyStreamManager()
+	{
+		StreamManager* manager = gStreamManager;
+		while (!(char)StreamManager::IsGroupWithoutInstance(0))
+		{
+			Unknown1082C6D0();
+		}
+		StreamPackage** slot = manager->groupPackages + 3;
+		int i = 3;
+		do
+		{
+			StreamPackage* package = *(slot - 1);
+			slot = slot - 1;
+			i = i - 1;
+			if (package != 0)
+			{
+				delete package;
+			}
+		}
+		while (i != 0);
+		StreamSlotGroup** group = gStreamManager->slotGroups.begin;
+		StreamSlotGroup** end = gStreamManager->slotGroups.end;
+		for (; group != end; group++)
+		{
+			(*group)->IsReady();
+			if (*group != 0)
+			{
+				delete *group;
+			}
+		}
+		gStreamManager->slotGroups.end = gStreamManager->slotGroups.begin;
+		delete gStreamManager;
+		gStreamManager = 0;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1082CF10
 	void StreamManager::UnregisterClient(StreamClient* client)
 	{

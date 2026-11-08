@@ -109332,3 +109332,5 @@ _sOutputMeter = 0x112768E0 ; data size:0x4 | audio outputmeter.cpp: the one mete
 ?RegisterClient@StreamManager@engine@@SAXPAVStreamClient@2@@Z = 0x1082CED0 ; function size:0x36 | engine::StreamManager::RegisterClient (name guess)
 ?DestroyStreamDrivers@engine@@YAXXZ = 0x1082D4C0 ; function size:0x8A | engine::DestroyStreamDrivers (name guess)
 ?SetStreamDriverCount@engine@@YAXH@Z = 0x1082DC00 ; function size:0x70 | engine::SetStreamDriverCount (name guess)
+?StopFirstStartupPackage@engine@@YAXXZ = 0x1082CD50 ; function size:0x40 | engine::StopFirstStartupPackage (name guess)
+?DestroyStreamManager@engine@@YAXXZ = 0x1082CD90 ; function size:0xA9 | engine::DestroyStreamManager (name guess)

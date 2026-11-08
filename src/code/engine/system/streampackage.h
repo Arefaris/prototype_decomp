@@ -239,7 +239,8 @@ namespace engine
 		// set (+0x2C) (names guessed)
 		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> clients;
 		container::ArrayDynamicStatic<StreamClient*, StreamAllocator> flaggedClients;
-		unsigned char unknown3C[0x4c - 0x3C];
+		// The slot groups (made by CreateSlotGroup, RegisterSlotGroup)
+		container::ArrayDynamicStatic<StreamSlotGroup*, StreamAllocator> slotGroups;  // +0x3C
 		Settings settings;
 		unsigned char unknown74[0x88 - 0x74];
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
