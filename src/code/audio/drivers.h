@@ -363,15 +363,39 @@ namespace audio
 	class DirectSoundRendererDriver
 	{
 	public:
-		virtual void Slot0() = 0;
-		virtual void Slot1() = 0;
-		virtual void Slot2() = 0;
-		virtual void Slot3() = 0;
+		virtual void InterfaceSlot0() = 0;
+		virtual void InterfaceSlot1() = 0;
+		virtual void InterfaceSlot2() = 0;
+		virtual void InterfaceSlot3() = 0;
 	};
 
 	class DirectSoundRendererDriverImpl : public RendererDriver, public DirectSoundRendererDriver
 	{
 	public:
+		// The thread that fills the device's buffer (its body is not recovered)
+		class Thread : public om::Thread
+		{
+		public:
+			virtual void Run();
+
+			DirectSoundRendererDriverImpl* driver;  // 0xCC
+		};
+
+		virtual const char* Slot1();
+		// Slot 2 (0x10ABEF40): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slot 5 (0x10ABCFC0): true on the driver's own thread
+		virtual bool Slot5();
+		// Slot 17 (0x10ABCFE0)
+		virtual int Slot17();
+
+		// 0x113276D4 (name guessed)
+		static char unknownStatic;
+
+		char unknown80[0xE8];
+		Thread thread;  // 0x168
+		char unknown238[0x1C];
+		int unknown254;  // 0x254
 		void SetBufferLocation(BufferLocation newBufferLocation);
 		BufferLocation GetBufferLocation() const;
 		void SetMixType(MixType newMixType);

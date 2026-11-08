@@ -2,6 +2,8 @@
 // the wave output of the operating system, two blocks of samples at a time.
 #include "code/audio/drivers.h"
 #include "code/core/criticalsection.h"
+#include "code/om/invoke.h"
+#include "code/om/metaproperty.h"
 #include <string.h>
 
 // The winmm imports, declared like the SDK does; the relinker's import libraries name the slots without the decoration
@@ -392,4 +394,21 @@ namespace audio
 		mixBins = 0;
 	}
 #endif
+}
+
+namespace om
+{
+	// The forms of the wave format enumeration (the copies of the other drivers are left to the engine)
+	// FUNCTION: ENGINE 0x10AB84E0
+	template void WriteResult<audio::WAVEFORMAT>(BinaryStream*, const audio::WAVEFORMAT&);
+	// FUNCTION: ENGINE 0x10AB8560
+	template bool ReadText<audio::WAVEFORMAT>(const TextValue*, audio::WAVEFORMAT*);
+	// FUNCTION: ENGINE 0x10AB8590
+	template void WriteText<audio::WAVEFORMAT>(TextValue*, const audio::WAVEFORMAT&);
+	// FUNCTION: ENGINE 0x10AB88A0
+	template bool ReadBinary<audio::WAVEFORMAT>(BinaryStream*, audio::WAVEFORMAT*);
+	// FUNCTION: ENGINE 0x10AB88D0
+	template bool WriteBinary<audio::WAVEFORMAT>(BinaryStream*, const audio::WAVEFORMAT&);
+	// FUNCTION: ENGINE 0x10AB8F80
+	template audio::WAVEFORMAT ArgumentReader<audio::WAVEFORMAT>::Read(BinaryStream*, GarbageList*);
 }
