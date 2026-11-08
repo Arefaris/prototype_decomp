@@ -109333,3 +109333,7 @@ _sCementProgress = 0x1131AC88 ; data size:0x4 | cementloader.cpp: percent done (
 ??_R0?AVStorageDialogState@StorageManager@engine@@@8 = 0x111E13C4 ; data size:0x8 | engine::StorageManager::StorageDialogState RTTI type descriptor
 ??_9FEEventHandler@engine@@$B3AE = 0x108E13C0 ; function size:0x5 | engine::FEEventHandler vcall thunk of slot 1 (RegisterEvent)
 ??_9FEEventHandler@engine@@$B7AE = 0x108E13D0 ; function size:0x5 | engine::FEEventHandler vcall thunk of slot 2 (UnregisterEvent)
+??0?$Link@VDestroyTrack@engine@@@core@@QAE@PAVDestroyTrack@engine@@@Z = 0x108EEB80 ; function size:0x37 | kept template or inline copy of this unit
+??0?$Link@VSetObjectLightGroupTrack@engine@@@core@@QAE@PAVSetObjectLightGroupTrack@engine@@@Z = 0x108EFE50 ; function size:0x37 | kept template or inline copy of this unit
+??1?$Link@VTeleportTrack@engine@@@core@@QAE@XZ = 0x108F3330 ; function size:0x10 | kept template or inline copy of this unit
+??0?$Link@VTeleportTrack@engine@@@core@@QAE@PAVTeleportTrack@engine@@@Z = 0x108F3350 ; function size:0x37 | kept template or inline copy of this unit
