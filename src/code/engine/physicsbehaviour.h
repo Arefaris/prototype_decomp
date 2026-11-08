@@ -29,7 +29,8 @@ namespace ravenphysics
 	class BroadPhaseObjectNotifier
 	{
 	public:
-		virtual ~BroadPhaseObjectNotifier();
+		// Slot 0 (pure): the broad phase tells that the objects it keeps changed (name guess)
+		virtual void OnObjectsChanged() = 0;
 	};
 }
 
@@ -100,6 +101,8 @@ namespace engine
 
 		// vftable slot 3 (0x10923EE0)
 		virtual void OnActiveChanged(bool active);
+		// the notifier's slot 0 (0x10924400)
+		virtual void OnObjectsChanged();
 
 		// 0x10923380: puts the physics object where the owner is
 		void UpdatePhysicsTransform();
@@ -112,6 +115,28 @@ namespace engine
 		void SetKeyframedCollision(bool keyframed);
 		// 0x10924310: turns the behaviour on
 		void Enable();
+		// 0x10921CC0 / 0x10921D20 / 0x10921D80: set one of the three words of the physics object's filter
+		void SetFilterWord0(unsigned int word);
+		void SetFilterWord1(unsigned int word);
+		void SetFilterWord2(unsigned int word);
+		// 0x10921E20: gives the physics object the override material and the override intersection properties
+		void ApplyOverrides();
+		// 0x10924330: forgets the state of the physics object (and reads the pose of the drawable again when asked to) and wakes
+		// the owner's asleep attribute up
+		void ResetObject(bool readPose);
+		// 0x10923210: reads the pose of the drawable into the physics object; 0x10922150 does the work
+		void ReadPoseOfDrawable(ravenphysics::PhysicsObject* object);
+		void ReadPose(ravenphysics::PhysicsObject* object, proto::PartLookup* lookup);
+		// 0x109233D0: takes the scale of the owner's scale attribute when it changed; answers whether it did (name guess)
+		bool UpdateScale();
+		// 0x10924740: gives the behaviour another physics object (the second flag skips the setting up of the new one)
+		void SetPhysicsObjectHandle(ravenphysics::ObjectHandle newHandle, bool skipSetup);
+		// 0x109248C0: the same, remembering the handle as well when asked to
+		void SetPhysicsObjectHandleAndRemember(ravenphysics::ObjectHandle newHandle, bool remember);
+		// 0x109223D0: whether one of the collision objects takes part in collisions
+		void UpdateCollides();
+		// 0x10922C60: gives the collision objects the scale of their properties, and the physics object its self collisions
+		void ApplyProperties();
 
 		ravenphysics::ObjectHandle physicsObjectHandle;  // +0x10
 		ravenphysics::ObjectHandle unknown14;
@@ -129,7 +154,7 @@ namespace engine
 		bool hasScale;  // +0x4D
 		math::Vector scale;  // +0x50
 		bool enabled;  // +0x5C
-		bool unknown5D;
+		bool collides;  // +0x5D
 		bool unknown5E;
 		int unknown60;
 		int unknown64;

@@ -9,9 +9,20 @@
 
 namespace engine
 {
-	// The attribute names the behaviour works with (0x11283510, 0x112834D8)
+	namespace driving
+	{
+		// 0x10D94F78: 0.0f in the pooled constants (name guess)
+		extern const float gZero;
+		extern const float gOne;
+	}
+
+	// 0x107E3D40 (physicsmanager.cpp)
+	int NextPhysicsFrame();
+
+	// The attribute names the behaviour works with (0x11283510, 0x112834D8, 0x11283550)
 	extern core::Name<core::CaseSensitiveKey> gTransformName;
 	extern core::Name<core::CaseSensitiveKey> gAsleepName;
+	extern core::Name<core::CaseSensitiveKey> gPhysicsObjectAttributeName;
 
 	// 0x1084C3E0 (another unit; name guess): places the physics object by the matrix of the owner
 	void SetPhysicsObjectTransform(math::Matrix& transform, Attribute<proto::PartLookup*>* drawable, math::Vector* scale,
@@ -157,7 +168,7 @@ namespace engine
 			physicsObjectHandle.GetObject()->GetActiveCount() != 0)
 		{
 			SetAwake(true);
-			if (unknown5D)
+			if (collides)
 			{
 				Listen2(0x20, true);
 			}
@@ -209,6 +220,221 @@ namespace engine
 		UpdateAwake();
 		UpdatePhysicsTransform();
 		SetKeyframedCollision(true);
+	}
+
+	// FUNCTION: ENGINE 0x10921CC0
+	void PhysicsBehaviour::SetFilterWord0(unsigned int word)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			ravenphysics::BroadPhaseMasks masks = object->masks;
+			masks.unknown0 = word;
+			object->SetFilter(&masks);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10921D20
+	void PhysicsBehaviour::SetFilterWord1(unsigned int word)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			ravenphysics::BroadPhaseMasks masks = object->masks;
+			masks.unknown4 = word;
+			object->SetFilter(&masks);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10921D80
+	void PhysicsBehaviour::SetFilterWord2(unsigned int word)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			object->masks.unknown8 = word;
+			if (object->detector != 0)
+			{
+				object->detector->masks[object->detectorIndex] = object->masks;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10921E20
+	void PhysicsBehaviour::ApplyOverrides()
+	{
+		if (overrideMaterial != 0)
+		{
+			if (physicsObjectHandle.IsValid())
+			{
+				unsigned char material = overrideMaterial->index;
+				physicsObjectHandle.GetObject()->SetMaterial(material);
+			}
+		}
+		if (overrideIntersectionProperties != 0)
+		{
+			SetFilterWord0(overrideIntersectionProperties->unknown3C);
+			SetFilterWord1(overrideIntersectionProperties->unknown40);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x109223D0
+	// NONMATCHING: the engine keeps the result in a stack byte and tests the object count unsigned (29.1 %)
+#ifdef NONMATCHING
+	void PhysicsBehaviour::UpdateCollides()
+	{
+		bool result;
+		if (physicsObjectHandle.IsValid() && owner != 0)
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			if ((object->collisionMode & 3) == 0)
+			{
+				collides = false;
+				return;
+			}
+			unsigned int count = object->objectCount;
+			unsigned int index = 0;
+			result = false;
+			if (count != 0)
+			{
+				ravenphysics::CollisionObject* collision;
+				while (collision = object->objects[index],
+					(collision->state & 0x80000000) != 0 && collision->shape != 0 && !collision->IsFlag2())
+				{
+					index++;
+					if (index >= count)
+					{
+						collides = false;
+						return;
+					}
+				}
+				result = true;
+			}
+			collides = result;
+			return;
+		}
+		collides = false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10922C60
+	void PhysicsBehaviour::ApplyProperties()
+	{
+		ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+		PhysicsProperties* property = properties.begin;
+		unsigned int count = object->objectCount;
+		if (property != properties.end)
+		{
+			do
+			{
+				bool matchesAll = property->objectName == core::Name<core::CaseSensitiveKey>("", 1);
+				for (unsigned int index = 0; index < count; index++)
+				{
+					ravenphysics::CollisionObject* collision = object->objects[index];
+					core::Name<core::CaseSensitiveKey> name = collision->name;
+					if ((matchesAll || name == property->objectName) && driving::gZero < property->mass &&
+						collision->shape != 0)
+					{
+						collision->SetScale(property->mass);
+					}
+				}
+				property++;
+			}
+			while (property != properties.end);
+		}
+		unsigned int bits = object->unknown50;
+		if (disablePhysicsObjectSelfCollisions)
+		{
+			object->unknown50 = bits | 1;
+			return;
+		}
+		object->unknown50 = bits & 0xfffffffe;
+	}
+
+	// FUNCTION: ENGINE 0x10923210
+	void PhysicsBehaviour::ReadPoseOfDrawable(ravenphysics::PhysicsObject* object)
+	{
+		ReadPose(object, drawable != 0 ? drawable->value : 0);
+	}
+
+	// FUNCTION: ENGINE 0x10924330
+	void PhysicsBehaviour::ResetObject(bool readPose)
+	{
+		if (physicsObjectHandle.IsValid())
+		{
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			object->unknown3E1 = 0;
+			object->unknown24 = 0;
+			if (readPose)
+			{
+				ReadPoseOfDrawable(object);
+			}
+		}
+		BaseAttribute* asleep = owner->FindAttribute(gAsleepName);
+		if (asleep != 0 && ((Attribute<bool>*)asleep)->value)
+		{
+			((Attribute<bool>*)asleep)->Get() = false;
+			AttributeUpdatedMessage message(gAsleepName);
+			owner->SendMessage(&message);
+		}
+		UpdateAwake();
+	}
+
+	// FUNCTION: ENGINE 0x10924400
+	void PhysicsBehaviour::OnObjectsChanged()
+	{
+		ResetObject(true);
+	}
+
+	// FUNCTION: ENGINE 0x10924740
+	// NONMATCHING: the engine loads the three components of the scale before it squares them and reloads two of them (41.9 %)
+#ifdef NONMATCHING
+	void PhysicsBehaviour::SetPhysicsObjectHandle(ravenphysics::ObjectHandle newHandle, bool skipSetup)
+	{
+		ResetObject(false);
+		int frame = 0;
+		if (physicsObjectHandle.IsValid())
+		{
+			if (hasScale)
+			{
+				scale.Set(scale.x * scale.x, scale.y * scale.y, scale.z * scale.z);
+				UpdateScale();
+				scale.Set(driving::gOne, driving::gOne, driving::gOne);
+				hasScale = false;
+			}
+			ravenphysics::PhysicsObject* object = physicsObjectHandle.GetObject();
+			SetAwake(false);
+			frame = object->masks.unknown8;
+			object->unknown50 = object->unknown50 & 0xfffffffe;
+		}
+		else if (newHandle.IsValid())
+		{
+			frame = NextPhysicsFrame();
+		}
+		physicsObjectHandle = newHandle;
+		Attribute<int>* attribute = (Attribute<int>*)owner->FindAttribute(gPhysicsObjectAttributeName);
+		attribute->Get() = physicsObjectHandle.value;
+		if (physicsObjectHandle.IsValid() && !skipSetup)
+		{
+			physicsObjectHandle.GetObject()->SetUnknown48((int)owner);
+			SetFilterWord2(frame);
+			ApplyOverrides();
+			SetKeyframedCollision(true);
+			ApplyProperties();
+		}
+		UpdateCollides();
+		UpdateAwake();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x109248C0
+	void PhysicsBehaviour::SetPhysicsObjectHandleAndRemember(ravenphysics::ObjectHandle newHandle, bool remember)
+	{
+		if (remember)
+		{
+			unknown14 = newHandle;
+		}
+		SetPhysicsObjectHandle(newHandle, false);
 	}
 
 	// FUNCTION: ENGINE 0x10923EE0
