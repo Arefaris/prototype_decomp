@@ -546,7 +546,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1021F370
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void FloatShotAllowedCondition::RegisterProperties()
 			{
 				if (gFloatShotAllowedConditionProperties == 0)

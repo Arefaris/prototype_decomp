@@ -4,6 +4,7 @@
 #define PROTO_FIGHTITEMS_AI_AIACTIONMESSAGES_H
 
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/container/arrayfixed.h"
 #include "code/proto/messages/airequestmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/gameobjectparams.h"
@@ -174,14 +175,41 @@ namespace proto
 		engine::GameObjectHandle threat;  // +0xC
 	};
 
+	// One point of a patrol path (0x10 bytes; names guessed)
+	struct PatrolPathPoint
+	{
+		int unknown0;  // +0
+		math::Vector position;  // +4
+	};
+
 	// A patrol path an object follows (name guess): the handle of the object that holds the path; the methods ask that object
 	class PatrolPath
 	{
 	public:
 		// 0x10205260: whether the object of the path exists
 		bool IsValid();
+		// 0x103A6040 / 0x103A5E10 / 0x103A5C80 (another unit): the speed along the path, how many points it has and one of them (name guesses)
+		float GetSpeed();
+		int GetPointCount();
+		const PatrolPathPoint* GetPoint(int index);
 
 		engine::GameObjectHandle object;  // +0x0
+	};
+
+	// RTTI: proto::GotoPathMovementMessage: the object goes through the points one after the other
+	struct GotoPathMovementMessage : public MovementMessage
+	{
+		explicit GotoPathMovementMessage(float newSpeed) : MovementMessage(0x49), speed(newSpeed), unknown104(true), unknown105(true)
+		{
+		}
+		virtual ~GotoPathMovementMessage()
+		{
+		}
+
+		container::ArrayFixed<math::Vector, 20> points;  // +0xC
+		float speed;  // +0x100
+		bool unknown104;  // +0x104
+		bool unknown105;  // +0x105
 	};
 
 	// RTTI: proto::GetPatrolMovementMessage: the object answers the handle of the patrol path it follows (null when it follows none)
@@ -195,6 +223,30 @@ namespace proto
 		}
 
 		PatrolPath* path;  // +0xC
+	};
+
+	// RTTI: proto::BroadcastPatrolPointAIMsg: the object tells which point of its patrol it goes to
+	struct BroadcastPatrolPointAIMsg : public LODAIMessage
+	{
+		explicit BroadcastPatrolPointAIMsg(int newPoint) : LODAIMessage(0xd), point(newPoint)
+		{
+		}
+		virtual ~BroadcastPatrolPointAIMsg()
+		{
+		}
+
+		int point;  // +0xC
+	};
+
+	// RTTI: proto::GetPatrolSpeedAIMsg
+	struct GetPatrolSpeedAIMsg : public LODAIMessage
+	{
+		GetPatrolSpeedAIMsg() : LODAIMessage(0x10)
+		{
+		}
+		virtual ~GetPatrolSpeedAIMsg()
+		{
+		}
 	};
 
 	// RTTI: proto::SetBrakingInMotionMovementMessage: the object does or does not brake while it moves

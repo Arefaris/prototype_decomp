@@ -247,8 +247,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x102171C0
-			// NONMATCHING: scheduling of the argument loads (the engine loads the owner and the listener before the track), best 94.5 %
-#ifdef NONMATCHING
 			bool ExecuteTaskAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -270,7 +268,9 @@ namespace proto
 				fight::ConditionList* conditions = &link.Get()->conditions;
 				if (conditions != 0)
 				{
-					if (!conditions->Evaluate((int)watch.track, effect, (int)owner, 0))
+					int currentListener = (int)watch.track;
+					int currentOwner = (int)owner;
+					if (!conditions->Evaluate(currentListener, effect, currentOwner, 0))
 					{
 						return false;
 					}
@@ -283,7 +283,6 @@ namespace proto
 				sequencer.SetPending(started, effect, owner, 0);
 				return sequencer.Unknown105A45A0(true);
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10217540
 			fight::Action* ExecuteTaskTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
@@ -317,8 +316,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x102173F0
-			// NONMATCHING: the engine takes the track pointer in eax and the owner in edx, ours the other way round, best 98.5 %
-#ifdef NONMATCHING
 			bool SpawnTaskAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -337,9 +334,11 @@ namespace proto
 				{
 					return false;
 				}
-				core::IRefCount* currentOwner = owner;
+				fight::ConditionList* conditions = &link.Get()->conditions;
 				int listener = (int)watch.track;
-				if (!link.Get()->conditions.Evaluate(listener, (int)&sequencer, (int)currentOwner, 0))
+				int currentOwner = (int)owner;
+				int parent = (int)&sequencer;
+				if (!conditions->Evaluate(listener, parent, currentOwner, 0))
 				{
 					return false;
 				}
@@ -351,7 +350,6 @@ namespace proto
 				sequencer.SetPending(started, (int)&sequencer, owner, 0);
 				return sequencer.Unknown105A45A0(true);
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10217590
 			fight::Action* SpawnTaskTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
@@ -378,6 +376,9 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10216ED0
+// FUNCTION: ENGINE 0x10217190
+// FUNCTION: ENGINE 0x102173C0
 // FUNCTION: ENGINE 0x10252A80
 // FUNCTION: ENGINE 0x10252A90
 // FUNCTION: ENGINE 0x10252AC0

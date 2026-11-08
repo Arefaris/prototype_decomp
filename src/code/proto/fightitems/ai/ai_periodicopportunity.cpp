@@ -274,6 +274,128 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x102066F0
+			PeriodicOpportunityAction::PeriodicOpportunityAction(fight::Track* newListener, PeriodicOpportunityTrack* newTrack, float newDuration, float newHook, fight::Branch* newBranch, int newPriority, fight::Sequencer* newParent, core::IRefCount* newOwner) : fight::Action(0x600), watch(newListener), link(newTrack), duration(newDuration), hook(newHook), branchWatch(newBranch), priority(newPriority), parent(newParent), owner(0), first(0), second(0), elapsed(0.0f), started(0)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x102064E0
+			PeriodicOpportunityAction::~PeriodicOpportunityAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x10206360
+			bool PeriodicOpportunityAction::Slot5(int arg, float value)
+			{
+				first = arg - 1;
+				second = arg - 1;
+				SetFlag(0x800 << first, true);
+				SetFlag(0x800 << second, true);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10206560
+			void PeriodicOpportunityAction::Slot6()
+			{
+				if (hook < 0.0f)
+				{
+					fight::Branch* branch = started.branch;
+					if (branch != 0)
+					{
+						branch->Slot11(parent, owner, priority);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x10206820
+			bool PeriodicOpportunityAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				float limit = duration;
+				float hookTime = hook;
+				if (first == arg)
+				{
+					if (started.branch == 0 && (limit < 0.0f || elapsed <= limit) && branchWatch.branch != 0)
+					{
+						fight::ConditionList* conditions = &link.object->conditions;
+						bool pass = true;
+						if (conditions != 0)
+						{
+							int listener = (int)watch.track;
+							pass = conditions->Evaluate(listener, (int)parent, (int)owner, 0);
+						}
+						if (pass)
+						{
+							fight::Branch* branch = branchWatch.branch->Slot10(parent, owner, 0, 0);
+							if (branch != 0 && branch != parent->track)
+							{
+								started.Assign(branch);
+							}
+						}
+					}
+					elapsed = elapsed + value;
+				}
+				if (second == arg && hookTime >= 0.0f && started.branch != 0 && elapsed >= hookTime)
+				{
+					started.branch->Slot11(parent, owner, priority);
+					return false;
+				}
+				return limit < 0.0f || limit >= elapsed || started.branch != 0;
+			}
+
+			// FUNCTION: ENGINE 0x10206980
+			fight::Action* PeriodicOpportunityAction::Slot8(fight::Action* other, core::IRefCount* effect, core::IRefCount* newOwner)
+			{
+				if (other == 0)
+				{
+					PeriodicOpportunityTrack* track = link.object;
+					if (track == 0)
+					{
+						return 0;
+					}
+					fight::Track* listener = watch.track;
+					other = track->CreateAction(listener, effect, newOwner);
+				}
+				PeriodicOpportunityAction* copy = (PeriodicOpportunityAction*)other;
+				copy->first = first;
+				copy->second = second;
+				copy->elapsed = elapsed;
+				fight::BranchWatch* target = &copy->started;
+				fight::Branch* branch = started.branch;
+				if (branch != target->branch)
+				{
+					if (target->branch != 0)
+					{
+						target->branch->Unregister(target);
+					}
+					target->branch = branch;
+					if (branch != 0)
+					{
+						branch->Register(target);
+					}
+				}
+				return fight::Action::Slot8(other, effect, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x10206C40
+			fight::Action* PeriodicOpportunityTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				float begin = timeBegin;
+				float end = timeEnd;
+				float length = end - begin;
+				float hookTime = timeHook - begin;
+				if (hookTime < 0.0f && 0.0f <= timeHook)
+				{
+					hookTime = 0.0f;
+				}
+				return new PeriodicOpportunityAction(listener, this, length, hookTime, branch.GetBranch(), priority, (fight::Sequencer*)effect, owner);
+			}
+
 			// FUNCTION: ENGINE 0x10206270
 			// NONMATCHING: the engine's inline expansion of the generator step keeps the second state by reference (its pointer in edx), ours addresses it directly, best 23 %
 #ifdef NONMATCHING
@@ -314,8 +436,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10206B50
-			// NONMATCHING: the argument loads of the condition call take other volatile registers (owner and listener in edx and ecx), best 92 %
-#ifdef NONMATCHING
 			bool DelayedSequenceAction::Slot7(int arg, float value)
 			{
 				if (link.object == 0)
@@ -334,8 +454,8 @@ namespace proto
 				delay = delay - value;
 				if (link.Get()->forceSequenceWhenNotBusy || delay < 0.0f)
 				{
-					int currentOwner = (int)owner;
 					int currentListener = (int)listener.track;
+					int currentOwner = (int)owner;
 					if (link.Get()->conditions.Evaluate(currentListener, effect, currentOwner, 0))
 					{
 						fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, owner, 0, false);
@@ -347,7 +467,6 @@ namespace proto
 				}
 				return true;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10206D00
 			fight::Action* DelayedSequenceTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
@@ -375,6 +494,8 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10206AE0
+// FUNCTION: ENGINE 0x102067F0
 // FUNCTION: ENGINE 0x102444B0
 // FUNCTION: ENGINE 0x102444E0
 // FUNCTION: ENGINE 0x10244510

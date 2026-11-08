@@ -26,6 +26,8 @@ namespace proto
 	void Unknown103B8330(engine::GameObject* object, const math::Vector* position, const MoveParams* params);
 	// 0x103BAE00: sends the object to the position of a jump destination, which it brings up to date first (name guess)
 	void Unknown103BAE00(engine::GameObject* object, JumpDestination* destination);
+	// 0x103B8510: drives the object with a speed along a direction (name guess)
+	void Unknown103B8510(engine::GameObject* object, float speed, const math::Vector* motion, bool flag);
 }
 
 #endif
