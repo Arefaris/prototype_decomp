@@ -9,8 +9,15 @@
 #include "code/core/name.h"
 #include "code/engine/audio/audiomanager.h"
 #include "code/engine/message.h"
+#include "code/math/vector.h"
 #include "code/om/allocation.h"
 #include "code/om/tree.h"
+
+namespace om
+{
+	class Vector;
+	template<class T> class DynamicProperty;
+}
 
 namespace engine
 {
@@ -70,6 +77,8 @@ namespace engine
 		int unknown0[2];
 		Data* data;
 		bool unknownC;
+		bool unknownD;
+		bool unknownE;  // read by the emitters' volume update
 	};
 
 	class AudioSoundList;
@@ -86,6 +95,8 @@ namespace engine
 		void MarkReleased();
 		// 0x10306300: sets a parameter of the sound
 		void SetParameter(const AudioName& name, const float* value);
+		// 0x1093C3C0: hands the sound its position and velocity (name guessed)
+		void SetSpatial(const math::Vector* newPosition, const math::Vector* newVelocity);
 
 		void SetUnknown21(bool value)
 		{
@@ -102,11 +113,16 @@ namespace engine
 		AudioSoundList* list;  // +0xC
 		int unknown10;
 		AudioBank* bank;
-		int unknown18[2];
+		int unknown18;
+		float volume;  // +0x1C: scaled with the distance by the emitter
 		bool unknown20;
 		bool unknown21;
 		int unknown24;
-		unsigned char unknown28[0x8c - 0x28];
+		unsigned char unknown28[0x78 - 0x28];
+		om::DynamicProperty<om::Vector>* positionProperty;  // +0x78
+		om::DynamicProperty<om::Vector>* velocityProperty;  // +0x7C
+		om::DynamicProperty<float>* distanceProperty;  // +0x80
+		unsigned char unknown84[0x8c - 0x84];
 		om::TreeNode node;  // +0x8C: in the tree of the list
 		unsigned char unknown9C[0xa8 - 0x9c];
 	};

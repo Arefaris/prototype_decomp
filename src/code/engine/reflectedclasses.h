@@ -10,6 +10,7 @@
 #include "code/engine/world/location.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
+#include "code/engine/physicsbehaviour.h"
 #include "code/engine/poseanimationbehaviour.h"
 #include "code/engine/ragdolllodbehaviour.h"
 #include "code/engine/secondaryphysicsproperties.h"
@@ -143,17 +144,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0xF4];
-	};
-
-	// PhysicsBehaviour: constructor 0x10924520, reflection 0x10921A10 / 0x109239B0
-	class PhysicsBehaviour : public engine::Behaviour
-	{
-	public:
-		PhysicsBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x5C];
 	};
 
 	// RagdollBehaviour: constructor 0x10927BA0, reflection 0x10925050 / 0x10927330
