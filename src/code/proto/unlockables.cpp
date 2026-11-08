@@ -698,6 +698,157 @@ namespace proto
 		ChangeUnlockableFlag(unlockable, 3, on);
 	}
 
+	// FUNCTION: ENGINE 0x10579BF0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetUnlockableEnum(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0)
+		{
+			return 0;
+		}
+		if (index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].unlockable;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579C40
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetNecessityType(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].necessityType;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A0E0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetPurchaseType(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].purchaseType;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A130
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetPurchaseCost(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].purchaseCost;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A180
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int* UnlockTable::GetFEIdentifier(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return &lists[list]->begin[index].feIdentifier;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A1D0
+	int UnlockTable::GetUnlockablesListCount(unsigned int list)
+	{
+		if (list > 6 || lists[list] == 0)
+		{
+			return 0;
+		}
+		return lists[list]->GetCount();
+	}
+
+	// FUNCTION: ENGINE 0x10579C90
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetAvailable(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		return IsAvailable(0, lists[list]->begin[index].unlockable);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579D80
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetAcquired(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		return IsUnlocked(0, lists[list]->begin[index].unlockable);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579DE0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetDisplayedInFE(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		int unlockable = lists[list]->begin[index].unlockable;
+		int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+		return ((8 << ((unlockable % 4) * 8)) & word) != 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579CF0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetPrerequisiteSatisfied(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		UnlockableInfo* entry = &lists[list]->begin[index];
+		IsAvailable(0, entry->unlockable);
+		if (entry->prerequisite != 0 && !IsUnlocked(0, entry->prerequisite))
+		{
+			return false;
+		}
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A200
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	void UnlockTable::SetDisplayedInFE(unsigned int list, int index, bool displayed)
+	{
+		if (list <= 6 && lists[list] != 0 && index >= 0 && index < (int)lists[list]->GetCount())
+		{
+			ChangeUnlockableFlag(*(int*)((index << 5) + (int)lists[list]->begin), 3, displayed);
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x105795A0
 	void UnlockTable::SetUnlockableOfInterest(int unlockable)
 	{

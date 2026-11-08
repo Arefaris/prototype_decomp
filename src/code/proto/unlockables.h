@@ -4,7 +4,9 @@
 #ifndef PROTO_UNLOCKABLES_H
 #define PROTO_UNLOCKABLES_H
 
+#include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
+#include "code/core/name.h"
 
 namespace proto
 {
@@ -40,6 +42,8 @@ namespace proto
 		MULTIPLIER_INTERLACED = 1
 	};
 
+	class UnlockablesList;
+
 	// The table of the progress flags of the unlockables (RTTI proto::UnlockTable; the one table is gUnlockTable at
 	// 0x112738B8). Four flags per unlockable are kept in the byte of the game database's "Unlockables" subject the
 	// unlockable falls in (four unlockables to a word). The first argument of the accessors is the player (always 0).
@@ -70,12 +74,31 @@ namespace proto
 		void ClearPurchaseTypeCount(int purchaseType);
 		// 0x105795C0 (um_GetCategoryPurchaseType)
 		int GetCategoryPurchaseType();
+		// The script natives um_*: a list of the manager (0 - 6) and the index of an entry in it; an entry that is not
+		// there answers 0 / false
+		// 0x10579BF0 / 0x10579C40 / 0x1057A0E0 / 0x1057A130 / 0x1057A180: the entry's members
+		int GetUnlockableEnum(unsigned int list, int index);
+		int GetNecessityType(unsigned int list, int index);
+		int GetPurchaseType(unsigned int list, int index);
+		int GetPurchaseCost(unsigned int list, int index);
+		int* GetFEIdentifier(unsigned int list, int index);
+		// 0x1057A1D0
+		int GetUnlockablesListCount(unsigned int list);
+		// 0x10579C90 / 0x10579D80 / 0x10579DE0: whether the entry's unlockable is available / acquired / displayed
+		bool GetAvailable(unsigned int list, int index);
+		bool GetAcquired(unsigned int list, int index);
+		bool GetDisplayedInFE(unsigned int list, int index);
+		// 0x10579CF0: whether the entry is available and its prerequisite is acquired
+		bool GetPrerequisiteSatisfied(unsigned int list, int index);
+		// 0x1057A200: marks the entry's unlockable displayed or not
+		void SetDisplayedInFE(unsigned int list, int index, bool displayed);
 		// 0x105795A0 / 0x105795B0: the unlockable the front end is looking at (um_SetUnlockableOfInterest /
 		// um_GetUnlockableOfInterest)
 		void SetUnlockableOfInterest(int unlockable);
 		int GetUnlockableOfInterest();
 
-		unsigned char unknown4[0x220];
+		UnlockablesList* lists[7];  // +4
+		unsigned char unknown20[0x204];
 		int unlockableOfInterest;  // +0x224
 	};
 	extern UnlockTable* gUnlockTable;
@@ -83,19 +106,36 @@ namespace proto
 	// 0x10579280: deletes the table
 	void Unknown10579280();
 
-	// One unlockable of the list (the members are not recovered)
+	// One unlockable of the list (0x20 bytes; the members the script natives of the manager answer, names guessed)
 	struct UnlockableInfo
 	{
 		// 0x10579010
 		static content::ClassInfo* GetClassInfo();
+
+		int unlockable;  // +0 (a proto::Unlockable)
+		int feIdentifier;  // +4 (the front end identifier; the native answers its address)
+		int purchaseType;  // +8
+		int purchaseCost;  // +0xC
+		core::Name<core::CaseSensitiveKey> name;  // +0x10
+		int prerequisite;  // +0x18 (an unlockable that has to be acquired first, 0 for none)
+		int necessityType;  // +0x1C
 	};
 
-	// The list of the unlockables (RTTI proto::UnlockablesList; the members are not recovered)
-	class UnlockablesList
+	// The list of the unlockables (RTTI proto::UnlockablesList, a load object; only the entries are recovered)
+	class UnlockablesList : public content::MetaLoadObject
 	{
 	public:
 		// 0x10579050
 		static content::ClassInfo* GetClassInfo();
+
+		unsigned int GetCount() const
+		{
+			return end - begin;
+		}
+
+		UnlockableInfo* begin;  // +8
+		UnlockableInfo* end;  // +0xC
+		UnlockableInfo* capacity;  // +0x10
 	};
 }
 
