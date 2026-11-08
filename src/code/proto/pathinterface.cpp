@@ -122,3 +122,5 @@ template class container::ArrayDynamic<proto::HunterPathPoint, container::Alloca
 // FUNCTION: ENGINE 0x10398A00
 // FUNCTION: ENGINE 0x10398AC0
 // FUNCTION: ENGINE 0x103997D0
+// FUNCTION: ENGINE 0x1039A3A0
+// FUNCTION: ENGINE 0x1039B280

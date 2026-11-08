@@ -43,6 +43,8 @@ namespace proto
 		CharacterBudgetEntry* RemoveEntry(engine::GameObjectHandle handle);
 		// 0x10388EC0: takes the entries out whose objects are gone and sorts the list
 		void RemoveDeadEntries();
+		// 0x103876A0: sends every character of the list a PurgeKissOfDeathAIMsg (name guess)
+		void PurgeKissOfDeath();
 		// 0x10388F40: sends count of the characters (the last ones in the list) back to their spawners
 		bool ReturnSpawnedObjects(int count);
 		// 0x103892E0: makes room for one more entry (the dead ones go, then count characters when returnSpawns is set)

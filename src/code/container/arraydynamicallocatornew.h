@@ -59,6 +59,11 @@ namespace container
 		{
 			Create(count);
 		}
+		// The same through the allocator argument the engine's callers pass (ignored)
+		ArrayDynamic(unsigned int count, const AllocatorNew&)
+		{
+			Allocate(count);
+		}
 		// Another array's elements, in room for as many as it has room for
 		ArrayDynamic(const ArrayDynamic& other)
 		{

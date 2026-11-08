@@ -269,6 +269,27 @@ namespace proto
 		return result;
 	}
 
+	// FUNCTION: ENGINE 0x103876A0
+	// NONMATCHING: the engine keeps the remaining count in a stack slot and only the list pointer and the offset in registers (72.7 %)
+#ifdef NONMATCHING
+	void SoldierBudgets::PurgeKissOfDeath()
+	{
+		int count = entries.Size();
+		int offset = 0;
+		while (count != 0)
+		{
+			engine::GameObject* object = ((CharacterBudgetEntry*)((char*)entries.begin + offset))->handle.Get();
+			if (object != 0)
+			{
+				PurgeKissOfDeathAIMsg message;
+				object->SendMessage(&message);
+			}
+			offset += sizeof(CharacterBudgetEntry);
+			count--;
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10387B40
 	void SoldierBudgets::Sort()
 	{
@@ -398,6 +419,7 @@ namespace
 
 template EntryArray::ArrayDynamic();
 template EntryArray::ArrayDynamic(unsigned int);
+template EntryArray::ArrayDynamic(unsigned int, const container::AllocatorNew&);
 template EntryArray::ArrayDynamic(const EntryArray&);
 template EntryArray& EntryArray::operator=(const EntryArray&);
 template EntryArray::~ArrayDynamic();
@@ -436,6 +458,7 @@ template proto::CharacterBudgetEntry* EntryArray::Insert(proto::CharacterBudgetE
 // FUNCTION: ENGINE 0x10386200
 // FUNCTION: ENGINE 0x10386240
 // FUNCTION: ENGINE 0x103868E0
+// FUNCTION: ENGINE 0x103869A0
 // FUNCTION: ENGINE 0x10386C30
 // FUNCTION: ENGINE 0x10386CB0
 // FUNCTION: ENGINE 0x10387100

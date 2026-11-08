@@ -326,6 +326,7 @@ template class Closure2<proto::CombatBudgetManager, void, int, float>;
 
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x10381D00
 // FUNCTION: ENGINE 0x10389860
 // FUNCTION: ENGINE 0x103898B0
 // FUNCTION: ENGINE 0x103898C0
