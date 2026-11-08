@@ -8715,3 +8715,45 @@ Of 2223 open functions about 1900 are second copies of template members (the `Sl
   the std sort and heap instances (0x10611280 - 0x10611650, 0x10617CC0 - 0x10617F80, only mapped), `dxTechniques::Find` (0x10618C90, the record table behind it is an `ArrayFixed` of 0x2C-byte records no unit names), `Display::Unknown106180B0` (needs the unnamed 0x10617FC0).
 - Shared header changes: `content/metatype.h` (`ObjectValue`, the `ObjectMetaType` members), `content/metafactory.h` (`MetaInstanceCreator::GetType`, `FindInstanceCreator`), `pure3d/pddi.h` (constructor, `TreeBase`, `DrawFlags`, `Time64` with a constructor, pure slots, `Init`, `ResetStates`), `pure3d/pddi/dx9/d3d9.h` (`CheckDeviceMultiSampleType`,
   `GetAdapterModeCount`, `EnumAdapterModes`, `SetGammaRamp`), `pure3d/pddi/dx9/dxcontext.h`, `pure3d/context.h` (`DisplaySettings` moved to `displaysettings.h`), `pure3d/pass/src/protopasses.cpp` (`drawFlags.mBits`).
+## 0x108E0000 - 0x10900000 (sn-fs): the front end overlay, dialogs and event handler, the cement loader, the attribute creators
+Added by this pass (match unless listed):
+- `src/code/engine/frontend/feoverlay.cpp` (0x108E2100 - 0x108E2410): `engine::FEOverlay` (RTTI of its callback struct): the overlay
+  of the front end's movie, a 0x18-byte object that is linked into the movie's list at +0x30, with the script callbacks it was
+  given (0x2C-byte entries: callback, call number, name, next). `AddCallback`, `RemoveCallback`, `Dispatch`, the constructor
+  (calls `AS_CreateOverlay` with a string, a string and the priority as a number) and the destructor (`AS_DestroyOverlay`).
+  Not done: 0x108E2410 (the overlay's call with a format: the engine's loop over the format is an endless loop on the `%` it found).
+- `frontend/privatedialogstate.cpp`: `Enter`, `Update`, `OnFinished`, `Close`, `SetController` (0x108E4230, renamed from the
+  unknown, `DialogState::SetController` takes the same argument), `OnCall` (the overlay's calls: 0 closes, 1 sets the icon,
+  2 forwards to the dialog), `Unknown108E3FD0` (a jump to `YieldFiber`). `Leave` is NONMATCHING (73.9 %: eax/ecx for the loop's
+  context id and the mouse flag). `DialogState::Slot3` takes the `UpdateContext` by value (the real time task hands it on).
+- `frontend/storagedialog.cpp` (new, 0x108E24D0 - 0x108E2E50): `StorageManager::StorageDialogState` (the dialog of the storage
+  manager: title, message, kind, the slot name, the slots' icons, details, names and dates, the buttons of the kind of message
+  filled by `SetupButtons`), the dialog's creation and destruction, `Slot5`, the getters of result and selection,
+  `SetupMessage`. NONMATCHING: `SetupSelection` (81 %: the engine loads and stores the argument pairs in another order),
+  `ShowMessage` / `ShowMessageNoWait` / `ShowSelection` (87 - 91 %: the engine passes the controller -1 through eax) and
+  `OnCall` (25.7 %, the chain of 15 comparisons; written out in the source).
+- `frontend/feeventhandler.cpp` (new, 0x108E1260 - 0x108E1BC0): `engine::FEEventHandler` (an `OLS::Callback` and a `DBObserver`: the
+  events of the online services by category and the subjects of the game database by name become `AS_Event` calls of the front
+  end's movie). All of it matches: `OnMessage`, both database slots, `RegisterEvent` / `UnregisterEvent` (fe_RegisterEvent and
+  fe_UnregisterEvent), the constructor, the destructor (not virtual), the creation and the release of the handler. The map of
+  the registered names is a `FEEventMap`, the same code as `proto::MidgroundMap` (shared by the linker); the engine's table of
+  the 13 event categories (0x111E10E8) and the two kind strings (0x111E0F84 / 0x111E0F88) are declared and mapped, not defined.
+  A repeated `gFEEventCategories[message->type]` (not a pointer to the category) is what makes the engine's addressing.
+- `engine/cementloader.cpp` (new, 0x108E45A0 - 0x108E5B00): the cement loader of the content manager's cement definition: `HasCement`,
+  `PollCement`, `ShutdownCement`, `GetCementResult` match; `StartCement` is NONMATCHING (77 %: one unused word in the engine's frame).
+  The thread function (0x108E56E0) and the library open / read helpers (0x108E47F0, 0x108E48C0, 0x108E4E20, 0x108E4F60) are not done.
+- `engine/attributecreators.cpp` (new): the eight `MetaInstanceCreatorImpl<Attribute<T>>::Create` of bool, int, float and `Pose*`
+  (0x108E07F0 - 0x108E0930), declared without a body in metafactories.cpp. The default values the engine inlines are statics of
+  another unit (`gDefaultBoolAttribute` 0x11261111, `gDefaultIntAttribute` 0x1125E03C, `gDefaultFloatAttribute` 0x112750C8). The
+  creators of Name, GenericScriptValue, Matrix and Vector (0x108E0950 - 0x108E0C30) jump to out-of-line constructors (0x108E0AE0,
+  0x108E0B30) that are not done. Shared header: `Attribute<T>` got `explicit Attribute(T newValue)` (gameobject.h).
+- `util::Packer::PackPlayerId` (0x108EC2F0) matches; `UnPacker::UnpackPlayerId` (0x108EC490) is NONMATCHING (51.6 %: the engine keeps
+  the first byte in ebx and spills the second).
+- Contentmanager.cpp: the scalar deleting destructor of the cement definition (0x108E0D90) is listed as a kept copy.
+Not done in this range, with the reason: the online peer classes (`OLSPeer` 0x108E7E80 - 0x108E9CF0, `ConsoleManagerPeer`,
+`DesyncHunterOnline`, `SyncManager`: their `ConsoleManager` base is not reconstructed), `SoundAction` (the constructor takes a
+`TrackWatch` by value; the audio manager's calls are not named), the large `Slot5` / `Slot7` of the puppet, attach object, NIS
+animation, light animation and spawn object actions (the shrink-wrap blocker and 500 - 1700 bytes each), the autotester
+(0x108EB130 - 0x108EC240: a set of timed entries on an unreconstructed tree) and the letterbox pass (0x108FD2E0 on). The
+`core::Link<T>` constructors, destructors and getters that earlier passes could not pair with a class (about 120 functions of 3, 16
+and 55 bytes between 0x108E3100 and 0x108F5E10), and the 3 - 4 byte accessors with no caller, are not mapped.

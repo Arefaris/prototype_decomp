@@ -221,7 +221,7 @@ namespace engine
 		extern bool gStarted;
 
 		// 0x108E24D0 (another unit): destroys the object the storage services keep (name guess)
-		void Unknown108E24D0();
+		void DestroyDialog();
 
 		// FUNCTION: ENGINE 0x108747A0
 		void CloseDrive()
@@ -234,7 +234,7 @@ namespace engine
 		{
 			FreeGameState(4);
 			delete gState;
-			Unknown108E24D0();
+			DestroyDialog();
 			CloseDrive();
 			core::DestroyFiber(&gStorageFiber);
 			gStarted = false;
@@ -245,7 +245,7 @@ namespace engine
 		extern short gRequestWord7E;
 
 		// 0x108E2D10 (another unit): shows the message of the text to the player and answers the button pressed (names guessed)
-		int ShowMessage(const char* title, const char* text, int buttons, core::Fiber* fiber, void* extra);
+		int ShowMessage(const char* title, const char* text, int buttons, core::Fiber* fiber, const unsigned short* extra);
 
 		// Whether a file of that many bytes can be made on the drive (always, for none); when it cannot, the request fails and
 		// the player is told why. The size is passed in eax: the function is the unit's own.

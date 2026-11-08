@@ -315,7 +315,7 @@ namespace engine
 	void Unknown1088A590();
 	void Unknown108740E0(int heap, int a, int b);
 	void Unknown108E20B0(int heap);
-	void Unknown108E1B80(int value);
+	void CreateFEEventHandler(int value);
 	void SetMouseVisible(bool visible, bool option);
 	bool GetMouseVisible();
 	bool GetMouseVisibleOption();
@@ -475,7 +475,7 @@ namespace engine
 		script->ClearOwner();
 		{
 			core::HeapScope scope(sFrontendHeap);
-			Unknown108E1B80(0x32);
+			CreateFEEventHandler(0x32);
 		}
 		sCursorFade = params->fade;
 		memset(sScreenFlags, 0, 3);

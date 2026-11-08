@@ -53,9 +53,9 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x10883DC0
-	void DialogState::Unknown10883DC0()
+	void DialogState::SetController(int controller)
 	{
-		impl->Unknown108E4230();
+		impl->SetController(controller);
 	}
 
 	// FUNCTION: ENGINE 0x10883DD0

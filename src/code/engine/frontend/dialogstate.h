@@ -7,6 +7,7 @@
 #define ENGINE_FRONTEND_DIALOGSTATE_H
 
 #include "code/engine/frontend/femovie.h"
+#include "code/engine/updatecontext.h"
 
 namespace engine
 {
@@ -37,7 +38,7 @@ namespace engine
 		virtual void Slot2()
 		{
 		}
-		virtual void Slot3(int a, int b, int c)
+		virtual void Slot3(UpdateContext context)
 		{
 		}
 		virtual void Slot4()
@@ -62,10 +63,10 @@ namespace engine
 		bool Unknown10883D80();
 		// 0x10883D90: the icon of the dialog and whether it is shown
 		void SetIcon(int icon, bool visible);
-		// 0x10883DA0, 0x10883DB0, 0x10883DC0
+		// 0x10883DA0, 0x10883DB0, 0x10883DC0 (the controller the dialog listens to)
 		void Unknown10883DA0();
 		void Unknown10883DB0();
-		void Unknown10883DC0();
+		void SetController(int controller);
 		// 0x10883DD0: the controller the dialog listens to
 		void GetController(int* controller);
 
