@@ -111108,3 +111108,7 @@ _sCementProgress = 0x1131AC88 ; data size:0x4 | cementloader.cpp: percent done (
 ??1FEEventMap@engine@@QAE@XZ = 0x108E13E0 ; function size:0x1A | kept template or inline copy of this unit
 ??0Iterator@FEEventMap@engine@@QAE@PAV12@@Z = 0x108E1520 ; function size:0x1C | kept template or inline copy of this unit
 ??0?$Link@VSetRotationAttributeTrack@engine@@@core@@QAE@PAVSetRotationAttributeTrack@engine@@@Z = 0x108ED570 ; function size:0x37 | kept template or inline copy of this unit
+?Use@AnimationMemoryManager@pure3d@@QAEXPAXH@Z = 0x106E7760 ; function size:0x42 | pure3d::AnimationMemoryManager::Use (name guess)
+?Release@AnimationMemoryManager@pure3d@@QAEXPAX@Z = 0x106E77B0 ; function size:0x24 | pure3d::AnimationMemoryManager::Release (name guess)
+?Load@AnimationMemoryManager@pure3d@@QAEPAXPAVAnimation@2@@Z = 0x106E9180 ; function size:0x52 | pure3d::AnimationMemoryManager::Load (name guess)
+?GetKeyAt@?$DOFKeys@UShort2@pure3d@@@pure3d@@QAEXIPAMPAVVector@math@@@Z = 0x106E46B0 ; function size:0x314 | pure3d::DOFKeys<Short2>::GetKeyAt (names guessed)

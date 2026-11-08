@@ -1,4 +1,5 @@
 #include "code/proto/frontendstate.h"
+#include "code/engine/controller/monkeycontrollermanager.h"
 
 #include "code/core/language.h"
 #include "code/engine/fmv/fmvplayer.h"
@@ -16,9 +17,6 @@ namespace engine
 	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* format, ...);
 	// 0x108391A0
 	void RequestGameStateByIndex(int index, int mode);
-	// 0x10890930 (another unit; name unknown)
-	struct StateGate;
-	StateGate* Unknown10890930();
 	// 0x1082F990: the call with the fourth argument as a float (the same function as PlayMovie)
 	void PlayMovie(const char* path, bool unknown12, int id, float unused, bool unknown13, bool unknown11, int unknown18,
 		bool unknown19);
@@ -113,7 +111,7 @@ namespace proto
 	// FUNCTION: ENGINE 0x104DD880
 	void FrontEndState::ExitGame()
 	{
-		if (engine::Unknown10890930() == 0)
+		if (engine::controller::GetMonkeyControllerManager() == 0)
 		{
 			_exit(0);
 		}
