@@ -227,6 +227,8 @@ namespace proto
 					shadowCascadeExtentPS3_4 = 16.0f;
 					shadowCascadeExtentPS3_5 = 24.0f;
 				}
+				// The member-wise copy is the engine's function (0x10514860, in the unit of the time of day manager)
+				LightData& operator=(const LightData& other);
 				static content::ClassInfo* GetClassInfo();
 				static content::MemberList* GetMembers();
 
