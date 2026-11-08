@@ -8447,3 +8447,34 @@ the large action slots.
 - `RagdollLODBehaviour::Slot2` (0x109263A0) matches. The rest of the ragdoll behaviours (the helpers 0x109263C0 / 0x10925700 / 0x10926460 and the large `RagdollBehaviour` members) are not done.
 - `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
 - networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.
+## 0x10820000 - 0x10840000 (sn-fr): the input sync objects, the scenario start-up, the stream manager's lists and the drawable archetype
+Only 100 % matches count (no EQUIVALENT). Sources: `engine/system/syncobject.h/.cpp`, `engine/scenario/scenariomanager.h/.cpp`, `engine/system/streammanager.cpp`,
+`engine/render/drawablearchetype.h/.cpp`, `engine/render/effectinstance.cpp`, `engine/function.cpp`, `engine/physics/collisioncallback.cpp`,
+`engine/attachablebehaviour.cpp` and small additions to `tagset.cpp`, `scriptowner.cpp`, `conditions.cpp`, `gamestate.cpp`.
+- `engine/system/syncobject`: `SyncObject`, `SyncObjectFactory`, `SyncObjectDefault`, `SyncObjectFactoryDefault` (RTTI names; they hold the press / release state of an
+  input the machines of an online game or a replay agree on), the factory table (`gSyncFactories`), the connection (`StartSync` / `StopSync` / `SendSyncMessage` /
+  `UpdateSync`) and `RecordedInputsReady`. `ApplySyncMessage` (0x10833450) is NONMATCHING (62 % by bytes): the engine re-reads the mask after clearing bits (`cmp mem, 0`)
+  and builds the record offset as x3 then two adds; every spelling tried (volatile, helper members, local copies) leaves one of the two. `LoadRecordedInputs` /
+  `SaveRecordedInputs` stay with the engine (they call the stream through a pointer-to-member thunk).
+- `engine/scenario/scenariomanager`: `GameObject::AddScenarioTreeBehaviour` (0x1082FEE0), `StartScenarioContext`, `MakeScenarioContext`, `SetLuaEnvironmentMessage::Clone`.
+  `StartScenario` (0x10830270) is NONMATCHING at 92 %: the engine stores the new object in the global right before the call that adds the tree. `gScenarioContextName` is
+  mapped under `3QBDB` (`const char* const`, as `gPersistentText`).
+- `engine/system/streammanager.cpp`: the startup group accessors (`IsGroupLoaded` ...), `ComparePackagePriority`, `AdvanceState`, `RemoveActive` / `AddActive`
+  (`ArrayDynamicStatic::InsertSorted` is the engine's 0x1082DEB0, declared and mapped), `UnregisterClient`, `RegisterClient`, `LoadStartupPackage` /
+  `UnloadStartupPackage`, the update / state queries (0x1082C6D0, 0x1082C7B0, 0x1082C860), the stream driver handles, `CreateSlotGroup`, `FreeSlotHandle`,
+  `RegisterStreamTrigger`, `StopFirstStartupPackage`. NONMATCHING: `FindClients` (87.5 %, a decrement scheduled behind the argument load), `DestroyStreamManager` (66 %, the
+  base pointer at +0xA4 is folded), `SetStreamDriverCount` (99.1 %, the vector constructor is given the engine's copy 0x1005F820 of the handle constructor),
+  `AllocateSlotHandle` (77 %). Not done: the functions that use the manager's maps (0x1082E010 / E050 / E090 / E990 / EA30 / E3F0 / EA10: the map type is unknown), the
+  manager's constructor 0x1082E660 and the three tag tests 0x1082D260 / D300 / D3B0 (the engine aligns the frame for a temporary name; ours does not).
+- `engine/render/drawablearchetype`: the real `DrawableArchetype` (layout: drawable +8, bounds +0xC, flags +0x24, length +0x28) replaces the three `SourceDrawable`
+  stand-ins (the decorated names in symbols.txt were renamed); `GetName`, `IsFlagged`, `HasFrameController`, `IsCyclic`, `GetLength`, `GetBounds`, `GetSegment`,
+  `GetSegmentParts`, `CreatePoseInstance`, `GetSegmentCount`. Left: the constructor (0x108259B0, uses `NISTransform::operator=` and the invert) and `GetParameters`
+  (slot 0x17 of a frame controller subclass).
+- Smaller: `EffectInstance::~EffectInstance` (the level of detail records are now a `LODVector` member; `AddLOD` 17.5 % and `EffectSetup::EffectSetup` 31.7 % are
+  NONMATCHING: the engine keeps two constants in registers / lays the failure exits out as one block), `Function::Function` and `SetName` (`GetTypeCode` is NONMATCHING at
+  92 %: the exits of the text and integer types), `CollisionCallback`, `ScriptOwner::Clone`, `TagSet(const char*)`, the tag set's `Create` and `_Pop_heap` instances,
+  `AttachableBehaviour::Slot1`. `UpdateGameStates` (0x10838ED0) is NONMATCHING at 99.3 % (the two halves of the 64-bit time stamp are stored in the other order);
+  `MatchesObjectTemplate` / `ObjectTemplateCondition::Evaluate` (77 % / 62 %: block order and the frame slot).
+- Shared header changes: `gameobject.h` (`AddScenarioTreeBehaviour`), `streampackage.h` (StreamManager members at +0x1C .. +0xC4, +0xD8, +0x104; the proto slot group
+  declarations moved here from protomain.cpp), `staticarray.h` (`Erase`, `PopBack`, `InsertSorted`), `tagset.h`, `effectmanager.h` (`LODVector`, `particleDrawable`,
+  `EffectSetup::unknown60` is a bool), `reflectedclasses2.h` (`AttachableBehaviour::drawableAttribute`), `drawablearchetype.h`.
