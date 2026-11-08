@@ -42,6 +42,20 @@ namespace mgraph
 	template mgraph::Throw<mgraph::Packet<mgraph::EnvelopeData > >::ChannelStorage::ChannelStorage();
 	// FUNCTION: ENGINE 0x10B07990
 	template mgraph::Throw<mgraph::Packet<String > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B05110
+	template mgraph::Throw<mgraph::Packet<DynamicArray<bool,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B05C90
+	template mgraph::Throw<mgraph::Packet<DynamicArray<float,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B065B0
+	template mgraph::Throw<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B07F10
+	template mgraph::Throw<mgraph::Packet<DynamicArray<String,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B08A50
+	template mgraph::Throw<mgraph::Packet<DynamicArray<Vector,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B09830
+	template mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> > >::ChannelStorage::ChannelStorage();
+	// FUNCTION: ENGINE 0x10B0B170
+	template mgraph::Throw<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> > >::ChannelStorage::ChannelStorage();
 	// FUNCTION: ENGINE 0x10B00E70
 	template void* mgraph::OutputPin<mgraph::Packet<bool> >::operator new(size_t);
 	// FUNCTION: ENGINE 0x10B012C0
@@ -65,6 +79,46 @@ namespace om
 	using namespace mgraph;
 
 
+	// FUNCTION: ENGINE 0x10B05630
+	template DynamicArray<mgraph::Packet<DynamicArray<bool,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B05160
+	template void DynamicArray<mgraph::Packet<DynamicArray<bool,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<bool,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B05CC0
+	template void DynamicArray<mgraph::Packet<DynamicArray<float,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<float,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B06A60
+	template DynamicArray<mgraph::Packet<DynamicArray<unsigned int,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B06600
+	template void DynamicArray<mgraph::Packet<DynamicArray<unsigned int,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<unsigned int,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B07730
+	template DynamicArray<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B07250
+	template void DynamicArray<mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<unsigned __int64,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B083A0
+	template DynamicArray<mgraph::Packet<DynamicArray<String,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B07F60
+	template void DynamicArray<mgraph::Packet<DynamicArray<String,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<String,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B08F80
+	template DynamicArray<mgraph::Packet<DynamicArray<Vector,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B08AA0
+	template void DynamicArray<mgraph::Packet<DynamicArray<Vector,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<Vector,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B09D50
+	template DynamicArray<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B09880
+	template void DynamicArray<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B0B400
+	template DynamicArray<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B0B1C0
+	template void DynamicArray<mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >,unsigned short>::ReleaseElements(mgraph::Packet<DynamicArray<mgraph::EnvelopeData,unsigned short> >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B04800
+	template DynamicArray<mgraph::Packet<float >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B06F50
+	template DynamicArray<mgraph::Packet<unsigned __int64 >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B0A230
+	template DynamicArray<mgraph::Packet<Complex >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B0AEC0
+	template DynamicArray<mgraph::Packet<mgraph::EnvelopeData >,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B09FE0
+	template void DynamicArray<mgraph::Packet<Complex >,unsigned short>::ReleaseElements(mgraph::Packet<Complex >*, unsigned short);
 	// FUNCTION: ENGINE 0x10B02530
 	template mgraph::Packet<mgraph::TriggerData>* DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B0C5C0
