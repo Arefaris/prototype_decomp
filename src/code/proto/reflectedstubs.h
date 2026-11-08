@@ -5,6 +5,7 @@
 #ifndef PROTO_REFLECTEDSTUBS_H
 #define PROTO_REFLECTEDSTUBS_H
 
+#include "code/proto/behaviours/drivablevehiclehealthmodifier.h"
 #include "code/proto/navmeshreflection.h"
 #include "code/proto/coopbehaviour.h"
 #include "code/proto/shaders/shaderpalette.h"
@@ -700,16 +701,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x1C - sizeof(engine::Behaviour)];
-	};
-
-	class DrivableVehicleHealthModifierBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DrivableVehicleHealthModifierBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
 	};
 
 }
