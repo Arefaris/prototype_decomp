@@ -19,6 +19,7 @@
 #include "code/proto/frontend/fehudcombatconclusion.h"
 #include "code/proto/frontend/fehuddisguiseactions.h"
 #include "code/proto/frontend/fehuddisguiseperception.h"
+#include "code/proto/frontend/fehudpopup.h"
 #include "code/proto/frontend/fehudpopups.h"
 #include "code/proto/frontend/fehudelement.h"
 #include "code/proto/frontend/fehudevolutionpoints.h"
@@ -75,20 +76,6 @@ namespace proto
 		void Unknown104C6420();
 
 		unsigned char unknown10[0x1448 - 0x10];
-	};
-
-	class FEHudPopup : public FEHudElement
-	{
-	public:
-		// 0x104D25F0
-		FEHudPopup();
-		// 0x104D1660
-		~FEHudPopup();
-
-		virtual void Update(bool force);
-		virtual void OnShow(bool shown);
-
-		unsigned char unknownC[0x128 - 0xC];
 	};
 
 	class FEHudTargeting : public FEHudElement

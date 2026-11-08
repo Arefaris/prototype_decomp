@@ -1,5 +1,7 @@
 #include "code/proto/frontend/fehudhealth.h"
 
+#include "code/proto/pausemenustate.h"
+
 namespace engine
 {
 	class FrontEnd;
@@ -14,16 +16,6 @@ namespace engine
 
 namespace proto
 {
-	// The pause menu's state (another unit)
-	class PauseMenuState
-	{
-	public:
-		// 0x1049B8A0: starts or stops the sound of the poison effect (name guessed)
-		void Unknown1049B8A0(bool poisoned);
-	};
-	// 0x1049B3D0
-	PauseMenuState* GetPauseMenuState();
-
 	// 0x1109AA74 / 0x1109AA78: the movie clips of the health meter and of the poison effect
 	static const char* sHealthClip = "mcAnchor.healthHUD";
 	static const char* sPoisonClip = "mcAnchor.poisonHUD";

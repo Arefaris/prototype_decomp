@@ -1,6 +1,7 @@
 #include "code/proto/frontend/fehudcombatconclusion.h"
 
 #include "code/engine/luascriptmanager.h"
+#include "code/proto/frontend/fehudpopup.h"
 
 namespace engine
 {
@@ -13,14 +14,6 @@ namespace engine
 
 namespace proto
 {
-	// The pop-up element of the head-up display (another unit)
-	class FEHudPopup
-	{
-	public:
-		// 0x104D1490: fades the pop-up out (or back in)
-		void Unknown104D1490(bool faded);
-	};
-
 	class PopupController
 	{
 	public:

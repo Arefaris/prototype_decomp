@@ -109,6 +109,8 @@ namespace proto
 		void SetUnknown20(float value);
 		// 0x1059B530: puts the manager in or out of the free roam mode (the first time in, the scenario is told)
 		void SetFreeRoam(bool on);
+		// 0x1059DCF0 (name unknown): called when a passive pop-up of the head-up display is closed
+		void Unknown1059DCF0();
 		// 0x1059B7F0: tells the scenario the pause menu is left (and that something can be bought)
 		void SendExitPause();
 		// 0x1059B510: switches the manager on or off (off hides what is shown)
