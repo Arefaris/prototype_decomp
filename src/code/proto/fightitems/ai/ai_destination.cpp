@@ -3296,7 +3296,7 @@ namespace proto
 #endif
 
 			// FUNCTION: ENGINE 0x10201B70
-			// NONMATCHING: the engine keeps a flag byte on the stack that it negates for the result and holds the event list in other registers, 14 % by bytes
+			// NONMATCHING: the engine keeps the flag in a stack byte and a zero in edi, the object in ebp and this in ebx (registers of the loop), 23 % by bytes
 #ifdef NONMATCHING
 			bool DestinationJumpToAction::Slot7(int arg, float value)
 			{
@@ -3307,18 +3307,23 @@ namespace proto
 				}
 				GetEventsAIMsg message;
 				object->SendMessage(&message);
+				bool found = false;
 				if (message.events != 0)
 				{
 					for (AIEvent* item = message.events->events; item != message.events->end; item++)
 					{
 						if (item->name == engine::gHunterLandedMotionEvent)
 						{
-							return true;
+							found = true;
+							break;
 						}
 					}
 				}
-				JumpToDestination(object, link.Get()->reverseFacing);
-				return true;
+				if (!found)
+				{
+					JumpToDestination(object, link.Get()->reverseFacing);
+				}
+				return !found;
 			}
 #endif
 
