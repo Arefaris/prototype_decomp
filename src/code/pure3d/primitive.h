@@ -1103,6 +1103,37 @@ namespace pure3d
 	class ParticleGridGenerator;
 	class ParticleMeshGenerator;
 
+	// A list of indices that keeps room for 68 of them inside itself (0x120 bytes: begin, end and capacity pointers, a
+	// word and the storage; the name is a guess)
+	class ParticleIndexList
+	{
+	public:
+		// Appends the index when there is room
+		void PushBack(const unsigned int& value)
+		{
+			if (end < capacity)
+			{
+				unsigned int* p = end;
+				end = p + 1;
+				if (p != 0)
+				{
+					*p = value;
+				}
+			}
+		}
+
+		void Clear()
+		{
+			end = begin;
+		}
+
+		unsigned int* begin;
+		unsigned int* end;
+		unsigned int* capacity;
+		int unknownC;
+		unsigned int storage[68];
+	};
+
 	class ParticleGenerator : public Entity
 	{
 	public:
@@ -1135,7 +1166,7 @@ namespace pure3d
 		void Unknown10741120(float time);
 		// 0x10740460: the emitter transform, handed on to the generator
 		void SetTransform(const math::Matrix& newTransform);
-		// 0x10742720: forgets the particles it made (name guess)
+		// 0x10742720: forgets the particles it made (name guess; all the indices become free, in descending order)
 		void Unknown10742720();
 		// 0x10741080: whether the two counts at +0x2F4 / +0x2F8 differ (name guess)
 		bool Unknown10741080();
@@ -1143,6 +1174,14 @@ namespace pure3d
 		void GetUnknown10740E50(math::Matrix* out);
 		// 0x107404B0
 		void Unknown107404B0(float value);
+		// 0x10740490, 0x10740520, 0x10740540
+		void SetUnknown254(float value);
+		void SetUnknown260(float value);
+		void SetUnknown264(float value);
+		// 0x10740410: takes the first positive value (rounded up) once
+		void Unknown10740410(float value);
+		// 0x10740730
+		void Unknown10740730();
 		// 0x10741730, 0x10741850, 0x10741CE0, 0x10741990, 0x10741250: set a parameter (named by key) of the
 		// generator; the meaning of type (0 or 2) is unknown
 		void SetParameter(const core::Name<core::CaseInsensitiveKey32>& key, int type, const void* value);
@@ -1156,14 +1195,28 @@ namespace pure3d
 		math::Matrix unknown90;
 		void* data;
 		ParticleAttributes attributes;
-		unsigned char unknown240[0x40];
+		unsigned char unknown240[0xC];
+		float unknown24C;
+		float unknown250;
+		float unknown254;
+		unsigned char unknown258[8];
+		float unknown260;
+		float unknown264;
+		unsigned char unknown268[0x10];
+		// The most particles the generator keeps alive
+		int particleCount;
+		unsigned char unknown27C[4];
 		float unknown280;
-		unsigned char unknown284[0x1C];
+		unsigned char unknown284[0xD];
+		bool unknown291;
+		bool unknown292;
+		unsigned char unknown293[1];
+		float unknown294;
+		unsigned char unknown298[8];
 		math::Matrix transform;
-		unsigned char unknown2E0[0x14];
-		int unknown2F4;
-		int unknown2F8;
-		unsigned char unknown2FC[0x114];
+		unsigned char unknown2E0[0x10];
+		// The indices of the particles that are free
+		ParticleIndexList indices;
 	};
 
 	// The kinds of generator (RTTI names; only the types are used so far)
@@ -1199,6 +1252,10 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10741F10)
 		virtual void Unknown6(float time);
+		// 0x10740180, 0x107401A0, 0x107401C0
+		void SetUnknown420(float value);
+		void SetUnknown424(float value);
+		void SetUnknown428(float value);
 
 		GeneratorAnimationState* animation;
 		float hosp;
@@ -1246,6 +1303,14 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742120)
 		virtual void Unknown6(float time);
+		// 0x107401E0 - 0x107402A0
+		void SetUnknown428(float value);
+		void SetUnknown42C(float value);
+		void SetUnknown430(float value);
+		void SetUnknown434(float value);
+		void SetUnknown438(float value);
+		void SetUnknown43C(float value);
+		void SetUnknown440(float value);
 
 		GeneratorAnimationState* animation;
 		float wdt;
@@ -1296,6 +1361,9 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107422B0)
 		virtual void Unknown6(float time);
+		// 0x107402C0, 0x107402E0
+		void SetUnknown41C(float value);
+		void SetUnknown420(float value);
 
 		GeneratorAnimationState* animation;
 		float rad;
@@ -1343,6 +1411,14 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x10742500)
 		virtual void Unknown6(float time);
+		// 0x10740300 - 0x10740380, 0x107403A0, 0x107403C0
+		void SetUnknown438(float value);
+		void SetUnknown43C(float value);
+		void SetUnknown440(float value);
+		void SetUnknown444(float value);
+		void SetUnknown448(float value);
+		void SetUnknown430(float value);
+		void SetUnknown434(float value);
 
 		GeneratorAnimationState* animation;
 		float wdt;
@@ -1395,6 +1471,11 @@ namespace pure3d
 		virtual void Generate(ParticleUpdateData* data, void* unknownE4);
 		// Slot 6 (0x107425F0): only the base's animation
 		virtual void Unknown6(float time);
+		// 0x107403E0: the three components at +0x410
+		void SetUnknown410(const math::Vector& value);
+		// 0x10740940 / 0x10740950
+		int GetUnknown424();
+		void SetUnknown424(int value);
 
 		float unknown410;
 		float unknown414;

@@ -706,7 +706,7 @@ namespace pure3d
 		TargetParams targetParams(params);
 		targetParams.width = SurfaceWidth(colour->surface);
 		targetParams.height = SurfaceHeight(colour->surface);
-		targetParams.flags &= ~0x20;
+		targetParams.options.showDebugOverlays = 0;
 		targetParams.colour = colour->surface;
 		targetParams.depth = depth->surface;
 		pddi->Unknown27();

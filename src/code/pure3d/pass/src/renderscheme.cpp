@@ -3,6 +3,8 @@
 
 namespace pure3d
 {
+	extern core::Name<core::CaseSensitiveKey> gRootPass;
+
 	// FUNCTION: ENGINE 0x1074D860
 	void RenderScheme::Begin()
 	{
@@ -29,5 +31,11 @@ namespace pure3d
 	// FUNCTION: ENGINE 0x1074DC70
 	void RenderScheme::Unknown5(int a, int b, int c, int d)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x1074D960
+	core::Name<core::CaseSensitiveKey> RenderScheme::Unknown3()
+	{
+		return gRootPass;
 	}
 }

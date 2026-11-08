@@ -82,7 +82,7 @@ namespace pure3d
 		virtual void Begin();
 		virtual void End();
 		// Slot 3 (0x1074D960): gives a copy of the scheme's default name
-		virtual core::Name<core::CaseSensitiveKey>* Unknown3(core::Name<core::CaseSensitiveKey>* out);
+		virtual core::Name<core::CaseSensitiveKey> Unknown3();
 		// Slots 4 / 5 (0x1074DC60 / 0x1074DC70): do nothing
 		virtual void Unknown4(int a);
 		virtual void Unknown5(int a, int b, int c, int d);

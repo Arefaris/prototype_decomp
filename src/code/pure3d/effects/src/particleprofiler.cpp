@@ -1,5 +1,8 @@
 // The counters of the particle profiler (pure3d::particles::profiler; unit around 0x1075D210 - 0x1075D4E0, the file name
 // is a guess): the particle code adds to them while it runs. Names are guesses.
+#include "code/core/time.h"
+#include "code/pure3d/effects/particleprofiler.h"
+
 namespace pure3d
 {
 	namespace particles
@@ -12,6 +15,39 @@ namespace pure3d
 			int gCounter2;
 			int gCounter3;
 			int gCounter4;
+
+			// FUNCTION: ENGINE 0x1075CD10
+			ScopedTimer::ScopedTimer(TimerRecord* newRecord)
+			{
+				record = newRecord;
+				start = core::GetElapsedMicroseconds();
+			}
+
+			// FUNCTION: ENGINE 0x1075CD40
+			ScopedTimer::~ScopedTimer()
+			{
+				unsigned __int64 now = core::GetElapsedMicroseconds();
+				if (start < now)
+				{
+					record->frame += now - start;
+					record->total += now - start;
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1075D180
+			ScopedParticleUpdateTimer::ScopedParticleUpdateTimer() : ScopedTimer(&gUpdateRecord)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1075D1B0
+			ScopedCPURenderTimer::ScopedCPURenderTimer() : ScopedTimer(&gCpuRenderRecord)
+			{
+			}
+
+			// FUNCTION: ENGINE 0x1075D1E0
+			ScopedGenericTimer::ScopedGenericTimer(int index) : ScopedTimer(&gGenericRecords[index])
+			{
+			}
 
 			// FUNCTION: ENGINE 0x1075D2E0
 			void AddCounter0(int count)
@@ -45,3 +81,12 @@ namespace pure3d
 		}
 	}
 }
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x1075D1A0
+// FUNCTION: ENGINE 0x1075D1D0
+// FUNCTION: ENGINE 0x1075D210
+// FUNCTION: ENGINE 0x1075D360
+// FUNCTION: ENGINE 0x1075D480
+// FUNCTION: ENGINE 0x1075D4A0
+// FUNCTION: ENGINE 0x1075D4C0

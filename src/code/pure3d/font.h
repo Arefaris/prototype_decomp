@@ -45,14 +45,33 @@ namespace pure3d
 	// One glyph of the font (0x28 bytes): only the advance is read so far
 	struct FontGlyph
 	{
+		// 0x107520E0: the engine's destructor of the glyph, which does nothing (a jump to a return)
+		~FontGlyph();
+
 		unsigned char unknown0[0xC];
 		float advance;
 		unsigned char unknown10[0x18];
 	};
 
+	// What the font keeps for every glyph besides the glyph itself (0x14 bytes; the sort bucket of the glyph is the low
+	// five bits of the first word; the array has a destructor, so its block starts with the count)
+	struct FontGlyphInfo
+	{
+		~FontGlyphInfo()
+		{
+		}
+
+		unsigned int bucket;
+		unsigned char unknown4[0x10];
+	};
+
 	class TextureFont : public Font
 	{
 	public:
+		// 0x10752760 / 0x107528E0
+		TextureFont();
+		virtual ~TextureFont();
+
 		// 0x1070EC40 / 0x1070EC90 (another unit): widens a text into the buffer (as much as fits, ended); the length /
 		// draws an 8-bit text (widened into a buffer of 0x200 characters first; name guess)
 		int ToWide(const char* text, unsigned short* buffer, int capacity);
@@ -107,7 +126,7 @@ namespace pure3d
 		int defaultGlyph;
 		int glyphCount;
 		FontGlyph* glyphs;
-		unsigned char* unknown50;
+		FontGlyphInfo* glyphInfo;
 		unsigned short* codes;
 	};
 }
