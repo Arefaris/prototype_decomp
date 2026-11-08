@@ -108235,3 +108235,7 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ?GetSpeed@PatrolPath@proto@@QAEMXZ = 0x103A6040 ; function size:0x9D | proto::PatrolPath::GetSpeed (name guess)
 ?GetPointCount@PatrolPath@proto@@QAEHXZ = 0x103A5E10 ; function size:0x9E | proto::PatrolPath::GetPointCount (name guess)
 ?GetPoint@PatrolPath@proto@@QAEPBUPatrolPathPoint@2@H@Z = 0x103A5C80 ; function size:0x97 | proto::PatrolPath::GetPoint (name guess)
+??_R0?AUFollower@PatrolPathFollowing@proto@@@8 = 0x11042C6C ; data size:0x8 | proto::PatrolPathFollowing::Follower RTTI type descriptor
+??_R0?AUGotoPathMovementMessage@proto@@@8 = 0x11043E30 ; data size:0x8 | proto::GotoPathMovementMessage RTTI type descriptor
+??_R0?AUNotifier@PatrolPathFollowing@proto@@@8 = 0x11043C6C ; data size:0x8 | proto::PatrolPathFollowing::Notifier RTTI type descriptor
+??_R0?AUThreatInMemoryMessage@proto@@@8 = 0x110450F0 ; data size:0x8 | proto::ThreatInMemoryMessage RTTI type descriptor
