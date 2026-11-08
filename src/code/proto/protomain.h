@@ -4,6 +4,8 @@
 #ifndef PROTO_PROTOMAIN_H
 #define PROTO_PROTOMAIN_H
 
+#include "code/proto/frontendstate.h"
+
 namespace engine
 {
 	// The interface the main loop calls the game through (RTTI engine::IGame: eleven pure virtual functions)
@@ -38,18 +40,6 @@ namespace proto
 		// 0x104E51E0
 		~InGameState();
 		unsigned char unknown0[0x12C];
-	};
-
-	class FrontEndState
-	{
-	public:
-		// 0x104DE970
-		FrontEndState();
-		// 0x104DD8B0 (name guess)
-		void Unknown104DD8B0(int value);
-		// 0x104DDA20
-		~FrontEndState();
-		unsigned char unknown0[0xA8];
 	};
 
 	class GamePauseState

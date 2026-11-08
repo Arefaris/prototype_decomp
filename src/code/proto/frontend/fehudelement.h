@@ -54,6 +54,10 @@ namespace proto
 		explicit FEHudVariableTemplate(const char* newPath) : path(newPath)
 		{
 		}
+		// An empty path (the paths of an array of variables are set after the construction)
+		FEHudVariableTemplate() : path("")
+		{
+		}
 		virtual const char* GetPath()
 		{
 			return path.ConstData();

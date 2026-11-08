@@ -6,6 +6,7 @@
 #include "code/proto/webofintrigue/webofintriguenode.h"
 #include "code/proto/fightitems/ai/aicodemessages.h"
 #include "code/proto/fightitems/motion/motionreaction2.h"
+#include "code/proto/frontend/fehudpopup.h"
 #include "code/proto/scenariomessages.h"
 #include "code/engine/fight/branch.h"
 #include <stdlib.h>
@@ -30,22 +31,11 @@ namespace engine
 namespace proto
 {
 	// The pieces of the heads up display the actions of this unit go through (name guesses)
-	class HintPopup
-	{
-	public:
-		// 0x104D1A10
-		void Close();
-		// 0x104D17A0: shows a text (name guess)
-		void Show(int kind, const char* text);
-
-		unsigned char unknown0[0x2C];
-		int unknown2C;
-	};
 	class PopupController
 	{
 	public:
 		unsigned char unknown0[0xC];
-		HintPopup* hint;  // +0xC
+		FEHudPopup* popup;  // +0xC
 	};
 	class FrontEndHud
 	{
@@ -526,9 +516,9 @@ namespace proto
 	void WOIShowTargetNameAction::Slot6()
 	{
 		PopupController* popups = GetFrontEndHud()->GetPopups();
-		if (popups->hint != 0 && popups->hint->unknown2C == 0)
+		if (popups->popup != 0 && popups->popup->slots[1].state == 0)
 		{
-			popups->hint->Close();
+			popups->popup->CloseHintPopup();
 		}
 	}
 
@@ -581,14 +571,14 @@ namespace proto
 		char text[0x40];
 		core::SNPrintfCount(text, 0x40, "%s - %s", engine::GetLocalizedText("WOI_NODE_COMPLETE_TITLE"),
 			engine::GetLocalizedText(key));
-		HintPopup* hint = GetFrontEndHud()->GetPopups()->hint;
+		FEHudPopup* hint = GetFrontEndHud()->GetPopups()->popup;
 		if (hint != 0)
 		{
-			if (hint->unknown2C == 0)
+			if (hint->slots[1].state == 0)
 			{
-				hint->Close();
+				hint->CloseHintPopup();
 			}
-			hint->Show(1, text);
+			hint->ShowHintPopup(true, text);
 			return true;
 		}
 		return false;

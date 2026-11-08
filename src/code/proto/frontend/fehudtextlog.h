@@ -13,6 +13,8 @@ namespace proto
 	class FEHudTextLog : public FEHudElement
 	{
 	public:
+		// 0x104D38F0
+		FEHudTextLog();
 		// 0x104D2F60
 		~FEHudTextLog();
 
