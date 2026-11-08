@@ -9,8 +9,6 @@
 namespace engine
 {
 	GameObject* __fastcall GameObjectHandleGet(const GameObjectHandle* handle);
-	// 0x1006B210 (another unit; name guess): the out-of-line copy of GameObjectHandle::IsValid
-	bool __fastcall GameObjectHandleIsValid(const GameObjectHandle* handle);
 
 	namespace trigger
 	{
@@ -222,12 +220,12 @@ namespace engine
 			engine::SendMessage(message, &gScenario14);
 			return;
 		case TARGET_OTHER:
-			if (!GameObjectHandleIsValid(&targetHandle))
+			if (!targetHandle.Exists())
 			{
 				core::Name<core::CaseSensitiveKey> name(targetName.Data(), 1);
 				targetHandle = FindGameObject(name, *(const content::ObjectName*)"");
 			}
-			if (GameObjectHandleIsValid(&targetHandle))
+			if (targetHandle.Exists())
 			{
 				GameObjectHandleGet(&targetHandle)->SendMessage(message);
 			}

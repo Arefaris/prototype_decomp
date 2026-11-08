@@ -1,5 +1,14 @@
 // Fight items of the ai group: PeriodicOpportunityTrack, DelayedSequenceTrack (unit 0x10244160 - 0x10244F30; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_periodicopportunity.h"
+#include "code/engine/fight/fightcommon.h"
+#include "code/engine/fight/lodactions.h"
+#include "code/math/random.h"
+
+namespace fight
+{
+	// 0x111BBD5C: the random generator of the fight code
+	extern math::Random* gFightRandom;
+}
 
 namespace proto
 {
@@ -265,6 +274,88 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x10206270
+			// NONMATCHING: the engine's inline expansion of the generator step keeps the second state by reference (its pointer in edx), ours addresses it directly, best 23 %
+#ifdef NONMATCHING
+			float FightRandomRange(float low, float high)
+			{
+				return (high - low) * fight::gFightRandom->NextFloat01() + low;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10206A30
+			DelayedSequenceAction::DelayedSequenceAction(DelayedSequenceTrack* newTrack, engine::GameObjectHandle newTarget, int newEffect, fight::Track* newListener, core::IRefCount* newOwner) : fight::Action(0xE00), effect(newEffect), owner(0), listener(newListener), link(newTrack), target(newTarget)
+			{
+				engine::AssignRefCounted(&owner, newOwner);
+			}
+
+			// FUNCTION: ENGINE 0x102065C0
+			DelayedSequenceAction::~DelayedSequenceAction()
+			{
+				core::SafeReleaseRef(owner);
+			}
+
+			// FUNCTION: ENGINE 0x102062F0
+			void DelayedSequenceAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x10206B10
+			bool DelayedSequenceAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				float high = link.Get()->maxDelay;
+				float low = link.Get()->minDelay;
+				delay = FightRandomRange(low, high);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10206B50
+			// NONMATCHING: the argument loads of the condition call take other volatile registers (owner and listener in edx and ecx), best 92 %
+#ifdef NONMATCHING
+			bool DelayedSequenceAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				if (!target.IsValid())
+				{
+					return false;
+				}
+				fight::Branch* branch = link.Get()->branch.GetBranch();
+				if (branch == 0)
+				{
+					return false;
+				}
+				delay = delay - value;
+				if (link.Get()->forceSequenceWhenNotBusy || delay < 0.0f)
+				{
+					int currentOwner = (int)owner;
+					int currentListener = (int)listener.track;
+					if (link.Get()->conditions.Evaluate(currentListener, effect, currentOwner, 0))
+					{
+						fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, owner, 0, false);
+						if (started != 0)
+						{
+							started->Slot11((fight::Sequencer*)effect, owner, link.Get()->priority);
+						}
+					}
+				}
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x10206D00
+			fight::Action* DelayedSequenceTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DelayedSequenceAction(this, handle, (int)effect, listener, owner);
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<PeriodicOpportunityTrack>;
 			template class fight::PropertyBranch<PeriodicOpportunityTrack>;
@@ -319,3 +410,6 @@ namespace proto
 // FUNCTION: ENGINE 0x10244E70
 // FUNCTION: ENGINE 0x10244E90
 // FUNCTION: ENGINE 0x10244EE0
+// FUNCTION: ENGINE 0x10201450
+// FUNCTION: ENGINE 0x10205140
+// FUNCTION: ENGINE 0x10206340

@@ -225,20 +225,15 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1021A5D0
-			// NONMATCHING: the translation copy goes through x87 for the first component, best 55%
-#ifdef NONMATCHING
 			bool ZiplineLandAction::Slot5(int arg, float value)
 			{
 				math::Matrix& matrix = target.Get()->transform->value;
-				float x = matrix.m[3][0];
-				float y = matrix.m[3][1];
-				float z = matrix.m[3][2];
-				position.x = x;
-				position.y = y;
-				position.z = z;
+				math::Vector place(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				position.x = place.x;
+				position.y = place.y;
+				position.z = place.z;
 				return true;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x1021A400
 			void ZiplineLandAction::Slot6()
@@ -275,7 +270,7 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1021A7C0
-			// NONMATCHING: the translation copy goes through x87 for the first component, best 56%
+			// NONMATCHING: the engine loads the constant one for the state and the result after the translation stores, ours before them, best 88.5 %
 #ifdef NONMATCHING
 			bool ZiplineTakeOffAction::Slot5(int arg, float value)
 			{
@@ -284,12 +279,10 @@ namespace proto
 					return false;
 				}
 				math::Matrix& matrix = target.Get()->transform->value;
-				float x = matrix.m[3][0];
-				float y = matrix.m[3][1];
-				float z = matrix.m[3][2];
-				position.x = x;
-				position.y = y;
-				position.z = z;
+				math::Vector place(matrix.m[3][0], matrix.m[3][1], matrix.m[3][2]);
+				position.x = place.x;
+				position.y = place.y;
+				position.z = place.z;
 				elapsed = 0.0f;
 				state = 1;
 				return true;

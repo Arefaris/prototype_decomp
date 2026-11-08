@@ -6,15 +6,21 @@
 #define PROTO_NAVMESH_H
 
 #include "code/math/vector.h"
+#include "code/core/bitfield.h"
 
 namespace proto
 {
 	class NavMeshHull;
+	class NavArea;
 
 	// The mesh itself; only the vertex and area arrays are known
 	class NavMesh
 	{
 	public:
+		// 0x1056D2C0: finds the area a position lies in (within the margins below and above it), answering whether it found one
+		bool Find(const math::Vector* position, float below, float above, NavArea** result, math::Vector* closest,
+			core::BitField<unsigned short> filter);
+
 		unsigned char unknown0[8];
 		float* vertices;
 		unsigned char unknownC[0x38 - 0xc];

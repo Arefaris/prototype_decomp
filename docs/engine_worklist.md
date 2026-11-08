@@ -8044,3 +8044,26 @@ Reconstructed (all 100 % unless noted; the file names are guesses, no assert pat
   `Erase` into the helper's. A struct with a `Name` after one float has the float, a pad word, then the name (the engine's element copies skip the pad).
 - Not done: the large part of `DisguiseBehaviour` (0x103CA070 - 0x103D0600, one 0x1000+ byte object; its helper functions use the object's layout), the movement behaviours (`FlyingBehaviour`, `HelicopterMovementBehaviour`: the base `MovementBehaviour` is a stub), `FormationBehaviour` (the base `SquadCommanderBehaviour` is a stub), the
   world trigger and AI functions in front of AddToHeightmap (0x103C0000 - 0x103C5D60, units of the neighbouring range), the container copies that only `DisguiseBehaviour` uses (about 70 functions of 0x103D1310 - 0x103D5A10).
+## proto/fightitems/ai: the action half of 0x10200000 - 0x10220000, third pass (sn-ea)
+Written into the existing units (`ai_destination`, `ai_target`, `ai_threat`, `ai_patrol`, `ai_rooftop`, `ai_task`, `ai_tankram`, `ai_poison`, `ai_periodicopportunity`, `ai_strafe`, `ai_zipline`).
+- Match: `InBlastAreaCondition`, `InReservedAreaCondition`, `InsideReservedVolumeCondition`, `ForceMotionAction` Slot5 / Slot7, `SetIntersectionPropertiesAction` Slot5 / Slot6, `AimAction::Slot5`,
+  `TargetingCondition`, `TargetConditionGroupCondition`, `AutoTargetConditionGroupCondition`, `TargetCanSeeCondition`, `LastThreatConditionGroupCondition`, `ThreatBallAction` Slot6 / Slot7 and `GetOrigin`
+  (0x10219230), `HasPatrolPathCondition`, `IsInRooftopCondition`, `ExecuteTaskAction` / `SpawnTaskAction` (constructor, destructor, `GetChild`, Slot6, `CreateAction`), `TankRamAction::Slot6`,
+  `PoisonAction::FindVictim`, `DelayedSequenceAction` (constructor, destructor, Slot5, Slot6, `CreateAction`), `ZiplineLandAction::Slot5`, `CanStrafeRunCondition`.
+- EQUIVALENT / NONMATCHING turned into matches: `TargetHostileCondition::Evaluate`, `AutoTargetingCondition::Evaluate`, `AimAction::Slot5`, `ZiplineLandAction::Slot5`.
+- NONMATCHING (reason, best %): `DestinationDistanceCondition::Evaluate` (the message branch sits behind the common tail in the engine), `TargetAlertStateCondition::Evaluate` (96.3 %, esi / edi swapped),
+  `ThreatInMemoryCondition::Evaluate` (shrink-wrap), `ExecuteTaskAction::Slot5` (94.5 %) and `SpawnTaskAction::Slot5` (98.5 %, argument loads take other volatile registers), `ThreatDodgeAction::IsThreatNear` /
+  `StartDodge` / Slot5 / Slot7 (the first two 77 % and 94.6 %; the slots depend on the register convention of the first), `DelayedSequenceAction::Slot7` (92 %), `FightRandomRange` (0x10206270, the inlined
+  generator step keeps the second state by reference), `ZiplineTakeOffAction::Slot5` (88.5 %), `AimAction::Slot7` (the object in eax).
+- Findings: a local `bool same = a == b; return same;` gives the engine's `sete al` without the `xor eax, eax` in front (`return a == b;` does not); a bool that is tested in several places is a local
+  `bool x = ...;` (a `Get() != 0` stored first, then tested, is the engine's `setne` / `test al, al`); a chain of early `return false;` gives the engine's block order (failure return in front of the body);
+  `link.Get()->member` (not `link.object->member`) gives the engine's `mov eax, [esi+N]` / `lea ecx, [eax+M]` for a member address; a switch with four contiguous cases gives `add eax, -base; cmp eax, 3; ja`;
+  a message class the engine initialises with float zeros has float members (`movss` of one `xorps` register), an int zero uses the zero register; `math::Vector place(m.m[3][0], m.m[3][1], m.m[3][2]);`
+  followed by component stores gives the engine's three loads and stores; a local `core::Name` copy handed to a message constructor that takes `const Name&` is the engine's copy order.
+- Not done (blocked): the patrol actions (`PatrolAction` / `PathPatrolAction` embed `PatrolPathFollowing`, `CharacterFollower` and `NotifyScenarioDestinationReached` of 0x103A5C80 - 0x103A7850, which no unit
+  names), `PeriodicOpportunityAction` (the watch on the started branch), `TankRamAction` Slot5 / Slot7 (jump tables with 800 byte bodies), the strafe run family (`StrafeRunParams` and its 80 inline accessors,
+  0x1020B6A0 - 0x1020BD60, are kept copies that fall out with the actions), `NavMeshAreaCondition` (physics sweep), `SoldierWithinDistanceCondition`, `SpatialQueryCondition`, `ThreatCanGrab` / `ThreatStore` /
+  `ThreatCanSee`, `GroundDistanceCondition`, `DestinationTargetOrientationCondition`, `TargetDefenseCondition`, `ChangedTargetSinceCondition`.
+- New shared declarations: `aiactionmessages.h` (the vehicle accelerations, intersection properties, patrol, threat, brake / reverse gear, status perception and strafe run info messages, `PatrolPath`),
+  `aimessages.h` (`SetTaskAIMsg`), `aihelpers.h` (three reservation tests of `StrafeRunTokens`, `Unknown103BB8A0`), `aicodecommon.h` (`CompareVectorMeasure`), `navmesh.h` (`NavMesh::Find`),
+  `gameobjectparams.h` (the three argument constructor 0x107FC740), `gameobjecthandle.h` (`Exists`, the engine's out-of-line `Get() != 0`), `ai_destination.h` (`DestinationParams` position).
