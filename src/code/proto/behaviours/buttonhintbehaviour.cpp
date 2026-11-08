@@ -17,6 +17,34 @@ namespace proto
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x10063020
+	void ButtonHintBehaviour::OnMessage(engine::Message* message)
+	{
+		switch (message->type)
+		{
+		case 2:
+			Reset();
+			break;
+		case 0x37:
+			switch ((unsigned short)message->id)
+			{
+			case 0:
+				AddHint(static_cast<AddButtonHintMessage*>(message));
+				break;
+			case 1:
+				RemoveHint(static_cast<RemoveButtonHintMessage*>(message)->scenarioMessage);
+				break;
+			case 2:
+				EnableHints(static_cast<EnableButtonHintsMessage*>(message)->enable);
+				break;
+			case 3:
+				IsHintShowing(static_cast<IsButtonHintShowingMessasge*>(message));
+				break;
+			}
+			break;
+		}
+	}
+
 	// FUNCTION: ENGINE 0x100625F0
 	content::MemberList* ButtonHintBehaviour::GetMembers()
 	{

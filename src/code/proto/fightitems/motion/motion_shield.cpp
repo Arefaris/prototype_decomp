@@ -522,37 +522,37 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F970
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.1 %)
 			bool ShieldSetStateAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						ShieldSetStateMessage message(link.object->state);
-						object->SendMessage(&message);
-						return true;
-					}
+					return false;
 				}
-				return false;
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldSetStateMessage message(link.object->state);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1010FAB0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (26.2 %)
 			bool ShieldReflectAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						ShieldReflectStartMessage message(link.object->reflectBullets, link.object->reflectMissiles);
-						object->SendMessage(&message);
-						return true;
-					}
+					return false;
 				}
-				return false;
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ShieldReflectStartMessage message(link.object->reflectBullets, link.object->reflectMissiles);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1010FB50
@@ -567,17 +567,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F590
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.6 %)
 			bool ShieldStateCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					ShieldGetStateMessage message(6);
-					object->SendMessage(&message);
-					return state == message.state;
+					return false;
 				}
-				return false;
+				ShieldGetStateMessage message(6);
+				object->SendMessage(&message);
+				return state == message.state;
 			}
 
 			// FUNCTION: ENGINE 0x1010F4E0
@@ -597,7 +596,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010F3D0
-			// EQUIVALENT: operand order of the two comiss compares (the same comparisons) (94.0 %)
 			bool ShieldHealthCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
@@ -605,7 +603,7 @@ namespace proto
 				{
 					ShieldGetHealthMessage message;
 					object->SendMessage(&message);
-					if (message.health >= 0.0f && message.maxHealth >= 0.0f)
+					if (!(message.health < 0.0f) && !(message.maxHealth < 0.0f))
 					{
 						float percentage = message.health / message.maxHealth;
 						float limit = healthPercentage;
@@ -663,6 +661,51 @@ namespace proto
 					{ fight::Name("Broken", 0) },
 					{ fight::Name("Healing", 0) }
 				};
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010EEE0
+			int ShieldHealthCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1010EEF0
+			float ShieldHealthCondition::GetHealthPercentage() const
+			{
+				return healthPercentage;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF00
+			int ShieldStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF10
+			int ShieldSetStateTrack::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF20
+			bool ShieldReflectTrack::GetReflectBullets() const
+			{
+				return reflectBullets;
+			}
+
+			// FUNCTION: ENGINE 0x1010EF30
+			bool ShieldReflectTrack::GetReflectMissiles() const
+			{
+				return reflectMissiles;
+			}
 		}
 	}
 }

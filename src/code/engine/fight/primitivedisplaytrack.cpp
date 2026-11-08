@@ -135,6 +135,14 @@ namespace engine
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x108AF320
+	void PrimitiveDisplayTrack::ClearPrimitives()
+	{
+		FreePrimitives();
+		primitives = 0;
+		primitiveCount = 0;
+	}
+
 	// FUNCTION: ENGINE 0x108AF790
 	void PrimitiveDisplayTrack::Reset()
 	{
@@ -223,3 +231,19 @@ namespace engine
 		registry->AddFactory(fight::FindTrackFactory(name, &caster));
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108AEF80
+// FUNCTION: ENGINE 0x108AEFA0
+// FUNCTION: ENGINE 0x108AEFE0
+// FUNCTION: ENGINE 0x108AF010
+// FUNCTION: ENGINE 0x108AF040
+// FUNCTION: ENGINE 0x108AF070
+// FUNCTION: ENGINE 0x108AF0B0
+// FUNCTION: ENGINE 0x108AF130
+// FUNCTION: ENGINE 0x108AF210
+// FUNCTION: ENGINE 0x108AF240
+// FUNCTION: ENGINE 0x108AF250
+// FUNCTION: ENGINE 0x108AF270
+// FUNCTION: ENGINE 0x108AF290
+// FUNCTION: ENGINE 0x108AF8F0

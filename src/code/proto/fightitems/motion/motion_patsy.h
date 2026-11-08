@@ -32,6 +32,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetHas() const;
+
 					bool has;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -59,6 +62,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetIs() const;
 
 					bool is;  // +0xC
 					unsigned char unknownD[0x3];
@@ -88,6 +94,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDead() const;
+
 					bool dead;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -115,6 +124,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetHas() const;
 
 					bool has;  // +0xC
 					unsigned char unknownD[0x3];
@@ -171,6 +183,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetIs() const;
+
 					bool is;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -203,6 +218,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetWho() const;
 
 					float timeBegin;  // +0x10
 					int who;  // +0x14

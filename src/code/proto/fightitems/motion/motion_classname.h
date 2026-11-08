@@ -33,6 +33,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetCompare() const;
+				const fight::Name& GetValue() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name value;  // +0x10
 					int compare;  // +0x18

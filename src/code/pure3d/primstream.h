@@ -32,7 +32,7 @@ namespace pure3d
 		void Restore();
 
 		pddiBaseContext* context;
-		unsigned char groups;
+		unsigned int groups;
 		int dismissed;
 		// Render state
 		int cullMode;

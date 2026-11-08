@@ -158,6 +158,13 @@ namespace engine
 
 	int gDialogueActionCounter = 1;  // 0x111D54B8
 
+	// FUNCTION: ENGINE 0x108A8C90
+	void RegisterDialogueTrackFactory(fight::TrackRegistry* registry, const char* name)
+	{
+		fight::TrackFactoryCasterTemplate<DialogueTrack> caster;
+		registry->AddFactory(fight::FindTrackFactory(name, &caster));
+	}
+
 	// FUNCTION: ENGINE 0x108A8CC0
 	DialogueAction::DialogueAction(DialogueTrack* newTrack, GameObjectHandle newTarget, core::IRefCount* newOwner)
 		: fight::Action(0x200 + (newTrack->KillOnExit ? 0x400 : 0)), target(newTarget), link(newTrack), owner(newOwner)
@@ -209,3 +216,17 @@ namespace engine
 		return new DialogueAction(this, GetObjectHandle(owner), owner);
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A8910
+// FUNCTION: ENGINE 0x108A8930
+// FUNCTION: ENGINE 0x108A8950
+// FUNCTION: ENGINE 0x108A8960
+// FUNCTION: ENGINE 0x108A8980
+// FUNCTION: ENGINE 0x108A89A0
+// FUNCTION: ENGINE 0x108A89B0
+// FUNCTION: ENGINE 0x108A89D0
+// FUNCTION: ENGINE 0x108A89F0
+// FUNCTION: ENGINE 0x108A8A00
+// FUNCTION: ENGINE 0x108A8A20
+// FUNCTION: ENGINE 0x108A8A40

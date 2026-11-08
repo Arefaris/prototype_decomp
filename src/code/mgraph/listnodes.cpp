@@ -169,3 +169,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10B45080
 	template mgraph::ListEntry<float>::ListEntry(mgraph::Graph*, Name<CaseSensitive64BitKey> const&);
 }
+
+
+	// FUNCTION: ENGINE 0x10B73830
+	template void mgraph::ListEntry<mgraph::EnvelopeData>::operator delete(void*);

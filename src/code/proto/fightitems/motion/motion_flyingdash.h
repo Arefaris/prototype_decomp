@@ -46,6 +46,15 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetVelocityAdd() const;
+				float GetVelocityMax() const;
+				bool GetPreserveYVelocity() const;
+				const fight::Name& GetDashToTargetGrabbableClass() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					fight::Name dashToTargetGrabbableClass;  // +0x10
 					float blendInTime;  // +0x18
 					float blendOutTime;  // +0x1C

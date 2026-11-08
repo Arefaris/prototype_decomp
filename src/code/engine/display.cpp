@@ -5,8 +5,59 @@
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
 
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x10615F20
+	dxContext* GetContext()
+	{
+		return gContext;
+	}
+
+	// FUNCTION: ENGINE 0x1061B440
+	void SetCurrentDevice(dxDevice* device)
+	{
+		gCurrentDevice = device;
+	}
+
+	// FUNCTION: ENGINE 0x1061F1C0
+	void SetContext(dxContext* context)
+	{
+		gContext = context;
+	}
+
+	// FUNCTION: ENGINE 0x10615F40
+	void SetD3DDevice(IDirect3DDevice9* device)
+	{
+		gD3DDevice = device;
+	}
+
+	// FUNCTION: ENGINE 0x10615F50
+	IDirect3DDevice9* GetD3DDevice()
+	{
+		return gD3DDevice;
+	}
+
+	// FUNCTION: ENGINE 0x10615F80
+	void NextVertexConstantPass()
+	{
+		gRenderStateCache->vertexPass += 1;
+	}
+
+	// FUNCTION: ENGINE 0x10615F90
+	void NextPixelConstantPass()
+	{
+		gRenderStateCache->pixelPass += 1;
+	}
+}
+
 namespace engine
 {
+	// FUNCTION: ENGINE 0x10615F30
+	void SetRenderDisplay(Display* display)
+	{
+		gRenderDisplay = display;
+	}
+
 	// FUNCTION: ENGINE 0x10615FA0
 	// EQUIVALENT: the engine keeps the constant 1 in a register for the test of the window mode and the flag it sets, this compiler uses immediates, 12.2 %
 	void Display::OnSize(void* window, unsigned int message, unsigned int wParam, long lParam)
@@ -22,6 +73,14 @@ namespace engine
 				unknown78E = true;
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10616320
+	void Display::GetGamma(float* a, float* b, float* c)
+	{
+		*a = gamma[0];
+		*b = gamma[1];
+		*c = gamma[2];
 	}
 
 	// FUNCTION: ENGINE 0x10615FE0

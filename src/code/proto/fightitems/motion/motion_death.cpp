@@ -188,6 +188,24 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100AFC40
+			const fight::Name& DeathTrack::GetDeadTemplate() const
+			{
+				return deadTemplate;
+			}
+
+			// FUNCTION: ENGINE 0x100AFC50
+			bool DeathTrack::GetCopyDrawable() const
+			{
+				return copyDrawable;
+			}
+
+			// FUNCTION: ENGINE 0x100AFC60
+			bool DeathTrack::GetGrabberIsOriginator() const
+			{
+				return grabberIsOriginator;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeathOnEndTrack>;
 			template class fight::TrackFactoryTemplate<DeathOnEndTrack>;

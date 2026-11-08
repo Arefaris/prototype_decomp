@@ -5,10 +5,12 @@
 #ifndef PROTO_REFLECTEDSTUBS_H
 #define PROTO_REFLECTEDSTUBS_H
 
+#include "code/proto/navmeshreflection.h"
 #include "code/proto/coopbehaviour.h"
 #include "code/proto/shaders/shaderpalette.h"
 #include "code/proto/behaviours/powerwheelbehaviour.h"
 #include "code/proto/behaviours/fedisplaybehaviour.h"
+#include "code/proto/behaviours/consumablebehaviour.h"
 #include "code/content/loadinventory.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/content/loadinventory.h"
@@ -36,6 +38,11 @@
 #include "code/proto/helipathfindingloader.h"
 #include "code/proto/behaviours/addtoheightmapbehaviour.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/behaviours/aitreebehaviour.h"
+#include "code/proto/disguiseconfig.h"
+#include "code/proto/behaviours/bloodtoxbehaviour.h"
+#include "code/proto/behaviours/driverbehaviour.h"
+#include "code/proto/behaviours/emotionalstatebehaviour.h"
 #include "code/proto/behaviours/scarymonsterbehaviour.h"
 #include "code/proto/behaviours/camerafloorbehaviour.h"
 #include "code/proto/behaviours/tanksolver.h"
@@ -49,6 +56,7 @@
 #include "code/proto/behaviours/squadblackboardbehaviour.h"
 #include "code/proto/worldboundary.h"
 #include "code/proto/tunnelvolume.h"
+#include "code/proto/worldtriggers.h"
 
 namespace ravenphysics
 {
@@ -68,16 +76,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x68 - sizeof(content::MetaLoadObject)];
-	};
-
-	class AmbientNavMesh : public content::MetaLoadObject
-	{
-	public:
-		AmbientNavMesh();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x4C - sizeof(content::MetaLoadObject)];
 	};
 
 	class NPCAnimation : public content::MetaLoadObject
@@ -140,26 +138,6 @@ namespace proto
 		unsigned char unknownTail[0x38 - sizeof(proto::NPCRender)];
 	};
 
-	class WorldTriggers : public content::MetaLoadObject
-	{
-	public:
-		WorldTriggers();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(content::MetaLoadObject)];
-	};
-
-	struct DisguiseConfig : public content::MetaLoadObject
-	{
-	public:
-		DisguiseConfig();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x274 - sizeof(content::MetaLoadObject)];
-	};
-
 	struct BulletTracerProfile : public content::MetaLoadObject
 	{
 	public:
@@ -206,16 +184,6 @@ namespace proto
 		ravenphysics::PhysicsObjectFactory* maleRagdollFactory;  // +0x53C
 		ravenphysics::PhysicsObjectFactory* femaleRagdollFactory;  // +0x540
 		content::MetaObjectTemplate* pedestrianTemplate;  // +0x544
-	};
-
-	struct ConsumableProperties : public content::MetaLoadObject
-	{
-	public:
-		ConsumableProperties();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x38 - sizeof(content::MetaLoadObject)];
 	};
 
 	struct WeaponUserProfile : public content::MetaLoadObject
@@ -304,26 +272,6 @@ namespace proto
 		unsigned char unknown0[0x60];
 	};
 
-	class AiTreeBehaviour : public engine::FightTreeBehaviour
-	{
-	public:
-		explicit AiTreeBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x158 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class ConsumableBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit ConsumableBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xC0 - sizeof(engine::Behaviour)];
-	};
-
 	class DisguiseBehaviour : public engine::FightTreeBehaviour
 	{
 	public:
@@ -332,16 +280,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x560 - sizeof(engine::FightTreeBehaviour)];
-	};
-
-	class EmotionalStateBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit EmotionalStateBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x18 - sizeof(engine::Behaviour)];
 	};
 
 	class MovementBehaviour : public engine::Behaviour
@@ -664,16 +602,6 @@ namespace proto
 	};
 
 
-	class DriverBehaviour : public engine::Behaviour
-	{
-	public:
-		explicit DriverBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x20 - sizeof(engine::Behaviour)];
-	};
-
 	class HydraMovementBehaviour : public proto::MovementBehaviour
 	{
 	public:
@@ -692,16 +620,6 @@ namespace proto
 		static content::MemberList* GetMembers();
 	
 		unsigned char unknownTail[0x38 - sizeof(engine::Behaviour)];
-	};
-
-	class BloodtoxBehaviour : public engine::TriggerBehaviour
-	{
-	public:
-		explicit BloodtoxBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0xE4 - sizeof(engine::TriggerBehaviour)];
 	};
 
 	class FormationBehaviour : public proto::SquadCommanderBehaviour

@@ -1,6 +1,10 @@
 // Fight items of the motion group: ReactionEventConditionGroupCondition, ReactionHitCollisionPositionCondition, ReactionHitDamageCondition, ReactionHitChargeCondition, ReactionHitOriginatorDistanceCondition, ReactionReceiverIsTargetCondition, ReactionGiverIsBeingGrabbedCondition, ReactionEventCondition, ReactionHitCollisionNormalCondition, ReactionScriptedSubTypeCondition, ReactionHitOriginatorIsPlayerCondition, ReactionGrabTypeCondition, ReactionHitSliceAngleCondition, ReactionHitFromMuscleMassCondition, ReactionHitCollisionFlagCondition, ReactionThrowHitTypeCondition, ReactionHitImpulseCondition, ReactionHitDamageTypeCondition, ReactionHitImpulseDirectionCondition, ReactionTargetCondition, ReactionHitAttackTypeCondition, ReactionHitHeightCondition, ReactionHitHitTypeCondition, ReactionHitImpulseYAngleCondition (unit 0x101A1160 - 0x101A69E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactioncondition.h"
 #include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/choreo/deltatransform.h"
+#include "code/math/mathutils.h"
+#include "code/engine/driving/carattributes.h"
+#include <math.h>
 
 namespace proto
 {
@@ -1651,16 +1655,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106730
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), ours has a redundant xor before the setcc (33.3 %)
 			bool ReactionHitDamageTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					bool equal = hit->damageType == damageType;
-					return doesMatch == equal;
+					return false;
 				}
-				return false;
+				bool same = (hit->damageType == damageType);
+				bool wanted = doesMatch;
+				return (wanted == same) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101075D0
@@ -1733,75 +1737,73 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x101066C0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), the flag compare goes through a register in ours (44.4 %)
 			bool ReactionHitAttackTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->attackType == attackType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				bool same = (hit->attackType == attackType);
+				bool wanted = doesMatch;
+				return (same == wanted) ? true : false;
+
 			}
 
 			// FUNCTION: ENGINE 0x10106700
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (51.4 %)
 			bool ReactionHitFromMuscleMassCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return (hit->muscleMass == muscleMassActive) ? true : false;
+					return false;
 				}
-				return false;
+				return (hit->muscleMass == muscleMassActive) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x10106860
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
 			bool ReactionHitHitTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->hitType == hitType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				return ((hit->hitType == hitType) == doesMatch) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101068A0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (50.0 %)
 			bool ReactionThrowHitTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionThrowEvent* thrown = AsThrowEvent(AsEvent(c));
-				if (thrown != 0)
+				if (thrown == 0)
 				{
-					return ((thrown->hitType == hitType) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				return ((thrown->hitType == hitType) == doesMatch) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x101068E0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body), setcc through edx in ours (43.8 %)
 			bool ReactionHitCollisionFlagCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
+				if (hit == 0)
 				{
-					return ((hit->collisionFlag == collisionFlag) == doesMatch) ? true : false;
+					return false;
 				}
-				return false;
+				bool same = hit->collisionFlag == collisionFlag;
+				return same == doesMatch;
 			}
 
 			// FUNCTION: ENGINE 0x10106A50
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (56.8 %)
 			bool ReactionScriptedSubTypeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionScriptedEvent* scripted = AsScriptedEvent(AsEvent(c));
-				if (scripted != 0)
+				if (scripted == 0)
 				{
-					return scripted->subType == subType;
+					return false;
 				}
-				return false;
+				return scripted->subType == subType;
 			}
 
 			// FUNCTION: ENGINE 0x101067F0
@@ -1811,68 +1813,150 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10106930
-			// EQUIVALENT: block order and the register of the compare operator (27.0 %)
 			bool ReactionHitDamageCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
-				if (hit != 0)
-				{
-					float value = 0.0f;
-					switch (type)
-					{
-					case 0:
-						value = hit->damage;
-						break;
-					case 1:
-						value = hit->damageRatio;
-						break;
-					}
-					float limit = damage;
-					return fight::CompareFloats(compare, &value, &limit);
-				}
-				return false;
-			}
-
-			// FUNCTION: ENGINE 0x101069B0
-			// EQUIVALENT: block order, the two failure returns are shared in the engine, register of the compare operator (9.2 %)
-			bool ReactionHitChargeCondition::Evaluate(int a, int b, int c, int d)
-			{
-				ReactionEvent* event = AsEvent(c);
-				if (event == 0)
+				if (hit == 0)
 				{
 					return false;
 				}
-				ReactionHitEvent* hit = (event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
-				ReactionThrowEvent* thrown = (event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
-				float value;
-				if (hit != 0)
+				float value = 0.0f;
+				switch (type)
 				{
-					value = hit->charge;
+				case 0:
+					value = hit->damage;
+					break;
+				case 1:
+					value = hit->damageRatio;
+					break;
 				}
-				else
+				float limit = damage;
+				int op = compare;
+				return fight::CompareFloats(op, &value, &limit);
+			}
+
+			// FUNCTION: ENGINE 0x101069B0
+			// NONMATCHING: shrink-wrap: the engine saves esi and edi in the entry block before the early exit test (best 76.2 %)
+#ifdef NONMATCHING
+			bool ReactionHitChargeCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionEvent* event = AsEvent(c);
+				if (event != 0)
 				{
-					if (thrown == 0)
+					ReactionHitEvent* hit = (event->kind == 0x21001) ? (ReactionHitEvent*)event : 0;
+					ReactionThrowEvent* thrown = (event->kind == 0x21003) ? (ReactionThrowEvent*)event : 0;
+					float value;
+					if (hit != 0)
+					{
+						value = hit->charge;
+					}
+					else if (thrown != 0)
+					{
+						value = thrown->charge;
+					}
+					else
 					{
 						return false;
 					}
-					value = thrown->charge;
+					float limit = charge;
+					int op = compare;
+					return fight::CompareFloats(op, &value, &limit);
 				}
-				float limit = charge;
-				return fight::CompareFloats(compare, &value, &limit);
+				return false;
 			}
+#endif
 
 			// FUNCTION: ENGINE 0x10106770
-			// EQUIVALENT: block order and scheduling of the argument loads (25.5 %)
 			bool ReactionHitImpulseCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit == 0)
+				{
+					return false;
+				}
+				math::Vector vector = hit->impulse;
+				int op = compare;
+				int selector = direction;
+				float amount = impulse;
+				return fight::CompareVectorMeasure(op, &vector, selector, amount);
+			}
+
+			// FUNCTION: ENGINE 0x10107390
+			bool ReactionHitImpulseYAngleCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit == 0)
+				{
+					return false;
+				}
+				engine::GameObjectHandle receiver = hit->receiver;
+				engine::GameObject* object = receiver.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector impulse = hit->impulse;
+				object->transform->value.RotateInverse(impulse, impulse);
+				impulse.Normalize();
+				float value = asinf(impulse.y);
+				float limit = angle;
+				int op = compare;
+				return fight::CompareFloats(op, &value, &limit);
+			}
+
+			// FUNCTION: ENGINE 0x10107120
+			// NONMATCHING: the engine stores the third component of the impulse copy before it loads the transform, ours after the matrix pointer is formed (best 93.1 %)
+#ifdef NONMATCHING
+			bool ReactionHitImpulseDirectionCondition::Evaluate(int a, int b, int c, int d)
 			{
 				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
 				if (hit != 0)
 				{
-					math::Vector vector = hit->impulse;
-					return fight::CompareVectorMeasure(compare, &vector, direction, impulse);
+					engine::GameObjectHandle receiver = hit->receiver;
+					engine::GameObject* object = receiver.Get();
+					if (object != 0)
+					{
+						math::Vector impulse = hit->impulse;
+						object->transform->value.RotateInverse(impulse, impulse);
+						float heading = choreo::Heading(impulse);
+						float difference = (float)fabs(choreo::AngleDifference(heading, direction));
+						if (difference < arc * engine::driving::gHalf)
+						{
+							return true;
+						}
+					}
 				}
 				return false;
 			}
+#endif
+
+			// FUNCTION: ENGINE 0x10106DE0
+			// NONMATCHING: the engine stores the third component of the copied normal between the pushes of the call, loads the condition's members into registers before the dot product and keeps the arc in a local (best 49.1 %)
+#ifdef NONMATCHING
+			bool ReactionHitCollisionNormalCondition::Evaluate(int a, int b, int c, int d)
+			{
+				ReactionHitEvent* hit = AsHitEvent(AsEvent(c));
+				if (hit != 0)
+				{
+					engine::GameObjectHandle receiver = hit->receiver;
+					engine::GameObject* object = receiver.Get();
+					if (object != 0)
+					{
+						math::Vector collision = hit->collisionNormal;
+						math::Vector local;
+						object->transform->value.RotateInverse(collision, local);
+						float limit = arc;
+						float dot = local.z * normal.z + local.y * normal.y + normal.x * local.x;
+						float difference = (float)fabs(acosf(math::Clamp(dot, choreo::gMinusOne, engine::driving::gOne)));
+						if (difference <= limit * engine::driving::gHalf)
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x101064F0
 			void RegisterReactionEventConditionGroupFactories(fight::TrackRegistry* registry)
@@ -2025,6 +2109,276 @@ namespace proto
 					{ fight::Name("Y", 0) },
 					{ fight::Name("Z", 0) }
 				};
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10106170
+			int ReactionEventConditionGroupCondition::GetObject() const
+			{
+				return object;
+			}
+
+			// FUNCTION: ENGINE 0x10106190
+			int ReactionHitCollisionPositionCondition::GetComponent() const
+			{
+				return component;
+			}
+
+			// FUNCTION: ENGINE 0x101061A0
+			int ReactionHitCollisionPositionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101061B0
+			float ReactionHitCollisionPositionCondition::GetPosition() const
+			{
+				return position;
+			}
+
+			// FUNCTION: ENGINE 0x101061C0
+			int ReactionHitDamageCondition::GetType() const
+			{
+				return type;
+			}
+
+			// FUNCTION: ENGINE 0x101061D0
+			int ReactionHitDamageCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101061E0
+			float ReactionHitDamageCondition::GetDamage() const
+			{
+				return damage;
+			}
+
+			// FUNCTION: ENGINE 0x101061F0
+			int ReactionHitChargeCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106200
+			float ReactionHitChargeCondition::GetCharge() const
+			{
+				return charge;
+			}
+
+			// FUNCTION: ENGINE 0x10106210
+			int ReactionHitOriginatorDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106220
+			int ReactionHitOriginatorDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106230
+			float ReactionHitOriginatorDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x10106240
+			bool ReactionReceiverIsTargetCondition::GetIsTarget() const
+			{
+				return isTarget;
+			}
+
+			// FUNCTION: ENGINE 0x10106250
+			int ReactionGiverIsBeingGrabbedCondition::GetGrabType() const
+			{
+				return grabType;
+			}
+
+			// FUNCTION: ENGINE 0x10106260
+			bool ReactionEventCondition::GetIsReactionEvent() const
+			{
+				return isReactionEvent;
+			}
+
+			// FUNCTION: ENGINE 0x10106270
+			int ReactionEventCondition::GetReactionType() const
+			{
+				return reactionType;
+			}
+
+			// FUNCTION: ENGINE 0x10106320
+			int ReactionHitImpulseCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106330
+			int ReactionHitImpulseCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x10106340
+			float ReactionHitImpulseCondition::GetImpulse() const
+			{
+				return impulse;
+			}
+
+			// FUNCTION: ENGINE 0x10106350
+			bool ReactionHitDamageTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106360
+			int ReactionHitDamageTypeCondition::GetDamageType() const
+			{
+				return damageType;
+			}
+
+			// FUNCTION: ENGINE 0x10106390
+			bool ReactionTargetCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063A0
+			bool ReactionHitAttackTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063B0
+			int ReactionHitAttackTypeCondition::GetAttackType() const
+			{
+				return attackType;
+			}
+
+			// FUNCTION: ENGINE 0x101063C0
+			int ReactionHitHeightCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x101063D0
+			float ReactionHitHeightCondition::GetHeight() const
+			{
+				return height;
+			}
+
+			// FUNCTION: ENGINE 0x101063E0
+			bool ReactionHitHitTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x101063F0
+			const fight::Name& ReactionHitHitTypeCondition::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x10106400
+			int ReactionHitImpulseYAngleCondition::GetCompare() const
+			{
+				return compare;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10106180
+			const fight::ConditionList& ReactionEventConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x10106280
+			math::Vector ReactionHitCollisionNormalCondition::GetNormal() const
+			{
+				return normal;
+			}
+
+			// FUNCTION: ENGINE 0x101062A0
+			float ReactionHitCollisionNormalCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x101062B0
+			float ReactionHitSliceAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x101062C0
+			float ReactionHitSliceAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x101062D0
+			bool ReactionHitFromMuscleMassCondition::GetMuscleMassActive() const
+			{
+				return muscleMassActive;
+			}
+
+			// FUNCTION: ENGINE 0x101062E0
+			const fight::Name& ReactionHitCollisionFlagCondition::GetCollisionFlag() const
+			{
+				return collisionFlag;
+			}
+
+			// FUNCTION: ENGINE 0x101062F0
+			bool ReactionHitCollisionFlagCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106300
+			bool ReactionThrowHitTypeCondition::GetDoesMatch() const
+			{
+				return doesMatch;
+			}
+
+			// FUNCTION: ENGINE 0x10106310
+			const fight::Name& ReactionThrowHitTypeCondition::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x10106370
+			float ReactionHitImpulseDirectionCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x10106380
+			float ReactionHitImpulseDirectionCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x10106410
+			float ReactionHitImpulseYAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
 		}
 	}
 }

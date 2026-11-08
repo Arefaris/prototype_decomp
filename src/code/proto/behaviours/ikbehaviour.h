@@ -10,6 +10,7 @@
 #include "code/content/metatype.h"
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/proto/fightitems/motion/motionmessages3.h"
 #include "code/engine/message.h"
 
 namespace engine
@@ -169,6 +170,17 @@ namespace content
 
 namespace proto
 {
+	// The query for the state of the surface fixup (id 0 of the IK messages; the engine's name for it is not known): the
+	// behaviour answers in enabled
+	struct IKSurfaceFixupQueryMessage : public IKMessage
+	{
+		IKSurfaceFixupQueryMessage() : IKMessage(0), enabled(false)
+		{
+		}
+
+		bool enabled;  // +0xC
+	};
+
 	class IKBehaviour : public engine::Behaviour
 	{
 	public:
@@ -179,6 +191,14 @@ namespace proto
 
 		// vftable slot 5 (0x10071150): answers the query message of type 0xF, id 0xB with true
 		virtual void OnPostedMessage(engine::Message* message);
+		// vftable slot 6 (0x10071B50)
+		virtual void OnMessage(engine::Message* message);
+
+		// 0x10071950 (name guess): forgets the pose of the limbs
+		void ResetPose();
+		// 0x10071110 / 0x10071130 (name guesses): answers whether the surface fixup is on / turns it on or off
+		void GetSurfaceFixupEnabled(IKSurfaceFixupQueryMessage* message);
+		void SetSurfaceFixupEnabled(SetIKSurfaceFixupEnabledMessage* message);
 
 		unsigned char unknownC[4];
 		int surfaceFixup;  // +0x10

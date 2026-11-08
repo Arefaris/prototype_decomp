@@ -3,6 +3,8 @@
 #define PROTO_FIGHTITEMS_AI_AI_PERIODICOPPORTUNITY_H
 
 #include "code/engine/fight/bitfieldproperty.h"
+#include "code/engine/fight/branch.h"
+#include "code/engine/fight/effecttrack.h"
 #include "code/proto/fightitems/ai/aiaction.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/ai/aidata2.h"
@@ -102,8 +104,33 @@ namespace proto
 			fight::TrackFactory* CreateDelayedSequenceTrackFactory(const char* name);
 			void RegisterDelayedSequenceTrackFactory(fight::TrackRegistry* registry, const char* name);
 
-			// ---- actions begin
+			// 0x10206270 (name guess): a float between two limits, from the random generator of the fight code
+			float FightRandomRange(float low, float high);
 
+			// ---- actions begin
+			// RTTI: proto::fightitems::ai::DelayedSequenceAction (9 vftable slots, 0x44 bytes)
+			class DelayedSequenceAction : public fight::Action
+			{
+			public:
+				// 0x10206A30
+				DelayedSequenceAction(DelayedSequenceTrack* newTrack, engine::GameObjectHandle newTarget, int newEffect, fight::Track* newListener, core::IRefCount* newOwner);
+				// 0x102065C0
+				virtual ~DelayedSequenceAction();
+
+				// vftable slot 5 (0x10206B10)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x102062F0)
+				virtual void Slot6();
+				// vftable slot 7 (0x10206B50)
+				virtual bool Slot7(int arg, float value);
+
+				int effect;  // +0x1C
+				core::IRefCount* owner;  // +0x20
+				engine::TrackWatch listener;  // +0x24
+				core::Link<DelayedSequenceTrack> link;  // +0x30
+				engine::GameObjectHandle target;  // +0x3C
+				float delay;  // +0x40
+			};
 			// ---- actions end
 		}
 	}

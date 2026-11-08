@@ -309,6 +309,12 @@ namespace engine
 		delete motionFilter;
 	}
 
+	TrackedMotionToExpressionMap::JointData::JointData(const JointData& other) : jointName(other.jointName),
+		offset(other.offset), offsetTranslation(other.offsetTranslation), motionFilter(other.motionFilter),
+		trackedProperties(other.trackedProperties), debugDisable(other.debugDisable)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x109146F0
 	Map::TrackedMotionToExpressionMap() : skeleton(0), expressionGroup(0)
 	{
@@ -328,7 +334,8 @@ namespace container
 	template class ArrayDynamic<engine::TrackedMotionToExpressionMap::PropertyMapping, AllocatorNew>;
 	template class ArrayDynamic<engine::TrackedMotionToExpressionMap::JointData, AllocatorNew>;
 }
-
+
+
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x109119B0
@@ -451,3 +458,8 @@ namespace container
 // FUNCTION: ENGINE 0x10914650
 // FUNCTION: ENGINE 0x109146C0
 // FUNCTION: ENGINE 0x10914780
+// FUNCTION: ENGINE 0x10914830
+// FUNCTION: ENGINE 0x10913070
+// FUNCTION: ENGINE 0x10914200
+// FUNCTION: ENGINE 0x109142C0
+// FUNCTION: ENGINE 0x10914410

@@ -72,6 +72,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetDeadTemplate() const;
+				bool GetCopyDrawable() const;
+				bool GetGrabberIsOriginator() const;
+
 					fight::Name deadTemplate;  // +0x10
 					float timeBegin;  // +0x18
 					bool copyDrawable;  // +0x1C

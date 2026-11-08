@@ -228,6 +228,72 @@ namespace proto
 				return new EffectConsumeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BACB0
+			float EffectConsumeTrack::GetSpreadRate() const
+			{
+				return spreadRate;
+			}
+
+			// FUNCTION: ENGINE 0x100BACC0
+			float EffectConsumeTrack::GetGrowthThreshold() const
+			{
+				return growthThreshold;
+			}
+
+			// FUNCTION: ENGINE 0x100BACD0
+			int EffectConsumeTrack::GetConsumeMode() const
+			{
+				return consumeMode;
+			}
+
+			// FUNCTION: ENGINE 0x100BACE0
+			float EffectConsumeTrack::GetTimeReverse() const
+			{
+				return timeReverse;
+			}
+
+			// FUNCTION: ENGINE 0x100BACF0
+			bool EffectConsumeTrack::GetUseTimeReveal() const
+			{
+				return useTimeReveal;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD00
+			float EffectConsumeTrack::GetTimeReveal() const
+			{
+				return timeReveal;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD10
+			int EffectConsumeTrack::GetRevealMode() const
+			{
+				return revealMode;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD20
+			const fight::Name& EffectConsumeTrack::GetStartJoint1() const
+			{
+				return startJoint1;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD30
+			math::Vector EffectConsumeTrack::GetStartOffset1() const
+			{
+				return startOffset1;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD50
+			bool EffectConsumeTrack::GetUseSecondStartPoint() const
+			{
+				return useSecondStartPoint;
+			}
+
+			// FUNCTION: ENGINE 0x100BAD60
+			const fight::Name& EffectConsumeTrack::GetStartJoint2() const
+			{
+				return startJoint2;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<EffectConsumeTrack>;
 			template class fight::PropertyName<EffectConsumeTrack>;

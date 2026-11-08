@@ -232,6 +232,10 @@ namespace proto
 		}
 		virtual void ResetKey(float time);
 
+		// The index of the last key at or before that time (the time is kept within a day), the last key when there is
+		// none; and of the first key behind it, the first when there is none
+		int FindPreviousKey(float time);
+		int FindNextKey(float time);
 		// Whether the channel has any key (defined out of line in the time of day manager's unit)
 		bool HasKeys();
 		// The value the channel has at that time (the same)
@@ -296,6 +300,63 @@ namespace proto
 			void (*sort)(Key*, Key*) = std::sort<Key*>;
 			sort(array.begin, array.end);
 		}
+	}
+
+	template<class T> int TimeOfDayVarChannel<T>::FindPreviousKey(float time)
+	{
+		if (!(time >= 0.0f))
+		{
+			time = 0.0f;
+		}
+		if (time - 24.0f >= 0.0f)
+		{
+			time = 24.0f;
+		}
+		int last = keys.Size() - 1;
+		int index = keys.Size() - 1;
+		if (index >= 0)
+		{
+			Key* key = keys.begin + index;
+			do
+			{
+				if (key->time <= time)
+				{
+					return index;
+				}
+				index--;
+				key--;
+			} while (index >= 0);
+		}
+		return last;
+	}
+
+	template<class T> int TimeOfDayVarChannel<T>::FindNextKey(float time)
+	{
+		if (!(time >= 0.0f))
+		{
+			time = 0.0f;
+		}
+		if (time - 24.0f >= 0.0f)
+		{
+			time = 24.0f;
+		}
+		int result = 0;
+		unsigned int index = 0;
+		if (keys.Size() != 0)
+		{
+			Key* key = keys.begin;
+			do
+			{
+				if (time < key->time)
+				{
+					result = index;
+					break;
+				}
+				index++;
+				key++;
+			} while (index < keys.Size());
+		}
+		return result;
 	}
 
 	template<class T> void TimeOfDayVarChannel<T>::SetSingleKey(float time)

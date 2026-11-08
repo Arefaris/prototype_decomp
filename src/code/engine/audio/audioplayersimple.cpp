@@ -1,9 +1,39 @@
 // engine::AudioPlayerSimple: see the header.
 #include "code/engine/audio/audiomessage.h"
 #include "code/engine/audio/audioplayersimple.h"
+#include "code/om/dynamicobject.h"
+
+#include "code/engine/driving/carattributes.h"
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x1087F5E0
+	// NONMATCHING: the base's vftable store and the remote player table's arguments come out in another form (42 %)
+#ifdef NONMATCHING
+	AudioPlayerSimple::AudioPlayerSimple(const AudioPlayerDescription* description) :
+		AudioPlayer(Expanded()),
+		name(description->name, 1)
+	{
+		player.word = audio::gRemotePlayers->Create(*reinterpret_cast<const audio::RemotePlayerParams*>(description->unknown10),
+			description->unknown4 == 0, description->unknown8 == 0, description->unknownC == 0,
+			reinterpret_cast<const type_info*>(description->unknown58), 1);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1087F7D0
+	// NONMATCHING: the engine stores the vftable behind the three words and in front of the last float (64.5 %)
+#ifdef NONMATCHING
+	AudioPlayerPhysics::AudioPlayerPhysics(const AudioPlayerDescription* description) :
+		AudioPlayerSimple(description),
+		unknown24(0.0f),
+		unknown28(0.0f),
+		unknown2C(driving::gOne)
+	{
+		unknown20 = 0;
+		unknown1C = 0;
+		unknown18 = 0;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1087F660
 	AudioPlayerSimple::~AudioPlayerSimple()
@@ -31,11 +61,11 @@ namespace engine
 	}
 
 	// FUNCTION: ENGINE 0x1087F230
-	void AudioPlayerSimple::Slot2(AudioPlayerUpdate* update)
+	void AudioPlayerSimple::Slot2(om::DynamicObject* properties)
 	{
-		for (void* item = update->First(); item != 0; item = update->Next(item))
+		for (om::DynamicPropertyBase* property = properties->GetFirstProperty(); property != 0; property = properties->GetNextProperty(property))
 		{
-			Slot9(item);
+			Slot9(property);
 		}
 	}
 

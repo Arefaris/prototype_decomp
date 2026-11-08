@@ -1,5 +1,8 @@
 // Fight items of the motion group: IntersectionPropertiesCondition (unit 0x10181350 - 0x10181890; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_intersectionproperties.h"
+#include "code/proto/fightitems/motion/motionaction.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
 
 namespace proto
 {
@@ -8,6 +11,30 @@ namespace proto
 		namespace motion
 		{
 			fight::Property** gIntersectionPropertiesConditionProperties;  // 0x11254750
+
+			// FUNCTION: ENGINE 0x100DB800
+			bool IntersectionPropertiesCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::GetIntersectionPropertiesMessage message;
+				object->PostMessage(&message);
+				unsigned int bits = 0;
+				switch (type)
+				{
+				case 0:
+					bits = message.properties.unknown0;
+					break;
+				case 1:
+					bits = message.properties.unknown4;
+					break;
+				}
+				bool hit = (colliderBits & bits) != 0;
+				return hit == match;
+			}
 
 			// FUNCTION: ENGINE 0x10181350
 			bool IntersectionPropertiesCondition::SetType(int newValue)

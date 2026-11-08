@@ -6,6 +6,14 @@
 #include "code/engine/fight/fighteventmessage.h"
 #include "code/math/worldbounds.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/engine/fight/fightcommon.h"
+
+namespace engine
+{
+	// 0x112539D0: the name "HunterLandedMotionEvent"
+	extern core::Name<core::CaseSensitiveKey> gHunterLandedMotionEvent;
+}
 
 namespace proto
 {
@@ -885,6 +893,29 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x100D7B80
+			// NONMATCHING: the engine keeps zero in ebx across the whole slot (34.5 %, best 40.5 %)
+#ifdef NONMATCHING
+			bool HunterLandedAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::CharacterQueryCollisionStateMessage query;
+					object->SendMessage(&query);
+					if (query.state == 0 || !*query.state)
+					{
+						return true;
+					}
+					SetJumpLandedMovementMessage landed(true);
+					object->SendMessage(&landed);
+					TriggerEventAIMsg trigger(engine::gHunterLandedMotionEvent, 0);
+					object->SendMessage(&trigger);
+				}
+				return false;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x100DA6E0
 			fight::Action* HunterLandedTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -1058,6 +1089,10 @@ namespace proto
 template proto::fightitems::motion::HunterLandedTrack* core::Link<proto::fightitems::motion::HunterLandedTrack>::Get() const;
 template proto::fightitems::motion::HunterShortRangeHopCornerTrack* core::Link<proto::fightitems::motion::HunterShortRangeHopCornerTrack>::Get() const;
 template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Get() const;
+template core::Link<proto::fightitems::motion::HunterShortRangeHopCornerTrack>::Link(proto::fightitems::motion::HunterShortRangeHopCornerTrack*);
+
+// Explicit instance of the track link's constructor (the engine keeps a copy):
+template core::Link<proto::fightitems::motion::HunterShortRangeCorner2Track>::Link(proto::fightitems::motion::HunterShortRangeCorner2Track*);
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D6AF0
@@ -1071,7 +1106,9 @@ template proto::fightitems::motion::HunterShortRangeCorner2Track* core::Link<pro
 // FUNCTION: ENGINE 0x100D75C0
 // FUNCTION: ENGINE 0x100D75D0
 // FUNCTION: ENGINE 0x100D7620
+// FUNCTION: ENGINE 0x100D7630
 // FUNCTION: ENGINE 0x100D7680
+// FUNCTION: ENGINE 0x100D7690
 // FUNCTION: ENGINE 0x100D8560
 // FUNCTION: ENGINE 0x100D8B90
 // FUNCTION: ENGINE 0x100D96A0

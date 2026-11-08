@@ -195,6 +195,63 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101189C0
+			float SpecialistDodgeTrack::GetMoveBegin() const
+			{
+				return moveBegin;
+			}
+
+			// FUNCTION: ENGINE 0x101189D0
+			float SpecialistDodgeTrack::GetMoveEnd() const
+			{
+				return moveEnd;
+			}
+
+			// FUNCTION: ENGINE 0x101189E0
+			float SpecialistDodgeTrack::GetMoveDistance() const
+			{
+				return moveDistance;
+			}
+
+			// FUNCTION: ENGINE 0x101189F0
+			int SpecialistDodgeTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x10118A00
+			float SpecialistDodgeTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x10118A10
+			float SpecialistDodgeTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x10118A20
+			float SpecialistDodgeTrack::GetDistanceToAttractorWeight() const
+			{
+				return distanceToAttractorWeight;
+			}
+
+			// FUNCTION: ENGINE 0x10118A30
+			float SpecialistDodgeTrack::GetMaxDistanceToAttractor() const
+			{
+				return maxDistanceToAttractor;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101B59A0
 // FUNCTION: ENGINE 0x101B59D0

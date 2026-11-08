@@ -19,6 +19,11 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// vftable slot 5 (0x10069F50; the master shares it)
+		virtual void OnPostedMessage(engine::Message* message);
+		// 0x10069F20 (name guess): answers the query of type 3, id 9 with a vector of the spike
+		void GetQueriedVector(engine::Message* message);
+
 		unsigned char unknownC[0x84];
 	};
 
@@ -35,6 +40,11 @@ namespace proto
 	public:
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
+
+		// vftable slot 5 (0x10069FE0)
+		virtual void OnPostedMessage(engine::Message* message);
+		// 0x10069FB0 (name guess): the same query for a shard
+		void GetQueriedVector(engine::Message* message);
 
 		unsigned char unknownC[0x84];
 		float height;  // +0x90

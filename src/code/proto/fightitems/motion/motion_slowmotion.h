@@ -43,6 +43,14 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetSimulationRate() const;
+				float GetFadeInTime() const;
+				float GetSimulationDuration() const;
+				float GetFadeOutTime() const;
+				bool GetRealTime() const;
+				bool GetAbortOnEnd() const;
+
 					float fadeInTime;  // +0x10
 					float fadeOutTime;  // +0x14
 					float simulationDuration;  // +0x18
@@ -59,6 +67,33 @@ namespace proto
 			void RegisterSlowMotionTrackFactory(fight::TrackRegistry* registry, const char* name);
 
 			// ---- actions begin
+			// What a slow motion request asks of the manager (name guess)
+			struct SlowMotionRequest
+			{
+				float rate;
+				float fadeInTime;
+				float holdTime;
+				float fadeOutTime;
+				bool realTime;
+
+				SlowMotionRequest(float newHold, bool newRealTime, float newFadeOut, float newFadeIn, float newRate) : rate(newRate), fadeInTime(newFadeIn), holdTime(newHold), fadeOutTime(newFadeOut), realTime(newRealTime)
+				{
+				}
+			};
+
+			// The manager the pointer at 0x1125A4A0 refers to (name guess): a table of slow motion requests
+			class SlowMotionManager
+			{
+			public:
+				// 0x102A68E0: takes a request, answers its slot (a negative number when the table is full)
+				int Request(const SlowMotionRequest* request);
+				// 0x102A69B0: ends the request of a slot
+				void End(int slot, bool abort);
+			};
+
+			// 0x1125A4A0
+			extern SlowMotionManager* gSlowMotionManager;
+
 			// RTTI: proto::fightitems::motion::SlowMotionAction (9 vftable slots, 0x38 bytes): slows the simulation down for the length of the track
 			class SlowMotionAction : public fight::Action
 			{

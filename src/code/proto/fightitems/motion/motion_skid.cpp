@@ -465,6 +465,177 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10114660
+			float SkidTrack::GetVelocityInit() const
+			{
+				return velocityInit;
+			}
+
+			// FUNCTION: ENGINE 0x10114670
+			float SkidTrack::GetVelocityMin() const
+			{
+				return velocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114680
+			float SkidTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x10114690
+			float SkidTrack::GetDecelerationMin() const
+			{
+				return decelerationMin;
+			}
+
+			// FUNCTION: ENGINE 0x101146A0
+			float SkidTrack::GetDecelerationMax() const
+			{
+				return decelerationMax;
+			}
+
+			// FUNCTION: ENGINE 0x101146B0
+			float SkidTrack::GetSprintVelocityDeceleration() const
+			{
+				return sprintVelocityDeceleration;
+			}
+
+			// FUNCTION: ENGINE 0x101146C0
+			int SkidTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101146D0
+			float SkidTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101146E0
+			float SkidTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x101146F0
+			float SkidPedalTrack::GetTimeEndMin() const
+			{
+				return timeEndMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114700
+			float SkidPedalTrack::GetAcceleration() const
+			{
+				return acceleration;
+			}
+
+			// FUNCTION: ENGINE 0x10114710
+			float SkidPedalTrack::GetVelocityMin() const
+			{
+				return velocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114720
+			float SkidPedalTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x101147B0
+			int SkidPedalTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101147C0
+			float SkidPedalTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101147D0
+			float SkidPedalTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10114770
+			const fight::Name& SkidPedalTrack::GetAnimNorth() const
+			{
+				return animNorth;
+			}
+
+			// FUNCTION: ENGINE 0x10114780
+			const fight::Name& SkidPedalTrack::GetAnimWest() const
+			{
+				return animWest;
+			}
+
+			// FUNCTION: ENGINE 0x10114790
+			const fight::Name& SkidPedalTrack::GetAnimSouth() const
+			{
+				return animSouth;
+			}
+
+			// FUNCTION: ENGINE 0x101147A0
+			const fight::Name& SkidPedalTrack::GetAnimEast() const
+			{
+				return animEast;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10114730
+			float SkidPedalTrack::GetTurnVelocityMin() const
+			{
+				return turnVelocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114740
+			float SkidPedalTrack::GetTurnVelocityMax() const
+			{
+				return turnVelocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x10114750
+			float SkidPedalTrack::GetTurnAccelerationMin() const
+			{
+				return turnAccelerationMin;
+			}
+
+			// FUNCTION: ENGINE 0x10114760
+			float SkidPedalTrack::GetTurnAccelerationMax() const
+			{
+				return turnAccelerationMax;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10114800
 // FUNCTION: ENGINE 0x10114820

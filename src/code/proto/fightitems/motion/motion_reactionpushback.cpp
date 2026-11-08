@@ -363,6 +363,93 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101084D0
+			float ReactionPushbackTrack::GetMaxDistance() const
+			{
+				return maxDistance;
+			}
+
+			// FUNCTION: ENGINE 0x101084E0
+			bool ReactionPushbackTrack::GetSnapToPushback() const
+			{
+				return snapToPushback;
+			}
+
+			// FUNCTION: ENGINE 0x10108510
+			int ReactionPushbackTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x10108520
+			float ReactionPushbackTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x10108530
+			float ReactionPushbackTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101084A0
+			int ReactionPushbackOrientTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101084B0
+			float ReactionPushbackOrientTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101084C0
+			float ReactionPushbackOrientTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10108490
+			float ReactionPushbackOrientTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x101084F0
+			float ReactionPushbackTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A76D0
 // FUNCTION: ENGINE 0x101A7700

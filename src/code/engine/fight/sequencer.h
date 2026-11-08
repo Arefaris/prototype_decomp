@@ -139,6 +139,11 @@ namespace fight
 		{
 			return flags.bits.notifies;
 		}
+		// Bit 11 (the lowest bit of the unnamed rest; name guess)
+		bool HasFlag11() const
+		{
+			return flags.bits.rest & 1;
+		}
 		bool HasFlag5() const
 		{
 			return flags.bits.unknown5;

@@ -1,5 +1,7 @@
 // Fight items of the ai group: TankRamTrack (unit 0x10246860 - 0x10246F80; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_tankram.h"
+#include "code/proto/fightitems/ai/aimessages.h"
+#include "code/proto/fightitems/ai/aiactionmessages.h"
 
 namespace proto
 {
@@ -180,6 +182,24 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10207F60
+			void TankRamAction::Slot6()
+			{
+				if (target.Get() != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						ClearVehicleAccelerationsMessage clearMessage;
+						object->SendMessage(&clearMessage);
+						SetBrakingInMotionMovementMessage brakeMessage(true);
+						object->SendMessage(&brakeMessage);
+						SetReverseGearMovementMessage reverseMessage(false);
+						object->SendMessage(&reverseMessage);
+					}
+				}
+			}
+
 			// FUNCTION: ENGINE 0x102089D0
 			fight::Action* TankRamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -213,3 +233,8 @@ template core::Link<proto::fightitems::ai::TankRamTrack>::Link(proto::fightitems
 // FUNCTION: ENGINE 0x10246F10
 // FUNCTION: ENGINE 0x10246F30
 // FUNCTION: ENGINE 0x10207EB0
+// FUNCTION: ENGINE 0x10207DA0
+// FUNCTION: ENGINE 0x10207DE0
+// FUNCTION: ENGINE 0x10207E30
+// FUNCTION: ENGINE 0x102178F0
+// FUNCTION: ENGINE 0x102179E0

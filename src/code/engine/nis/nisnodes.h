@@ -29,6 +29,8 @@ namespace engine
 		// 0x108A71E0 / 0x108A71D0: the time the sequence starts at
 		bool SetStartTime(float value);
 		float GetStartTime() const;
+		// 0x108A7CE0: starts the sequence of a node on an owner's handler at a time (name guess)
+		void Unknown108A7CE0(int effect, core::IRefCount* owner, float time);
 
 		// 0x108A7920 / 0x108A72E0: the properties of the class, built once / freed
 		static void RegisterProperties();

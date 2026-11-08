@@ -1,5 +1,13 @@
 #include "code/proto/fmv/fmvtrack.h"
+#include "code/engine/fmv/fmvplayer.h"
+#include "code/proto/frontendhud.h"
 #include <new>
+
+namespace engine
+{
+	// 0x1085FC10 (name unknown)
+	void Unknown1085FC10(int value);
+}
 
 namespace proto
 {
@@ -205,6 +213,25 @@ namespace proto
 	FMVAction::FMVAction(FMVTrack* newTrack, core::IRefCount* newOwner) : fight::Action(0xE00), link(newTrack),
 		owner(newOwner), unknown30(0), unknown34(false), unknown35(false), unknown38(0), unknown3C(0.0f)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x105778E0
+	void FMVAction::Slot6()
+	{
+		if (link.object != 0)
+		{
+			if (unknown35)
+			{
+				unknown35 = false;
+				return;
+			}
+			if (!link.object->useFMVState)
+			{
+				engine::StopMovie();
+				engine::Unknown1085FC10(0);
+			}
+			GetFrontEndHud()->SetVisible(true);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x10577790

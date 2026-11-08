@@ -20,6 +20,13 @@ namespace om
 			capacity(0)
 		{
 		}
+		// An empty array with room for that many elements
+		explicit DynamicArray(Count count) :
+			size(0)
+		{
+			data = Allocate(count);
+			capacity = count;
+		}
 		DynamicArray(const DynamicArray& other)
 		{
 			data = Allocate(other.size);
@@ -45,6 +52,24 @@ namespace om
 				CopyElements(data, other.data, other.size);
 			}
 			return *this;
+		}
+
+		Count GetSize() const
+		{
+			return size;
+		}
+		T* GetData() const
+		{
+			return data;
+		}
+		// A copy of the element at the end
+		void PushBack(const T& value)
+		{
+			T* element = &Append();
+			if (element != 0)
+			{
+				::new (element) T(value);
+			}
 		}
 
 		T& operator[](Count index)
@@ -169,12 +194,10 @@ namespace om
 		{
 			for (Count i = 0; i < count; i++)
 			{
-				if (destination != 0)
+				if (destination + i != 0)
 				{
-					::new (destination) T(*source);
+					::new (destination + i) T(source[i]);
 				}
-				destination++;
-				source++;
 			}
 		}
 		OM_ALLOCATION(DynamicArray);

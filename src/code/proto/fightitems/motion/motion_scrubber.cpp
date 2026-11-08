@@ -125,10 +125,9 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1010E390
-			// EQUIVALENT: instruction selection of the pointer to bool conversion (neg, sbb, neg where ours has test, setne) (63.9 %)
 			bool ScrubberAction::Slot5(int arg, float value)
 			{
-				return engine::GetPuppet(target.Get()) != 0;
+				return engine::GetPuppet(target.Get()) ? true : false;
 			}
 
 			// FUNCTION: ENGINE 0x1010E3F0
@@ -152,6 +151,48 @@ namespace proto
 			template class fight::PropertyBool<ScrubberTrack>;
 			template class fight::TrackFactoryTemplate<ScrubberTrack>;
 			template class fight::TrackFactoryCasterTemplate<ScrubberTrack>;
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E250
+			float ScrubberTrack::GetFrame() const
+			{
+				return frame;
+			}
+
+			// FUNCTION: ENGINE 0x1010E260
+			float ScrubberTrack::GetFrameOffset() const
+			{
+				return frameOffset;
+			}
+
+			// FUNCTION: ENGINE 0x1010E270
+			bool ScrubberTrack::GetHasRootTranslation() const
+			{
+				return hasRootTranslation;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E240
+			const fight::Name& ScrubberTrack::GetAnimation() const
+			{
+				return animation;
+			}
 		}
 	}
 }

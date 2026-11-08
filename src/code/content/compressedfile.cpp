@@ -1,4 +1,5 @@
 // content::CompressedFile (unit 0x1060DDC0 - 0x1060E4D0; see compressedfile.h).
+#include "code/content/chunkhandler.h"
 #include "code/content/compressedfile.h"
 #include "code/core/criticalsection.h"
 #include "code/core/heap.h"
@@ -10,17 +11,171 @@
 
 namespace content
 {
-	// The thread that unpacks compressed files (0x11276A98, see loadstream.cpp)
-	class CompressedFileFactory
+	// FUNCTION: ENGINE 0x1060DBE0
+	CompressedReader::CompressedReader(int level, void* newBuffer, unsigned int newBufferSize, unsigned int newSize,
+		int heap)
 	{
-	public:
-		// 0x1060BCE0: queues a request
-		void Queue(DecompressRequest* request);
+		decompressor = 0;
+		consumed = 0;
+		buffer = newBuffer;
+		bufferSize = newBufferSize;
+		size = newSize;
+		produced = 0;
+		decompressor = CreateDecompressor(level, 1, heap);
+	}
+
+	// FUNCTION: ENGINE 0x1060DC20
+	CompressedReader::~CompressedReader()
+	{
+		decompressor->Wait();
+		DestroyDecompressor(decompressor);
+	}
+
+	// FUNCTION: ENGINE 0x1060DC40
+	void CompressedReader::Read(void* destination, unsigned int count)
+	{
+		int usedOutput = decompressor->GetUsedOutput();
+		int usedInput = decompressor->GetUsedInput();
+		consumed += usedInput;
+		produced += usedOutput;
+		decompressor->Submit((char*)buffer + consumed, bufferSize - consumed, destination, count, true);
+	}
+
+	// FUNCTION: ENGINE 0x1060DC90
+	int CompressedReader::IsDone()
+	{
+		return decompressor->IsDone();
+	}
+
+	// FUNCTION: ENGINE 0x1060DCC0
+	void CompressedReader::Wait()
+	{
+		decompressor->Wait();
+	}
+
+	// FUNCTION: ENGINE 0x1060DCD0
+	void CompressedReader::ReadWait(void* destination, unsigned int count)
+	{
+		Read(destination, count);
+		Wait();
+	}
+
+	// The header the packed data of a file starts with (16 bytes)
+	struct PackedHeader
+	{
+		unsigned int unknown0;
+		int level;
+		unsigned int unpacked;
+		unsigned int unknownC;
 	};
 
-	// The decompressor (0x106DC260 / 0x106DC2B0: makes one for a level / destroys it; names guessed)
-	void* CreateDecompressor(int level, int unused, int heap);
-	void DestroyDecompressor(void* decompressor);
+	// FUNCTION: ENGINE 0x1060DE30
+	// NONMATCHING: the loads of the header and the order of the stores, 91.4 %
+#ifdef NONMATCHING
+	void CompressedFile::StartBlock()
+	{
+		switch (passthrough)
+		{
+		case 0:
+			return;
+		case 1:
+			{
+				unsigned int position = unknown38;
+				const PackedHeader* header = (const PackedHeader*)buffers[unknown3C] + position;
+				int level = header->level;
+				unsigned int unpacked = header->unpacked;
+				unknown1C += 0x10;
+				unknown38 = position + 0x10;
+				unpackedSize = unpacked;
+				decompressor = CreateDecompressor(level, 1, heap);
+			}
+		}
+	}
+#endif
+
+
+	// FUNCTION: ENGINE 0x1060DE80
+	void CompressedFile::Unpack(void* buffer, unsigned int size)
+	{
+		unsigned char* output = (unsigned char*)buffer;
+		unsigned int remaining = size;
+		unsigned char* outputEnd = output + size;
+		if (remaining + unknown20 > unpackedSize)
+		{
+			remaining = unpackedSize - unknown20;
+		}
+		if (unknown18 == 0)
+		{
+			unsigned int blockSize = half * 2;
+			unsigned int rest;
+			if (blockSize > innerSize)
+			{
+				blockSize = core::RoundUp(innerSize, inner->GetGranularity());
+				unsigned int first;
+				if (innerSize > half)
+				{
+					first = half;
+				}
+				else
+				{
+					first = innerSize;
+				}
+				unknown30 = first;
+				rest = innerSize - first;
+			}
+			else
+			{
+				unknown30 = half;
+				rest = half;
+			}
+			unknown34 = rest;
+			inner->Read((void*)buffers[0], blockSize, 1);
+			inner->WaitSignal();
+			unknown18 = blockSize;
+			unknown38 = 0;
+			unknown3C = 0;
+			unknown1C = 0;
+			unknown20 = 0;
+			StartBlock();
+		}
+		while (remaining > 0)
+		{
+			unsigned int available = unknown30 - unknown38;
+			bool last = unknown1C + available >= innerSize;
+			decompressor->Submit((const void*)(buffers[unknown3C] + unknown38), available, output, outputEnd - output, last);
+			decompressor->Wait();
+			int produced = decompressor->GetUsedOutput();
+			int consumed = decompressor->GetUsedInput();
+			remaining -= produced;
+			unknown20 += produced;
+			unknown38 += consumed;
+			unknown1C += consumed;
+			output += produced;
+			decompressor->GetStatus();
+			if (!last && unknown30 == unknown38)
+			{
+				inner->WaitSignal();
+				unsigned int emptied = buffers[unknown3C];
+				unknown3C = (unknown3C - 1) & 1;
+				unknown30 = unknown34;
+				unknown38 = 0;
+				unknown34 = 0;
+				if (unknown18 < innerSize)
+				{
+					unsigned int chunk = half;
+					unknown34 = chunk;
+					if (unknown18 + chunk >= innerSize)
+					{
+						unknown34 = innerSize - unknown18;
+						chunk = core::RoundUp(unknown34, inner->GetGranularity());
+					}
+					inner->Read((void*)emptied, chunk, 1);
+					unknown18 += chunk;
+				}
+			}
+		}
+		core::EventSignal(&event, 0xFFFF);
+	}
 
 	// FUNCTION: ENGINE 0x1060DDC0
 	void* CompressedFile::operator new(unsigned int size, int heap)
@@ -250,8 +405,8 @@ namespace content
 		unsigned int aligned = core::RoundUp(newStart, 0x80);
 		unsigned int halfSize = core::RoundDown((newStart - aligned + newSize) >> 1, 0x800);
 		half = halfSize;
-		start = aligned;
-		secondStart = halfSize + aligned;
+		buffers[0] = aligned;
+		buffers[1] = halfSize + aligned;
 		if (newPassthrough == 0)
 		{
 			decompressor = CreateDecompressor(level, 1, newHeap);

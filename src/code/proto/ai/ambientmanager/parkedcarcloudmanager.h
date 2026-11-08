@@ -1,36 +1,15 @@
-// proto::CloudSpawnerBase and proto::ParkedCarCloudManager (RTTI names; the manager's vtable is 0x10E1B954 and its
-// singleton sits at 0x1126F15C). The original's chains are
-// ParkedCarCloudManager : CloudManager : ... and CloudSpawnerBase : engine::PropSpawner : engine::GameObjectSpawner :
-// content::MetaLoadObject; those bases are not reconstructed, so only the members the two functions below touch are
-// declared here, at the offsets their disassembly shows. Everything is a guess except the offsets.
+// proto::ParkedCarCloudManager (RTTI name; the manager's vtable is 0x10E1B954 and its singleton sits at 0x1126F15C).
+// The original's chain is ParkedCarCloudManager : CloudManager : ...; that base is not reconstructed, so only the members
+// the two functions below touch are declared here, at the offsets their disassembly shows. Everything is a guess except
+// the offsets.
 #ifndef PROTO_AI_AMBIENTMANAGER_PARKEDCARCLOUDMANAGER_H
 #define PROTO_AI_AMBIENTMANAGER_PARKEDCARCLOUDMANAGER_H
 
 #include "code/container/slist.h"
+#include "code/proto/cloudspawnerbase.h"
 
 namespace proto
 {
-	// One parked-car spawner, as the ranking test (0x104F1DC0) sees it
-	class CloudSpawnerBase
-	{
-	public:
-		// 0x104F1DC0 (another unit): decides whether this spawner may make or drop a car. It answers in the three
-		// bytes of its last argument (may create, may recycle, may remove) and takes the manager, the two positions,
-		// a four-float record, a flag word, the "paused" byte and that answer (`ret 0x28`).
-		void Rank(void* context, const float* position, const float* other, float distance, float nearDistance,
-			float farDistance, float margin, unsigned int flags, unsigned char pausedByte, unsigned char* answer);
-
-		unsigned char unknown0[0x3c];
-		float position3C[3];       // +0x3c: a position
-		unsigned char unknown48[0x4c - 0x48];
-		unsigned short handle4C;   // +0x4c / +0x4e: a game object handle
-		unsigned short handle4E;
-		unsigned char unknown50[0xb9 - 0x50];
-		unsigned char flagsB9;     // +0xb9: the spawner's kind in the high nibble (Rank switches on it)
-		unsigned char flagsBA;     // +0xba: bit 3 visible, bits 4-6 a 7-step hysteresis counter, bit 7 set
-		unsigned char flagsBB;     // +0xbb: bit 6
-	};
-
 	struct CloudConfig;
 
 	// The manager the two functions below belong to (the RTTI class of the singleton 0x1126F15C)

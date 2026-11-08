@@ -277,6 +277,108 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100BBEB0
+			float FallTrack::GetTurningVelocityMin() const
+			{
+				return turningVelocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BBEC0
+			float FallTrack::GetTurningAccelerationMin() const
+			{
+				return turningAccelerationMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BBED0
+			float FallTrack::GetTurningVelocityMinForwardSpeedCap() const
+			{
+				return turningVelocityMinForwardSpeedCap;
+			}
+
+			// FUNCTION: ENGINE 0x100BBEE0
+			float FallTrack::GetTurningVelocityMax() const
+			{
+				return turningVelocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BBEF0
+			float FallTrack::GetTurningAccelerationMax() const
+			{
+				return turningAccelerationMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF00
+			float FallTrack::GetTurningVelocityMaxForwardSpeedCap() const
+			{
+				return turningVelocityMaxForwardSpeedCap;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF10
+			int FallTrack::GetPreserveMomentum() const
+			{
+				return preserveMomentum;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF20
+			math::Vector FallTrack::GetInitialVelocity() const
+			{
+				return initialVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF40
+			float FallTrack::GetGravity() const
+			{
+				return gravity;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF50
+			float FallTrack::GetMaxVelocity() const
+			{
+				return maxVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF60
+			float FallTrack::GetGravityDecreaseRate() const
+			{
+				return gravityDecreaseRate;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF70
+			float FallTrack::GetMaxVelocityXZ() const
+			{
+				return maxVelocityXZ;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF80
+			float FallTrack::GetMaxVelocityUp() const
+			{
+				return maxVelocityUp;
+			}
+
+			// FUNCTION: ENGINE 0x100BBF90
+			bool FallTrack::GetLimitTurning() const
+			{
+				return limitTurning;
+			}
+
+			// FUNCTION: ENGINE 0x100BBFA0
+			int FallTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100BBFB0
+			float FallTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100BBFC0
+			float FallTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<FallTrack>;
 			template class fight::PropertyBitfieldConstList<FallTrack>;

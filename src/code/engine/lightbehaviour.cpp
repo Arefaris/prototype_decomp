@@ -287,6 +287,77 @@ namespace engine
 	// The name of the attribute "asleep" (0x112834D8; renderbehaviour.cpp)
 	extern content::ObjectName gAsleepName;
 
+	// FUNCTION: ENGINE 0x1089B6E0
+	void LightPropertiesMessage::SetShadowCaster(bool value)
+	{
+		shadowCaster = value;
+	}
+
+	// FUNCTION: ENGINE 0x1089B890
+	unsigned int LightPropertiesMessage::GetChanged()
+	{
+		return changed;
+	}
+
+	// FUNCTION: ENGINE 0x1089B7F0
+	void LightPropertiesMessage::SetShadowRadiusMultiplier(float value)
+	{
+		changed |= 8;
+		shadowRadiusMultiplier = value;
+	}
+
+	// FUNCTION: ENGINE 0x1089B810
+	float LightPropertiesMessage::GetShadowRadiusMultiplier()
+	{
+		return shadowRadiusMultiplier;
+	}
+
+	// FUNCTION: ENGINE 0x1089B820
+	void LightPropertiesMessage::SetShadowRangeMultiplier(float value)
+	{
+		changed |= 0x10;
+		shadowRangeMultiplier = value;
+	}
+
+	// FUNCTION: ENGINE 0x1089B840
+	float LightPropertiesMessage::GetShadowRangeMultiplier()
+	{
+		return shadowRangeMultiplier;
+	}
+
+	// FUNCTION: ENGINE 0x1089B850
+	void LightPropertiesMessage::SetShadowMaxRadius(float value)
+	{
+		changed |= 0x20;
+		shadowMaxRadius = value;
+	}
+
+	// FUNCTION: ENGINE 0x1089B870
+	float LightPropertiesMessage::GetShadowMaxRadius()
+	{
+		return shadowMaxRadius;
+	}
+
+	// FUNCTION: ENGINE 0x1089B880
+	bool LightPropertiesMessage::GetShadowCaster()
+	{
+		return shadowCaster;
+	}
+
+	// FUNCTION: ENGINE 0x1089B6F0
+	void LightBehaviour::SetNumShadowCascades(unsigned int count)
+	{
+		numShadowCascades = count;
+	}
+
+	// FUNCTION: ENGINE 0x1089B780
+	math::Colour128* LightBehaviour::GetSphericalHarmonicColour(int index)
+	{
+		math::Colour128* colours[6] = { &sphericalHarmonicColour[0], &sphericalHarmonicColour[1], &sphericalHarmonicColour[2],
+			&sphericalHarmonicColour[3], &sphericalHarmonicColour[4], &sphericalHarmonicColour[5] };
+		return colours[index < 6 ? index : 0];
+	}
+
 	// FUNCTION: ENGINE 0x1089BA30
 	void LightBehaviour::MarkDirty()
 	{
@@ -415,6 +486,108 @@ namespace engine
 	{
 		shadowType = newShadowType;
 		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x108A0520
+	LightBehaviour::~LightBehaviour()
+	{
+		render::Light handle = light;
+		for (unsigned int i = 0; i < (unsigned int)lightGroups.Size(); i++)
+		{
+			handle.RemoveFromGroup(lightGroups.begin[i]);
+		}
+		render::Light::Destroy(&light);
+		DestroyController();
+	}
+
+	// FUNCTION: ENGINE 0x1089C270
+	void LightBehaviour::SetColour(const math::Colour128& newColour)
+	{
+		colour = newColour;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2A0
+	void LightBehaviour::SetIntensity(float value)
+	{
+		intensity = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2C0
+	void LightBehaviour::SetAmbientContribution(float value)
+	{
+		ambientContribution = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C2E0
+	void LightBehaviour::SetUmbra(float value)
+	{
+		umbra = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C300
+	void LightBehaviour::SetPenumbra(float value)
+	{
+		penumbra = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C320
+	void LightBehaviour::SetCastShadow(bool value)
+	{
+		castShadow = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C340
+	void LightBehaviour::SetShadowOffset(float value)
+	{
+		shadowOffset = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C360
+	void LightBehaviour::SetDecayInner(float value)
+	{
+		decayInner = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C380
+	void LightBehaviour::SetDecayOuter(float value)
+	{
+		decayOuter = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3A0
+	void LightBehaviour::SetAttenConstant(float value)
+	{
+		attenConstant = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3C0
+	void LightBehaviour::SetAttenLinear(float value)
+	{
+		attenLinear = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C3E0
+	void LightBehaviour::SetAttenQuadratic(float value)
+	{
+		attenQuadratic = value;
+		MarkDirty();
+	}
+
+	// FUNCTION: ENGINE 0x1089C400
+	float LightBehaviour::GetSphericalHarmonic(int channel, int coefficient)
+	{
+		return sphericalHarmonicValues[(channel < 3 ? channel : 0) * 9 + (coefficient < 9 ? coefficient : 0)];
 	}
 
 	// FUNCTION: ENGINE 0x1089C500

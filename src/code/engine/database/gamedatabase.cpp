@@ -192,7 +192,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x107F6F00
 	void GameDatabase::SetBufferSize(int size)
 	{
-		bufferSize = size;
+		storage.bufferSize = size;
 	}
 
 	// FUNCTION: ENGINE 0x107F6F10
@@ -772,11 +772,11 @@ namespace engine
 	// EQUIVALENT: the engine computes profileSize - 4 with add eax, -4, ours with sub eax, 4
 	void* GameDatabase::BuildProfile(unsigned int player)
 	{
-		int size = profileSize;
+		int size = storage.profileSize;
 		int* buffer = (int*)operator new[](size, 0x80);
 		memset(buffer, 0, size);
 		*buffer = 4;
-		unsigned int remaining = profileSize - 4;
+		unsigned int remaining = storage.profileSize - 4;
 		*buffer += WriteSubjects(player, buffer + 1, remaining, true);
 		return buffer;
 	}
@@ -798,7 +798,7 @@ namespace engine
 		{
 			return false;
 		}
-		int size = bufferSize;
+		int size = storage.bufferSize;
 		void* buffer = operator new[](size, 0x80);
 		memset(buffer, 0, size);
 		int written = FillBuffer(player, (int*)buffer, size);
@@ -892,8 +892,8 @@ namespace engine
 		released = new (0x80) SubjectList;
 		onlineHelper.callback = this;
 		storage.SetCallback(this);
-		profileSize = params.profileSize;
-		bufferSize = params.bufferSize;
+		storage.profileSize = params.profileSize;
+		storage.bufferSize = params.bufferSize;
 		controller::InputSystem::Get()->AddCallback(this);
 		LuaScriptManager* context = GetScriptManager();
 		context->SetOwner(this);

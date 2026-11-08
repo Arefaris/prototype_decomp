@@ -9,6 +9,7 @@
 
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/container/arraydynamicstatic.h"
+#include "code/content/arrayhelpercount.h"
 #include "code/content/loadinventory.h"
 #include "code/content/metatype.h"
 #include "code/content/vectormetatype.h"
@@ -131,11 +132,7 @@ namespace engine
 			// 0x10914180
 			JointData();
 			// 0x10914110 / 0x10913EE0 (the copies share the filter)
-			JointData(const JointData& other) : jointName(other.jointName), offset(other.offset),
-				offsetTranslation(other.offsetTranslation), motionFilter(other.motionFilter),
-				trackedProperties(other.trackedProperties), debugDisable(other.debugDisable)
-			{
-			}
+			JointData(const JointData& other);
 			JointData& operator=(const JointData& other)
 			{
 				jointName = other.jointName;
@@ -193,6 +190,14 @@ namespace engine
 
 namespace container
 {
+	// The curve points are moved with a loop over a source and a destination pointer
+	template<> struct ArrayEraseInline<engine::TrackedMotionToExpressionMap::PropertyMappingKeyValuePair>
+	{
+		enum
+		{
+			value = 3
+		};
+	};
 	// The mappings and the joints are too large for the compiler to inline the assignment of their elements
 	template<> struct ArrayEraseInline<engine::TrackedMotionToExpressionMap::PropertyMapping>
 	{
@@ -208,6 +213,13 @@ namespace container
 			value = 0
 		};
 	};
+}
+
+namespace content
+{
+	// The engine's Insert of the curve points and the mappings makes room with the count version
+	CONTENT_ARRAY_HELPER_COUNT_INSERT(engine::TrackedMotionToExpressionMap::CurveArray);
+	CONTENT_ARRAY_HELPER_COUNT_INSERT(engine::TrackedMotionToExpressionMap::PropertyArray);
 }
 
 #endif

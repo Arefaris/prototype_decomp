@@ -234,6 +234,96 @@ namespace proto
 				return new FlyingAttackAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BD280
+			float FlyingAttackTrack::GetTimeEndMin() const
+			{
+				return timeEndMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BD290
+			float FlyingAttackTrack::GetTimeEndMax() const
+			{
+				return timeEndMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BD2A0
+			math::Vector FlyingAttackTrack::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x100BD2C0
+			float FlyingAttackTrack::GetVelocityMin() const
+			{
+				return velocityMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BD2D0
+			float FlyingAttackTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BD2E0
+			float FlyingAttackTrack::GetAccelerationMin() const
+			{
+				return accelerationMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BD2F0
+			float FlyingAttackTrack::GetAccelerationMax() const
+			{
+				return accelerationMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BD300
+			float FlyingAttackTrack::GetTrackingMin() const
+			{
+				return trackingMin;
+			}
+
+			// FUNCTION: ENGINE 0x100BD310
+			float FlyingAttackTrack::GetTrackingMax() const
+			{
+				return trackingMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BD320
+			bool FlyingAttackTrack::GetFaceDirection() const
+			{
+				return faceDirection;
+			}
+
+			// FUNCTION: ENGINE 0x100BD330
+			bool FlyingAttackTrack::GetUseAutoTarget() const
+			{
+				return useAutoTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100BD340
+			bool FlyingAttackTrack::GetSlideOnGround() const
+			{
+				return slideOnGround;
+			}
+
+			// FUNCTION: ENGINE 0x100BD350
+			int FlyingAttackTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100BD360
+			float FlyingAttackTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100BD370
+			float FlyingAttackTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100BD470
 			void FlyingAttackAction::ClearTargetHandle()

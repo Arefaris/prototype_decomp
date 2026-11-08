@@ -43,6 +43,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetBlendTime() const;
+				float GetStrength() const;
+
 					fight::Name joint;  // +0x10
 					math::Vector direction;  // +0x18
 					math::Vector offset;  // +0x24

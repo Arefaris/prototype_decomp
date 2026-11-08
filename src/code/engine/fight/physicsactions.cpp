@@ -408,3 +408,8 @@ namespace engine
 		return new PhysicsKeyframedEnableAction(handle);
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108AAE70
+// FUNCTION: ENGINE 0x108AAEA0
+// FUNCTION: ENGINE 0x108AC520

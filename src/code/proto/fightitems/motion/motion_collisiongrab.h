@@ -56,6 +56,25 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetGrabSlot() const;
+				const fight::Name& GetJoint() const;
+				math::Vector GetOffset() const;
+				float GetRadius() const;
+				bool GetUseMotion() const;
+				int GetCollideWith() const;
+				bool GetCheckForObstruction() const;
+				bool GetGrabOnlyPowerTarget() const;
+				bool GetConsiderPlatformAsTarget() const;
+				bool GetReverseAttachOnMountable() const;
+				const fight::BranchHolder& GetGiverBranch() const;
+				const fight::BranchHolder& GetReceiverBranch() const;
+				int GetInterruptPriority() const;
+				bool GetDevastatorGrab() const;
+				int GetPhysicsMode() const;
+				float GetArcOffset() const;
+				float GetArcRange() const;
+
 					fight::BranchHolder giverBranch;  // +0x10
 					fight::BranchHolder receiverBranch;  // +0x34
 					fight::Name grabSlot;  // +0x58

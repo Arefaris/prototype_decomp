@@ -174,6 +174,7 @@ extern "C"
 	int lua_gc(lua_State* L, int what, int data);
 	int lua_error(lua_State* L);
 	int lua_next(lua_State* L, int idx);
+	int lua_equal(lua_State* L, int idx1, int idx2);
 	int lua_lessthan(lua_State* L, int idx1, int idx2);
 	void lua_concat(lua_State* L, int n);
 

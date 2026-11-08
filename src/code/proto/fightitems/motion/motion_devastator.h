@@ -59,6 +59,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				bool GetAvailable() const;
+
 					bool available;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -88,6 +91,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetDistance() const;
 
 					float distance;  // +0xC
 					int compare;  // +0x10
@@ -124,6 +132,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetTemplateValue() const;
 
 					fight::Name templateValue;  // +0x10
 					float timeBegin;  // +0x18
@@ -184,6 +195,31 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				float GetRadius() const;
+				int GetTargetCount() const;
+				const fight::BranchHolder& GetTargetBranch() const;
+				const fight::BranchHolder& GetRandomTargetBranch() const;
+				int GetMinTargetCount() const;
+				float GetRandomHeightArc() const;
+				float GetRandomMinRadius() const;
+				float GetMinHeightArcOnGround() const;
+				int GetMinTargetCategory() const;
+				int GetMinTargetPriority() const;
+				float GetAttackTimeBeginStart() const;
+				float GetAttackTimeBeginStop() const;
+				bool GetAttackTimeBeginRandom() const;
+				float GetAttackTimeDuration() const;
+				float GetAttackDamage() const;
+				float GetCameraMaxArc() const;
+				int GetCameraMaxTargets() const;
+				int GetCameraMinTargetCategory() const;
+				int GetCameraMinTargetPriority() const;
+				float GetCameraLookAtTargetArc() const;
+				float GetCameraLookAtTargetTime() const;
+				float GetCameraSwitchTargetTime() const;
+				bool GetUseCharacterHeap() const;
 
 					fight::BranchHolder randomTargetBranch;  // +0x10
 					fight::BranchHolder targetBranch;  // +0x34
@@ -279,6 +315,13 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				bool GetUseAttackTimeBegin() const;
+				bool GetUseAttackTimeEnd() const;
+				bool GetSetTarget() const;
+				const fight::BranchHolder& GetReceiverBranch() const;
+				int GetInterruptPriority() const;
+
 					fight::BranchHolder receiverBranch;  // +0x10
 					float timeBegin;  // +0x34
 					float timeEnd;  // +0x38
@@ -325,6 +368,15 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetDistance() const;
+				const fight::BranchHolder& GetTargetBranch() const;
+				int GetTendrilCount() const;
+				float GetAttackTimeBegin() const;
+				float GetAttackTimeDuration() const;
+				int GetAttackType() const;
+				float GetAttackDamage() const;
+
 					fight::BranchHolder targetBranch;  // +0x10
 					float attackDamage;  // +0x34
 					float attackTimeBegin;  // +0x38
@@ -370,6 +422,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				bool GetUseAttackTimeBegin() const;
+				bool GetUseAttackTimeEnd() const;
+				float GetDamage() const;
 
 					math::Vector impulse;  // +0x10
 					float damage;  // +0x1C

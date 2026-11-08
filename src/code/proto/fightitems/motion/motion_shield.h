@@ -34,6 +34,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetHealthPercentage() const;
+
 					float healthPercentage;  // +0xC
 					int compare;  // +0x10
 			};
@@ -61,6 +65,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetState() const;
 
 					int state;  // +0xC
 			};
@@ -152,6 +159,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetState() const;
+
 					float timeBegin;  // +0x10
 					int state;  // +0x14
 			};
@@ -186,6 +196,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetReflectBullets() const;
+				bool GetReflectMissiles() const;
 
 					float timeBegin;  // +0x10
 					float timeEnd;  // +0x14
