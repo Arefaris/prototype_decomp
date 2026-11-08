@@ -124,6 +124,96 @@ namespace engine
 		}
 	}
 
+	// 0x10837470 / 0x108374B0 (gamestate.cpp)
+	bool IsGameStateOnTop(int id);
+	bool HasPendingStateChange();
+
+	// FUNCTION: ENGINE 0x1082C6D0
+	void Unknown1082C6D0()
+	{
+		StreamManager* manager = gStreamManager;
+		StreamPackage** slot = manager->groupPackages;
+		for (int i = 3; i != 0; i--)
+		{
+			StreamPackage* package = *slot;
+			if (package != 0 && package->instance == 0)
+			{
+				delete package;
+				*slot = 0;
+			}
+			slot++;
+		}
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			StreamPackage* package = manager->activePackages[count - 1];
+			count--;
+			if (package->instance->IsLoadingActive())
+			{
+				package->Update();
+			}
+		}
+		count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			StreamPackage* package = manager->activePackages[count - 1];
+			count--;
+			if ((int)manager->transitionPriority >= (int)package->instance->GetPriority() || !IsGameStateOnTop(2)
+				|| HasPendingStateChange())
+			{
+				package->Update();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082C7B0
+	bool Unknown1082C7B0()
+	{
+		StreamManager* manager = gStreamManager;
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			count--;
+			int state = manager->activePackages[count]->GetState();
+			if (state != StreamPackageInstance::STATE_LOADED && state != StreamPackageInstance::STATE_EVICTABLE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1082C860
+	bool Unknown1082C860(int* found, core::Name<core::CaseSensitiveKey>* name)
+	{
+		StreamManager* manager = gStreamManager;
+		int waiting = 0;
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			count--;
+			int state = manager->activePackages[count]->GetState();
+			if (state == StreamPackageInstance::STATE_LOADED)
+			{
+				continue;
+			}
+			if (state != StreamPackageInstance::STATE_WAIT_FOR_PREREQUISITES)
+			{
+				return false;
+			}
+			waiting++;
+			if (waiting == 1 && name != 0)
+			{
+				*name = manager->activePackages[count]->name;
+			}
+		}
+		if (found != 0)
+		{
+			*found = waiting;
+		}
+		return waiting != 0;
+	}
+
 	// FUNCTION: ENGINE 0x1082CF10
 	void StreamManager::UnregisterClient(StreamClient* client)
 	{
