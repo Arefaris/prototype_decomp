@@ -489,4 +489,34 @@ namespace pure3d
 		return inheritUnknown4BC ? parent->GetSpan3(index)
 			: particles::Span(block + attributes2D8->entries[index].offset, block + attributes2D8->entries[index].unknown4);
 	}
+
+	// FUNCTION: ENGINE 0x1070C560
+	unsigned int ParticleSystemState::CountParticles()
+	{
+		ParticleSystemState* owner = this;
+		while (owner->inheritUnknown4BC)
+		{
+			owner = owner->parent;
+		}
+		const float* lives = (const float*)(owner->block + owner->attributes2D0->entries[1].offset);
+		unsigned int count = owner->particleCount;
+		while (count > 0)
+		{
+			count--;
+			if (lives[count] != 1e12f)
+			{
+				count++;
+				break;
+			}
+		}
+		owner->liveCount = 0;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (lives[i] != 1e12f)
+			{
+				owner->liveCount++;
+			}
+		}
+		return count;
+	}
 }
