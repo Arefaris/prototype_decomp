@@ -112,8 +112,8 @@ namespace proto
 			userData = 0;
 			unknown10 = true;
 		}
-		TimeOfDayLightInfo(const TimeOfDayLightInfo& other);
-		TimeOfDayLightInfo& operator=(const TimeOfDayLightInfo& other);
+		inline TimeOfDayLightInfo(const TimeOfDayLightInfo& other);
+		inline TimeOfDayLightInfo& operator=(const TimeOfDayLightInfo& other);
 		~TimeOfDayLightInfo()
 		{
 			core::SafeRelease(userData);
@@ -137,6 +137,12 @@ namespace container
 	{
 		Destroy(begin, end);
 		end = begin;
+	}
+	// The engine's single insert goes through the count version
+	template<> inline proto::TimeOfDayLightInfo* ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::Insert(
+		proto::TimeOfDayLightInfo* position, const proto::TimeOfDayLightInfo& value)
+	{
+		return Insert(position, 1, value);
 	}
 	template<> inline ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>::~ArrayDynamic()
 	{
@@ -257,6 +263,14 @@ namespace container
 		enum
 		{
 			value = 0
+		};
+	};
+	// Reserve of the variations stores the begin pointer first
+	template<> struct ArrayReserveBeginFirst<proto::TimeOfDayVariation>
+	{
+		enum
+		{
+			value = 1
 		};
 	};
 	template<> struct ArrayEraseInline<proto::TimeOfDayVarGroup*>

@@ -462,6 +462,14 @@ namespace proto
 	template int TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>::FindNextKey(float time);
 }
 
+namespace container
+{
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::BloomParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::TonemapParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::ColourMatrixParameters>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<proto::GlobalFBEffectsRig::DOFParameters>::Key, AllocatorNew>;
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x1052E580
 // FUNCTION: ENGINE 0x1052E630
@@ -643,3 +651,12 @@ namespace proto
 // FUNCTION: ENGINE 0x1052EDB0
 // FUNCTION: ENGINE 0x1052EE70
 // FUNCTION: ENGINE 0x1052EF10
+// FUNCTION: ENGINE 0x1052e980
+// FUNCTION: ENGINE 0x1052e9d0
+// FUNCTION: ENGINE 0x1052ea20
+// FUNCTION: ENGINE 0x1052ea70
+// FUNCTION: ENGINE 0x10530390
+// FUNCTION: ENGINE 0x10530630
+// FUNCTION: ENGINE 0x105325d0
+// FUNCTION: ENGINE 0x10532620
+// FUNCTION: ENGINE 0x1053c2c0

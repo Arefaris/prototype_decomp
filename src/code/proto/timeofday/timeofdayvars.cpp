@@ -10,6 +10,11 @@ namespace container
 	// The arrays of this unit's objects with all their members, as the unit's template instances (the engine's copies of the
 	// variation array's functions call the key arrays' and the rigs' special members)
 	template class ArrayDynamic<proto::TimeOfDayVariation, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<float>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Vector>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Colour128>::Key, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Vector2>::Key, AllocatorNew>;
 }
 
 namespace proto
@@ -516,7 +521,7 @@ namespace proto
 
 
 	// FUNCTION: ENGINE 0x105230D0
-	TimeOfDayLightInfo& TimeOfDayLightInfo::operator=(const TimeOfDayLightInfo& other)
+	inline TimeOfDayLightInfo& TimeOfDayLightInfo::operator=(const TimeOfDayLightInfo& other)
 	{
 		name = other.name;
 		handle = other.handle;
@@ -526,7 +531,7 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x10523130
-	TimeOfDayLightInfo::TimeOfDayLightInfo(const TimeOfDayLightInfo& other) : name(other.name), handle(other.handle)
+	inline TimeOfDayLightInfo::TimeOfDayLightInfo(const TimeOfDayLightInfo& other) : name(other.name), handle(other.handle)
 	{
 		userData = 0;
 		unknown10 = other.unknown10;
@@ -1009,3 +1014,24 @@ namespace proto
 // FUNCTION: ENGINE 0x105335E0
 // FUNCTION: ENGINE 0x10533600
 // FUNCTION: ENGINE 0x10533620
+// FUNCTION: ENGINE 0x1052CEE0
+// FUNCTION: ENGINE 0x105228E0
+// FUNCTION: ENGINE 0x10523450
+// FUNCTION: ENGINE 0x105234B0
+// FUNCTION: ENGINE 0x105258A0
+// FUNCTION: ENGINE 0x1052A6E0
+// FUNCTION: ENGINE 0x1052A880
+// FUNCTION: ENGINE 0x105230b0
+// FUNCTION: ENGINE 0x10521a50
+// FUNCTION: ENGINE 0x105217d0
+// FUNCTION: ENGINE 0x10526390
+// FUNCTION: ENGINE 0x105201c0
+// FUNCTION: ENGINE 0x10521190
+// FUNCTION: ENGINE 0x105200f0
+// FUNCTION: ENGINE 0x10523400
+// FUNCTION: ENGINE 0x1052bc40
+// FUNCTION: ENGINE 0x10525780
+// FUNCTION: ENGINE 0x1052ab10
+// FUNCTION: ENGINE 0x1052c590
+// FUNCTION: ENGINE 0x1052AB50
+// FUNCTION: ENGINE 0x10523C50
