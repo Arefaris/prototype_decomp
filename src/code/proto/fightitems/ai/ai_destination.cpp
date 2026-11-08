@@ -5,6 +5,7 @@
 #include "code/proto/fightitems/ai/aicodecommon.h"
 #include "code/proto/fightitems/ai/aiactionhelpers.h"
 #include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/math/worldbounds.h"
 
 namespace engine
 {
@@ -3152,7 +3153,6 @@ namespace proto
 #endif
 
 			// FUNCTION: ENGINE 0x10200A20
-			// EQUIVALENT: block order of the two flag tests and the exit (the engine returns the constants itself where ours returns the zero register), 90.4 %
 			bool HaveDestinationCondition::Evaluate(int a, int b, int c, int d)
 			{
 				bool result = false;
@@ -3161,10 +3161,7 @@ namespace proto
 				{
 					GetDestinationMessage message;
 					object->SendMessage(&message);
-					if (message.hasDestination && message.unknownD)
-					{
-						result = true;
-					}
+					result = message.hasDestination && message.unknownD;
 				}
 				return result;
 			}
@@ -3184,8 +3181,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10200BE0
-			// NONMATCHING: the engine keeps the zero in ebx for the message flags and compares the flag with it, ours zeroes bl and tests the pointer, best 62 %
-#ifdef NONMATCHING
 			bool InHotZoneCondition::Evaluate(int a, int b, int c, int d)
 			{
 				bool result = false;
@@ -3197,12 +3192,11 @@ namespace proto
 					result = message.inHotZone == in;
 					if (result && requireStayOnGround)
 					{
-						return message.onGround;
+						result = message.onGround;
 					}
 				}
 				return result;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x101FFE60
 			bool StopAction::Slot7(int arg, float value)
