@@ -48,6 +48,16 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetMoveBegin() const;
+				float GetMoveEnd() const;
+				float GetMoveDistance() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+				float GetDistanceToAttractorWeight() const;
+				float GetMaxDistanceToAttractor() const;
+
 					fight::TrackGroup backAnim;  // +0x10
 					fight::TrackGroup leftAnim;  // +0x14
 					fight::TrackGroup rightAnim;  // +0x18

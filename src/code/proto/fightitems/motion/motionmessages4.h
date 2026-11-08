@@ -136,6 +136,20 @@ namespace proto
 
 		float delay;  // +0xC
 	};
+
+	// RTTI: proto::SetTargetMessage: names the target the object takes
+	class SetTargetMessage : public TargetMessage
+	{
+	public:
+		explicit SetTargetMessage(engine::GameObjectHandle newTarget) : TargetMessage(2), target(newTarget)
+		{
+		}
+		virtual ~SetTargetMessage()
+		{
+		}
+
+		engine::GameObjectHandle target;  // +0xC
+	};
 }
 
 #endif

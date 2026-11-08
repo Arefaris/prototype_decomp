@@ -557,6 +557,69 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10100010
+			int PadRumbleSetTrack::GetMotor() const
+			{
+				return motor;
+			}
+
+			// FUNCTION: ENGINE 0x10100020
+			float PadRumbleSetTrack::GetScale() const
+			{
+				return scale;
+			}
+
+			// FUNCTION: ENGINE 0x10100030
+			float PadRumbleSetTrack::GetFadeInTime() const
+			{
+				return fadeInTime;
+			}
+
+			// FUNCTION: ENGINE 0x10100040
+			float PadRumbleSetTrack::GetHoldTime() const
+			{
+				return holdTime;
+			}
+
+			// FUNCTION: ENGINE 0x10100050
+			float PadRumbleSetTrack::GetFadeOutTime() const
+			{
+				return fadeOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x10100060
+			bool PadRumbleSetTrack::GetUseObjectPos() const
+			{
+				return useObjectPos;
+			}
+
+			// FUNCTION: ENGINE 0x10100070
+			float PadRumbleSetTrack::GetFullIntensityRadius() const
+			{
+				return fullIntensityRadius;
+			}
+
+			// FUNCTION: ENGINE 0x10100080
+			float PadRumbleSetTrack::GetFallOffRadius() const
+			{
+				return fallOffRadius;
+			}
+
+			// FUNCTION: ENGINE 0x10100090
+			bool PadRumbleSetTrack::GetCancelOnTrackEnd() const
+			{
+				return cancelOnTrackEnd;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4E5B0
 // FUNCTION: ENGINE 0x10D81640

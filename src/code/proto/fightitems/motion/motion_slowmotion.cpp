@@ -160,6 +160,29 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x10116430
+			bool SlowMotionAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				float hold = link.object->simulationDuration;
+				hold = (hold > 0.0f) ? hold : 0.0f;
+				SlowMotionRequest params(hold, link.object->realTime, link.object->fadeOutTime, link.object->fadeInTime, link.object->simulationRate);
+				request = gSlowMotionManager->Request(&params);
+				return request >= 0 && (HasFlag11() || Notifies());
+			}
+
+			// FUNCTION: ENGINE 0x101161A0
+			void SlowMotionAction::Slot6()
+			{
+				if (request >= 0)
+				{
+					gSlowMotionManager->End(request, true);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x101165E0
 			fight::Action* SlowMotionTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -172,6 +195,51 @@ namespace proto
 			template class fight::PropertyBool<SlowMotionTrack>;
 			template class fight::TrackFactoryTemplate<SlowMotionTrack>;
 			template class fight::TrackFactoryCasterTemplate<SlowMotionTrack>;
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x101160C0
+			float SlowMotionTrack::GetSimulationRate() const
+			{
+				return simulationRate;
+			}
+
+			// FUNCTION: ENGINE 0x101160D0
+			float SlowMotionTrack::GetFadeInTime() const
+			{
+				return fadeInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101160E0
+			float SlowMotionTrack::GetSimulationDuration() const
+			{
+				return simulationDuration;
+			}
+
+			// FUNCTION: ENGINE 0x101160F0
+			float SlowMotionTrack::GetFadeOutTime() const
+			{
+				return fadeOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x10116100
+			bool SlowMotionTrack::GetRealTime() const
+			{
+				return realTime;
+			}
+
+			// FUNCTION: ENGINE 0x10116110
+			bool SlowMotionTrack::GetAbortOnEnd() const
+			{
+				return abortOnEnd;
+			}
 		}
 	}
 }
