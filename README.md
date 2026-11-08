@@ -15,19 +15,19 @@ engine, `prototypeenginef.dll`, function by function, with the compiler the orig
 ![Decompilation progress](docs/progress.svg)
 
 ```text
-Code       ████████░░░░░░░░░░░░░░░░░░░░░░  27.441 %
-Functions  ███████████████░░░░░░░░░░░░░░░  48.478 %  (68037 / 140347)
+Code       ████████░░░░░░░░░░░░░░░░░░░░░░  27.806 %
+Functions  ███████████████░░░░░░░░░░░░░░░  48.986 %  (68751 / 140347)
   audio       831 functions matched, 31,560 bytes
   choreo      614 functions matched, 34,098 bytes
   container    54 functions matched, 4,080 bytes
   content     455 functions matched, 21,760 bytes
   core       1618 functions matched, 80,507 bytes
   crypto       69 functions matched, 21,107 bytes
-  engine    14922 functions matched, 627,893 bytes
+  engine    15464 functions matched, 642,486 bytes
   gfx         109 functions matched, 2,534 bytes
   lua         509 functions matched, 45,757 bytes
   math        205 functions matched, 25,523 bytes
-  mgraph     7077 functions matched, 258,757 bytes
+  mgraph     7249 functions matched, 279,743 bytes
   music      1248 functions matched, 40,843 bytes
   om         1082 functions matched, 42,332 bytes
   proto     32777 functions matched, 1,168,256 bytes
@@ -36,7 +36,7 @@ Functions  ███████████████░░░░░░░░
   scaleformp3d    67 functions matched, 2,567 bytes
 ```
 
-Updated 2026-11-07 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
+Updated 2026-11-08 by `ninja progress`; details in [docs/progress.md](docs/progress.md).
 <!-- progress:end -->
 
 Phase 0: foundation. The hybrid DLL works: the original image relinked with our first matching functions runs the
