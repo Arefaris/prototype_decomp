@@ -429,4 +429,28 @@ namespace mgraph
 			link->next->previous = link->previous;
 		}
 	}
+
+	// FUNCTION: ENGINE 0x10AC5770
+	void Context::AddPreEvaluateCommand(void* command)
+	{
+		preEvaluateCommands.Add(command);
+	}
+
+	// FUNCTION: ENGINE 0x10AC5780
+	void Context::AddPostEvaluateCommand(void* command)
+	{
+		postEvaluateCommands.Add(command);
+	}
+
+	// FUNCTION: ENGINE 0x10AC59F0
+	void Context::RemovePreEvaluateCommand(void* command)
+	{
+		preEvaluateCommands.Remove(command);
+	}
+
+	// FUNCTION: ENGINE 0x10AC5A00
+	void Context::RemovePostEvaluateCommand(void* command)
+	{
+		postEvaluateCommands.Remove(command);
+	}
 }
