@@ -29,7 +29,7 @@ namespace om
 
 	// Left to the engine: the invocation of the property node's string getter
 	template<> void MetaMethod0Const<mgraph::PropertyNode<mgraph::Packet<String> >,mgraph::PropertyNode<mgraph::Packet<String> >,String const&>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
-	// Left to the engine: the invocation of the random vector's setter
+	// The invocation of the random vector's setter is defined in methods.cpp
 	template<> void MetaMethod1<mgraph::Rand<Vector>,mgraph::Rand<Vector>,void,Vector>::Invoke(void*, unsigned int, unsigned int, unsigned int, unsigned int);
 
 	// Left to the engine: the text and binary slots of the colour property (the engine merges the paths of the cached type found
