@@ -56,6 +56,14 @@ namespace engine
 			// 0x108A1290 / 0x108A17E0 (another unit)
 			void Clear();
 			void Update();
+			// 0x108A11E0: the state of a control
+			void SetControlState(int control, int state);
+			// 0x108A1200: one of the two words of a control's bits
+			void SetButtonBits(int control, unsigned int value, int which);
+			// 0x108A1500 / 0x108A1640 / 0x108A1720: the dead zone of a stick (a square or a round one) and of all of them
+			void ApplySquareDeadZone(int first, int second);
+			void ApplyRoundDeadZone(int first, int second);
+			void ApplyDeadZones();
 			// 0x10845B50: a float of the axes (component 0 or 1 of the axis' pair); 0x10845B70 / 0x10845B80: the view
 			// (out of line in the physical controller's unit; names guessed)
 			void SetAxisFloat(int axis, float value, int component);

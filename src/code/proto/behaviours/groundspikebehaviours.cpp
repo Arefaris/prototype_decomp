@@ -78,6 +78,24 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x10069F50
+	void GroundSpikeBehaviour::OnPostedMessage(engine::Message* message)
+	{
+		if (message->type == 3 && message->id == 9)
+		{
+			GetQueriedVector(message);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10069FE0
+	void GroundSpikeShardBehaviour::OnPostedMessage(engine::Message* message)
+	{
+		if (message->type == 3 && message->id == 9)
+		{
+			GetQueriedVector(message);
+		}
+	}
+
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):

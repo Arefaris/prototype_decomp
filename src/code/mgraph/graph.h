@@ -102,7 +102,7 @@ namespace mgraph
 	};
 
 	// 0x105B9740: the graph of a name, null when there is none (name guessed)
-	Graph* FindGraph(const om::ClassName* graphName);
+	Graph* FindGraph(const om::ClassName& graphName);
 }
 
 #endif

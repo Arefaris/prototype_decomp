@@ -167,9 +167,14 @@ namespace proto
 				static void ClearProperties();
 
 				int GetType() const { return type; }
+				const fight::Name& GetAnimation() const { return animation; }
 				bool GetReverse() const { return reverse; }
 				float GetEndFrame() const { return endFrame; }
 				float GetStartFrame() const { return startFrame; }
+				const fight::Name& GetPartition() const { return partition; }
+				int GetPriority() const { return priority; }
+				float GetBlendInTime() const { return blendInTime; }
+				float GetBlendOutTime() const { return blendOutTime; }
 
 					fight::Name animation;  // +0x10
 					fight::Name partition;  // +0x18

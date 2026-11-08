@@ -1,5 +1,10 @@
 // Fight items of the motion group: SupportingLimbTestSurfaceNormalVelocityArcCondition, SupportingLimbTestSurfaceNormalAngleCondition, SupportingLimbSurfaceIntersectionPropertiesCondition, SupportingLimbTestSurfaceVelocityAngleCondition, SupportingLimbTestTimeToImpactCondition, SupportingSurfaceNormalVelocityArcCondition, SupportingSurfaceConditionGroupCondition, SupportingLimbTestSurfaceDistanceCondition, SupportingLimbTestSwitchSurfacesCondition, SupportingLimbTestSurfaceConditionGroupCondition, SupportingLimbSetActiveTrack, SupportingLimbTestTrack, SupportingLimbSetActiveRangeTrack, SurfaceMoveAtVelocityTrack, SupportingLimbSetDirectionTrack (unit 0x101B7170 - 0x101BBA40; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_supportinglimb.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/engine/physics/supportinglimb.h"
+#include <math.h>
+#include "code/math/worldbounds.h"
+#include "code/engine/physics/supportinglimbmessages.h"
 
 namespace proto
 {
@@ -1379,6 +1384,88 @@ namespace proto
 				return new SupportingLimbSetActiveRangeAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x1011ACE0
+			// NONMATCHING: the engine loads the first component before the constant (xmm2 before xmm0), ours the constant first (best 97 %)
+#ifdef NONMATCHING
+			void SupportingLimbSetActiveRangeAction::SetActiveLimb(engine::GameObject* object, const fight::Name* name)
+			{
+				if (!name->IsEmpty())
+				{
+					engine::FindSupportingLimbMessage find(*name);
+					object->SendMessage(&find);
+					engine::SupportingLimb* limb = find.limb;
+					engine::SupportingLimbSetActiveMessage setActive(limb);
+					object->SendMessage(&setActive);
+					if (limb != 0 && limb->limbDef != 0 && limb->limbDef->smoothRestingLength)
+					{
+						const math::Matrix& matrix = object->transform->value;
+						math::Vector up(matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]);
+						float zero = math::WORLD_MIN;
+						math::Vector down;
+						down.x = zero - up.x;
+						down.y = zero - up.y;
+						down.z = zero - up.z;
+						limb->castDirection.x = down.x;
+						limb->castDirection.y = down.y;
+						limb->castDirection.z = down.z;
+					}
+				}
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x1011D870
+			bool SupportingLimbSetActiveRangeAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetActiveLimb(object, &link.object->onBegin);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x1011D8D0
+			void SupportingLimbSetActiveRangeAction::Slot6()
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						SetActiveLimb(object, &link.object->onEnd);
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x1011D9D0
+			// NONMATCHING: the engine loads the three components into xmm registers before the stores, ours moves the first one through the x87 stack (best 71.3 %)
+#ifdef NONMATCHING
+			bool SupportingLimbSetDirectionAction::Slot5(int arg, float value)
+			{
+				if (link.object != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						engine::SupportingLimbGetActiveMessage query;
+						object->SendMessage(&query);
+						engine::SupportingLimb* limb = (engine::SupportingLimb*)query.limb;
+						if (limb != 0)
+						{
+							const math::Vector& direction = link.object->direction;
+							limb->castDirection.Set(direction.x, direction.y, direction.z);
+						}
+					}
+				}
+				return false;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x1011C340
 			void SurfaceMoveAtVelocityAction::Slot6()
 			{
@@ -1393,6 +1480,30 @@ namespace proto
 					engine::ReleaseDriverCopy2(&driver);
 				}
 			}
+
+			// FUNCTION: ENGINE 0x1011B200
+			// NONMATCHING: the engine forms the three differences with SSE and stores them in a frame object before the x87 square root, ours keeps them in the x87 registers (best 7 %, shifted)
+#ifdef NONMATCHING
+			bool SupportingLimbTestSurfaceDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				SupportingSurfaceEvent* event = (SupportingSurfaceEvent*)c;
+				if (event == 0 || event->kind != 0x21006)
+				{
+					return false;
+				}
+				engine::GameObjectHandle receiver = event->receiver;
+				engine::GameObject* object = receiver.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				const math::Matrix& matrix = object->transform->value;
+				math::Vector delta(matrix.m[3][0] - event->x, matrix.m[3][1] - event->y, matrix.m[3][2] - event->z);
+				float length = sqrtf(delta.z * delta.z + delta.y * delta.y + delta.x * delta.x);
+				float limit = distance;
+				return fight::CompareFloats(compare, &length, &limit);
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x1011AA60
 			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (40.9 %)
@@ -1504,6 +1615,333 @@ namespace proto
 					{ fight::Name("any", 0) },
 					{ fight::Name("all", 0) }
 				};
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A890
+			bool SurfaceMoveAtVelocityTrack::GetPreserveMomentum() const
+			{
+				return preserveMomentum;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8A0
+			int SurfaceMoveAtVelocityTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8B0
+			float SurfaceMoveAtVelocityTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8C0
+			float SurfaceMoveAtVelocityTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A5A0
+			int SupportingLimbTestSurfaceNormalVelocityArcCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5B0
+			int SupportingLimbTestSurfaceNormalVelocityArcCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5F0
+			int SupportingLimbTestSurfaceNormalAngleCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A610
+			int SupportingLimbSurfaceIntersectionPropertiesCondition::GetTestBits() const
+			{
+				return testBits;
+			}
+
+			// FUNCTION: ENGINE 0x1011A620
+			int SupportingLimbSurfaceIntersectionPropertiesCondition::GetMatchAgainst() const
+			{
+				return matchAgainst;
+			}
+
+			// FUNCTION: ENGINE 0x1011A630
+			int SupportingLimbTestSurfaceVelocityAngleCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A680
+			bool SupportingLimbTestSurfaceVelocityAngleCondition::GetUseExcessVelocity() const
+			{
+				return useExcessVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x1011A690
+			int SupportingLimbTestTimeToImpactCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6A0
+			float SupportingLimbTestTimeToImpactCondition::GetTimeToImpact() const
+			{
+				return timeToImpact;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6B0
+			int SupportingSurfaceNormalVelocityArcCondition::GetVelocityType() const
+			{
+				return velocityType;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6C0
+			int SupportingSurfaceNormalVelocityArcCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6F0
+			int SupportingLimbTestSurfaceDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011A700
+			float SupportingLimbTestSurfaceDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x1011A710
+			bool SupportingLimbTestSwitchSurfacesCondition::GetSwitchSurfaces() const
+			{
+				return switchSurfaces;
+			}
+
+			// FUNCTION: ENGINE 0x1011A730
+			const fight::Name& SupportingLimbSetActiveTrack::GetSupportingLimb() const
+			{
+				return supportingLimb;
+			}
+
+			// FUNCTION: ENGINE 0x1011A740
+			const fight::Name& SupportingLimbTestTrack::GetSupportingLimb() const
+			{
+				return supportingLimb;
+			}
+
+			// FUNCTION: ENGINE 0x1011A790
+			float SupportingLimbTestTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7B0
+			float SupportingLimbTestTrack::GetExtraDistance() const
+			{
+				return extraDistance;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7C0
+			bool SupportingLimbTestTrack::GetUseInput() const
+			{
+				return useInput;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7E0
+			bool SupportingLimbTestTrack::GetUsePreviousSurface() const
+			{
+				return usePreviousSurface;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7F0
+			bool SupportingLimbTestTrack::GetUseMotion() const
+			{
+				return useMotion;
+			}
+
+			// FUNCTION: ENGINE 0x1011A840
+			const fight::Name& SupportingLimbSetActiveRangeTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x1011A850
+			const fight::Name& SupportingLimbSetActiveRangeTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A5C0
+			float SupportingLimbTestSurfaceNormalVelocityArcCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A5D0
+			math::Vector SupportingLimbTestSurfaceNormalAngleCondition::GetNormal() const
+			{
+				return normal;
+			}
+
+			// FUNCTION: ENGINE 0x1011A600
+			float SupportingLimbTestSurfaceNormalAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x1011A640
+			math::Vector SupportingLimbTestSurfaceVelocityAngleCondition::GetZeroVector() const
+			{
+				return zeroVector;
+			}
+
+			// FUNCTION: ENGINE 0x1011A660
+			float SupportingLimbTestSurfaceVelocityAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x1011A670
+			float SupportingLimbTestSurfaceVelocityAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A6D0
+			float SupportingSurfaceNormalVelocityArcCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A750
+			math::Vector SupportingLimbTestTrack::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011A770
+			math::Vector SupportingLimbTestTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7A0
+			float SupportingLimbTestTrack::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A7D0
+			float SupportingLimbTestTrack::GetMaxInputArc() const
+			{
+				return maxInputArc;
+			}
+
+			// FUNCTION: ENGINE 0x1011A820
+			int SupportingLimbTestTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x1011A860
+			math::Vector SurfaceMoveAtVelocityTrack::GetVelocity() const
+			{
+				return velocity;
+			}
+
+			// FUNCTION: ENGINE 0x1011A880
+			float SurfaceMoveAtVelocityTrack::GetOrientation() const
+			{
+				return orientation;
+			}
+
+			// FUNCTION: ENGINE 0x1011A8D0
+			math::Vector SupportingLimbSetDirectionTrack::GetDirection() const
+			{
+				return direction;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A6E0
+			const fight::ConditionList& SupportingSurfaceConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x1011A720
+			const fight::ConditionList& SupportingLimbTestSurfaceConditionGroupCondition::GetConditions() const
+			{
+				return conditions;
+			}
+
+			// FUNCTION: ENGINE 0x1011A810
+			const fight::BranchHolder& SupportingLimbTestTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x1011A830
+			const fight::ConditionList& SupportingLimbTestTrack::GetConditions() const
+			{
+				return conditions;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011A800
+			bool SupportingLimbTestTrack::GetSwitchSurfaces() const
+			{
+				return switchSurfaces;
+			}
 		}
 	}
 }

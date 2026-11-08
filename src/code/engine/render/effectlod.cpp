@@ -241,3 +241,9 @@ namespace engine
 	{
 	}
 }
+
+// The unit's template instances (the property and factory classes of its tracks and conditions), mapped in symbols.txt:
+// FUNCTION: ENGINE 0x1081EA00
+// FUNCTION: ENGINE 0x1081EA10
+// FUNCTION: ENGINE 0x1081EA20
+// FUNCTION: ENGINE 0x1081EA40

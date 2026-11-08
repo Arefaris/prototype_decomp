@@ -14,6 +14,7 @@
 #include "code/engine/fight/behaviours/fighttreebehaviour.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/math/vector.h"
+#include "code/proto/navmeshreflection.h"
 #include "code/ravenphysics/context.h"
 
 namespace math
@@ -79,17 +80,8 @@ namespace proto
 			Lane* lanes;
 			Lane* lanesEnd;
 		};
-		struct Link
-		{
-			// 0x10567F60: the low four bits of the fourth byte (the lane count of the link; name guess)
-			signed char GetLaneCount() const;
-
-			union
-			{
-				unsigned short key;
-				signed char lane;
-			};
-		};
+		// The lane link of a node (the reflected proto::LaneData)
+		typedef LaneData Link;
 		AreaLink* areaLink;
 		Link* link;
 	};

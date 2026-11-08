@@ -50,6 +50,24 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetAnimation() const;
+				const fight::Name& GetPartition() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetTimeScale() const;
+				float GetTimeEndMin() const;
+				float GetSpeed() const;
+				float GetSpeedMax() const;
+				float GetInitFrame() const;
+				float GetRandomFrame() const;
+				float GetStartFrame() const;
+				float GetEndFrame() const;
+				int GetCyclic() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					fight::Name animation;  // +0x10
 					fight::Name partition;  // +0x18
 					float blendInTime;  // +0x20

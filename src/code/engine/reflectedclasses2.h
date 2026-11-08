@@ -7,6 +7,7 @@
 #include "code/content/loadinventory.h"
 #include "code/engine/contentmanager.h"
 #include "code/engine/gameobject/behaviour.h"
+#include "code/engine/triggerbehaviour.h"
 
 namespace engine
 {
@@ -55,25 +56,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknownC[0x1C];
-	};
-
-	// TriggerBehaviour: constructor 0x1083B6C0, reflection 0x1083AD50 / 0x1083B4E0
-	class TriggerBehaviour : public engine::Behaviour
-	{
-	public:
-		TriggerBehaviour(engine::GameObject* owner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknownC[0x98];
-	};
-
-	// MovingTriggerBehaviour: reflection 0x1083AD90 / 0x1083B660 (only its meta type is made here)
-	class MovingTriggerBehaviour : public engine::Behaviour
-	{
-	public:
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
 	};
 }
 

@@ -17,6 +17,10 @@ namespace proto
 			// The base of the reaction events: a reference counted object with its kind at +0x8
 			struct ReactionEvent : core::IRefCount
 			{
+				// The engine's copies of the counting (0x105A73E0 / 0x105A73F0)
+				virtual void AddRef();
+				virtual void Release();
+
 				int unknown4;
 				int kind;  // +0x8
 				engine::GameObjectHandle receiver;  // +0xC
@@ -31,7 +35,8 @@ namespace proto
 				float charge;  // +0x20
 				unsigned char unknown24[0x4];
 				core::Name<core::CaseSensitiveKey> collisionFlag;  // +0x28
-				unsigned char unknown30[0x18];
+				math::Vector collisionNormal;  // +0x30
+				unsigned char unknown3C[0xC];
 				engine::GameObjectHandle originator;  // +0x48
 				float damage;  // +0x4C
 				float damageRatio;  // +0x50
@@ -70,8 +75,13 @@ namespace proto
 			// Kind 0x21004: a scripted reaction
 			struct ReactionScriptedEvent : ReactionEvent
 			{
+				// 0x1010C910: the three handles go to the base's constructor (0x1010C6F0), the name and the text are copied
+				ReactionScriptedEvent(engine::GameObjectHandle first, engine::GameObjectHandle second,
+					engine::GameObjectHandle third, const core::Name<core::CaseSensitiveKey>& newSubType, const char* newText);
+
 				unsigned char unknown10[0x10];
 				core::Name<core::CaseSensitiveKey> subType;  // +0x20
+				char text[0x40];  // +0x28
 			};
 
 			// Kind 0x21006: a supporting surface event

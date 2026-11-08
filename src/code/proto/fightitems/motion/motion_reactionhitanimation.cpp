@@ -302,6 +302,108 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010CC50
+			float ReactionHitAnimationTrack::GetTimeScale() const
+			{
+				return timeScale;
+			}
+
+			// FUNCTION: ENGINE 0x1010CC60
+			float ReactionHitAnimationTrack::GetTimeEndMin() const
+			{
+				return timeEndMin;
+			}
+
+			// FUNCTION: ENGINE 0x1010CC80
+			float ReactionHitAnimationTrack::GetSpeed() const
+			{
+				return speed;
+			}
+
+			// FUNCTION: ENGINE 0x1010CC90
+			float ReactionHitAnimationTrack::GetSpeedMax() const
+			{
+				return speedMax;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCA0
+			float ReactionHitAnimationTrack::GetInitFrame() const
+			{
+				return initFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCB0
+			float ReactionHitAnimationTrack::GetRandomFrame() const
+			{
+				return randomFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCC0
+			float ReactionHitAnimationTrack::GetStartFrame() const
+			{
+				return startFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCD0
+			float ReactionHitAnimationTrack::GetEndFrame() const
+			{
+				return endFrame;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCE0
+			int ReactionHitAnimationTrack::GetCyclic() const
+			{
+				return cyclic;
+			}
+
+			// FUNCTION: ENGINE 0x1010CD00
+			int ReactionHitAnimationTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x1010CD10
+			float ReactionHitAnimationTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x1010CD20
+			float ReactionHitAnimationTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010CC70
+			const fight::Name& ReactionHitAnimationTrack::GetAnimation() const
+			{
+				return animation;
+			}
+
+			// FUNCTION: ENGINE 0x1010CCF0
+			const fight::Name& ReactionHitAnimationTrack::GetPartition() const
+			{
+				return partition;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4FE70
 // FUNCTION: ENGINE 0x10D81C10

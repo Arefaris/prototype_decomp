@@ -6,6 +6,34 @@
 
 namespace om
 {
+	// FUNCTION: ENGINE 0x105B6850
+	MetaAttribBase* MetaClassBase::GetFirstAttribute()
+	{
+		TreeNode* node = attributes.First();
+		return node != 0 ? reinterpret_cast<MetaAttribBase*>(reinterpret_cast<char*>(node) - 8) : 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B6870
+	MetaAttribBase* MetaClassBase::GetNextAttribute(MetaAttribBase* attribute)
+	{
+		TreeNode* node = attributes.Next(attribute != 0 ? &attribute->node : 0);
+		return node != 0 ? reinterpret_cast<MetaAttribBase*>(reinterpret_cast<char*>(node) - 8) : 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B68A0
+	MetaPropertyBase* MetaClassBase::GetFirstProperty()
+	{
+		TreeNode* node = properties.First();
+		return node != 0 ? reinterpret_cast<MetaPropertyBase*>(reinterpret_cast<char*>(node) - 8) : 0;
+	}
+
+	// FUNCTION: ENGINE 0x105B68C0
+	MetaPropertyBase* MetaClassBase::GetNextProperty(MetaPropertyBase* property)
+	{
+		TreeNode* node = properties.Next(property != 0 ? &property->node : 0);
+		return node != 0 ? reinterpret_cast<MetaPropertyBase*>(reinterpret_cast<char*>(node) - 8) : 0;
+	}
+
 	// FUNCTION: ENGINE 0x105B6E10
 	// NONMATCHING: the engine does not thread the jump over the null case of a tree node's owner and keeps ebx for the true result (24.5 %)
 #ifdef NONMATCHING

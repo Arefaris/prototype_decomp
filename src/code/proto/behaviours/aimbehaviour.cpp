@@ -1,4 +1,5 @@
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
 #include "code/proto/messages/movementrestrictionsmessage.h"
 
 namespace engine
@@ -266,6 +267,48 @@ namespace proto
 	{
 		Unknown103BE0E0(owner, point);
 	}
+
+	// FUNCTION: ENGINE 0x103C7060
+	// NONMATCHING: the engine adds the x of the point first, ours loads the offset into the register of the first sum
+	// (the three loads then sit in other registers; 90 % of the instructions)
+#ifdef NONMATCHING
+	void AimBehaviour::Slot10(AimInfo* info, engine::GameObject* target, int unused)
+	{
+		math::Matrix* matrix = target->transform->GetPointer();
+		math::Vector point;
+		matrix->GetTranslation(point);
+		math::Vector position;
+		position.x = point.x + info->unknown8.x;
+		position.y = info->unknown8.y + point.y;
+		position.z = info->unknown8.z + point.z;
+		JumpDestination destination;
+		destination.position.x = position.x;
+		destination.position.y = position.y;
+		destination.position.z = position.z;
+		Unknown103BAE00(owner, &destination);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103C7120
+	// NONMATCHING: the engine adds the x of the point first, ours loads the offset into the register of the first sum
+	// (the three loads then sit in other registers; 90 % of the instructions)
+#ifdef NONMATCHING
+	void AimBehaviour::Slot11(AimInfo* info, engine::GameObject* target, int unused)
+	{
+		math::Matrix* matrix = target->transform->GetPointer();
+		math::Vector point;
+		matrix->GetTranslation(point);
+		math::Vector position;
+		position.x = point.x + info->unknown8.x;
+		position.y = info->unknown8.y + point.y;
+		position.z = info->unknown8.z + point.z;
+		JumpDestination destination;
+		destination.position.x = position.x;
+		destination.position.y = position.y;
+		destination.position.z = position.z;
+		Unknown103BAE00(owner, &destination);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x103C73A0
 	content::MemberList* AimBehaviour::GetMembers()

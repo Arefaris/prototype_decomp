@@ -78,6 +78,11 @@ namespace om
 		// 0x105E4210 / 0x105E4430: enters an object that has its tree node at 8 and its name at 0x18; false when
 		// an object of that name is there already
 		template<class T> bool InsertByName(T* object);
+		// 0x105DC3E0 / 0x105DC230: enters an object that has its tree node at 0x1C and its index at 0x10; false when an
+		// object of that index is there already
+		template<class T> bool InsertByIndex(T* object);
+		// 0x105DC960 / 0x105DC9E0: the first object of an index (the nodes at 0x1C, the indices at 0x10)
+		template<class T> T* FindByIndex(const int* index);
 		// 0x105C0750 (attributes), 0x105C07B0 (properties), 0x105C0780 (methods): takes the objects that have their tree
 		// node at 8 out one by one and deletes them
 		template<class T> void DeleteAll();

@@ -314,24 +314,23 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011F390
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (24.6 %)
 			bool TargetClassAction::Slot5(int arg, float value)
 			{
-				if (link.object != 0)
+				if (link.object == 0)
 				{
-					engine::GameObject* object = target.Get();
-					if (object != 0)
-					{
-						SetTargetClassMessage message(link.object->targetClass);
-						object->SendMessage(&message);
-						return true;
-					}
+					return false;
 				}
-				return false;
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				SetTargetClassMessage message(link.object->targetClass);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1011F4D0
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (24.6 %)
 			bool TargetableAction::Slot5(int arg, float value)
 			{
 				if (link.object == 0)
@@ -339,13 +338,13 @@ namespace proto
 					return false;
 				}
 				engine::GameObject* object = target.Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					SetTargetableTargetMessage message(link.object->targetable);
-					object->SendMessage(&message);
-					return true;
+					return false;
 				}
-				return false;
+				SetTargetableTargetMessage message(link.object->targetable);
+				object->SendMessage(&message);
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x1011F610
@@ -446,6 +445,39 @@ namespace proto
 					{ fight::Name("Non Targetable", 0) },
 					{ fight::Name("Restore", 0) }
 				};
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011EE00
+			int TargetClassTrack::GetTargetClass() const
+			{
+				return targetClass;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE10
+			bool TargetableTrack::GetTargetable() const
+			{
+				return targetable;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE20
+			int TemporaryTargetableTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x1011EE30
+			int TemporaryTargetableTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
 		}
 	}
 }

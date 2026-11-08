@@ -169,6 +169,48 @@ namespace proto
 				return new FlyingDashAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100BE930
+			float FlyingDashTrack::GetVelocityAdd() const
+			{
+				return velocityAdd;
+			}
+
+			// FUNCTION: ENGINE 0x100BE940
+			float FlyingDashTrack::GetVelocityMax() const
+			{
+				return velocityMax;
+			}
+
+			// FUNCTION: ENGINE 0x100BE950
+			bool FlyingDashTrack::GetPreserveYVelocity() const
+			{
+				return preserveYVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100BE960
+			const fight::Name& FlyingDashTrack::GetDashToTargetGrabbableClass() const
+			{
+				return dashToTargetGrabbableClass;
+			}
+
+			// FUNCTION: ENGINE 0x100BE970
+			int FlyingDashTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x100BE980
+			float FlyingDashTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x100BE990
+			float FlyingDashTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100BEA90
 			bool FlyingDashAction::Slot7(int arg, float value)

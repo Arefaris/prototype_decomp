@@ -1,11 +1,18 @@
 #include "code/engine/nisplayerbehaviour.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/engine/fight/nisactions.h"
 #include "code/engine/gameobject/messagerouter.h"
+#include "code/engine/render/effectmanager.h"
+#include "code/engine/system/streampackage.h"
 
 namespace engine
 {
 	// The name of the NIS fight context (0x111C17DC, fightsystem.cpp)
 	extern const char* gNISContextName;
+
+	// The listeners of the NIS messages and of the stream package messages (0x11316F60 / 0x1130D3A0, other units)
+	extern MessageListeners gNISListeners;
+	extern MessageListeners gStreamListeners;
 
 	// 0x1131D370: the listeners of the scenario messages the player sends
 	MessageListeners gNISPlayerListeners("scenario", 0);
@@ -34,6 +41,93 @@ namespace engine
 		Listen(0x17, true);
 		Listen(0xd, true);
 		Listen(0x18, true);
+	}
+
+	// FUNCTION: ENGINE 0x108A82A0
+	NISParams::~NISParams()
+	{
+		core::SafeRelease(action);
+	}
+
+	// FUNCTION: ENGINE 0x1091FAD0
+	void NISPlayerBehaviour::Slot0()
+	{
+		AssignNISRef(&params, new NISParams());
+	}
+
+	// FUNCTION: ENGINE 0x1091F8D0
+	void NISPlayerBehaviour::Slot1()
+	{
+		GameObjectHandle handle = GetHandle(owner);
+		((NISParams*)params)->handle = handle;
+		handle.RouterRemove(gNISListeners);
+		handle.RouterRemove(gStreamListeners);
+	}
+
+	// FUNCTION: ENGINE 0x1091F910
+	void NISPlayerBehaviour::Advance(float dt)
+	{
+		if (unknown70 != GetGameObjectFrame())
+		{
+			unknown70 = GetGameObjectFrame();
+			if (state == 5)
+			{
+				unknown78 = dt + unknown78;
+				return;
+			}
+			float total = dt + unknown78;
+			unknown78 = 0.0f;
+			core::HeapScope scope(0x75);
+			sequencer.Unknown105A4910(true);
+			sequencer.Advance(1, total);
+			if (state != 5)
+			{
+				sequencer.Update(0);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1091FCD0
+	void NISPlayerBehaviour::StopEffects()
+	{
+		render::GetEffectManager()->StopEffectsNamed(nisName, true, 0.0f);
+		if (state == 4 || state == 5)
+		{
+			fight::Action* action = ((NISParams*)params)->action;
+			if (action != 0)
+			{
+				if (!action->IsStarted())
+				{
+					action->timeBegin = sequencer.clock;
+				}
+			}
+			else
+			{
+				sequencer.Reset();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1091FE40
+	bool NISPlayerBehaviour::FindTrack()
+	{
+		if (track != 0)
+		{
+			return true;
+		}
+		LoadListeners* listeners = gLoadListeners;
+		fight::TrackRegistry* context = listeners->FindContext(core::Name<core::CaseSensitiveKey>(gNISContextName, 1));
+		if (context != 0)
+		{
+			fight::Branch* root = context->branches;
+			fight::Branch* branch = root->FindChildNamed(nisName);
+			if (branch != 0 && branch->firstChild != 0)
+			{
+				track = (NISTrack*)branch->firstChild;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x1091FB30
@@ -130,3 +224,4 @@ namespace engine
 // FUNCTION: ENGINE 0x1091FA10
 // FUNCTION: ENGINE 0x1091FA20
 // FUNCTION: ENGINE 0x10920490
+// FUNCTION: ENGINE 0x108A8250

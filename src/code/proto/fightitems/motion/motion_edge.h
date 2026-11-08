@@ -33,6 +33,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				math::Vector GetNormal() const;
+				float GetArc() const;
+
 					math::Vector normal;  // +0xC
 					float arc;  // +0x18
 			};
@@ -62,6 +66,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetComponent() const;
+				int GetCompare() const;
+				float GetOffset() const;
 
 					float offset;  // +0xC
 					int compare;  // +0x10
@@ -104,6 +113,15 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				float GetSurfaceOffset() const;
+				float GetLookaheadDistance() const;
+				float GetEdgeDepth() const;
+				math::Vector GetCardinalVector() const;
+				float GetLookaheadDistanceNonCardinal() const;
+				const fight::BranchHolder& GetBranch() const;
+				int GetPriority() const;
 
 					fight::BranchHolder branch;  // +0x10
 					math::Vector cardinalVector;  // +0x34
@@ -149,6 +167,12 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				math::Vector GetOffset() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
 
 					math::Vector offset;  // +0x10
 					float blendInTime;  // +0x1C

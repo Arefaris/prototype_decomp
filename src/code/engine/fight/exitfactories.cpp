@@ -31,3 +31,20 @@ namespace engine
 	template class fight::ConditionFactoryTemplate<PrintMessageCondition>;
 	template class fight::ConditionFactoryCasterTemplate<PrintMessageCondition>;
 }
+
+// The unit's template instances (the property and factory classes of its tracks and conditions), mapped in symbols.txt:
+// FUNCTION: ENGINE 0x108123A0
+// FUNCTION: ENGINE 0x108123B0
+// FUNCTION: ENGINE 0x108123E0
+// FUNCTION: ENGINE 0x10812410
+// FUNCTION: ENGINE 0x10812430
+// FUNCTION: ENGINE 0x10812470
+// FUNCTION: ENGINE 0x10812480
+// FUNCTION: ENGINE 0x108124B0
+// FUNCTION: ENGINE 0x108124E0
+// FUNCTION: ENGINE 0x10812500
+// FUNCTION: ENGINE 0x10812540
+// FUNCTION: ENGINE 0x10812550
+// FUNCTION: ENGINE 0x10812580
+// FUNCTION: ENGINE 0x108125B0
+// FUNCTION: ENGINE 0x108125D0

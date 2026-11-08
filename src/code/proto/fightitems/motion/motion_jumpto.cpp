@@ -1,5 +1,8 @@
 // Fight items of the motion group: JumpToTrack (unit 0x10185900 - 0x101865E0; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_jumpto.h"
+#include "code/proto/fightitems/motion/motioncommon.h"
+#include "code/engine/physics/physicsmanager.h"
+#include "code/engine/fight/fightsystem.h"
 
 namespace proto
 {
@@ -260,6 +263,137 @@ namespace proto
 				registry->AddFactory(fight::FindTrackFactory(name, &caster));
 			}
 
+			// ---- actions begin
+			// FUNCTION: ENGINE 0x100E0EF0
+			void JumpToAction::OnCollision(int first, int second, int third)
+			{
+				collided = true;
+			}
+
+			// FUNCTION: ENGINE 0x100E1170
+			void JumpToAction::JumpToCollisionCallback::OnCollision(int first, int second, int third)
+			{
+				int heap = core::SetCurrentHeap(fight::GetHeapId(2));
+				owner->OnCollision(first, second, third);
+				core::SetCurrentHeap(heap);
+			}
+
+			// FUNCTION: ENGINE 0x100E1680
+			// NONMATCHING: the engine leaves out the vftable store of the intermediate class of the callback, ours keeps it (66.5 %)
+#ifdef NONMATCHING
+			JumpToAction::JumpToAction(JumpToTrack* newTrack, core::IRefCount* ownerObject) : fight::Action(0xE00), link(newTrack), target(engine::GetObjectHandle(ownerObject)), destination(0.0f, 0.0f, 0.0f), collided(false), driver(0), direction(0.0f, 0.0f, 0.0f), speed(0.0f), charge(0.0f), unknown70(true)
+			{
+				callback.SetObject(&target);
+				callback.owner = this;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100E1260
+			JumpToAction::~JumpToAction()
+			{
+				engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100E2280
+			fight::Action* JumpToTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				core::IRefCount* actionOwner = AsActionOwner(owner);
+				return new JumpToAction(this, actionOwner);
+			}
+
+			// FUNCTION: ENGINE 0x100E12B0
+			void JumpToAction::Slot6()
+			{
+				engine::RemovePostStepCallback((ravenphysics::PhysicsContextCallBack*)&callback);
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100E29A0
+			bool JumpToAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				ChargeGetMessage message(link.object->chargeType);
+				object->SendMessage(&message);
+				float amount = message.value;
+				if (!(amount >= 0.0f))
+				{
+					amount = 0.0f;
+				}
+				if (0.0f <= amount - engine::driving::gOne)
+				{
+					amount = engine::driving::gOne;
+				}
+				charge = amount;
+				if (!PlanJump())
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet != 0)
+				{
+					driver = new choreo::RootDriver;
+					content::ObjectName driverName("jumpTo", 1);
+					driver->SetName(driverName);
+					driver->SetMask(1);
+					driver->AddRef();
+					puppet->SetDriver(driver, choreo::gMinusOne, link.object->priority, 1.0f, link.object->blendInTime, link.object->blendOutTime, choreo::gMinusOne);
+				}
+				engine::AddPostStepCallback((ravenphysics::PhysicsContextCallBack*)&callback);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100E2B70
+			bool JumpToAction::Slot7(int arg, float value)
+			{
+				if (arg != 0)
+				{
+					return true;
+				}
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				Advance(value);
+				math::Vector velocity;
+				velocity.x = direction.x * speed;
+				velocity.y = direction.y * speed;
+				velocity.z = direction.z * speed;
+				velocity.y = velocity.y - link.object->gravity * value;
+				math::Vector* axis = &direction;
+				axis->x = velocity.x;
+				axis->y = velocity.y;
+				axis->z = velocity.z;
+				speed = axis->Normalize();
+				if (driver != 0)
+				{
+					driver->mDelta.SetVelocity(velocity, object->transform->value);
+				}
+				return true;
+			}
+
+			// ---- actions end
 			template class fight::PropertyFloatConstRange<JumpToTrack>;
 			template class fight::PropertyBool<JumpToTrack>;
 			template class fight::PropertyEnumConstList<JumpToTrack>;
@@ -271,7 +405,12 @@ namespace proto
 	}
 }
 
+// Explicit instance of the track link's accessor (the engine keeps its copy):
+template proto::fightitems::motion::JumpToTrack* core::Link<proto::fightitems::motion::JumpToTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E11C0
+// FUNCTION: ENGINE 0x100E11E0
 // FUNCTION: ENGINE 0x10185CB0
 // FUNCTION: ENGINE 0x10185CE0
 // FUNCTION: ENGINE 0x10185CF0

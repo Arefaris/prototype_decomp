@@ -55,6 +55,30 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetAutoTargetArc() const;
+				float GetMaxTargetArc() const;
+				float GetTrackingMin() const;
+				float GetTrackingMax() const;
+				float GetSpinMin() const;
+				float GetSpinMax() const;
+				float GetArcRange() const;
+				float GetArcMax() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetHitType() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetDistanceMin() const;
+				float GetDistanceMax() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				float GetDamageMin() const;
+				float GetDamageMax() const;
+				float GetImpulseMin() const;
+				float GetImpulseMax() const;
+				float GetFriendlyFire() const;
+
 					fight::Name hitType;  // +0x10
 					float arcMax;  // +0x18
 					float arcRange;  // +0x1C
@@ -127,6 +151,32 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetDirection() const;
+				float GetDistanceMin() const;
+				float GetDistanceMax() const;
+				float GetVelocityMin() const;
+				float GetVelocityMax() const;
+				float GetTrackingMin() const;
+				float GetTrackingMax() const;
+				float GetSpinMin() const;
+				float GetSpinMax() const;
+				float GetArcRange() const;
+				float GetArcMax() const;
+				float GetDamageMin() const;
+				float GetDamageMax() const;
+				float GetImpulseMin() const;
+				float GetImpulseMax() const;
+				float GetFriendlyFire() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetGrabSlot() const;
+				bool GetUseTarget() const;
+				bool GetUseTargetVehicle() const;
+				float GetRandomOffset() const;
+				int GetInterruptPriority() const;
+				const fight::Name& GetHitType() const;
 
 					fight::Name grabSlot;  // +0x10
 					fight::Name hitType;  // +0x18

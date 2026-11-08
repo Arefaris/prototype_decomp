@@ -378,6 +378,51 @@ namespace proto
 				engine::ReleaseDriverCopy3(unknown2C);
 			}
 
+			// FUNCTION: ENGINE 0x100CD150
+			bool GrappleLocoSprintAction::Slot7(int arg, float value)
+			{
+				if (arg == 0)
+				{
+					if (unknown30 == 0)
+					{
+						return false;
+					}
+					engine::GameObject* object = target.Get();
+					if (object == 0)
+					{
+						return false;
+					}
+					if (unknown2C != 0)
+					{
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown40 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown40;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown224 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown224;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown228 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown228;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown22C = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown22C;
+					}
+					engine::SetStickToSupportingSurface(object, false);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100CD210
+			void GrappleLocoSprintAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (unknown30 != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(unknown30, false);
+						}
+						engine::ReleaseDriverCopy3(unknown30);
+					}
+					engine::ReleaseDriverCopy3(unknown2C);
+				}
+			}
+
 			// FUNCTION: ENGINE 0x100CDDD0
 			fight::Action* GrappleLocoSprintTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -395,6 +440,51 @@ namespace proto
 			{
 				engine::ReleaseDriverCopy3(unknown30);
 				engine::ReleaseDriverCopy3(unknown2C);
+			}
+
+			// FUNCTION: ENGINE 0x100CCFA0
+			bool GrappleLocoSteerAction::Slot7(int arg, float value)
+			{
+				if (arg == 0)
+				{
+					if (unknown30 == 0)
+					{
+						return false;
+					}
+					engine::GameObject* object = target.Get();
+					if (object == 0)
+					{
+						return false;
+					}
+					if (unknown2C != 0)
+					{
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown40 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown40;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown224 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown224;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown228 = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown228;
+						static_cast<choreo::LocomotionSteerDriver*>(unknown30)->mUnknown22C = static_cast<choreo::LocomotionSteerDriver*>(unknown2C)->mUnknown22C;
+					}
+					engine::SetStickToSupportingSurface(object, false);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100CD060
+			void GrappleLocoSteerAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					if (unknown30 != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(unknown30, false);
+						}
+						engine::ReleaseDriverCopy3(unknown30);
+					}
+					engine::ReleaseDriverCopy3(unknown2C);
+				}
 			}
 
 			// FUNCTION: ENGINE 0x100CDD80

@@ -43,6 +43,14 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetCollideWith() const;
+				bool GetMatch() const;
+				const fight::Name& GetJoint() const;
+				math::Vector GetOffset() const;
+				math::Vector GetOrientation() const;
+				math::Vector GetExtents() const;
+
 					unsigned char unknownC[0x4];
 					fight::Name joint;  // +0x10
 					math::Vector extents;  // +0x18
@@ -77,6 +85,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetSurface() const;
+				bool GetHitSurface() const;
 
 					int surface;  // +0xC
 					bool hitSurface;  // +0x10

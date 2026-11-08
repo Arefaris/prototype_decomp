@@ -296,6 +296,13 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x100BB5B0
+			bool RegisterFactionFactories(fight::TrackRegistry* registry)
+			{
+				RegisterFactionConditionFactory(registry, "faction");
+				RegisterFactionTypeConditionFactory(registry, "factionType");
+				return true;
+			}
 			// FUNCTION: ENGINE 0x100BBC80
 			FactionDefaultAction::FactionDefaultAction(FactionDefaultTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget)
 			{
@@ -328,6 +335,42 @@ namespace proto
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new FactionSetAction(this, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100BB470
+			int FactionTypeCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100BB480
+			int FactionTypeCondition::GetFactionType() const
+			{
+				return factionType;
+			}
+
+			// FUNCTION: ENGINE 0x100BB490
+			int FactionCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4A0
+			const fight::Name& FactionCondition::GetFaction() const
+			{
+				return faction;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4B0
+			const fight::Name& FactionSetTrack::GetFaction() const
+			{
+				return faction;
+			}
+
+			// FUNCTION: ENGINE 0x100BB4C0
+			bool FactionSetTrack::GetNotifyAI() const
+			{
+				return notifyAI;
 			}
 
 			// ---- actions end

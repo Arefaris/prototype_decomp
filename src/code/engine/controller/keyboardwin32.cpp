@@ -177,3 +177,8 @@ namespace engine
 // FUNCTION: ENGINE 0x108D6D10 @ void engine::controller::CreateKeyboard(void)
 // FUNCTION: ENGINE 0x108D6D40 @ void * engine::controller::KeyboardWin32::`scalar deleting destructor'(unsigned int)
 // FUNCTION: ENGINE 0x108D6D60 @ void engine::controller::DestroyKeyboard(void)
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A1E60
+// FUNCTION: ENGINE 0x108A1E70
+// FUNCTION: ENGINE 0x108A2260

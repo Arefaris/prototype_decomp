@@ -1,4 +1,5 @@
 #include "code/proto/behaviours/tokenbehaviour.h"
+#include "code/proto/fightitems/ai/aitokenmessages.h"
 #include "code/core/refptr.h"
 #include "code/engine/gameobject/gameobject.h"
 #include "code/engine/message.h"
@@ -23,34 +24,7 @@ namespace engine
 
 namespace proto
 {
-	// The messages of type 0x2E whose classes are not declared elsewhere (RTTI proto::GetOwnersTokenMsg, RequestTokenMsg,
-	// ReleaseTokenMsg, SetHunterTokenBoostTokenMsg, GetTokenScoreMsg; the members are guesses)
-	struct GetOwnersTokenMsg : public TokenMessage
-	{
-		TokenBehaviour::TokenGroup* group;  // +0xC
-		bool unknown10;
-		int kind;  // +0x14
-	};
-
-	struct RequestTokenMsg : public TokenMessage
-	{
-		bool granted;  // +0xC
-		int kind;  // +0x10
-		unsigned int handle;  // +0x14
-	};
-
-	struct ReleaseTokenMsg : public TokenMessage
-	{
-		int kind;  // +0xC
-		unsigned int handle;  // +0x10
-	};
-
-	struct SetHunterTokenBoostTokenMsg : public TokenMessage
-	{
-		int count;  // +0xC
-		float time;  // +0x10
-	};
-
+	// The messages of type 0x2E whose classes are not declared elsewhere (the members are guesses)
 	struct SetTokenWeightsBody : public TokenMessage
 	{
 		TokenWeights* weights;  // +0xC
@@ -322,25 +296,25 @@ namespace proto
 			case 5:
 				{
 					RequestTokenMsg* request = (RequestTokenMsg*)message;
-					if (request->kind < 2)
+					if (request->type < 2)
 					{
-						request->granted = AcquireToken(request->kind, request->handle);
+						request->granted = AcquireToken(request->type, *reinterpret_cast<unsigned int*>(&request->requester));
 					}
 				}
 				break;
 			case 6:
 				{
 					ReleaseTokenMsg* release = (ReleaseTokenMsg*)message;
-					if (release->kind < 2)
+					if (release->type < 2)
 					{
-						ReleaseToken(release->kind, release->handle);
+						ReleaseToken(release->type, *reinterpret_cast<unsigned int*>(&release->requester));
 					}
 				}
 				break;
 			case 7:
 				{
 					SetHunterTokenBoostTokenMsg* boost = (SetHunterTokenBoostTokenMsg*)message;
-					unknown48 = boost->count;
+					unknown48 = boost->extraTokens;
 					unknown4C = boost->time;
 				}
 				break;

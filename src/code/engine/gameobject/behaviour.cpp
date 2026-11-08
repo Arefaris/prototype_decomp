@@ -14,6 +14,12 @@ namespace engine
 		return &sInfo;
 	}
 
+	// FUNCTION: ENGINE 0x100601A0
+	Attribute<math::Matrix>* Behaviour::GetTransformAttribute()
+	{
+		return owner->transform;
+	}
+
 	// FUNCTION: ENGINE 0x107EE490
 	bool Behaviour::Slot2()
 	{
@@ -275,4 +281,5 @@ namespace engine
 	// FUNCTION: ENGINE 0x107EE890
 	// FUNCTION: ENGINE 0x107EE990
 	// FUNCTION: ENGINE 0x107EEA00
+	// FUNCTION: ENGINE 0x10075C80
 }

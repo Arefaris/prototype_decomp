@@ -223,7 +223,13 @@ namespace engine
 		// The functions that make and destroy the heaps of slots (null: the default; 0x1083EC30 / 0x1083E840)
 		SlotHeapFactory slotHeapFactory;
 		SlotHeapDestroyer slotHeapDestroyer;
-		unsigned char unknown90[0x11C - 0x90];
+		unsigned char unknown90[0xF0 - 0x90];
+		// The packages that are known (Register adds one, 0x1082D080)
+		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> knownPackages;
+		unsigned char unknown100[0x114 - 0x100];
+		int unknown114;
+		// The package that is loading now (0x1082C060)
+		StreamPackage* currentPackage;
 		// The priority loads are made at while a group's packages are changing (0xFFFF: none; 0x1082E100 sets it)
 		unsigned int transitionPriority;
 	};

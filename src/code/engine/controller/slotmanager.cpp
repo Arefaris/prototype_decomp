@@ -1,12 +1,31 @@
 // The slot table the InputSystem builds on (code/engine/controller/slotmanager.cpp; the file name is a guess, the unit
 // starts at 0x108A1A00). Names are guesses.
 #include "code/engine/controller/inputsystem.h"
+#include "code/engine/controller/keyboardwin32.h"
 #include <new>
 
 namespace engine
 {
+	// FUNCTION: ENGINE 0x108A1E30
+	void InitControllers()
+	{
+		controller::CreateKeyboard();
+	}
+
+	// FUNCTION: ENGINE 0x108A1E40
+	void ShutdownControllers()
+	{
+		controller::DestroyKeyboard();
+	}
+
 	namespace controller
 	{
+		// FUNCTION: ENGINE 0x108A1E50
+		Keyboard* SlotManager::GetKeyboard()
+		{
+			return KeyboardWin32::Get();
+		}
+
 		// FUNCTION: ENGINE 0x108A1A20
 		SlotManager::~SlotManager()
 		{
@@ -172,3 +191,6 @@ namespace engine
 #endif
 	}
 }
+
+// Kept copies (template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x108A1A40

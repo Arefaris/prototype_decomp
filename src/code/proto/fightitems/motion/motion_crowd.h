@@ -35,6 +35,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetCompare() const;
+				float GetDistance() const;
+
 					float distance;  // +0xC
 					int compare;  // +0x10
 			};
@@ -64,6 +68,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetPosition() const;
 
 					float position;  // +0xC
 					int compare;  // +0x10
@@ -135,6 +144,43 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				float GetAcceleration() const;
+				float GetTurningVelocity() const;
+				float GetTwistRateOn() const;
+				float GetTwistRateOff() const;
+				float GetVelocityWalk() const;
+				float GetVelocityRun() const;
+				float GetSmoothSteeringAngle() const;
+				float GetPhase() const;
+				const fight::Name& GetLocomotion() const;
+				const fight::Name& GetAnimIdle() const;
+				const fight::Name& GetAnimIdleTwistLeft() const;
+				const fight::Name& GetAnimIdleTwistRight() const;
+				const fight::Name& GetAnimWalk() const;
+				const fight::Name& GetAnimWalkTwistLeft() const;
+				const fight::Name& GetAnimWalkTwistRight() const;
+				const fight::Name& GetAnimRun() const;
+				const fight::Name& GetAnimRunTwistLeft() const;
+				const fight::Name& GetAnimRunTwistRight() const;
+				float GetSyncFrameIdle() const;
+				float GetSyncFrameIdleTwistLeft() const;
+				float GetSyncFrameIdleTwistRight() const;
+				float GetSyncFrameWalk() const;
+				float GetSyncFrameWalkTwistLeft() const;
+				float GetSyncFrameWalkTwistRight() const;
+				float GetSyncFrameRun() const;
+				float GetSyncFrameRunTwistLeft() const;
+				float GetSyncFrameRunTwistRight() const;
+				const fight::Name& GetPartition() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+				float GetRadiusMin() const;
+				float GetRadiusMax() const;
+				float GetOffsetMax() const;
+				const fight::BranchHolder& GetBranch() const;
 
 					fight::BranchHolder branch;  // +0x10
 					unsigned char unknown34[0x4];
@@ -214,6 +260,14 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Getters of the members (the engine keeps their copies)
+				float GetVelocityCap() const;
+				float GetRadiusMin() const;
+				float GetRadiusMax() const;
+				float GetOffsetMax() const;
+				const fight::BranchHolder& GetBranch() const;
+				int GetPriority() const;
 
 					fight::BranchHolder branch;  // +0x10
 					fight::ConditionList conditions;  // +0x34

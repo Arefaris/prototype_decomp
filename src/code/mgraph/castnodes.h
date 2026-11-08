@@ -21,7 +21,9 @@ namespace mgraph
 		CastBoolToTrigger(Graph* newGraph, const om::ClassName& newName);
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot16(EvaluationFrame* frame);
-		OM_ALLOCATION(CastBoolToTrigger);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The value the input had last, for each channel (name guessed)
 		struct LastValue
@@ -38,7 +40,9 @@ namespace mgraph
 		CastTriggerToBool(Graph* newGraph, const om::ClassName& newName);
 		virtual void SetNumChannels(unsigned int newCount);
 		virtual void Slot16(EvaluationFrame* frame);
-		OM_ALLOCATION(CastTriggerToBool);
+		static void* operator new(size_t);
+		static void operator delete(void* memory);
+		static const char* AllocationTag();
 
 		// The bool the output has, for each channel (name guessed)
 		struct Level

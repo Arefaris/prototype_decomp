@@ -2,6 +2,8 @@
 // starts with its id, the length of its header and data and the length of everything it holds (unit 0x1060B890 -
 // 0x1060BC20).
 #include "code/content/chunkhandler.h"
+#include "code/core/heap.h"
+#include <new>
 
 namespace content
 {
@@ -20,6 +22,37 @@ namespace content
 			magic = 0xFF443350;
 		}
 		BeginChunk(magic);
+	}
+
+	// FUNCTION: ENGINE 0x1060B830
+	void* ChunkReader::operator new(unsigned int size, int heap)
+	{
+		int previous = core::SetCurrentHeap(heap);
+		void* block = operator new[](size);
+		core::SetCurrentHeap(previous);
+		return block;
+	}
+
+	// FUNCTION: ENGINE 0x1060B870
+	ChunkReader::~ChunkReader()
+	{
+		stream->Release();
+	}
+
+	// FUNCTION: ENGINE 0x1060B780
+	void SimpleChunkHandler::CreateObject(void** object, void** name, void* source, void* unknown,
+		LoadInventory* inventory)
+	{
+		if (reader == 0)
+		{
+			ChunkReader* newReader = new (1) ChunkReader((ChunkStream*)source);
+			newReader->BeginChunk();
+			LoadObject((core::IRefCount**)object, (ObjectName*)name, newReader, inventory);
+			newReader->EndChunk();
+			delete newReader;
+			return;
+		}
+		LoadObject((core::IRefCount**)object, (ObjectName*)name, reader, inventory);
 	}
 
 	// FUNCTION: ENGINE 0x1060B8A0

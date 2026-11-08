@@ -5,6 +5,9 @@
 #include "code/proto/fightitems/motion/motionmessages5.h"
 #include "code/engine/fight/fightcommon.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/proto/fightitems/motion/motionragdollmessage.h"
+#include "code/ravenphysics/physicsobject.h"
+#include "code/ravenphysics/collision/collisionobject.h"
 
 namespace proto
 {
@@ -659,6 +662,59 @@ namespace proto
 			// FUNCTION: ENGINE 0x100D1930
 			IgnoreHitsAction::~IgnoreHitsAction()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x100D1210
+			void IgnoreHitsAction::SetIgnoreFilterBits(ravenphysics::PhysicsObject* object, bool ignore)
+			{
+				object->SetFilterBits(0x10, ignore);
+				object->SetFilterBits(0x100, ignore);
+				object->SetFilterBits(0x20, ignore);
+				object->SetFilterBits(0x200, ignore);
+			}
+
+			// FUNCTION: ENGINE 0x100D1960
+			bool IgnoreHitsAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::RagdollGetPhysicsObjectMessage message;
+				object->SendMessage(&message);
+				if (message.first.IsValid())
+				{
+					ravenphysics::PhysicsObject* physics = message.first.GetObject();
+					SetIgnoreFilterBits(physics, false);
+				}
+				if (message.second.IsValid())
+				{
+					ravenphysics::PhysicsObject* physics = message.second.GetObject();
+					SetIgnoreFilterBits(physics, true);
+				}
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100D1A80
+			void IgnoreHitsAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::RagdollGetPhysicsObjectMessage message;
+					object->SendMessage(&message);
+					if (message.first.IsValid())
+					{
+						ravenphysics::PhysicsObject* physics = message.first.GetObject();
+						SetIgnoreFilterBits(physics, true);
+					}
+					if (message.second.IsValid())
+					{
+						ravenphysics::PhysicsObject* physics = message.second.GetObject();
+						SetIgnoreFilterBits(physics, true);
+					}
+				}
 			}
 
 			// FUNCTION: ENGINE 0x100D27F0

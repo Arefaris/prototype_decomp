@@ -45,6 +45,45 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x106F3420
+	// NONMATCHING: scheduling (17 %: the engine stores the dismissed word first and tests it again from memory)
+#ifdef NONMATCHING
+	RenderStateBackup::RenderStateBackup(pddiBaseContext* newContext, unsigned int newGroups, int newDismissed)
+	{
+		dismissed = newDismissed;
+		context = newContext;
+		groups = newGroups;
+		view24[4] = 0.0f;
+		view24[5] = 0.0f;
+		if (dismissed == 0)
+		{
+			Save();
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106F3460
+	RenderStateBackup::~RenderStateBackup()
+	{
+		if (dismissed == 0)
+		{
+			Restore();
+		}
+		context = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106F3480
+	ViewMatrixBackup::ViewMatrixBackup()
+	{
+		matrix = *pddi->GetUnknown10614840();
+	}
+
+	// FUNCTION: ENGINE 0x106F33F0
+	ViewMatrixBackup::~ViewMatrixBackup()
+	{
+		pddi->SetViewMatrix(&matrix);
+	}
+
 	// FUNCTION: ENGINE 0x106F3630
 	void PrimStream::End()
 	{

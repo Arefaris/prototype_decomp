@@ -165,6 +165,18 @@ namespace proto
 				return new DeformAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100B10C0
+			float DeformTrack::GetBlendTime() const
+			{
+				return blendTime;
+			}
+
+			// FUNCTION: ENGINE 0x100B10D0
+			float DeformTrack::GetStrength() const
+			{
+				return strength;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DeformTrack>;
 			template class fight::PropertyNameList<DeformTrack>;

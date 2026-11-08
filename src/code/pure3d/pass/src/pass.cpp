@@ -285,4 +285,17 @@ namespace pure3d
 			child->EndOnce();
 		}
 	}
+
+	// FUNCTION: ENGINE 0x10754780
+	void Pass::ClearBuffers(unsigned int flags, int value)
+	{
+		if (flags & 1)
+		{
+			pddi->SetViewUnknown4(value);
+		}
+		if (flags != 0)
+		{
+			pddi->Clear(flags);
+		}
+	}
 }

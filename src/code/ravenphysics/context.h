@@ -1532,6 +1532,8 @@ namespace ravenphysics
 		// Puts every object the detector holds to sleep, then empties the detector and the tracker's and the
 		// registry's tables (0x10658F00; name guess)
 		void ClearObjects();
+		// Takes a collision object out of the broad phase detector (0x10657D00; name guess)
+		void RemoveCollisionObject(void* object);
 		// Takes the context apart: the world, the tracker, the registry, the detectors and the batches' blocks
 		// (0x10659D50; name guess)
 		void Destroy();
@@ -1590,6 +1592,11 @@ namespace ravenphysics
 		void ResetObjectWorld(ObjectHandle handle, void* world);
 		// Takes a sleeping object out of the registry and the detector (0x10657B60; name guess)
 		void SleepObject(PhysicsObject* object);
+		// Takes the handle's object out (0x103B5A30 is the engine's kept copy; the world triggers inline it)
+		void SleepObject(ObjectHandle handle)
+		{
+			SleepObject(handle.GetObjectSecond());
+		}
 		// Wakes the object of the handle: back into the detector, its collision objects stamped and both lists
 		// rebuilt (0x10657A50; name guess)
 		void WakeObject(ObjectHandle handle);

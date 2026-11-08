@@ -49,12 +49,33 @@ namespace core
 	}
 }
 
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gTwo;
+	}
+}
+
+namespace engine
+{
+	// 0x1005E140 (another unit): the intention of a character (asks the object with a query message)
+	CharacterIntention* GetCharacterIntention(GameObject* object);
+}
+
 namespace proto
 {
 	namespace fightitems
 	{
 		namespace motion
 		{
+			// The owner a jump of the magnetic boots reads (kind 0x2100E): the direction it leaves in
+			struct JumpSurfaceOwner : TrackOwner
+			{
+				unsigned char unknown10[0x20];
+				math::Vector direction;  // +0x30
+			};
+
 			// The owner the next surface normal condition reads (kind 0x2100E): the normal of the surface the character moves to
 			struct NextSurfaceOwner : TrackOwner
 			{
@@ -66,6 +87,8 @@ namespace proto
 }
 #include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/engine/physics/supportinglimbactivemessage.h"
+#include "code/choreo/rootdriver.h"
+#include "code/engine/gameobject/gameobjectmessages.h"
 
 namespace proto
 {
@@ -1853,6 +1876,28 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x100F4D20
+			bool MagneticBootsTestWallAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector position;
+				math::Vector direction;
+				math::Vector normal;
+				if (FindSurface(object, position, direction, normal))
+				{
+					ReportSurface(position, direction, normal);
+				}
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x100F0030
 			MagneticBootsTestCornerAction::MagneticBootsTestCornerAction(MagneticBootsTestCornerTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget) : fight::Action(0xE00), link(newTrack), target(newTarget), watch(listener), effect(newEffect), intersection(0)
 			{
@@ -1873,6 +1918,29 @@ namespace proto
 			// FUNCTION: ENGINE 0x100ECC20
 			void MagneticBootsTestCornerAction::Slot6()
 			{
+			}
+
+			// FUNCTION: ENGINE 0x100F4E20
+			bool MagneticBootsTestCornerAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Vector position;
+				math::Vector direction;
+				math::Vector normal;
+				math::Vector edge;
+				if (FindCorner(object, position, direction, normal, edge))
+				{
+					ReportCorner(position, direction, normal, edge);
+				}
+				return true;
 			}
 
 			// FUNCTION: ENGINE 0x100F00F0
@@ -1981,6 +2049,52 @@ namespace proto
 				angleCos = (float)cos(link.object->thresoldAngle);
 				return true;
 			}
+
+			// FUNCTION: ENGINE 0x100F52C0
+			// NONMATCHING: the engine computes the components of the downward direction in the order y, z, x (94.6 %)
+#ifdef NONMATCHING
+			bool MagneticBootsTestDetachAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::SupportingLimbGetActiveMessageConst limbMessage;
+				object->PostMessage(&limbMessage);
+				const engine::SupportingLimb* limb = limbMessage.limb;
+				engine::CharacterIntention* intention = engine::GetCharacterIntention(object);
+				if (limb != 0 && intention != 0)
+				{
+					math::Vector input;
+					input.x = math::WORLD_MIN - intention->GetAxis(1)->x;
+					input.y = intention->GetAxis(2)->x;
+					input.z = math::WORLD_MIN - intention->GetAxis(0)->x;
+					input.Normalize();
+					math::Vector down;
+					down.x = math::WORLD_MIN - limb->castDirection.x;
+					down.y = math::WORLD_MIN - limb->castDirection.y;
+					down.z = math::WORLD_MIN - limb->castDirection.z;
+					down.Normalize();
+					float alignment = down.z * input.z + down.y * input.y + down.x * input.x;
+					if (alignment > angleCos)
+					{
+						const math::Matrix& matrix = object->transform->value;
+						math::Vector position;
+						position.x = matrix.m[3][0];
+						position.y = matrix.m[3][1];
+						position.z = matrix.m[3][2];
+						ReportSurface(down, position, down);
+					}
+					return true;
+				}
+				return false;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x100EDD10
 			bool MagneticBootsResetInfoAction::Slot7(int arg, float value)
@@ -2136,6 +2250,111 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x100F47D0
+			// NONMATCHING: the engine keeps the object in edi and the puppet in ebx, shares one frame between the fallback direction, the driver name and the message, and does not keep zero in a register (18 %)
+#ifdef NONMATCHING
+			bool MagneticBootsJumpAction::Slot5(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				choreo::Puppet* puppet = engine::GetPuppet(object);
+				if (puppet == 0)
+				{
+					return false;
+				}
+				engine::SupportingLimbGetActiveMessageConst limbMessage;
+				object->PostMessage(&limbMessage);
+				const engine::SupportingLimb* limb = limbMessage.limb;
+				if (limb == 0)
+				{
+					return false;
+				}
+				unknown38.x = math::WORLD_MIN - limb->castDirection.x;
+				unknown38.y = math::WORLD_MIN - limb->castDirection.y;
+				unknown38.z = math::WORLD_MIN - limb->castDirection.z;
+				unknown38.Normalize();
+				math::Vector fallback;
+				const math::Vector* source;
+				if (event != 0)
+				{
+					source = &((const JumpSurfaceOwner*)event)->direction;
+				}
+				else
+				{
+					const math::Matrix& transform = object->transform->value;
+					fallback.x = math::WORLD_MIN - transform.m[2][0];
+					fallback.y = math::WORLD_MIN - transform.m[2][1];
+					fallback.z = math::WORLD_MIN - transform.m[2][2];
+					source = &fallback;
+				}
+				unknown44.x = source->x;
+				unknown44.y = source->y;
+				unknown44.z = source->z;
+				unknown44.Normalize();
+				choreo::RootDriver* jumpDriver = new choreo::RootDriver;
+				driver = jumpDriver;
+				content::ObjectName driverName("jump", 1);
+				driver->SetName(driverName);
+				driver->AddRef();
+				jumpDriver->SetMask(3);
+				puppet->SetDriver(driver, choreo::gMinusOne, link.object->choreoPriority, 1.0f, link.object->blendInTime, link.object->blendOutTime, choreo::gMinusOne);
+				if (link.object->flightTime > 0.0f)
+				{
+					unknown54 = link.object->upDistance / link.object->flightTime * engine::driving::gTwo;
+					unknown50 = link.object->forwardDistance / link.object->flightTime;
+					unknown58 = link.object->upDistance * engine::driving::gTwo / (link.object->flightTime * link.object->flightTime);
+					return true;
+				}
+				unknown58 = 0.0f;
+				unknown54 = 0.0f;
+				unknown50 = 0.0f;
+				return true;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100F4AA0
+			// NONMATCHING: the engine hoists the loads and products of the velocity above its stores (78.6 %)
+#ifdef NONMATCHING
+			bool MagneticBootsJumpAction::Slot7(int arg, float value)
+			{
+				if (link.object == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				unknown54 = unknown54 - unknown58 * value;
+				float lowest = math::WORLD_MIN - link.object->maxFallSpeed;
+				if (unknown54 < lowest)
+				{
+					unknown54 = lowest;
+				}
+				float forward = unknown50;
+				float up = unknown54;
+				math::Vector velocity(unknown38.x * up + unknown44.x * forward, unknown38.y * up + unknown44.y * forward, unknown38.z * up + unknown44.z * forward);
+				math::Matrix rotation;
+				rotation.Identity();
+				math::Vector axis(math::WORLD_MIN - unknown44.x, math::WORLD_MIN - unknown44.y, math::WORLD_MIN - unknown44.z);
+				rotation.SetBasis(axis, unknown38);
+				math::Quaternion inverse;
+				choreo::InverseRotation(&inverse, object->transform->value);
+				choreo::DeltaTransform* delta = &static_cast<choreo::RootDriver*>(driver)->mDelta;
+				delta->SetVelocity(velocity, inverse);
+				delta->SetRotation(rotation, inverse);
+				return true;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x100ED940
 			MagneticBootsTurnCornerAction::~MagneticBootsTurnCornerAction()
 			{
@@ -2192,6 +2411,58 @@ namespace proto
 					{
 						puppet->RemoveDriver(driver, false);
 						engine::ReleaseDriverCopy2(&driver);
+					}
+				}
+			}
+
+			// The definition of the limb a message answered (the message's limb is the definition's address behind a pointer)
+			static inline engine::SupportingLimbDefinition* LimbDefinitionOf(const engine::SupportingLimbGetActiveMessage& message)
+			{
+				return (engine::SupportingLimbDefinition*)*message.limb;
+			}
+
+			// FUNCTION: ENGINE 0x100ED990
+			void MagneticBootsTurnCornerAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					engine::SetStickToSupportingSurface(object, true);
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+					}
+					engine::ReleaseDriverCopy2(&driver);
+					engine::SupportingLimbGetActiveMessage limbMessage;
+					object->SendMessage(&limbMessage);
+					if (limbMessage.limb != 0)
+					{
+						// the engine loads the answer again for every store
+						LimbDefinitionOf(limbMessage)->maxLength = savedLength;
+						LimbDefinitionOf(limbMessage)->directionFollowsSurfaceNormal = savedFollowsNormal;
+						LimbDefinitionOf(limbMessage)->characterSurfaceOrientation = (engine::SupportingLimbDefinition::ORIENTATION_AXIS)savedOrientation;
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100EDB10
+			void MagneticBootsStickToWallAction::Slot6()
+			{
+				engine::GameObject* object = target.Get();
+				if (object != 0)
+				{
+					choreo::Puppet* puppet = engine::GetPuppet(object);
+					if (puppet != 0)
+					{
+						puppet->RemoveDriver(driver, false);
+						engine::ReleaseDriverCopy2(&driver);
+					}
+					engine::SupportingLimbGetActiveMessage limbMessage;
+					object->SendMessage(&limbMessage);
+					if (limbMessage.limb != 0)
+					{
+						LimbDefinitionOf(limbMessage)->directionFollowsSurfaceNormal = savedFollowsNormal;
 					}
 				}
 			}

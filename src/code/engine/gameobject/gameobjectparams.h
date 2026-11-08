@@ -13,6 +13,8 @@ namespace engine
 	{
 	public:
 		explicit GameObjectParams(int value);
+		// 0x107FC740: the parameters of an object, with the two words after the base copied from another record (null: cleared)
+		GameObjectParams(GameObjectHandle owner, const GameObjectParams* source, int value);
 		// 0x107FC790 (another unit): installs its vftable and leaves it to the base
 		virtual ~GameObjectParams();
 

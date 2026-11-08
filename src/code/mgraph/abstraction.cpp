@@ -122,7 +122,7 @@ namespace mgraph
 	void LinkedGraph::SetAbstractedName(const om::ClassName& newName)
 	{
 		abstractedName = newName;
-		Graph* graph = FindGraph(&newName);
+		Graph* graph = FindGraph(newName);
 		if (graph != 0 && graph->unknown28)
 		{
 			SetInnerGraph(graph);
@@ -141,7 +141,7 @@ namespace mgraph
 		}
 		if (named)
 		{
-			Graph* graph = FindGraph(&abstractedName);
+			Graph* graph = FindGraph(abstractedName);
 			if (graph == 0)
 			{
 				return false;
@@ -168,7 +168,7 @@ namespace mgraph
 	// FUNCTION: ENGINE 0x10ACD930
 	bool EmbeddedGraph::Slot8(void* argument)
 	{
-		Graph* graph = FindGraph(&abstractedName);
+		Graph* graph = FindGraph(abstractedName);
 		if (graph == 0)
 		{
 			return false;

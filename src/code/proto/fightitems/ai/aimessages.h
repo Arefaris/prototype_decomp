@@ -75,6 +75,23 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> task;  // +0x10
 	};
 
+	// RTTI: proto::SetTaskAIMsg: the object takes the task of that name (a spawned one or an executed one)
+	struct SetTaskAIMsg : public AIMessage
+	{
+		SetTaskAIMsg(const core::Name<core::CaseSensitiveKey>& newTask, bool newSpawned) : AIMessage(4), task(newTask), spawned(newSpawned)
+		{
+		}
+		virtual ~SetTaskAIMsg()
+		{
+		}
+
+		int unknownC;
+		core::Name<core::CaseSensitiveKey> task;  // +0x10
+		bool spawned;  // +0x18
+		unsigned char unknown19[0x3];
+		int unknown1C;
+	};
+
 	// RTTI: proto::GetGoalAIMsg: the object answers the name of its goal
 	struct GetGoalAIMsg : public AIMessage
 	{

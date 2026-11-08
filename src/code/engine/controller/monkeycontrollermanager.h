@@ -7,6 +7,7 @@
 #define ENGINE_CONTROLLER_MONKEYCONTROLLERMANAGER_H
 
 #include "code/engine/controller/inputsystem.h"
+#include "code/math/random.h"
 
 namespace engine
 {
@@ -15,6 +16,9 @@ namespace engine
 		class MonkeyControllerManager : public ControllerManagerInterface, public ControllerManagerInterface::Callback
 		{
 		public:
+			// 0x10890A20: takes the input system's manager over and reads the command line options Monkey (the seed),
+			// MonkeyOptions (AllowStart, StayInFE) and MonkeyTimeout
+			MonkeyControllerManager();
 			// 0x10890950 (deleting destructor 0x10890B20): gives the input system back its own manager
 			virtual ~MonkeyControllerManager();
 
@@ -31,11 +35,29 @@ namespace engine
 			virtual void OnValue(unsigned int id, int value);
 			virtual void OnRelease(unsigned int id, int value);
 
-			int unknownC;
-			int unknown10;
+			// 0x108909E0: whether the input goes to the state the name belongs to (no name, an empty one or the
+			// input system's own name focus it)
+			void SetFocus(const char* name);
+
+			float unknownC;
+			bool unknown10;
 			ControllerManagerInterface* inner;  // +0x14
+			math::Random random;  // +0x18
+			int unknown20;
+			bool allowStart;  // +0x24
+			bool focused;  // +0x25
+			bool stayInFE;  // +0x26: keeps the game from leaving the front end
+			float timeout;  // +0x28
 		};
+
+		// The manager the Monkey option made (0x113176B0, 0x10890930 answers it)
+		extern MonkeyControllerManager* gMonkeyControllerManager;
+		MonkeyControllerManager* GetMonkeyControllerManager();
 	}
+
+	// 0x10890910 / 0x108925B0: free / make the manager above
+	void ShutdownInputConfig();
+	void InitInputConfig();
 }
 
 #endif

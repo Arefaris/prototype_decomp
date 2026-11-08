@@ -1,5 +1,8 @@
 #include "code/proto/autotargetprioritylist.h"
 #include "code/core/refptr.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/ai/aimessages.h"
 
 namespace content
 {
@@ -108,6 +111,47 @@ namespace proto
 		maxLockOnTargetableDistance = 0.0f;
 		isThreat = false;
 		lockOnForbidden = false;
+	}
+
+	// FUNCTION: ENGINE 0x102B4830
+	TargetClassPriority* AutoTargetPriorityList::GetEntry(int index)
+	{
+		return &entries[index];
+	}
+
+	// FUNCTION: ENGINE 0x102B4920
+	bool AutoTargetPriorityList::Slot5()
+	{
+		if (referenceList != 0)
+		{
+			for (int i = 0; i < TARGET_CLASS_COUNT; i++)
+			{
+				TargetClassPriority* source = referenceList->GetEntry(i);
+				if (source != 0)
+				{
+					entries[i] = *source;
+				}
+			}
+		}
+		for (TargetClassPriority* priority = priorities.begin; priority != priorities.end; priority++)
+		{
+			entries[priority->targetClass] = *priority;
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x102B50C0
+	engine::GameObjectHandle GetCurrentTarget(engine::GameObject* object)
+	{
+		GetTargetMessage message;
+		object->SendMessage(&message);
+		if (message.target.IsValid())
+		{
+			return message.target;
+		}
+		GetAutoTargetMessage autoMessage;
+		object->SendMessage(&autoMessage);
+		return autoMessage.target;
 	}
 
 	// FUNCTION: ENGINE 0x102B4F00

@@ -226,23 +226,23 @@ namespace engine
 			unsigned short id = message->id;
 			if (id == 0)
 			{
-				if (message->user == handle)
+				if (message->Words()->user == handle)
 				{
 					OnReadable();
 				}
 			}
 			else if (id == 1 || id == 2)
 			{
-				if (message->user == 0)
+				if (message->Words()->user == 0)
 				{
 					gGlobalFileUser->OnGlobalFile();
 				}
 			}
 			else if (id == 3)
 			{
-				if (message->user == handle)
+				if (message->Words()->user == handle)
 				{
-					Finish(message->unknown10);
+					Finish(message->Words()->unknown10);
 				}
 			}
 		}

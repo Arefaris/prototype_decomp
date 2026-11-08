@@ -44,6 +44,18 @@ namespace engine
 		float unknown80;
 		float unknown84;
 		float unknown88;
+
+		// 0x1089B890 / 0x1089B7F0 / 0x1089B810 / 0x1089B820 / 0x1089B840 / 0x1089B850 / 0x1089B870 (names guessed)
+		unsigned int GetChanged();
+		void SetShadowRadiusMultiplier(float value);
+		float GetShadowRadiusMultiplier();
+		void SetShadowRangeMultiplier(float value);
+		float GetShadowRangeMultiplier();
+		void SetShadowMaxRadius(float value);
+		float GetShadowMaxRadius();
+		// 0x1089B6E0 / 0x1089B880
+		void SetShadowCaster(bool value);
+		bool GetShadowCaster();
 	};
 
 	// RTTI: engine::SetLightPropertiesMessage (type 9, id 2)

@@ -10,6 +10,12 @@ namespace om
 		VectorT()
 		{
 		}
+		// The engine copies the numbers one by one
+		VectorT(const VectorT& other)
+		{
+			values[0] = other.values[0];
+			values[1] = other.values[1];
+		}
 
 		T values[N];
 	};

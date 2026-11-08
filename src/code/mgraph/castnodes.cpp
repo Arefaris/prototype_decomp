@@ -27,10 +27,34 @@ namespace mgraph
 		return "";
 	}
 
+	// FUNCTION: ENGINE 0x10B6C5F0
+	inline void* CastBoolToTrigger::operator new(size_t)
+	{
+		return Allocate(CastBoolToTrigger::AllocationTag(), sizeof(CastBoolToTrigger), __alignof(CastBoolToTrigger));
+	}
+
+	// FUNCTION: ENGINE 0x10B6CBE0
+	inline void CastBoolToTrigger::operator delete(void* memory)
+	{
+		Release(memory, sizeof(CastBoolToTrigger), __alignof(CastBoolToTrigger));
+	}
+
 	// FUNCTION: ENGINE 0x10B6C790
 	const char* CastTriggerToBool::AllocationTag()
 	{
 		return "";
+	}
+
+	// FUNCTION: ENGINE 0x10B6C7B0
+	inline void* CastTriggerToBool::operator new(size_t)
+	{
+		return Allocate(CastTriggerToBool::AllocationTag(), sizeof(CastTriggerToBool), __alignof(CastTriggerToBool));
+	}
+
+	// FUNCTION: ENGINE 0x10B6CEB0
+	inline void CastTriggerToBool::operator delete(void* memory)
+	{
+		Release(memory, sizeof(CastTriggerToBool), __alignof(CastTriggerToBool));
 	}
 
 	// FUNCTION: ENGINE 0x10B6C9A0

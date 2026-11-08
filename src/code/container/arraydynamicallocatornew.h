@@ -112,8 +112,7 @@ namespace container
 		}
 		~ArrayDynamic()
 		{
-			Destroy(begin, end);
-			end = begin;
+			Clear();
 			if (begin != 0)
 			{
 				operator delete[](begin);
@@ -130,6 +129,10 @@ namespace container
 		unsigned int Size() const
 		{
 			return end - begin;
+		}
+		bool IsEmpty() const
+		{
+			return begin == end;
 		}
 		unsigned int Capacity() const
 		{
@@ -333,11 +336,7 @@ namespace container
 						ConstructCopyAt(storage + i, begin[i]);
 					}
 				}
-				if (begin != 0)
-				{
-					Destroy(begin, end);
-					operator delete[](begin);
-				}
+				Free();
 				if (ArrayReserveBeginFirst<T>::value == 1)
 				{
 					begin = storage;

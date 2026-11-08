@@ -9,8 +9,10 @@
 #include "code/content/metatype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
 
 namespace proto
 {
@@ -58,8 +60,9 @@ namespace proto
 		// 0x103C6AD0): the aim at a target; the ones that take the target apart are left to the engine
 		virtual void Slot8(int a, int b, int c);
 		virtual void Slot9(AimInfo* info, int flags);
-		virtual void Slot10(int a, int b, int c);
-		virtual void Slot11(int a, int b, int c);
+		// 10 and 11: aim at the position of the target object plus the offset of the info
+		virtual void Slot10(AimInfo* info, engine::GameObject* target, int unused);
+		virtual void Slot11(AimInfo* info, engine::GameObject* target, int unused);
 		virtual void Slot12(AimInfo* info, int flags);
 		virtual void Slot13(AimInfo* info, int flags);
 		virtual void Slot14(AimInfo* info, int flags);

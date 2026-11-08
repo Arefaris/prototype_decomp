@@ -5,6 +5,8 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/proto/fightitems/ai/aihudhelpers.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
 
 namespace proto
 {
@@ -104,7 +106,7 @@ namespace proto
 
 				core::Link<HUDMarkerTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				engine::HandleBase unknown2C;  // +0x2C
+				engine::GameObjectHandle marker;  // +0x2C
 			};
 
 			// ---- actions end

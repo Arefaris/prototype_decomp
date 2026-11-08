@@ -181,6 +181,16 @@ namespace mgraph
 	{
 	};
 
+// The same with the allocation functions declared only: the node's source defines them as inline functions, so that they carry their
+// own annotations
+#define MGRAPH_NODE_BODY_OUT(Type, Base, Size) \
+	public: \
+		Type(Graph* newGraph, const om::ClassName& newName); \
+		static void* operator new(size_t); \
+		static void operator delete(void* memory); \
+		static const char* AllocationTag(); \
+		char unknown4[Size - sizeof(Base)]
+
 	// The nodes allocate exactly their size (the engine's node classes have members that are not recovered yet)
 #define MGRAPH_NODE_BODY(Type, Base, Size) \
 	public: \

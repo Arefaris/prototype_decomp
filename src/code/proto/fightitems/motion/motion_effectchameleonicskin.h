@@ -45,6 +45,15 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				int GetActionOnBegin() const;
+				int GetActionOnEnd() const;
+				float GetWarpingFactor() const;
+				float GetWarpOffsetScale() const;
+				int GetColourType() const;
+				float GetColourMix() const;
+				float GetBlurRadius() const;
+
 					math::Colour128 colour;  // +0x10
 					float blurRadius;  // +0x20
 					float colourMix;  // +0x24

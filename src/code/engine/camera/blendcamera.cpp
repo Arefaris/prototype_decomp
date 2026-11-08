@@ -108,9 +108,9 @@ namespace engine
 		{
 			pure3d::Camera* view = source->camera;
 			math::Vector place;
-			place.x = view->position.x;
-			place.y = view->position.y;
-			place.z = view->position.z;
+			place.x = view->GetPosition().x;
+			place.y = view->GetPosition().y;
+			place.z = view->GetPosition().z;
 			out->position.x = place.x;
 			out->position.y = place.y;
 			out->position.z = place.z;

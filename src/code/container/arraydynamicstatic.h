@@ -181,14 +181,16 @@ namespace container
 			capacity = 0;
 		}
 		// Appends value when there is room
-		void PushBack(const T& value)
+		bool PushBack(const T& value)
 		{
 			if (end < capacity)
 			{
 				T* p = end;
 				end = p + 1;
 				ConstructCopyAt(p, value);
+				return true;
 			}
+			return false;
 		}
 		void Clear()
 		{

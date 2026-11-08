@@ -2,11 +2,46 @@
 // for the number types and the arrays.
 #include "code/om/dynamicarray.h"
 #include "code/om/dynamicproperty.h"
+#include "code/om/vector.h"
 
 #pragma warning(disable: 4661)
 
 namespace om
 {
+	// Left to the engine: the members of the float, boolean, string and vector properties that the factories' vftables name
+	// (the other units' copies are the engine's)
+	template<> bool DynamicProperty<float>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<Vector>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<String>::ReadText(const TextValue*);
+	template<> void DynamicProperty<String>::WriteText(TextValue*);
+	template<> void CommandDelegate<String>::Set(String);
+	template<> bool WriteValueBinary<String>(BinaryStream*, const String&);
+	template<> bool DynamicProperty<bool>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<bool>::ReadBinary(BinaryStream*);
+	template<> bool DynamicProperty<bool>::WriteBinary(BinaryStream*);
+
+	// The properties of these two types start from zero when a factory makes them (the default constructors below are only
+	// expanded into the factories)
+	template<> inline DynamicProperty<float>::DynamicProperty() :
+		type(FindMetaType(typeid(float))),
+		name(0)
+	{
+		value = 0.0f;
+	}
+	template<> inline DynamicProperty<bool>::DynamicProperty() :
+		type(FindMetaType(typeid(bool))),
+		name(0)
+	{
+		value = false;
+	}
+
+	template<> inline DynamicProperty<Vector>::DynamicProperty() :
+		value(VectorInOrder()),
+		type(FindMetaType(typeid(Vector))),
+		name(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10AA32D0
 	template<> __declspec(noinline) bool ReadText<__int64>(const TextValue* text, __int64* value)
 	{
@@ -1259,4 +1294,30 @@ namespace om
 	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadText(TextValue const*);
 	// FUNCTION: ENGINE 0x10AA8C60
 	template bool DynamicProperty<DynamicArray<unsigned int,unsigned short> >::ReadBinary(BinaryStream*);
+	// FUNCTION: ENGINE 0x10AA2210
+	template CommandMember1<DynamicProperty<unsigned char>,DynamicProperty<unsigned char>,void,unsigned char>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2290
+	template CommandMember1<DynamicProperty<unsigned short>,DynamicProperty<unsigned short>,void,unsigned short>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2310
+	template CommandMember1<DynamicProperty<unsigned int>,DynamicProperty<unsigned int>,void,unsigned int>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2420
+	template CommandMember1<DynamicProperty<char>,DynamicProperty<char>,void,char>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA24A0
+	template CommandMember1<DynamicProperty<short>,DynamicProperty<short>,void,short>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA2520
+	template CommandMember1<DynamicProperty<int>,DynamicProperty<int>,void,int>::~CommandMember1();
+	// FUNCTION: ENGINE 0x10AA0B40
+	template Command1<void,char>::~Command1();
+	// FUNCTION: ENGINE 0x10AA1160
+	template Command1<void,short>::~Command1();
+	// FUNCTION: ENGINE 0x10AA1780
+	template Command1<void,int>::~Command1();
+	// FUNCTION: ENGINE 0x10AA4440
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<float> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA44A0
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<bool> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA44F0
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<String> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA4550
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<Vector> >::Create(void*);
 }

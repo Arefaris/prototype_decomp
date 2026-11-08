@@ -9,6 +9,9 @@
 
 namespace om
 {
+	class MetaAttribBase;
+	class MetaPropertyBase;
+
 	class MetaClassBase : public MetaTypeBase
 	{
 	public:
@@ -20,6 +23,13 @@ namespace om
 		virtual void WriteText(TextValue* text, const void* value);
 		virtual bool ReadBinary(BinaryStream* stream, void* value);
 		virtual bool WriteBinary(BinaryStream* stream, const void* value);
+
+		// 0x105B6850 / 0x105B6870: the first attribute and the one after another (null at the end; names guessed)
+		MetaAttribBase* GetFirstAttribute();
+		MetaAttribBase* GetNextAttribute(MetaAttribBase* attribute);
+		// 0x105B68A0 / 0x105B68C0: the same for the properties
+		MetaPropertyBase* GetFirstProperty();
+		MetaPropertyBase* GetNextProperty(MetaPropertyBase* property);
 
 		TreeHead attributes;  // 0x38
 		TreeHead methods;  // 0x4C

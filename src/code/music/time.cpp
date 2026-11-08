@@ -145,6 +145,12 @@ namespace music
 		type(newType)
 	{
 	}
+
+	// FUNCTION: ENGINE 0x105D87A0
+	const char* Time::AllocationTag()
+	{
+		return "";
+	}
 }
 
 namespace om

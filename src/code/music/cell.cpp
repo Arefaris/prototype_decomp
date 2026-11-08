@@ -87,7 +87,6 @@ namespace music
 	}
 
 	// FUNCTION: ENGINE 0x105E24A0
-	// EQUIVALENT: scheduling: at the end the engine loads the name's second half after the pop of edi, ours before it (97.6 %)
 	bool MGraphCell::ReadBinary(om::BinaryStream* stream)
 	{
 		Fade newFadeIn;

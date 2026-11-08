@@ -84,13 +84,8 @@ namespace engine
 	class AudioPeakAmplitudeMessage : public AudioMessage
 	{
 	public:
-		// 0x1087D520 (the kept out-of-line copy of the constructor; the deleting destructor is 0x1087D6A0)
-		AudioPeakAmplitudeMessage(const AudioName& newJoint, float newAmplitude) :
-			AudioMessage(0x15, 2),
-			joint(newJoint),
-			amplitude(newAmplitude)
-		{
-		}
+		// 0x1087D520 (the out-of-line copy of the constructor; the deleting destructor is 0x1087D6A0)
+		AudioPeakAmplitudeMessage(const AudioName& newJoint, float newAmplitude);
 
 		AudioName joint;
 		float amplitude;
