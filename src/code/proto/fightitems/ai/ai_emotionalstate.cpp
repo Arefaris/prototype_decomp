@@ -1,6 +1,24 @@
 // Fight items of the ai group: EmotionalStateCondition, RequestStopPursuitCondition, RequestCheckBodyCondition, RequestPlayerDiversionCondition, RequestDenyPatsyCondition, RequestCallStrikeTeamCondition, RequestRecognizePatsyCondition, RequestPointingCondition, RequestLostHimCondition, RequestSuspicionCondition, RequestRadioHQCondition, ForceEmotionalStateTrack (unit 0x1022AC60 - 0x1022CB50; no assert path, the file name is a guess).
 #include "code/proto/fightitems/ai/ai_emotionalstate.h"
 #include "code/proto/fightitems/ai/aimessages.h"
+#include "code/engine/controller/inputsystem.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+
+namespace proto
+{
+	// The handles of the players' game objects
+	extern engine::GameObjectHandle gPlayerHandles[];
+
+	// The handle of a player's game object, the empty handle when there is none
+	inline engine::GameObjectHandle GetPlayerHandle(int index)
+	{
+		if (index < 0 || index >= engine::controller::InputSystem::Get()->GetPlayerCount())
+		{
+			return engine::GameObjectHandle();
+		}
+		return gPlayerHandles[index];
+	}
+}
 
 namespace proto
 {
@@ -9,6 +27,233 @@ namespace proto
 		namespace ai
 		{
 			fight::Property** gEmotionalStateConditionProperties;  // 0x11255948
+
+			// FUNCTION: ENGINE 0x101EC1D0
+			bool RequestPointingCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle playerHandle = Unknown103B8B80(object);
+					engine::GameObject* player = playerHandle.Get();
+					if (player != 0 && IsPlayerObject(player))
+					{
+						StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+						PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player)];
+						if (!request->active || request->age > 3.0f)
+						{
+							tokens->Unknown103846E0(0, player, 0, 0, 0, 0);
+						}
+						result = request->requester == handle;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC8C0
+			bool RequestStopPursuitCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() != 0)
+				{
+					engine::GameObjectHandle playerHandle = GetPlayerHandle(0);
+					engine::GameObject* player = playerHandle.Get();
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 6];
+					if (!request->active || request->age > minActorAge)
+					{
+						tokens->Unknown10384BA0(6, player, handle);
+					}
+					result = request->requester == handle;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC090
+			bool RequestSuspicionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle playerHandle = Unknown103B8B80(object);
+					engine::GameObject* player = playerHandle.Get();
+					if (player != 0 && IsPlayerObject(player))
+					{
+						StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+						PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 1];
+						if (!request->active || request->age > 1.0f)
+						{
+							tokens->Unknown103846E0(1, player, 0, 0, 1, 0);
+						}
+						result = request->requester == handle;
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC310
+			bool RequestLostHimCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() != 0)
+				{
+					engine::GameObjectHandle playerHandle = GetPlayerHandle(0);
+					engine::GameObject* player = playerHandle.Get();
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 2];
+					if (!request->active || request->age > 5.0f)
+					{
+						tokens->Unknown103846E0(2, player, 0, 0, 1, 0);
+					}
+					result = request->requester == handle;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101ECDB0
+			bool RequestPlayerDiversionCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				if (handle.Get() != 0)
+				{
+					engine::GameObjectHandle playerHandle = GetPlayerHandle(0);
+					engine::GameObject* player = playerHandle.Get();
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 9];
+					if (!request->active || request->age > 5.0f)
+					{
+						tokens->Unknown103846E0(9, player, 0, 0, 1, 0);
+					}
+					result = request->requester == handle;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC6E0
+			bool RequestRadioHQCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObjectHandle targetHandle = Unknown103B8B80(handle.Get());
+				engine::GameObject* target = targetHandle.Get();
+				if (target != 0)
+				{
+					GetPlayerHandle(0);
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					result = tokens->Unknown10384D30(handle, target);
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC7D0
+			bool RequestCallStrikeTeamCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObjectHandle targetHandle = Unknown103B8B80(handle.Get());
+				engine::GameObject* target = targetHandle.Get();
+				if (target != 0)
+				{
+					GetPlayerHandle(0);
+					StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+					if (tokens != 0)
+					{
+						result = tokens->Unknown10384D50(handle, target);
+					}
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101EC9F0
+			// NONMATCHING: shrink-wrap: the engine pushes ebp, esi and edi after the early-exit tests, ours at the entry (21 %, shifted by the prologue)
+#ifdef NONMATCHING
+			bool RequestRecognizePatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle targetHandle = Unknown103B8B80(object);
+					if (targetHandle.Get() != 0)
+					{
+						for (int i = 0; i < 1; i++)
+						{
+							if (result)
+							{
+								return result;
+							}
+							GetPatsyDisguiseMsg message;
+							engine::GameObject* player = GetPlayerObject(i);
+							if (player != 0)
+							{
+								player->SendMessage(&message);
+								if (message.patsy == targetHandle)
+								{
+									StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+									PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 7];
+									if (!request->active || request->age > 8.0f)
+									{
+										tokens->Unknown103846E0(7, player, 0, &message.patsy, 0, 0);
+									}
+									result = request->requester == handle;
+								}
+							}
+						}
+					}
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101ECBD0
+			// NONMATCHING: shrink-wrap: the engine pushes ebp, esi and edi after the early-exit tests, ours at the entry (21 %, shifted by the prologue)
+#ifdef NONMATCHING
+			bool RequestDenyPatsyCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					engine::GameObjectHandle targetHandle = Unknown103B8B80(object);
+					if (targetHandle.Get() != 0)
+					{
+						for (int i = 0; i < 1; i++)
+						{
+							if (result)
+							{
+								return result;
+							}
+							GetPatsyDisguiseMsg message;
+							engine::GameObject* player = GetPlayerObject(i);
+							if (player != 0)
+							{
+								player->SendMessage(&message);
+								if (message.patsy == targetHandle)
+								{
+									StrafeRunTokens* tokens = gAISystem->strafeRunTokens;
+									PlayerRequest* request = &tokens->requests[tokens->Unknown10383730(player) + 8];
+									if (!request->active || request->age > 8.0f)
+									{
+										tokens->Unknown103846E0(8, player, 0, &message.patsy, 0, 0);
+									}
+									result = request->requester == handle;
+								}
+							}
+						}
+					}
+				}
+				return result;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x1022B420
 			bool EmotionalStateCondition::SetState(const fight::Name& newValue)

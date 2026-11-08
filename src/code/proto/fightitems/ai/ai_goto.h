@@ -203,6 +203,13 @@ namespace proto
 				// vftable slot 7 (0x101F70D0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101F6080: sends the object to the destination (name guess)
+				void MoveToDestination(engine::GameObject* object);
+				// 0x101F6130 / 0x101F6BA0 / 0x101F61F0: the three states of the action (state 0 takes the destination, 1 goes there and reports the arrival, 2 follows it; name guesses)
+				void TakeDestination(engine::GameObject* object, float time);
+				void GoToDestination(engine::GameObject* object, float time);
+				void FollowDestination(engine::GameObject* object, float time);
+
 				core::Link<GoToTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				int unknown2C;  // +0x2C
@@ -234,6 +241,18 @@ namespace proto
 				unsigned char unknown38[0xC];
 				bool unknown44;  // +0x44
 				unsigned char unknown45[0x3];
+			};
+			// RTTI: proto::fightitems::ai::DumbGotoLODAction (9 vftable slots, 0x54 bytes; only what the track's CreateAction needs is declared)
+			class DumbGotoLODAction : public fight::Action
+			{
+			public:
+				// 0x101F6FB0
+				DumbGotoLODAction(DumbGotoLODTrack* newTrack, engine::GameObjectHandle newTarget);
+
+				// vftable slot 5 (0x101F60D0)
+				virtual bool Slot5(int arg, float value);
+
+				unsigned char unknown1C[0x54 - 0x1C];
 			};
 			// ---- actions end
 		}

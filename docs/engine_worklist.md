@@ -8044,6 +8044,35 @@ Of 2257 open functions about 1940 have no name; the rest are dead copies of 1 - 
   `DynamicArray<Packet<T>>::FillElements / CopyElements / Resize` (82 % / 70 %: the engine strength-reduces the source pointer), and the roughly 300 second copies of template instances.
 - Shared header changes: `mgraph/nodes.h` (`InletBase`, `OutletBase`, `Inlet`, `Outlet`, `Abstraction::Refresh`, `PropertyNodeBase` / `PropertyNode` constructors, `PropertyValueAccess<Vector>`),
   `mgraph/pins.h` (the abstract pin constructors, `AddSource`, `AddTarget`), `mgraph/listnodes.h`, `mgraph/throw.h`.
+## proto/fightitems/ai: the action half of 0x101E0000 - 0x10200000, third pass (sn-ev)
+Written into the existing units (`ai_flee`, `ai_goto`, `ai_reserveposition`, `ai_emotionalstate`, `ai_token`, `ai_disguise`, `ai_fixeddestination`, `ai_lod`, `ai_takeoff`, `ai_circle`, `ai_message`). Of the 1013 functions without an annotation
+about 880 are unreferenced 3 - 8 byte copies of inline members (getters, `ret`, `mov al, 1`) of classes no caller names; they stay unreconstructed.
+- Match (30 functions, 13 kept copies): `FleeAction` (`Flee` 0x101F3320, `FleeFromThreat` 0x101F33A0, `KeepFleeing` 0x101F3130, `StartFleeing` 0x101F34C0, `Slot7`), `GoToAction` (`MoveToDestination` 0x101F6080, `TakeDestination` 0x101F6130, `Slot7`),
+  `EngageAction` (`RunState5`, `AcceptPosition` 0x101ED6C0, `PositionAllowed` 0x101ED8A0, `ReservePosition` 0x101EDBE0), the request conditions of the player requests (`RequestPointing`, `RequestSuspicion`, `RequestLostHim`,
+  `RequestStopPursuit`, `RequestPlayerDiversion`, `RequestRadioHQ`, `RequestCallStrikeTeam` `Evaluate`), `HaveTokenCondition::Evaluate` with its holder test 0x101E4DA0, `FixedDestinationDistanceCondition::Evaluate`,
+  `InTargetsCameraCondition::Evaluate`, `LandAction::Slot6`, the three `CreateAction`s of the tracks whose actions' constructors are left to the engine (`DumbGotoLODTrack`, `LodGotoFixedDestinationTrack`,
+  `IntersectionCirclePatrolTrack`: the action classes are declared with their size and constructor only, the constructors are mapped to the engine's), the trivial slots of `DumbGotoLODAction` / `MessageAction` /
+  `PeriodicMessageAction`, and the kept copies `keptmap.py` found (constructors of `GetAimParametersMovementMessage`, `SetStateStateChangeMessage`, `GetSpeedMovementMessage`, `SquadMessage`, `AICollisionStateChangeMessage`,
+  `GetOwnersTokenMsg` and the destructors next to them). `keptmap.py` also maps a section label `$LN32` to 0x101FE6B0 (the constructor of `ClearVehicleSpeedsMessage`): that line is not taken over.
+- Findings: (1) `math::Vector` locals built from the three matrix components (`math::Vector p(m->m[3][0], m->m[3][1], m->m[3][2]);`) give the engine's loads of all components into registers before the subtractions
+  (the plain `float x = m->m[3][0]` form folds the loads into the arithmetic). (2) The player lookup `GetPlayerHandle(i)` is an inline function that returns the empty handle on `i < 0 || i >= count` and the global otherwise;
+  the result is kept in a named `engine::GameObjectHandle` local before `.Get()`, while the handle another function returns (`Unknown103B8B80(object)`) is read with `.Get()` directly. A `?:` between the global and a temporary
+  compiles to a pointer choice. (3) The conditions keep their result in a `bool result` that is assigned in the branch and returned at the end (a direct `return` in the branch gives `xor eax, eax / sete`); an
+  `if (x) { ... } else { result = true; }` puts the else block last, `if (!x) { result = true; } else { ... }` puts it first. (4) A call whose arguments are read from members goes through locals declared in the order the
+  engine loads them (`int selector = direction; float limit = distance; int op = compare;` gave the engine's registers for `CompareVectorMeasure`). (5) `unknown59 = true;` before a call that takes a manager and a time sinks below the pushes
+  only when the manager and the time are read into locals first. (6) A loop over a constant one player that the engine keeps is a `do { if (result) break; ... } while (i < 1)`; ours unrolls a `for` loop of that shape.
+  (7) A helper the engine calls with its arguments on the stack is an external function in ours (`__declspec(noinline)`), a `static` one takes registers.
+- NONMATCHING (reason, best %): `IsDisguiseActionEnabledCondition::Evaluate` (`this` in edi against ebx, 96.1), `MessageTrack::CreateAction` / `PeriodicMessageTrack::CreateAction` (the temporary registers, 96.2),
+  `EngageAction::RunState2` (93.2), `TargetHasLoFCondition::Evaluate` (the arguments of the message constructor are loaded in another order, 84), `GoToAction::GoToDestination` / `FollowDestination` (stack frame and the order of the
+  squared distances, the arrival message is expanded in line), `RequestRecognizePatsyCondition` / `RequestDenyPatsyCondition` (shrink-wrap), `ResetPhysicVelocitiesAction::Slot5` / `Slot7` (shrink-wrap, 58),
+  `AnyPlayerDistanceCondition::Evaluate` (the player handle block order differs).
+- Not done: the flying constraints message (`SetFlyingContraintsMessage`, 0x5C bytes with two inline arrays, copy 0x101E1690) and everything that sends it (`CirclePatrol`, `FlyingIdle`, `Reform`, `FixedDestinationFlyto`), the big updates
+  (`CircleStrafeAction::Slot7`, `CombatDestinationFindAction::Slot7`, `FollowFormationAction::Slot7`, `AddDiversionAction`, `LandAction::Slot5` / `Slot7`, `DumbGotoAction::Slot7`, `KeepPlace`, `EngageAction::RunState0` / `1` / `3`), the conditions that read the
+  height grid or the destination parameters (`TargetFreeHeightRadius`, `DestinationTargetDistance`, `InfectedAlerted`, `FacingAngleTarget`, `AimingAt`), `TargetHasLoFDistance` (physics handle in the message), `FloatShotAllowed` / `TargetIsHuman`
+  (`GetMotionStateMsg` has an out-of-line constructor), `BlindAction` (the grab slot lookup 0x101FD420), `RequestCheckBodyCondition`.
+- Shared header changes: `aimessages.h` (`GetDisguiseActionInfoMsg`, `GetTargetLOFMessage`, `AimParameters::unknown18`), `aiactionmessages.h` (`AICollisionStateChangeMessage`), `aitokenmessages.h` (`GetOwnersTokenMsg`, includes `tokenbehaviour.h`),
+  `aihelpers.h` (`PlayerRequest`, the table and methods of `StrafeRunTokens`, `GetPlayerObject`, a few `Unknown...` functions), `aiactionhelpers.h` (`Unknown103BAE00`), the action classes of `ai_flee.h`, `ai_goto.h`, `ai_reserveposition.h`,
+  `ai_lod.h`, `ai_circle.h`, `ai_message.h`.
 ## sn-ds: the range 0x10B60000 - 0x10B80000 (mgraph envelope-array property node, node allocation functions and per-channel state, the Lua string library, Pluto)
 789 functions of the range were open at the start; about 175 are reconstructed now (all 100 % matches except the NONMATCHING ones named below).
 - `mgraph/propertynode.cpp`, `methods.cpp` (0x10B627D0 - 0x10B63E00): the property node of the `DynamicArray<EnvelopeData>` packets (events, channels, delegates, `PostInputEvent` / `SetChannelValue` / `SetNumChannels` /

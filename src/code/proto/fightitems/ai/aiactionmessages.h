@@ -60,6 +60,19 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> state;  // +0x10
 	};
 
+	// RTTI: proto::AICollisionStateChangeMessage: the object turns its collision with the ai on or off
+	struct AICollisionStateChangeMessage : public StateChangeMessage
+	{
+		explicit AICollisionStateChangeMessage(bool newCollide) : StateChangeMessage(3), collide(newCollide)
+		{
+		}
+		virtual ~AICollisionStateChangeMessage()
+		{
+		}
+
+		bool collide;  // +0xC
+	};
+
 	// RTTI: proto::SetVehicleAccelerationsMessage: the vehicle takes a factor for its accelerations (the others stay at minus one)
 	struct SetVehicleAccelerationsMessage : public VehicleMessage
 	{
