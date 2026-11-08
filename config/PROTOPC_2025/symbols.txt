@@ -108192,3 +108192,6 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ??$Destroy@UIntersectionData@proto@@@container@@YAXPAUIntersectionData@proto@@@Z = 0x102A6530 ; function size:0x28 | (kept copy)
 ??$Destroy@UIntersectionData@proto@@@container@@YAXPAUIntersectionData@proto@@0@Z = 0x102A65D0 ; function size:0x57 | (kept copy)
 ??0RemoveTargetLockMessage@proto@@QAE@PAPAVGameObject@engine@@@Z = 0x102A9E20 ; function size:0x25 | (kept copy)
+??0FogAreaValues@proto@@QAE@ABU01@@Z = 0x102A3070 ; function size:0x61 | (kept copy)
+??$SafeRelease@VAutoTargetPriorityList@proto@@@core@@YAXAAPAVAutoTargetPriorityList@proto@@@Z = 0x102A8490 ; function size:0x1A | (kept copy)
+??$MemberOffset@PAUWeaponUserProfile@proto@@@content@@YAHPAPAUWeaponUserProfile@proto@@H@Z = 0x102BB680 ; function size:0x5 | (kept copy)
