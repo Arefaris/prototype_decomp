@@ -4185,6 +4185,25 @@ expansion of a dozen container members; the remaining small functions of 0x10819
 `core::Link` constructors, destructors and getters of 0x108058A0 - 0x108060B0 and 0x10808970 - 0x10809640 have no caller
 that tells their types apart (the copy constructor 0x10805B90 is `Link<EffectTrack>`'s).
 
+### Third pass over 0x10800000 - 0x10820000 (sn-ex)
+
+- The property, factory and condition-factory template instances of the track and condition units (`PropertyBool<T>`,
+  `PropertyFloatConstRange<T>`, `PropertyName<T>`, `PropertyEnumConstList<T>`, `TrackFactoryTemplate<T>`,
+  `ConditionFactoryCasterTemplate<T>`, ...: 509 functions, all byte-identical already) are now annotated at the end of the
+  source of the unit that defines them. The compiler-made scalar deleting destructors stay mapped only.
+- `ArrayDynamic<ScheduledCall, AllocatorCoreStatic<0x7a, 16>>::ShiftUp` (0x10800D70, an explicit specialization so that it
+  stays out of line; `end += count; to = end;` before the loop) and `PushBack` (0x10802730, which answers a bool: the shared
+  `ArrayDynamic<T, AllocatorCoreStatic>::PushBack` in `container/arraydynamicstatic.h` returns bool now), `core::Link`'s copy
+  constructor (`linklist.h`: member initialisers, `Link<EffectTrack>` at 0x10805B90), `AttachedRing::Size` 0x10819670.
+- Kept copies mapped with their class: `ScheduledCall()` 0x108002E0, `DrawableData()` 0x108179A0, `DrawableRing::Size`
+  0x10819710, `EffectStore` copy constructor and default constructor 0x10819E20 / 0x10819EA0, `EffectInstance` flag, LOD count
+  and store name accessors 0x10819360 - 0x10819EE0, `HashLookup` start slot and step 0x10819CA0 / 0x10819CB0.
+- NONMATCHING (37.4 %): `EffectManagerConfig::SetEffectLimit` / `SetAttachedLimit` 0x1081AAC0 / 0x1081AB30 (called from the
+  start-up code once per kind): the engine rereads the list's first element for the index with one saved register.
+- Left: the remaining small functions of 0x10819340 - 0x1081D150 are unreferenced copies of container members whose type no
+  caller names (several identical copies per shape), the named-timer table functions (they use the name map of 0x10601EC0),
+  the manager's constructor / destructor (644 bytes of inlined container teardown) and `BeginEffect` 0x108060F0.
+
 ## render/async/private/shaderparameter.cpp (0x10826970 - 0x10829D70, partly): the shader parameter calls, events and interpolators
 
 Done: the `SetParameter` / `InterpolateParameter` / `SetParameterEnabled` calls of the game thread, the

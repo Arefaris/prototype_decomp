@@ -45,14 +45,11 @@ namespace core
 		}
 		// The copy lists itself on the same object (0x10805B90 is the engine's copy of this)
 		Link(const Link<T>& other)
+			: object(other.object), next(0), prev(0)
 		{
-			T* newObject = other.object;
-			object = newObject;
-			next = 0;
-			prev = 0;
-			if (newObject != 0)
+			if (object != 0)
 			{
-				LinkList<T>& list = reinterpret_cast<LinkList<T>&>(newObject->watchList);
+				LinkList<T>& list = reinterpret_cast<LinkList<T>&>(object->watchList);
 				next = list.head;
 				if (list.head != 0)
 				{
