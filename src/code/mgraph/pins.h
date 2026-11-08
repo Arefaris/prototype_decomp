@@ -120,9 +120,9 @@ namespace mgraph
 	class ConcreteOutputPinBase : public OutputPinBase
 	{
 	public:
-		ConcreteOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex) :
+		ConcreteOutputPinBase(const om::ClassName* newName, void* newNode, int newIndex, unsigned int newUnknown30) :
 			OutputPinBase(newName, 0, newNode, newIndex),
-			unknown30(0x10)
+			unknown30(newUnknown30)
 		{
 		}
 		// 0x10AD16A0

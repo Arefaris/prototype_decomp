@@ -10,6 +10,8 @@ namespace om
 	template<> void DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::FillElements(mgraph::PropertyChannel<bool>*, unsigned short, const mgraph::PropertyChannel<bool>&);
 	template<> void DynamicArray<mgraph::PropertyChannel<float>,unsigned short>::FillElements(mgraph::PropertyChannel<float>*, unsigned short, const mgraph::PropertyChannel<float>&);
 	template<> void DynamicArray<mgraph::PropertyChannel<Vector>,unsigned short>::FillElements(mgraph::PropertyChannel<Vector>*, unsigned short, const mgraph::PropertyChannel<Vector>&);
+	template<> void DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::CopyElements(mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >*, const mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >*, unsigned short);
+	template<> void DynamicArray<mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >,unsigned short>::Resize(unsigned short, const mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >&);
 }
 
 namespace mgraph
@@ -326,6 +328,10 @@ namespace mgraph
 	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Set(DynamicArray<bool,unsigned short>);
 	// FUNCTION: ENGINE 0x10B38DB0
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > >::SetChannelValue(DynamicArray<bool,unsigned short> const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B38EC0
+	template void mgraph::PropertyChannel<DynamicArray<bool,unsigned short> >::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B38F30
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B38F50
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<bool,unsigned short> > >::SetNumChannels(unsigned int);
 	// FUNCTION: ENGINE 0x10B39170
@@ -502,6 +508,10 @@ namespace mgraph
 	template void mgraph::PropertyPropertyDelegate<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::Set(DynamicArray<unsigned int,unsigned short>);
 	// FUNCTION: ENGINE 0x10B3B050
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::SetChannelValue(DynamicArray<unsigned int,unsigned short> const*, unsigned int, int);
+	// FUNCTION: ENGINE 0x10B3B160
+	template void mgraph::PropertyChannel<DynamicArray<unsigned int,unsigned short>>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3B1D0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short>> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B3B1F0
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<unsigned int,unsigned short> > >::SetNumChannels(unsigned int);
 	// FUNCTION: ENGINE 0x10B3B4F0
@@ -706,6 +716,10 @@ namespace mgraph
 	template DynamicArray<Complex,unsigned short> const* mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::GetChannelValue(unsigned int);
 	// FUNCTION: ENGINE 0x10B3F780
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short> > >::Slot15(unsigned int);
+	// FUNCTION: ENGINE 0x10B3FB60
+	template void mgraph::PropertyChannel<DynamicArray<mgraph::TriggerData,unsigned short>>::Update(mgraph::PropertyNodeBase*, mgraph::EvaluationFrame*);
+	// FUNCTION: ENGINE 0x10B3FBD0
+	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<mgraph::TriggerData,unsigned short>> >::Slot16(mgraph::EvaluationFrame*);
 	// FUNCTION: ENGINE 0x10B3FEF0
 	template void mgraph::PropertyNode<mgraph::Packet<DynamicArray<Complex,unsigned short>> >::operator delete(void*);
 	// FUNCTION: ENGINE 0x10B3FF20
