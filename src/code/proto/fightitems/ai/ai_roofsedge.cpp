@@ -139,8 +139,7 @@ namespace proto
 			// ---- actions begin
 
 			// ---- actions end
-						// FUNCTION: ENGINE 0x10208AC0
-			// EQUIVALENT: register allocation; the compare operator is loaded into eax in the engine and into edx in ours, and the three arguments are pushed from the other registers; every other instruction is the engine's
+			// FUNCTION: ENGINE 0x10208AC0
 			bool AtRoofsEdgeCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObjectHandle handle = engine::GetObjectHandle((core::IRefCount*)c);
@@ -151,8 +150,9 @@ namespace proto
 				}
 				AtRoofsEdgeAIMsg message;
 				object->SendMessage(&message);
+				int op = compare;
 				float expected = timeAtEdge;
-				return fight::CompareFloats(compare, &message.time, &expected);
+				return fight::CompareFloats(op, &message.time, &expected);
 			}
 
 			// FUNCTION: ENGINE 0x10208B90

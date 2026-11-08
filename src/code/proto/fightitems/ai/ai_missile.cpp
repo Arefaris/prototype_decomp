@@ -32,7 +32,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1021C6F0
-			// EQUIVALENT: shrink-wrap; the engine saves esi in the entry block before the guard's branch, ours after it; every other instruction is the engine's
 			void IsMissileTargetingPlayerCondition::RegisterProperties()
 			{
 				if (gIsMissileTargetingPlayerConditionProperties == 0)
