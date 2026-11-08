@@ -972,8 +972,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10217F30
-			// NONMATCHING: the engine loads the position of the object, steps its pointer and then loads the threat's position into other registers, best 77 %
-#ifdef NONMATCHING
 			bool ThreatDodgeAction::IsThreatNear()
 			{
 				engine::GameObject* object = target.Get();
@@ -981,8 +979,8 @@ namespace proto
 				if (object != 0 && threat != 0)
 				{
 					math::Matrix& objectWorld = object->transform->value;
-					math::Matrix& threatWorld = threat->transform->value;
 					math::Vector from(objectWorld.m[3][0], objectWorld.m[3][1], objectWorld.m[3][2]);
+					math::Matrix& threatWorld = threat->transform->value;
 					math::Vector to(threatWorld.m[3][0], threatWorld.m[3][1], threatWorld.m[3][2]);
 					float dx = from.x - to.x;
 					float dz = from.z - to.z;
@@ -997,20 +995,15 @@ namespace proto
 				}
 				return true;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10219870
-			// NONMATCHING: the argument loads of the condition call take other registers (effect in edx, listener in eax, track in ecx), best 94.6 %
-#ifdef NONMATCHING
 			bool ThreatDodgeAction::StartDodge()
 			{
 				fight::Branch* branch = link.Get()->dodgeBranch.GetBranch();
 				engine::GameObjectParams* params = new engine::GameObjectParams(target, 0, 0x10001);
 				params->AddRef();
-				int currentEffect = (int)effect;
 				int currentListener = (int)listener.track;
-				fight::ConditionList* conditions = &link.Get()->conditions;
-				if (conditions->Evaluate(currentListener, currentEffect, (int)params, 0))
+				if (link.Get()->conditions.Evaluate(currentListener, (int)effect, (int)params, 0))
 				{
 					fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, params, 0, false);
 					if (started != 0)
@@ -1021,7 +1014,6 @@ namespace proto
 				params->Release();
 				return true;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10219BF0
 			// NONMATCHING: the call of the (not compiled) threat distance test keeps ecx in the engine, best 82 %
