@@ -428,3 +428,5 @@ template core::Link<proto::fightitems::ai::LandTrack>::Link(proto::fightitems::a
 // FUNCTION: ENGINE 0x101F8E70
 // FUNCTION: ENGINE 0x101F8F40
 // FUNCTION: ENGINE 0x101F9080
+// FUNCTION: ENGINE 0x101F8D40
+// FUNCTION: ENGINE 0x101F8D80
