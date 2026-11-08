@@ -108291,3 +108291,5 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ??0LockOnTargetingBehaviour@proto@@QAE@PAVGameObject@engine@@@Z = 0x102B0180 ; function size:0x2D4 | proto::LockOnTargetingBehaviour constructor (name guess)
 ?GetMembers@LockOnTargetingBehaviour@proto@@SAPAUMemberList@content@@XZ = 0x102AFB90 ; function size:0x4B8 | proto::LockOnTargetingBehaviour::GetMembers (name guess)
 ?Update@LockOnTargetingBehaviour@proto@@UAEXMG@Z = 0x102B0850 ; function size:0x81D | proto::LockOnTargetingBehaviour::Update vftable slot 4 (name guess)
+?Free@?$ArrayDynamic@UTargetClassPriority@proto@@UAllocatorNew@container@@@container@@QAEXXZ = 0x102B4E50 ; function size:0x28 | (kept copy)
+?Clear@?$ArrayDynamic@UTargetClassPriority@proto@@UAllocatorNew@container@@@container@@QAEXXZ = 0x102B5210 ; function size:0x6 | (kept copy)
