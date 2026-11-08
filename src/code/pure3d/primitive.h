@@ -1723,6 +1723,9 @@ namespace pure3d
 		void UnlockBuffer();
 		void UnlockIndices();
 		void SetPalette(MatrixPaletteList* palettes);
+		// 0x1072E060 / 0x1072E0A0: the kind of primitive at +0x1C and the bone palette (names guessed)
+		unsigned int GetKind();
+		MatrixPaletteList* GetPalette();
 		// 0x1072DF00: the description of the index buffer (name guess)
 		void GetIndexDescription(IndexBufferDescription* description);
 		// 0x1072E3D0: the shader parameters the device is set up with
@@ -1744,6 +1747,19 @@ namespace pure3d
 	private:
 		// 0x1072E2F0: takes the primitive's flags from the shader's (called by Unknown4; name guess)
 		void SetFlagsFromShader();
+	};
+
+	// RTTI: pure3d::PSAsyncTaskCallback (base core::AsyncTaskCallback, one slot): the callback of the update task of a
+	// particle system state; it signals the counted event the state waits for
+	class PSAsyncTaskCallback : public core::AsyncTaskCallback
+	{
+	public:
+		// 0x1073FD00: signals the event
+		virtual void OnResult(int result);
+
+		// A counted event (core::EventReset)
+		int event[2];
+		unsigned char unknownC[4];
 	};
 
 	// The per-instance state of a particle system. The setters and parameter forwarders are inline (0x107E8060 -
@@ -1893,10 +1909,8 @@ namespace pure3d
 		unsigned char unknown10[0xC];
 		// The update kernels that run in UpdateParticles (bit n: kernel n)
 		unsigned int updateKernels;
-		unsigned char unknown20[4];
-		// A counted event (core::EventReset) that the update task signals
-		int event[2];
-		unsigned char unknown2C[4];
+		// What the update task reports to
+		PSAsyncTaskCallback taskCallback;
 		// The task that runs UpdateParticles (0x107A0310)
 		core::AsyncTaskJob job;
 		unsigned char unknown78[0xC];
