@@ -429,6 +429,17 @@ namespace container
 			value = 0
 		};
 	};
+	// The engine's AssignRange of the vector keys copies them component by component
+	template<> inline proto::TimeOfDayVarChannel<math::Vector>::Key* AssignRange(const proto::TimeOfDayVarChannel<math::Vector>::Key* first,
+		const proto::TimeOfDayVarChannel<math::Vector>::Key* last, proto::TimeOfDayVarChannel<math::Vector>::Key* dest)
+	{
+		for (; first != last; dest++, first++)
+		{
+			dest->time = first->time;
+			proto::AssignValue(dest->value, first->value);
+		}
+		return dest;
+	}
 	template<> struct ArrayEraseInline<proto::TimeOfDayVarChannel<math::Colour128>::Key>
 	{
 		enum
