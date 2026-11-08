@@ -21,6 +21,12 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// 0x1047BAD0 / 0x1047BAE0 (another unit): the faction is the infected / one of the military ones (name guesses)
+		bool IsInfected();
+		bool IsMilitary();
+		// 0x1047B950 (another unit): how the faction stands to another one, 0 when they are friends (name guess)
+		int GetRelationTo(const Faction& other);
+
 		core::Name<core::CaseSensitiveKey> name;
 	};
 }

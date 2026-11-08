@@ -29,6 +29,7 @@
 #include "code/proto/behaviours/aiflyingpatrolbehaviour.h"
 #include "code/proto/behaviours/randomdeadpedbehaviour.h"
 #include "code/proto/behaviours/alertbehaviour.h"
+#include "code/proto/behaviours/disguisebehaviour.h"
 #include "code/proto/behaviours/testwalkbehaviour.h"
 #include "code/proto/behaviours/threatbehaviour.h"
 #include "code/proto/behaviours/threatreceiverbehaviour.h"
@@ -273,15 +274,6 @@ namespace proto
 		unsigned char unknown0[0x60];
 	};
 
-	class DisguiseBehaviour : public engine::FightTreeBehaviour
-	{
-	public:
-		explicit DisguiseBehaviour(engine::GameObject* newOwner);
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-	
-		unsigned char unknownTail[0x560 - sizeof(engine::FightTreeBehaviour)];
-	};
 
 	class MovementBehaviour : public engine::Behaviour
 	{

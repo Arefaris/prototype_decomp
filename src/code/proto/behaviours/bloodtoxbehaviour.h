@@ -42,7 +42,7 @@ namespace proto
 		math::Vector scaleDisplacement;  // +0xC8
 		float unknownD4;
 		int unknownD8;
-		engine::HandleBase unknownDC;
+		engine::GameObjectHandle unknownDC;
 		bool unknownE0;
 	};
 }

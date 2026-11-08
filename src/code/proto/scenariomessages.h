@@ -176,6 +176,10 @@ namespace proto
 		DisguiseBlownScenarioMsg() : engine::ScenarioMessage(0x22)
 		{
 		}
+		explicit DisguiseBlownScenarioMsg(engine::GameObjectHandle player) : engine::ScenarioMessage(0x22)
+		{
+			handles[0] = player;
+		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
@@ -191,6 +195,10 @@ namespace proto
 	{
 		DisguiseUnblownScenarioMsg() : engine::ScenarioMessage(0x23)
 		{
+		}
+		explicit DisguiseUnblownScenarioMsg(engine::GameObjectHandle player) : engine::ScenarioMessage(0x23)
+		{
+			handles[0] = player;
 		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
