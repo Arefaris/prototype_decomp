@@ -2,12 +2,14 @@
 // guesses.
 #include "code/engine/driving/carattributes.h"
 #include "code/engine/nis/nis.h"
+#include <math.h>
 #include <new>
 
 #include "code/core/refptr.h"
 #include "code/pure3d/channel.h"
 #include "code/pure3d/loaders/drawableloaders.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/vertexstream.h"
 
 namespace pure3d
 {
@@ -175,6 +177,46 @@ namespace pure3d
 	{
 		core::RefAssign(mKeyFrames, keyFrames);
 	}
+
+	// FUNCTION: ENGINE 0x1072F980
+	// NONMATCHING: the engine reloads the end of the stream and its stride from the stream object on every vertex and keeps
+	// the matrix pointer in a register of its own; ours keeps both in registers (49.4 %)
+#ifdef NONMATCHING
+	void VertexEllipseRegionDeformation::Deform(float* weights, const math::Matrix* transform)
+	{
+		dxVertexDeclaration lock;
+		mMesh->DescribeStateVertices(&lock);
+		VertexStream<math::Vector> stream(&lock, core::Name<core::CaseInsensitiveKey32>("position", 1));
+		math::Vector centre;
+		centre.x = mPosition.x;
+		centre.y = mPosition.y;
+		centre.z = mPosition.z;
+		centre.Transform(*transform);
+		for (math::Vector* vertex = stream.current; vertex < stream.end; vertex = (math::Vector*)((char*)vertex + stream.stride))
+		{
+			float dx = vertex->x - centre.x;
+			float dy = vertex->y - centre.y;
+			float dz = vertex->z - centre.z;
+			math::Vector distance;
+			distance.x = dx;
+			distance.y = dy;
+			distance.z = dz;
+			math::Vector offset;
+			offset.x = dx;
+			offset.y = dy;
+			offset.z = dz;
+			offset.NormalizeFast();
+			offset.Rotate(*(const math::Matrix*)mInverse);
+			offset.x = unknown1C.x * offset.x * offset.x;
+			offset.y = unknown1C.y * offset.y * offset.y;
+			offset.z = offset.z * offset.z * unknown1C.z;
+			float length = sqrtf(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
+			*weights = sqrtf(offset.x * offset.x + offset.y * offset.y + offset.z * offset.z) / (length * length) + *weights;
+			weights++;
+		}
+		mChanged = false;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1072F8C0
 	void VertexRegionAnimController::SetRegion(VertexDeformRegion* region)
