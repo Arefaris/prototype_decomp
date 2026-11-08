@@ -436,8 +436,6 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x10206B50
-			// NONMATCHING: the argument loads of the condition call take other volatile registers (owner and listener in edx and ecx), best 92 %
-#ifdef NONMATCHING
 			bool DelayedSequenceAction::Slot7(int arg, float value)
 			{
 				if (link.object == 0)
@@ -456,8 +454,8 @@ namespace proto
 				delay = delay - value;
 				if (link.Get()->forceSequenceWhenNotBusy || delay < 0.0f)
 				{
-					int currentOwner = (int)owner;
 					int currentListener = (int)listener.track;
+					int currentOwner = (int)owner;
 					if (link.Get()->conditions.Evaluate(currentListener, effect, currentOwner, 0))
 					{
 						fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, owner, 0, false);
@@ -469,7 +467,6 @@ namespace proto
 				}
 				return true;
 			}
-#endif
 
 			// FUNCTION: ENGINE 0x10206D00
 			fight::Action* DelayedSequenceTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

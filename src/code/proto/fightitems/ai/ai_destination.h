@@ -1182,6 +1182,15 @@ namespace proto
 				// vftable slot 7 (0x10203ED0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x10201D60: the object the track means to go to: the target of the object or the one it means to grab (name guess)
+				engine::GameObject* GetTargetObject(engine::GameObject* object);
+				// 0x10201E70: where the target is, on the ground when the track asks for that (name guess)
+				void GetTargetPosition(math::Vector* result, engine::GameObject* targetObject);
+				// 0x10202030: sends the object to the position (name guess)
+				void MoveToPosition(engine::GameObject* object);
+				// 0x102020B0: moves the position by a random distance (name guess)
+				void AddOvershoot(engine::GameObject* targetObject);
+
 				math::Vector unknown1C;  // +0x1C
 				unsigned char unknown28[0xC];
 				float unknown34;  // +0x34
