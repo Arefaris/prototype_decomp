@@ -172,6 +172,12 @@ namespace proto
 		TimeOfDayVarChannel(const TimeOfDayVarChannel& other) : keys(other.keys)
 		{
 		}
+		TimeOfDayVarChannel& operator=(const TimeOfDayVarChannel& other)
+		{
+			keys.Reserve(other.keys.Size());
+			keys = other.keys;
+			return *this;
+		}
 		virtual ~TimeOfDayVarChannel()
 		{
 		}
@@ -458,6 +464,13 @@ namespace container
 			result = position;
 		}
 		return result;
+	}
+	// The engine's single insert of the colour keys goes through the count version
+	template<> inline proto::TimeOfDayVarChannel<math::Colour128>::Key* ArrayDynamic<proto::TimeOfDayVarChannel<math::Colour128>::Key,
+		AllocatorNew>::Insert(proto::TimeOfDayVarChannel<math::Colour128>::Key* position,
+		const proto::TimeOfDayVarChannel<math::Colour128>::Key& value)
+	{
+		return Insert(position, 1, value);
 	}
 }
 

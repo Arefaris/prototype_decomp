@@ -11,6 +11,14 @@ namespace container
 	// variation array's functions call the key arrays' and the rigs' special members)
 	template class ArrayDynamic<proto::TimeOfDayVariation, AllocatorNew>;
 	template class ArrayDynamic<proto::TimeOfDayLightInfo, AllocatorNew>;
+	template class ArrayDynamic<proto::TimeOfDayVarGroup*, AllocatorNew>;
+	template class ArrayFixed<proto::TimeOfDayVarGroup*, 128>;
+	template class ArrayDynamic<core::Name<core::CaseSensitiveKey>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<float>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector2>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Vector>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalShaderRig::Param<math::Colour128>, AllocatorNew>;
+	template class ArrayDynamic<proto::GlobalLightingRig::Light, AllocatorNew>;
 	template class ArrayDynamic<proto::TimeOfDayVarChannel<float>::Key, AllocatorNew>;
 	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Vector>::Key, AllocatorNew>;
 	template class ArrayDynamic<proto::TimeOfDayVarChannel<math::Colour128>::Key, AllocatorNew>;
@@ -1040,3 +1048,21 @@ namespace proto
 // FUNCTION: ENGINE 0x10520AF0
 // FUNCTION: ENGINE 0x105265D0
 // FUNCTION: ENGINE 0x105274C0
+// FUNCTION: ENGINE 0x105242a0
+// FUNCTION: ENGINE 0x10525930
+// FUNCTION: ENGINE 0x10525980
+// FUNCTION: ENGINE 0x1052a8d0
+// FUNCTION: ENGINE 0x10521450
+// FUNCTION: ENGINE 0x10521870
+// FUNCTION: ENGINE 0x10521890
+// FUNCTION: ENGINE 0x105218A0
+// FUNCTION: ENGINE 0x10522450
+// FUNCTION: ENGINE 0x105224A0
+// FUNCTION: ENGINE 0x10522580
+// FUNCTION: ENGINE 0x10523D20
+// FUNCTION: ENGINE 0x105219D0
+// FUNCTION: ENGINE 0x10521810
+// FUNCTION: ENGINE 0x10521820
+// FUNCTION: ENGINE 0x10522530
+// FUNCTION: ENGINE 0x10522570
+// FUNCTION: ENGINE 0x10523240
