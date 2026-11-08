@@ -67,16 +67,16 @@ namespace proto
 		// 0x104D1470 / 0x104D1480
 		bool GetPassiveFlag();
 		bool GetHintFlag();
-		// 0x104D14E0 / 0x104D14F0
-		void SetMissionActive(bool value);
-		bool GetMissionActive();
+		// 0x104D14E0 / 0x104D14F0: the scripts' fe_SetMissionIdle and fe_IsMissionIdle
+		void SetMissionIdle(bool value);
+		bool GetMissionIdle();
 		// 0x104D1490 (another unit's NONMATCHING caller names it): fades the pop-up out (or back in)
 		void Unknown104D1490(bool faded);
 		// 0x104D16C0 (not reconstructed)
 		void ShowPassivePopup(bool newFlag, const char* text);
 
 		bool popupsShown;  // +0xC
-		bool missionActive;  // +0xD
+		bool missionIdle;  // +0xD
 		Slot slots[4];  // +0x10
 		FEHudVariableTemplate<SymbolPathStoragePolicy_Literal, 0> alpha;  // +0x80 (the movie's _alpha of the pop-ups)
 	};

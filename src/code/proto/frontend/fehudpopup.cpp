@@ -7,6 +7,7 @@
 #include "code/engine/luascriptmanager.h"
 #include "code/proto/pausemenustate.h"
 #include "code/proto/smarthint/smarthintmanager.h"
+#include <new>
 
 namespace core
 {
@@ -138,15 +139,15 @@ namespace proto
 	}
 
 	// FUNCTION: ENGINE 0x104D14E0
-	void FEHudPopup::SetMissionActive(bool value)
+	void FEHudPopup::SetMissionIdle(bool value)
 	{
-		missionActive = value;
+		missionIdle = value;
 	}
 
 	// FUNCTION: ENGINE 0x104D14F0
-	bool FEHudPopup::GetMissionActive()
+	bool FEHudPopup::GetMissionIdle()
 	{
-		return missionActive;
+		return missionIdle;
 	}
 
 	// FUNCTION: ENGINE 0x104D1490
@@ -224,7 +225,7 @@ namespace proto
 	void FEHudPopup::CloseMissionPopup()
 	{
 		slots[2].StartClosing();
-		SetMissionActive(false);
+		SetMissionIdle(false);
 		engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s", gHudAnchorName, "CloseMissionPopup");
 	}
 
@@ -285,7 +286,7 @@ namespace proto
 			{
 				core::StrNCpy(slots[2].texts[3], text3, 0x100u);
 			}
-			SetMissionActive(false);
+			SetMissionIdle(false);
 			slots[2].Open(newFlag);
 			slots[2].unknown18 = newUnknown18;
 			engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s%d%d%s%s%s%s", gHudAnchorName, "ShowMissionPopup", newFlag, newUnknown18, text0, text1, text2, text3);
@@ -313,5 +314,38 @@ namespace proto
 				ShowMissionPopup(slots[2].flag, slots[2].unknown18, slots[2].texts[0], slots[2].texts[1], slots[2].texts[2], slots[2].texts[3]);
 			}
 		}
+	}
+
+	// FUNCTION: ENGINE 0x104D25F0
+	FEHudPopup::FEHudPopup() : popupsShown(true), missionIdle(true), alpha("_level0.mcAnchor.managedPopupHUD._alpha")
+	{
+		slots[1].texts[0] = new char[0x100];
+		slots[0].texts[0] = new char[0x100];
+		slots[2].texts[0] = new char[0x100];
+		slots[2].texts[1] = new char[0x100];
+		slots[2].texts[2] = new char[0x100];
+		slots[2].texts[3] = new char[0x100];
+		alpha.Set(FlashValue(100.0));
+		engine::LuaScriptManager* manager = engine::GetScriptManager();
+		manager->SetOwner(this);
+		manager->RegisterMethod("fe_ShowPassive", this, &FEHudPopup::ShowPassivePopup);
+		manager->RegisterMethod("fe_ShowHint", this, &FEHudPopup::ShowHintPopup);
+		manager->RegisterMethod("fe_ShowMission", this, &FEHudPopup::ShowMissionPopup);
+		manager->RegisterMethod("fe_ShowObjective", this, &FEHudPopup::ShowObjectivePopup);
+		manager->RegisterMethod("fe_IsPassivePopupOpen", this, &FEHudPopup::IsPassiveOpen);
+		manager->RegisterMethod("fe_IsHintPopupOpen", this, &FEHudPopup::IsHintOpen);
+		manager->RegisterMethod("fe_IsMissionPopupOpen", this, &FEHudPopup::IsMissionOpen);
+		manager->RegisterMethod("fe_IsObjectivePopupOpen", this, &FEHudPopup::IsObjectiveOpen);
+		manager->RegisterMethod("fe_ClosePassive", this, &FEHudPopup::ClosePassivePopup);
+		manager->RegisterMethod("fe_CloseHint", this, &FEHudPopup::CloseHintPopup);
+		manager->RegisterMethod("fe_CloseMission", this, &FEHudPopup::CloseMissionPopup);
+		manager->RegisterMethod("fe_OnPassiveClose", this, &FEHudPopup::ResetPassive);
+		manager->RegisterMethod("fe_OnHintClose", this, &FEHudPopup::ResetHint);
+		manager->RegisterMethod("fe_OnMissionClose", this, &FEHudPopup::ResetMission);
+		manager->RegisterMethod("fe_OnObjectiveClose", this, &FEHudPopup::ResetObjective);
+		manager->RegisterMethod("fe_IsMissionOpen", this, &FEHudPopup::IsMissionOpen);
+		manager->RegisterMethod("fe_IsMissionIdle", this, &FEHudPopup::GetMissionIdle);
+		manager->RegisterMethod("fe_SetMissionIdle", this, &FEHudPopup::SetMissionIdle);
+		manager->ClearOwner();
 	}
 }
