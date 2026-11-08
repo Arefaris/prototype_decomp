@@ -100,7 +100,8 @@ namespace pure3d
 		mInfo = mPose->mSkeleton->FindPartition(name);
 		if (mInfo == 0)
 		{
-			mInfo = mPose->mSkeleton->GetPartition(name);
+			// the skeleton's limb of that name stands in for a partition (the engine keeps the pointer as it is)
+			mInfo = (Skeleton::Partition*)mPose->mSkeleton->FindLimb(name);
 		}
 	}
 

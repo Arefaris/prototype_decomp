@@ -274,10 +274,76 @@ namespace pure3d
 		return Get()->binding;
 	}
 
+	// FUNCTION: ENGINE 0x106DFD70
+	// Gives a part without a state the state of its primitive (only a mesh gets one made)
+	void PartRef::Unknown106DFD70()
+	{
+		DrawablePart* part = Get();
+		PrimitiveState* state = 0;
+		int type = part->primitive->type;
+		if (type == 2)
+		{
+			state = new MeshState((Mesh*)part->primitive, 0, 0);
+		}
+		else if (type == 4)
+		{
+			return;
+		}
+		part->SetState(state);
+	}
+
+	// FUNCTION: ENGINE 0x106DFE20
+	// Gives the part's state a shader animation controller and answers it (null for a primitive that has none)
+	FrameController* PartRef::Unknown106DFE20()
+	{
+		DrawablePart* part = Get();
+		int type = part->primitive->type;
+		if (type == 2)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((MeshState*)part->state)->SetController1(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		if (type == 4)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((SkinState*)part->state)->SetController1(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		if (type == 0x4000)
+		{
+			ShaderAnimationController* controller = new ShaderAnimationController();
+			((GpuSkinState*)part->state)->SetShaderController(controller);
+			owner->cyclic = true;
+			return controller;
+		}
+		return 0;
+	}
+
 	// FUNCTION: ENGINE 0x106DFF80
 	FrameController* Drawable::GetUnknown80()
 	{
 		return unknown80;
+	}
+
+	// FUNCTION: ENGINE 0x106DFF90
+	void Drawable::SetUnknown80(FrameController* controller)
+	{
+		FrameController* old = unknown80;
+		if (old != controller)
+		{
+			unknown80 = controller;
+			if (controller)
+			{
+				controller->AddRef();
+			}
+			if (old)
+			{
+				old->Release();
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x106DFFD0
@@ -945,6 +1011,56 @@ namespace pure3d
 			return (PartBindingSource*)primitive->unknown18;
 		}
 		return 0;
+	}
+
+	// The binding source a part's shader comes from (inline in the engine's SetBinding)
+	static __forceinline PartBindingSource* SourceOf(DrawablePart* part)
+	{
+		if (part->binding)
+		{
+			return (PartBindingSource*)part->binding;
+		}
+		if (part->state && part->state->GetBindingSource())
+		{
+			return (PartBindingSource*)part->state->GetBindingSource();
+		}
+		if (part->primitive && part->primitive->unknown18)
+		{
+			return (PartBindingSource*)part->primitive->unknown18;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106DE950
+	void DrawablePart::SetBinding(PartBinding* newBinding)
+	{
+		if (newBinding)
+		{
+			newBinding->AddRef();
+			newBinding->Attach(this);
+		}
+		if (binding)
+		{
+			binding->Detach(this);
+			binding->Release();
+		}
+		binding = newBinding;
+		if (state)
+		{
+			state->Unknown8(newBinding);
+		}
+		unknown10C = SourceOf(this)->shader;
+	}
+
+	// FUNCTION: ENGINE 0x106DEB80
+	bool DrawablePart::GetRenderFlag3()
+	{
+		PartBinding* source = GetRenderBinding();
+		if (source)
+		{
+			return source->flags.Test(3);
+		}
+		return false;
 	}
 
 	// FUNCTION: ENGINE 0x106DEEC0

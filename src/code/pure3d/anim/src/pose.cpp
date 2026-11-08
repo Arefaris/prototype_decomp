@@ -14,6 +14,16 @@ namespace pure3d
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x106DD670
+	// NONMATCHING: the base's vftable store is dead in ours and the zero stores trail the argument pushes (40.5 %)
+#ifdef NONMATCHING
+	Pose::Pose(Skeleton* skeleton, int memory, int size, int spaces) : mSkeleton(skeleton), mData(&skeleton->mData, (void*)memory, (unsigned int*)size, spaces)
+	{
+		mUpdateCount = 0;
+		mSkeleton->AddRef();
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x106DD6E0
 	void Pose::Update()
 	{

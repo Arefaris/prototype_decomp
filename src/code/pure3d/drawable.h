@@ -45,10 +45,10 @@ namespace pure3d
 
 	// A part's binding (a 0x30-byte object made by 0x10706550): its shader parameters and, at +0x28, the flags
 	// the part's render state follows
-	class PartBinding
+	class PartBinding : public core::IRefCount
 	{
 	public:
-		unsigned char unknown0[0x10];
+		unsigned char unknown4[0xC];
 		// the shader the part is drawn with; its inputs take the part's parameters
 		dxShader* shader;
 		unsigned char unknown14[0xC];
@@ -119,6 +119,8 @@ namespace pure3d
 		math::Matrix* GetWorldMatrix();
 		// 0x10761750: draws the part with the shader of that name (the batch or the primitive, by render bit 9)
 		void Draw(const core::Name<core::CaseInsensitiveKey32>* shader, const PrimStreamParameters* parameters);
+		// 0x106DEB80: bit 3 of the flags of the binding the part follows, false without one (name guess)
+		bool GetRenderFlag3();
 		// 0x106DEF20: lets the primitive fill the batch (the data the device draws the part with); the answer says
 		// whether it did (render bit 9). Answers the primitive's own flag.
 		bool UpdateBatch();
@@ -259,6 +261,8 @@ namespace pure3d
 		FrameController* GetUnknown7C();
 		VertexOffsetExpressionMixer* GetExpressionMixer();
 		FrameController* GetUnknown80();
+		// 0x106DFF90: the controller at +0x80 (reference counted; name guess)
+		void SetUnknown80(FrameController* controller);
 		// 0x106DF680: flag 0x101 bit 1
 		void SetFlag101Bit1(bool value);
 		// 0x106DF510: the parts need updating; 0x106DF570: marks the drawable with the current frame; 0x106DF580: flag
