@@ -34,6 +34,19 @@ namespace engine
 	}
 }
 
+namespace engine
+{
+	// FUNCTION: ENGINE 0x102D9810
+	int IsVectorNear(const math::Vector& a, const math::Vector& b)
+	{
+		if (fabsf(a.x - b.x) <= 0.00001f && fabsf(a.y - b.y) <= 0.00001f && fabsf(a.z - b.z) <= 0.00001f)
+		{
+			return 1;
+		}
+		return 0;
+	}
+}
+
 namespace proto
 {
 	// 0x112834C8 ("pose")

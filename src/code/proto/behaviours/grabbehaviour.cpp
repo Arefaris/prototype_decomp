@@ -1,4 +1,5 @@
 #include "code/proto/behaviours/grabbehaviour.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/engine/gameobject/gameobjectspawner.h"
 #include "code/core/refptr.h"
 #include "code/ravenphysics/context.h"
@@ -228,6 +229,87 @@ namespace proto
 		sList.count = 6;
 		return &sList;
 	}
+	// FUNCTION: ENGINE 0x102C9E60
+	GrabAutoSpawnBehaviour::GrabAutoSpawnBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner)
+	{
+		Listen(0x1F, true);
+		Listen(0x2F, true);
+	}
+
+	// FUNCTION: ENGINE 0x102C9EB0
+	GrabAutoSpawnBehaviour::~GrabAutoSpawnBehaviour()
+	{
+		int count = autoSpawnList.Size();
+		for (int i = 0; i < count; i++)
+		{
+			GrabSpawnListEntry* entry = autoSpawnList.begin + i;
+			if (entry->aICharacter)
+			{
+				GetGrabbedObjectMessage message(entry);
+				owner->SendMessage(&message);
+				engine::GameObjectHandle handle = (const engine::GameObjectHandle&)message.result;
+				if (handle.IsValid())
+				{
+					handle.DeferUpdate(false);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x102C9BB0
+	GrabBehaviour::GrabBehaviour(engine::GameObject* newOwner) : engine::Behaviour(newOwner)
+	{
+		Listen(0x1F, true);
+		Listen(2, true);
+		Listen(0xF, true);
+		Listen(0x1A, true);
+		Listen(0x19, true);
+		Listen(7, true);
+	}
+
+	// FUNCTION: ENGINE 0x102CA3B0
+	void GrabSelectionBehaviour::ClearTarget()
+	{
+		unknown28.index = 0xFFFF;
+		unknown28.serial = 0;
+	}
+
+	// FUNCTION: ENGINE 0x102CA4F0
+	// NONMATCHING: the members are stored in the engine's order, but it clears eax after the first store and moves this into
+	// ecx just before the last one (55.9 %)
+#ifdef NONMATCHING
+	GrabSelectionBehaviour::GrabSelectionBehaviour(engine::GameObject* newOwner) : GrabBehaviour(newOwner)
+	{
+		range = gTen;
+		timer = 0.0f;
+		unknown34 = false;
+		grabbableIntersectionProperties = 0;
+		allowedNavmeshAreas = 0;
+		closeRangeOffset.x = 0.0f;
+		closeRangeOffset.y = 0.0f;
+		closeRangeOffset.z = 0.0f;
+		longRangeOffset.x = 0.0f;
+		longRangeOffset.y = 0.0f;
+		longRangeOffset.z = 0.0f;
+		minimumMassToGrab = 0.0f;
+		ClearTarget();
+		Listen(0x1F, true);
+		Listen(2, true);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x102CA360
+	void GrabSelectionBehaviour::Update(float dt, unsigned short mask)
+	{
+		float previous = timer;
+		timer = previous - dt;
+		if (previous - dt < 0.0f)
+		{
+			timer = 0.0f;
+			Listen2(4, false);
+		}
+	}
+
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -301,3 +383,19 @@ namespace proto
 // FUNCTION: ENGINE 0x102CA9C0
 // FUNCTION: ENGINE 0x102CAA00
 // FUNCTION: ENGINE 0x102CB2C0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102C7350
+// FUNCTION: ENGINE 0x102C7360
+// FUNCTION: ENGINE 0x102C77F0
+// FUNCTION: ENGINE 0x102C8450
+// FUNCTION: ENGINE 0x102C9550
+// FUNCTION: ENGINE 0x102C96B0
+// FUNCTION: ENGINE 0x102C97A0
+// FUNCTION: ENGINE 0x102C9C90
+// FUNCTION: ENGINE 0x102CA0C0
+
+// Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102C7370
+// FUNCTION: ENGINE 0x102C98F0
+// FUNCTION: ENGINE 0x102C9E30
