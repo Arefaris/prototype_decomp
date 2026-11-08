@@ -1,6 +1,11 @@
 // The delay node of the mgraph library (0x10B6E360 - 0x10B6F1A0): the reflection of the class and the description of its node type, in the order the compiler emitted them (a guess: one translation unit).
 #include "code/mgraph/delay.h"
+#include "code/mgraph/events.h"
 #include "code/om/metaclass.h"
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#pragma function(memset)
 
 #pragma warning(disable: 4661)
 
@@ -28,11 +33,108 @@ namespace mgraph
 
 	// FUNCTION: ENGINE 0x10B6E390
 	Delay::Channel::Channel() :
-		unknown0(0.0f),
-		unknown4(0.0f),
-		unknown8(0),
-		unknownC(0)
+		minimum(0.0f),
+		maximum(0.0f),
+		pending(0),
+		remaining(0)
 	{
+	}
+
+	// FUNCTION: ENGINE 0x10B6E6A0
+	// NONMATCHING: 23.0 %, the engine keeps the entry in ecx and the block pointer in eax
+#ifdef NONMATCHING
+	bool GetTriggerOffset(const FrameEntry<TriggerData>* entry, unsigned int* offset)
+	{
+		if (entry->samples == 0)
+		{
+			if (entry->value.unknown0)
+			{
+				*offset = 0;
+				return true;
+			}
+		}
+		else
+		{
+			unsigned int i = 0;
+			do
+			{
+				if (*(i + entry->samples->samples) == 1)
+				{
+					*offset = i;
+					return true;
+				}
+				i++;
+			}
+			while (i < 0x100);
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10B6EB40
+	// NONMATCHING: 98.3 %, the stores that make the trigger packet of the input pin are scheduled around the push of the packet's address
+#ifdef NONMATCHING
+	Delay::Delay(Graph* newGraph, const ClassName& newName) :
+		Node(CachedNodeType<Delay>(), newGraph, newName, 3, 1)
+	{
+		new InputPin<Packet<TriggerData> >(this, &MGRAPH_NAME("i"), 1, 0, Packet<TriggerData>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("min"), 0, 1, Packet<float>());
+		new InputPin<Packet<float> >(this, &MGRAPH_NAME("max"), 0, 2, Packet<float>());
+		new OutputPin<Packet<TriggerData> >(this, &MGRAPH_NAME("o"), 0, Packet<TriggerData>());
+	}
+#endif
+
+	// A random number from 0 to 1 out of the 32 bits two calls of rand give
+	static inline float RandomUnit()
+	{
+		unsigned int bits = rand();
+		bits |= rand() << 17;
+		return (float)bits * 2.3283064e-10f;
+	}
+
+	// FUNCTION: ENGINE 0x10B6EE60
+	// NONMATCHING: 88.8 %, the stores of the pending flag and the order of the loads of the frame's members
+#ifdef NONMATCHING
+	void Delay::Channel::Update(Delay* node, EvaluationFrame* frame)
+	{
+		FrameEntry<float>* low = frame->GetInputs<float>(1)->entries[0];
+		FrameEntry<float>* high = frame->GetInputs<float>(2)->entries[0];
+		minimum = low->value;
+		maximum = high->value;
+		unsigned int offset = 0;
+		if (GetTriggerOffset(frame->GetInputs<TriggerData>(0)->entries[0], &offset))
+		{
+			if (!(pending > 0))
+			{
+				float samplesPerMillisecond = node->context->clock->GetSampleRate() * 0.001f;
+				float lowest = minimum;
+				float highest = maximum;
+				float unit = RandomUnit();
+				remaining = (unsigned int)ceil((double)((lowest + (highest - lowest) * unit) * samplesPerMillisecond)) + offset;
+				pending = 1;
+			}
+		}
+		if (pending > 0)
+		{
+			if (remaining < 0x100)
+			{
+				FrameEntry<TriggerData>* output = static_cast<FrameOutput<TriggerData>*>(frame->outputs)->entry;
+				unsigned int id = frame->id;
+				void* allocator = *frame->allocator;
+				void* samples = output->AllocateSamples(allocator, frame->unknown18, id);
+				memset(samples, 0, 0x100);
+				output->samples->samples[0] = 1;
+				pending = 0;
+			}
+			remaining -= 0x100;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10B6F130
+	void Delay::Slot16(EvaluationFrame* frame)
+	{
+		channels[frame->channel].Update(this, frame);
 	}
 
 	// FUNCTION: ENGINE 0x10B6E6F0
@@ -121,3 +223,10 @@ using namespace mgraph;
 	template mgraph::Delay::Channel* om::DynamicArray<mgraph::Delay::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B6E7E0
 	template void om::DynamicArray<mgraph::Delay::Channel,unsigned short>::Resize(unsigned short, mgraph::Delay::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B6E440
+	template om::DynamicArray<mgraph::Delay::Channel,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B6E4C0
+	template mgraph::Delay::Channel& om::DynamicArray<mgraph::Delay::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B6E670
+	template mgraph::Delay::Channel const& om::DynamicArray<mgraph::Delay::Channel,unsigned short>::operator[](unsigned short) const;

@@ -145,3 +145,10 @@ using namespace mgraph;
 	template mgraph::Smoother::Channel* om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B760B0
 	template void om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::Resize(unsigned short, mgraph::Smoother::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B75AF0
+	template om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B75B70
+	template mgraph::Smoother::Channel& om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B75D40
+	template mgraph::Smoother::Channel const& om::DynamicArray<mgraph::Smoother::Channel,unsigned short>::operator[](unsigned short) const;

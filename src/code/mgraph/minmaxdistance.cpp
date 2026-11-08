@@ -118,3 +118,16 @@ using namespace mgraph;
 	template mgraph::MinMaxDistance::Channel* om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B73FB0
 	template void om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::Resize(unsigned short, mgraph::MinMaxDistance::Channel const&);
+
+	// FUNCTION: ENGINE 0x10B73AE0
+	template om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B73B50
+	template void om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::DestroyElements(mgraph::MinMaxDistance::Channel*, unsigned short);
+	// FUNCTION: ENGINE 0x10B73B60
+	template mgraph::MinMaxDistance::Channel& om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10B73BF0
+	template void om::DynamicArray<String,unsigned short>::ReleaseElements(String*, unsigned short);
+	// FUNCTION: ENGINE 0x10B73CE0
+	template om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::~DynamicArray();
+	// FUNCTION: ENGINE 0x10B73D00
+	template mgraph::MinMaxDistance::Channel const& om::DynamicArray<mgraph::MinMaxDistance::Channel,unsigned short>::operator[](unsigned short) const;

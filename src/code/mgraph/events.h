@@ -47,6 +47,14 @@ namespace mgraph
 	// 0x10AC46F0 (name guessed): puts a node in the list of a level (null: none) and takes it out of the list of its old one
 	void SetNodeLevel(Node* node, Level* level);
 
+	// What tells the nodes the sample rate (RTTI not recovered; the name is a guess)
+	class SampleClock
+	{
+	public:
+		virtual void Slot0() = 0;
+		virtual float GetSampleRate() = 0;
+	};
+
 	// What the evaluation context does for the events (RTTI not recovered; the name and the methods are guesses)
 	class Context
 	{
@@ -57,7 +65,9 @@ namespace mgraph
 		NodeLink* firstNode;  // 0x18: the nodes of the context (the links at 0x2C of the nodes)
 		NodeLink* lastNode;  // 0x1C
 		NodeLink* firstLevel;  // 0x20: the levels of the nodes (the links at 0x20 of the levels)
-		char unknown24[0x94];
+		char unknown24[0x28];
+		SampleClock* clock;  // 0x4C
+		char unknown50[0x68];
 		unsigned int evaluationCount;  // 0xB8
 
 		// 0x10AC4950 / 0x10AC49B0: puts a node in the lists of the context, takes it out
