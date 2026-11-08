@@ -21,6 +21,7 @@
 #include "code/proto/frontend/fehuddisguiseperception.h"
 #include "code/proto/frontend/fehudpopups.h"
 #include "code/proto/frontend/fehudelement.h"
+#include "code/proto/frontend/fehudevolutionpoints.h"
 #include "code/proto/frontend/fehudhealth.h"
 #include "code/proto/frontend/fehudkeycard.h"
 #include "code/proto/frontend/fehudtextlog.h"
@@ -105,26 +106,6 @@ namespace proto
 		void Unknown104CAEA0();
 
 		unsigned char unknownC[0x2538 - 0xC];
-	};
-
-	class FEHudEvolutionPoints : public FEHudElement, public engine::DBObserver, public engine::ISimulationTask
-	{
-	public:
-		// 0x104D0480
-		FEHudEvolutionPoints();
-		// 0x104D0020
-		~FEHudEvolutionPoints();
-
-		virtual void Update(bool force);
-		virtual void OnShow(bool shown);
-		virtual void OnDBSlot0(int a, int b);
-		virtual void UpdateSimulation(engine::UpdateContext context);
-
-		// 0x104D0A90 / 0x104CFED0
-		void Unknown104D0A90();
-		void Unknown104CFED0();
-
-		unsigned char unknown14[0x4B0 - 0x14];
 	};
 
 	class FEHudMeter : public FEHudElement, public engine::ISimulationTask
