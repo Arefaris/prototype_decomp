@@ -3,6 +3,7 @@
 #ifndef PURE3D_RENDERSCHEME_H
 #define PURE3D_RENDERSCHEME_H
 
+#include "code/container/map.h"
 #include "code/pure3d/pass.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/framebufferpass.h"
@@ -94,8 +95,23 @@ namespace pure3d
 		bool RegisterPass(Pass* newPass);
 		bool RegisterRootPass(Pass* newPass);
 
-		unsigned char unknown4[0x30];
+		// A node of the tree of the scheme's passes: the pass behind its name
+		struct PassNode : public container::TreeBase::Node
+		{
+			core::Name<core::CaseSensitiveKey> name;
+			Pass* pass;
+		};
+
+		unsigned char unknown4[0x14];
+		// The passes of the tree by name (+0x18; the nodes are PassNodes)
+		container::TreeBase passes;
+		unsigned char unknown30[4];
 		Pass* pass;
+		unsigned char unknown38[8];
+		// The pass the last lookup by name found (FindPass keeps the answer)
+		unsigned int lastFoundHash[2];
+		Pass* lastFound;
+		unsigned char unknown4C[4];
 	};
 
 	// The schemes (RTTI names; the vftables are those of the base class with the destructor and a few slots replaced).

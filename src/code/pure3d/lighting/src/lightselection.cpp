@@ -4,6 +4,9 @@
 #include <math.h>
 
 #include "code/container/arrayfixed.h"
+#include "code/engine/driving/carattributes.h"
+#include "code/pure3d/pddi.h"
+#include "code/pure3d/shaderconstants.h"
 #include "code/pure3d/light.h"
 #include "code/pure3d/lighting.h"
 #include "code/pure3d/lightselection.h"
@@ -136,6 +139,73 @@ namespace pure3d
 			}
 		}
 	}
+
+	// The registers of the five vertex lights: where each light's position (with the range factor) and colour go
+	extern ConstantSlot gConstantSlot11280D9C;
+	extern ConstantSlot gConstantSlot11280A8C;
+	extern ConstantSlot gConstantSlot11280FA4;
+	extern ConstantSlot gConstantSlot11281244;
+	extern ConstantSlot gConstantSlot11281264;
+	extern ConstantSlot gConstantSlot11280D8C;
+	extern ConstantSlot gConstantSlot11280CD8;
+	extern ConstantSlot gConstantSlot11280CF0;
+	extern ConstantSlot gConstantSlot11280C20;
+	extern ConstantSlot gConstantSlot11280E80;
+
+	// FUNCTION: ENGINE 0x10717C60
+	// NONMATCHING: the engine computes the three colour products before the constant stores and keeps them in registers (best 77.9 %)
+#ifdef NONMATCHING
+	void LightSelection::UploadLight(Light* light, unsigned int slot, int scaleMode)
+	{
+		ConstantSlot* positions[5] = { &gConstantSlot11280D9C, &gConstantSlot11280A8C, &gConstantSlot11280FA4,
+			&gConstantSlot11281244, &gConstantSlot11281264 };
+		ConstantSlot* colours[5] = { &gConstantSlot11280D8C, &gConstantSlot11280CD8, &gConstantSlot11280CF0,
+			&gConstantSlot11280C20, &gConstantSlot11280E80 };
+		if (light != 0)
+		{
+			math::Vector4 place;
+			place.x = light->GetPosition()->x;
+			place.y = light->GetPosition()->y;
+			place.z = light->GetPosition()->z;
+			place.w = 1.0000000116860974e-07f;
+			if (light->GetDecay()->GetKind() != 0)
+			{
+				float range = light->GetDecay()->GetRange();
+				place.w = 1.0f / (light->GetDecay()->GetRange() * range);
+			}
+			float scale = GetIntensityScale(light, scaleMode);
+			float blue = light->GetColour()->z;
+			float blueFactor = light->GetColour()->w;
+			float green = light->GetColour()->y;
+			float greenFactor = light->GetColour()->w;
+			float red = light->GetColour()->x;
+			float redFactor = light->GetColour()->w;
+			float* position = pddi->GetConstant(positions[slot]->index, pddiBaseContext::CONSTANT_FLOAT4);
+			position[0] = place.x;
+			position[1] = place.y;
+			position[2] = place.z;
+			position[3] = place.w;
+			float* colour = pddi->GetConstant(colours[slot]->index, pddiBaseContext::CONSTANT_FLOAT4);
+			colour[0] = redFactor * red * scale;
+			colour[1] = greenFactor * green * scale;
+			colour[2] = blueFactor * blue * scale;
+			colour[3] = engine::driving::gOne;
+		}
+		else
+		{
+			float* position = pddi->GetConstant(positions[slot]->index, pddiBaseContext::CONSTANT_FLOAT4);
+			position[0] = 0.0f;
+			position[1] = 0.0f;
+			position[2] = 0.0f;
+			position[3] = 0.0f;
+			float* colour = pddi->GetConstant(colours[slot]->index, pddiBaseContext::CONSTANT_FLOAT4);
+			colour[0] = 0.0f;
+			colour[1] = 0.0f;
+			colour[2] = 0.0f;
+			colour[3] = 0.0f;
+		}
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10718B30
 	void LightSelection::Fill(PassContext* context)

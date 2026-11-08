@@ -108,6 +108,8 @@ namespace pure3d
 		void BuildQuad();
 		// 0x1073B450: takes the lent list back to its start
 		void Unknown1073B450();
+		// 0x1073A710 (name guess)
+		void Unknown1073A710();
 		// 0x1073B850: the size of the display (0, 0: the engine's display's); false when the targets cannot be made
 		bool SetSize(unsigned int newWidth, unsigned int newHeight);
 		// 0x1073A9C0: lets go of the targets

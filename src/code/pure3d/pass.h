@@ -138,6 +138,8 @@ namespace pure3d
 		const Pass* GetParent() const;
 		// 0x107546C0: makes the pass a child of this one, before the given child (the last when null)
 		void AddChild(Pass* child, Pass* before);
+		// 0x10719310 (the scheme's unit): the descendant of that name, the first found going down the children first
+		Pass* FindDescendant(const core::Name<core::CaseSensitiveKey>& name);
 		// 0x10754840: runs End and clears bit 0 of the second flag word
 		void EndOnce();
 		// 0x10754BD0: gives every part of the list its distance from the eye; 0x107561F0 does that and sorts the list
