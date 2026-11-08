@@ -784,7 +784,7 @@ namespace engine
 	extern const char* gHitEffectContextName;
 	extern const char* gPropLogicContextName;
 	extern const char* gMotionContextName;
-	extern const char* gScenarioContextName;
+	extern const char* const gScenarioContextName;
 }
 
 namespace proto

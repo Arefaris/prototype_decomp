@@ -25,6 +25,8 @@ namespace engine
 		int budget;
 	};
 
+	// 0x1082BEE0: true when the instance of the second package has the lower priority (the order the packages sort in)
+	bool ComparePackagePriority(StreamPackage* const* first, StreamPackage* const* second);
 	// 0x1082D0B0: appends the packages of triggers and of their neighbours, up to budget hops deep
 	void CollectPackages(StreamCollect* collect, StreamTriggerArray* triggers, int depth);
 	// 0x1082DD30: puts the triggers that share a tag with tags into the array (all of them when it is empty)

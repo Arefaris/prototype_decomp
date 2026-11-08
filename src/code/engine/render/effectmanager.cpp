@@ -961,7 +961,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x10819ED0
 		unsigned int EffectInstance::GetLODRecordCount() const
 		{
-			return lodsEnd - lodsBegin;
+			return lods.end - lods.begin;
 		}
 
 		// FUNCTION: ENGINE 0x10819EE0
@@ -993,9 +993,9 @@ namespace engine
 				EffectManager* manager = GetEffectManager();
 				for (int i = 0; i < lodCount; i++)
 				{
-					if (lodsBegin[i]->kind == EFFECT_LOD_SWITCH)
+					if (lods.begin[i]->kind == EFFECT_LOD_SWITCH)
 					{
-						manager->StopEffect(((EffectLODSwitch*)lodsBegin[i])->effect, 0.0f);
+						manager->StopEffect(((EffectLODSwitch*)lods.begin[i])->effect, 0.0f);
 						break;
 					}
 				}
@@ -1042,7 +1042,7 @@ namespace engine
 			if (instance != 0)
 			{
 				instance->AddLOD(lod);
-				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lodsEnd - instance->lodsBegin) > 1)
+				if (lod->kind == EFFECT_LOD_BIAS && (unsigned int)(instance->lods.end - instance->lods.begin) > 1)
 				{
 					pure3d::Camera* camera = GetActiveCamera();
 					if (camera != 0)
@@ -1132,7 +1132,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081CE70
 		// EQUIVALENT: the same lookup, creation, instance setup, insert and span call; the engine takes the address of the name
 		// temporary again for the assignment where ours uses the constructor's answer (58.0 %)
-		Drawable EffectManager::CreateSpanEffect(SourceDrawable* source, const math::Vector* from, const math::Vector* to,
+		Drawable EffectManager::CreateSpanEffect(DrawableArchetype* source, const math::Vector* from, const math::Vector* to,
 			float unused, unsigned int key)
 		{
 			unsigned int listKey = key;
@@ -1180,7 +1180,7 @@ namespace engine
 			if (found != 0)
 			{
 				core::HeapScope scope(heap);
-				result = CreateSpanEffect((SourceDrawable*)found, from, to, unused, key);
+				result = CreateSpanEffect((DrawableArchetype*)found, from, to, unused, key);
 			}
 			return result;
 		}
@@ -1544,7 +1544,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081DAF0
 		// EQUIVALENT: the same lookup, room test, options, creation, store hand-over, list insert and callback; the engine
 		// keeps the manager in a stack slot, stores the empty answer first and materialises the room test as a byte (19.1 %)
-		Drawable EffectManager::CreateEffectFromStore(SourceDrawable* source, Drawable store, const EffectSetup* setup)
+		Drawable EffectManager::CreateEffectFromStore(DrawableArchetype* source, Drawable store, const EffectSetup* setup)
 		{
 			EffectInstanceList* list = GetList(&setup->key);
 			Drawable result;
@@ -1613,7 +1613,7 @@ namespace engine
 		// FUNCTION: ENGINE 0x1081E390
 		// EQUIVALENT: the same lookup, room test, options and creation; the engine materialises the room test as a byte
 		// (43.9 %)
-		Drawable EffectManager::CreateEffect(SourceDrawable* source, const EffectSetup* setup)
+		Drawable EffectManager::CreateEffect(DrawableArchetype* source, const EffectSetup* setup)
 		{
 			HashLookup lookup(&instanceTable);
 			EffectInstanceList* list = (EffectInstanceList*)lookup.Find(&setup->key);
@@ -1677,7 +1677,7 @@ namespace engine
 							EffectStore* store = storeCursor;
 							if (store->name == setup->storeName)
 							{
-								result = CreateEffectFromStore((SourceDrawable*)found, store->drawable, setup);
+								result = CreateEffectFromStore((DrawableArchetype*)found, store->drawable, setup);
 								store->users++;
 								store->lastUsed = time;
 								goto created;
@@ -1687,7 +1687,7 @@ namespace engine
 						while (storeCursor != storesEnd);
 					}
 					{
-						Drawable base = CreateEffect((SourceDrawable*)found, setup);
+						Drawable base = CreateEffect((DrawableArchetype*)found, setup);
 						base.SetBiasUnknown(setup->biasUnknown);
 						if (storesEnd == storesCapacity)
 						{
@@ -1707,13 +1707,13 @@ namespace engine
 								new (slot) EffectStore(entry);
 							}
 						}
-						result = CreateEffectFromStore((SourceDrawable*)found, base, setup);
+						result = CreateEffectFromStore((DrawableArchetype*)found, base, setup);
 						setup->storeDrawable = base.mHandle;
 					}
 				}
 				else
 				{
-					result = CreateEffect((SourceDrawable*)found, setup);
+					result = CreateEffect((DrawableArchetype*)found, setup);
 					result.SetBiasUnknown(setup->biasUnknown);
 				}
 			created:

@@ -40,6 +40,7 @@ namespace proto
 
 namespace pure3d
 {
+	class Drawable;
 	class Shader;
 }
 
@@ -101,12 +102,15 @@ namespace engine
 		// the key of the list it goes in, the values the drawable is made with and the name of the shared drawable
 		struct EffectSetup : public EffectPlacement
 		{
+			// 0x10820080 (the effect instance's unit)
+			EffectSetup();
+
 			float unknown50;
 			// What the drawable's bias is set to
 			float biasUnknown;  // +0x54
 			unsigned int key;  // +0x58
 			float unknown5C;
-			float unknown60;
+			bool unknown60;
 			// The three values the drawable's options take (what they mean is unknown)
 			float optionsA;  // +0x64
 			float optionsB;  // +0x68
@@ -275,7 +279,9 @@ namespace engine
 			Drawable drawable;  // +0x50
 			// The drawable of the store the effect came from
 			Drawable storeDrawable;  // +0x54
-			unsigned char unknown58[8];
+			unsigned char unknown58[4];
+			// The render object of the drawable's particles the effect holds a reference of
+			pure3d::Drawable* particleDrawable;  // +0x5C
 			EffectName name;  // +0x60
 			int unknown68;
 			// 1000 for a spanned effect
@@ -284,10 +290,18 @@ namespace engine
 			// The time the effect has left (the largest float once it is killed)
 			float timeLeft;  // +0x74
 			// The level-of-detail records of the effect (a vector of pointers, begin / end / end of storage, and the count)
-			EffectLOD** lodsBegin;  // +0x78
-			EffectLOD** lodsEnd;  // +0x7C
-			EffectLOD** lodsCapacity;  // +0x80
-			int unknown84;
+			struct LODVector
+			{
+				// 0x10820C60: puts a record in front of the first one that is not below it by less (a binary search); answers
+				// where it went, or the old end when the vector is full
+				EffectLOD** InsertSorted(EffectLOD* const* record, bool (*less)(EffectLOD* const*, EffectLOD* const*));
+
+				EffectLOD** begin;
+				EffectLOD** end;
+				EffectLOD** capacity;
+				int unknownC;
+			};
+			LODVector lods;  // +0x78
 			int lodCount;  // +0x88
 			int unknown8C;
 			// How the particles stand: 0 off, 1 about to go off, 2 on, 3 about to come on (see SetEmitting)
@@ -631,7 +645,7 @@ namespace engine
 			// 0x1081E2F0: the same in the manager's heap
 			void AddInstanceInHeap(unsigned int drawable, const EffectSetup* setup);
 			// 0x1081CE70: makes an effect that is stretched between two points and adds it (when its list has room)
-			Drawable CreateSpanEffect(SourceDrawable* source, const math::Vector* from, const math::Vector* to, float unused,
+			Drawable CreateSpanEffect(DrawableArchetype* source, const math::Vector* from, const math::Vector* to, float unused,
 				unsigned int key);
 			// 0x1081D470: the same for the drawable archetype of a name
 			Drawable CreateSpanEffectNamed(const EffectName* archetype, const math::Vector* from, const math::Vector* to,
@@ -640,9 +654,9 @@ namespace engine
 			// an effect started on a slot ends the one that was on it
 			Drawable StartEffect(const EffectName* archetype, EffectSetup* setup);
 			// 0x1081E390: makes the drawable of an effect from a source drawable and adds the effect
-			Drawable CreateEffect(SourceDrawable* source, const EffectSetup* setup);
+			Drawable CreateEffect(DrawableArchetype* source, const EffectSetup* setup);
 			// 0x1081DAF0: makes the drawable of an effect as an instance of the shared drawable of its store
-			Drawable CreateEffectFromStore(SourceDrawable* source, Drawable store, const EffectSetup* setup);
+			Drawable CreateEffectFromStore(DrawableArchetype* source, Drawable store, const EffectSetup* setup);
 
 			// 0x1081D850: ends the effect of a list that has run longest, one that was made from a store only when it
 			// has no other; false when the list has none to end

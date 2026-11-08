@@ -3,17 +3,434 @@
 
 #include "code/core/heap.h"
 #include "code/engine/fight/trackfactory.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/system/streampackage.h"
 #include "code/engine/system/streamtrigger.h"
 #include "code/engine/system/tagset.h"
 #include "code/math/vector.h"
+#include <new>
 
 namespace engine
 {
+	extern fight::EnumEntry gStartupGroupTable[3];
+	extern fight::EnumEntry gStartupPackageTable[3];
+	// The text of the tags that keep the startup packages in memory (0x111C41A0)
+	extern const char* const gPersistentText;
+
 	// FUNCTION: ENGINE 0x1082BEC0
 	bool StreamManager::IsBusy()
 	{
 		return gStreamManager->unknown114 != 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082BE90
+	void StreamManager::AdvanceState()
+	{
+		StreamManager* manager = gStreamManager;
+		switch (manager->unknown114)
+		{
+		case 0:
+			manager->unknown114 = 1;
+			break;
+		case 1:
+			manager->unknown114 = 2;
+			break;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082BEE0
+	bool ComparePackagePriority(StreamPackage* const* first, StreamPackage* const* second)
+	{
+		StreamPackageInstance* firstInstance = (*first)->instance;
+		StreamPackageInstance* secondInstance = (*second)->instance;
+		return secondInstance->GetPriority() < firstInstance->GetPriority();
+	}
+
+	// FUNCTION: ENGINE 0x1082BF70
+	int StreamManager::IsGroupLoaded(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0 && manager->groupPackages[group]->GetState() == 5)
+		{
+			return 1;
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFA0
+	int StreamManager::IsGroupWithoutInstance(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0 && manager->groupPackages[group]->instance != 0)
+		{
+			return 0;
+		}
+		return 1;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFD0
+	content::LoadInventory* StreamManager::GetGroupInventory(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0)
+		{
+			return manager->groupPackages[group]->GetInventory();
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082BFF0
+	StreamPackage* StreamManager::GetGroupPackage(int group)
+	{
+		return gStreamManager->groupPackages[group];
+	}
+
+	// FUNCTION: ENGINE 0x1082C050
+	StreamPackage* StreamManager::GetCurrentPackage()
+	{
+		return gStreamManager->currentPackage;
+	}
+
+	// FUNCTION: ENGINE 0x1082C420
+	void StreamManager::LoadStartupPackage(int group, const core::Name<core::CaseSensitiveKey>& newName,
+		const container::String* resources, const container::String* prerequisites)
+	{
+		StreamManager* manager = gStreamManager;
+		manager->groupPackages[group] = new (0xC) StreamPackage(gStartupPackageTable[group].name);
+		manager->groupPackages[group]->slotGroup = gStartupGroupTable[group].name;
+		manager->groupPackages[group]->SetResources(resources->ConstData());
+		manager->groupPackages[group]->SetPrerequisites(prerequisites->ConstData());
+		if (group == 0)
+		{
+			manager->groupPackages[0]->tags.FromString("__Persistent__;__NoReload__");
+		}
+		else
+		{
+			manager->groupPackages[group]->tags.FromString(gPersistentText);
+		}
+		manager->groupPackages[group]->Slot3(0);
+		manager->groupPackages[group]->ResolvePrerequisites();
+		manager->groupPackages[group]->Load(0, 0xFFFF, gNoSlotGroup, false);
+		manager->startupNames[group] = newName;
+	}
+
+	// FUNCTION: ENGINE 0x1082C510
+	void StreamManager::UnloadStartupPackage(int group)
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->groupPackages[group] != 0)
+		{
+			manager->groupPackages[group]->instance->SetEvicting(false);
+			manager->groupPackages[group]->Unload(0);
+			manager->startupNames[group].SetText("");
+		}
+	}
+
+	// 0x10837470 / 0x108374B0 (gamestate.cpp)
+	bool IsGameStateOnTop(int id);
+	bool HasPendingStateChange();
+
+	// FUNCTION: ENGINE 0x1082C6D0
+	void Unknown1082C6D0()
+	{
+		StreamManager* manager = gStreamManager;
+		StreamPackage** slot = manager->groupPackages;
+		for (int i = 3; i != 0; i--)
+		{
+			StreamPackage* package = *slot;
+			if (package != 0 && package->instance == 0)
+			{
+				delete package;
+				*slot = 0;
+			}
+			slot++;
+		}
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			StreamPackage* package = manager->activePackages[count - 1];
+			count--;
+			if (package->instance->IsLoadingActive())
+			{
+				package->Update();
+			}
+		}
+		count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			StreamPackage* package = manager->activePackages[count - 1];
+			count--;
+			if ((int)manager->transitionPriority >= (int)package->instance->GetPriority() || !IsGameStateOnTop(2)
+				|| HasPendingStateChange())
+			{
+				package->Update();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082C7B0
+	bool Unknown1082C7B0()
+	{
+		StreamManager* manager = gStreamManager;
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			count--;
+			int state = manager->activePackages[count]->GetState();
+			if (state != StreamPackageInstance::STATE_LOADED && state != StreamPackageInstance::STATE_EVICTABLE)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1082C860
+	bool Unknown1082C860(int* found, core::Name<core::CaseSensitiveKey>* name)
+	{
+		StreamManager* manager = gStreamManager;
+		int waiting = 0;
+		int count = manager->activePackages.Size();
+		while (count != 0)
+		{
+			count--;
+			int state = manager->activePackages[count]->GetState();
+			if (state == StreamPackageInstance::STATE_LOADED)
+			{
+				continue;
+			}
+			if (state != StreamPackageInstance::STATE_WAIT_FOR_PREREQUISITES)
+			{
+				return false;
+			}
+			waiting++;
+			if (waiting == 1 && name != 0)
+			{
+				*name = manager->activePackages[count]->name;
+			}
+		}
+		if (found != 0)
+		{
+			*found = waiting;
+		}
+		return waiting != 0;
+	}
+
+	// FUNCTION: ENGINE 0x1082D630
+	// NONMATCHING: 77.4 %, ours keeps the decremented end pointer in a register the engine does not use (it subtracts
+	// inside the branch)
+#ifdef NONMATCHING
+	int AllocateSlotHandle()
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->freeSlotHandles.IsEmpty())
+		{
+			return -1;
+		}
+		return manager->freeSlotHandles.PopBack();
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082D670
+	void FreeSlotHandle(int handle)
+	{
+		StreamManager* manager = gStreamManager;
+		int* end = manager->freeSlotHandles.end;
+		if (end == manager->freeSlotHandles.Find(handle))
+		{
+			manager->freeSlotHandles.PushBack(handle);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082D6C0
+	void RegisterStreamTrigger(StreamTrigger* trigger)
+	{
+		gStreamManager->triggers.PushBack(trigger);
+	}
+
+	// FUNCTION: ENGINE 0x1082C010
+	void SetStreamDriver(int index, GameObject* object)
+	{
+		gStreamManager->streamDrivers[index] = GetHandle(object);
+	}
+
+	// FUNCTION: ENGINE 0x1082C040
+	int GetStreamDriverCount()
+	{
+		return gStreamManager->streamDriverCount;
+	}
+
+	// FUNCTION: ENGINE 0x1082CED0
+	void StreamManager::RegisterClient(StreamClient* client)
+	{
+		StreamManager* manager = gStreamManager;
+		if (client->unknown18)
+		{
+			manager->flaggedClients.PushBack(client);
+		}
+		else
+		{
+			manager->clients.PushBack(client);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082D480
+	GameObject* GetStreamDriver(int index)
+	{
+		return gStreamManager->streamDrivers[index].Get();
+	}
+
+	// FUNCTION: ENGINE 0x1082D4C0
+	void DestroyStreamDrivers()
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->streamDrivers != 0)
+		{
+			for (int i = 0; i < manager->streamDriverCount; i++)
+			{
+				GameObjectHandle* handle = &manager->streamDrivers[i];
+				if (handle->IsValid())
+				{
+					DeferUpdate(*handle, false);
+				}
+			}
+			delete[] manager->streamDrivers;
+			manager->streamDrivers = 0;
+			manager->streamDriverCount = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082DC00
+	// NONMATCHING: 99.1 %, the vector constructor is given the engine's copy of the handle constructor at 0x1005F820
+	// (the one this name maps to is 0x102A8410)
+#ifdef NONMATCHING
+	void SetStreamDriverCount(int count)
+	{
+		DestroyStreamDrivers();
+		gStreamManager->streamDriverCount = count;
+		gStreamManager->streamDrivers = new GameObjectHandle[gStreamManager->streamDriverCount];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082CD50
+	void StopFirstStartupPackage()
+	{
+		if (!(char)StreamManager::IsGroupWithoutInstance(0))
+		{
+			StreamManager* manager = gStreamManager;
+			StreamManager::AdvanceState();
+			StreamManager::UnloadStartupPackage(0);
+			while (manager->unknown114 == 1)
+			{
+				Unknown1082C6D0();
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082CD90
+	// NONMATCHING: 66.1 %, the engine walks the three group packages from a base pointer at +0xA4 and reads one slot
+	// below it (ours folds the offset into the pointer, which makes the load one byte shorter)
+#ifdef NONMATCHING
+	void DestroyStreamManager()
+	{
+		StreamManager* manager = gStreamManager;
+		while (!(char)StreamManager::IsGroupWithoutInstance(0))
+		{
+			Unknown1082C6D0();
+		}
+		StreamPackage** slot = manager->groupPackages + 3;
+		int i = 3;
+		do
+		{
+			StreamPackage* package = *(slot - 1);
+			slot = slot - 1;
+			i = i - 1;
+			if (package != 0)
+			{
+				delete package;
+			}
+		}
+		while (i != 0);
+		StreamSlotGroup** group = gStreamManager->slotGroups.begin;
+		StreamSlotGroup** end = gStreamManager->slotGroups.end;
+		for (; group != end; group++)
+		{
+			(*group)->IsReady();
+			if (*group != 0)
+			{
+				delete *group;
+			}
+		}
+		gStreamManager->slotGroups.end = gStreamManager->slotGroups.begin;
+		delete gStreamManager;
+		gStreamManager = 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082CF10
+	void StreamManager::UnregisterClient(StreamClient* client)
+	{
+		StreamManager* manager = gStreamManager;
+		if (client->unknown18)
+		{
+			StreamClient** item = manager->flaggedClients.Find(client);
+			manager->flaggedClients.Erase(item);
+		}
+		else
+		{
+			StreamClient** item = manager->clients.Find(client);
+			manager->clients.Erase(item);
+		}
+		StreamPackage** package = manager->activePackages.Begin();
+		if (package != manager->activePackages.End())
+		{
+			do
+			{
+				if ((*package)->instance != 0)
+				{
+					(*package)->instance->RemoveClient(client);
+				}
+				package++;
+			}
+			while (package != manager->activePackages.End());
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082CFC0
+	// NONMATCHING: 87.5 %, the engine takes the count down before it loads the tag set for the call, ours after
+#ifdef NONMATCHING
+	void StreamManager::FindClients(container::ArrayDynamicStatic<StreamClient*, StreamAllocator>* found,
+		const TagSet* tags)
+	{
+		StreamManager* manager = gStreamManager;
+		int count = manager->clients.Size();
+		while (count != 0)
+		{
+			StreamClient* client = manager->clients[count - 1];
+			count--;
+			if (tags->Intersects(client->tags))
+			{
+				found->PushBack(client);
+			}
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1082DFF0
+	void StreamManager::AddActive(StreamPackage* package)
+	{
+		gStreamManager->activePackages.InsertSorted(package, ComparePackagePriority);
+	}
+
+	// FUNCTION: ENGINE 0x1082D020
+	void StreamManager::RemoveActive(StreamPackage* package)
+	{
+		StreamManager* manager = gStreamManager;
+		StreamPackage** item = manager->activePackages.Find(package);
+		if (item != 0)
+		{
+			manager->activePackages.Erase(item);
+		}
 	}
 
 	// FUNCTION: ENGINE 0x1082C060
@@ -22,7 +439,6 @@ namespace engine
 		gStreamManager->currentPackage = package;
 	}
 
-	extern fight::EnumEntry gStartupGroupTable[3];
 
 	// FUNCTION: ENGINE 0x1082C560
 	int StreamManager::GetSlotGroupIndex(const content::ObjectName& name)
@@ -235,6 +651,22 @@ namespace container
 namespace engine
 {
 	core::Name<core::CaseSensitiveKey> gNoSlotGroup("Undefined_SlotGroup", 0);
+}
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x1082D550
+	engine::StreamSlotGroup* CreateSlotGroup(const core::Name<core::CaseSensitiveKey>& name, unsigned int slotCount,
+		const SlotGroupConfig* config, bool shared, bool unknown, engine::SlotHeapFactory factory, int unknown60)
+	{
+		engine::StreamSlotGroup* group = new (0xC) engine::StreamSlotGroup(name, slotCount,
+			(const engine::SlotHeapConfig*)config, shared, unknown);
+		group->factory = factory;
+		group->destroyer = (engine::SlotHeapDestroyer)unknown60;
+		group->Create(0, false);
+		engine::gStreamManager->slotGroups.PushBack(group);
+		return group;
+	}
 }
 
 // The dynamic initialisers and atexit stubs of the unit's names:

@@ -8,6 +8,7 @@
 #include "code/engine/controller/monkeycontrollermanager.h"
 #include "code/engine/system/desynchunter.h"
 #include "code/engine/system/gamestatetable.h"
+#include "code/engine/system/syncobject.h"
 
 namespace engine
 {
@@ -165,7 +166,6 @@ namespace engine
 	};
 	OnlineSync* Unknown108C7750();
 	void Unknown10899F60();
-	void Unknown108336F0();
 	void Unknown10821560();
 	void Unknown10821540();
 
@@ -1340,6 +1340,102 @@ namespace engine
 			aborted = true;
 		}
 	}
+	// 0x1130DFF0: when the real time tasks last ran; 0x1130DFE8: set while the simulation steps
+	unsigned __int64 gLastRealTimeUpdate;
+	bool gSimulationStepping;
+
+	// 0x10838BA0: one step of the simulation, called with the time of the step
+	void StepSimulation(UpdateContext context);
+
+	// FUNCTION: ENGINE 0x10838ED0
+	// NONMATCHING: 99.3 %, the engine stores the high half of the time stamp before it loads the vtable of the driver
+	// and the low half after, ours stores both halves together
+#ifdef NONMATCHING
+	void UpdateGameStates()
+	{
+		Unknown10899F60();
+		if (gTransitionState == 3 || gTransitionState == 5)
+		{
+			bool done;
+			if (gCurrentRequest.overlay)
+			{
+				done = RemoveGameStateFromStack(gCurrentRequest.state);
+			}
+			else
+			{
+				done = GotoGameState(gCurrentRequest.state);
+			}
+			if (done)
+			{
+				if (gTransitionState == 3)
+				{
+					unsigned int message = ((gMessageLeave | 0x100) << 0x10) | gCurrentRequest.state;
+					gTransitionState = 4;
+					gTransitionMessage = message;
+					if (gCurrentRequest.overlay)
+					{
+						message |= 0x8000;
+						gTransitionMessage = message;
+					}
+					Unknown108C7750()->Unknown108C7B50(message, 0);
+				}
+				else
+				{
+					gTransitionState = 6;
+				}
+			}
+		}
+		ServicePendingRequest();
+		unsigned __int64 now = core::GetElapsedMicroseconds();
+		if (now - gLastRealTimeUpdate > 2000)
+		{
+			gLastRealTimeUpdate = now;
+			gSimulationDriver->Slot1();
+			StateVector<TaskEntry>* tasks = gRealTimeTasks;
+			TaskEntry* entry = tasks->begin;
+			if (entry < tasks->end)
+			{
+				do
+				{
+					if ((entry->mask & gStateFlags) != 0)
+					{
+						entry->task->Update(*(UpdateContext*)&gSimulationDriver->time5);
+						tasks = gRealTimeTasks;
+					}
+					entry++;
+				}
+				while (entry < tasks->end);
+			}
+			gSimulationDriver->Slot2();
+		}
+		gSimulationDriver->Slot3();
+		gSimulationStepping = true;
+		while (gSimulationDriver->Slot4())
+		{
+			StepSimulation(*(UpdateContext*)&gSimulationDriver->time0);
+			if (gTransitionState != 3 && gTransitionState != 4 && gTransitionState != 5)
+			{
+				StateVector<SimulationTaskEntry>* tasks = gSimulationTasks;
+				SimulationTaskEntry* entry = tasks->begin;
+				if (entry < tasks->end)
+				{
+					do
+					{
+						if ((entry->mask & gStateFlags) != 0)
+						{
+							entry->task->Update(*(UpdateContext*)&gSimulationDriver->time3);
+							tasks = gSimulationTasks;
+						}
+						entry++;
+					}
+					while (entry < tasks->end);
+				}
+			}
+		}
+		gSimulationStepping = false;
+		gSimulationDriver->Slot5();
+	}
+#endif
 }
 
 // Kept copies (inline members of this unit's classes):

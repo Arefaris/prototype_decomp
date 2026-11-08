@@ -3,6 +3,7 @@
 #include "code/engine/fight/effecttrack.h"
 #include "code/engine/fight/fightcommon.h"
 #include "code/engine/gameobject/gameobjectmessages.h"
+#include "code/engine/propspawner.h"
 
 namespace engine
 {
@@ -131,7 +132,64 @@ namespace engine
 	{
 	}
 
-	// TODO Evaluate at 0x1082B9A0: push ecx; mov eax, dword ptr [esp + 0x10]; push esi; mov esi, ecx; push eax; lea ecx, [esp + 0x18]; push ecx; call 0x107fc7a0; mov eax, dword ptr [esp + 0x1c]; lea edx, [esi + 0x10]; push edx; push ea
+	extern content::ObjectName gMetaObjectTemplateName;
+	extern content::ObjectName gPropSpawnerName;
+}
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x1082B900
+	// NONMATCHING: 77.3 %, the engine ends each failed lookup in a tail jump of its own (name->IsEmpty()) right behind
+	// the test and continues with the chain behind it; ours keeps the checks in a different order
+#ifdef NONMATCHING
+	bool MatchesObjectTemplate(engine::GameObjectHandle handle, const core::Name<core::CaseSensitiveKey>* name)
+	{
+		engine::GameObject* object = handle.Get();
+		if (object == 0)
+		{
+			return name->IsEmpty();
+		}
+		engine::Attribute<core::Name<core::CaseSensitiveKey> >* templateName =
+			(engine::Attribute<core::Name<core::CaseSensitiveKey> >*)object->FindAttribute(
+				engine::gMetaObjectTemplateName);
+		if (templateName != 0 && &templateName->value != 0)
+		{
+			return templateName->value == *name;
+		}
+		engine::Attribute<engine::PropSpawner*>* spawner = (engine::Attribute<engine::PropSpawner*>*)object->FindAttribute(
+			engine::gPropSpawnerName);
+		if (spawner == 0 || &spawner->value == 0)
+		{
+			return name->IsEmpty();
+		}
+		engine::PropSpawner* propSpawner = spawner->value;
+		if (propSpawner == 0)
+		{
+			return name->IsEmpty();
+		}
+		content::MetaObjectTemplate* tmpl = propSpawner->objectTemplate;
+		if (tmpl == 0)
+		{
+			return name->IsEmpty();
+		}
+		return *name == tmpl->name;
+	}
+#endif
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x1082B9A0
+	// NONMATCHING: 62 %, the engine keeps the handle temporary and the two flags in one four byte slot of the frame
+	// (ours needs eight)
+#ifdef NONMATCHING
+	bool ObjectTemplateCondition::Evaluate(int a, int b, int c, int d)
+	{
+		bool actual = proto::MatchesObjectTemplate(GetObjectHandle((core::IRefCount*)c), &objectTemplate);
+		bool expected = true;
+		return fight::CompareBools(compare, &expected, &actual);
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1080AB20
 	ObjectTemplateCondition::~ObjectTemplateCondition()

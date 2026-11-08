@@ -28,23 +28,6 @@ namespace pure3d
 	void* AllocateBoneData(unsigned int joints, int* size, int kinds);
 }
 
-namespace engine
-{
-	namespace render
-	{
-		// A drawable's source (the rest of the class is unknown): its bounding box sits at +0xC
-		class SourceDrawable
-		{
-		public:
-			// 0x10825930
-			const math::AABB* GetBounds() const;
-
-			unsigned char unknown0[0xC];
-			math::AABB bounds;
-		};
-	}
-}
-
 namespace proto
 {
 	// A level's fade range: the distance its drawables start to fade in at, the distance they are fully faded at
@@ -111,9 +94,9 @@ namespace proto
 		const content::ObjectName* GetArchetypeName() const;
 		void SetArchetype(engine::render::DrawableArchetype* newArchetype, const content::ObjectName& newName);
 		// The archetype as the drawable instances are made from it
-		engine::render::SourceDrawable* GetSource() const
+		engine::render::DrawableArchetype* GetSource() const
 		{
-			return (engine::render::SourceDrawable*)source;
+			return (engine::render::DrawableArchetype*)source;
 		}
 		// 0x102D91B0
 		static content::ClassInfo* GetClassInfo();

@@ -850,7 +850,7 @@ namespace proto
 			}
 			if (!lod.IsEmpty() && !levels.IsEmpty())
 			{
-				const math::AABB* box = ((engine::render::SourceDrawable*)lod[0].source)->GetBounds();
+				const math::AABB* box = ((engine::render::DrawableArchetype*)lod[0].source)->GetBounds();
 				float length = HalfDiagonal(*box);
 				distanceLevel = 0;
 				for (int i = 0; i < 3; i++)
