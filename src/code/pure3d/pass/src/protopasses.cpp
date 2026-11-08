@@ -350,8 +350,8 @@ namespace pure3d
 		const void* viewState = params->GetViewState(view);
 		SetViewport(viewState);
 		Unknown107678D0();
-		pddi->drawFlags |= 1;
-		pddi->drawFlags |= 8;
+		pddi->drawFlags.mBits |= 1;
+		pddi->drawFlags.mBits |= 8;
 		const core::Name<core::CaseInsensitiveKey32>* shader;
 		if (params->GetUnknown14() == 1)
 		{
@@ -425,8 +425,8 @@ namespace pure3d
 			}
 		}
 		manager->Unknown10715AC0(viewState);
-		pddi->drawFlags &= ~8;
-		pddi->drawFlags &= ~1;
+		pddi->drawFlags.mBits &= ~8;
+		pddi->drawFlags.mBits &= ~1;
 	}
 
 	// FUNCTION: ENGINE 0x1076AF90
@@ -487,7 +487,7 @@ namespace pure3d
 				}
 			}
 		}
-		pddi->drawFlags &= ~4;
+		pddi->drawFlags.mBits &= ~4;
 	}
 
 	namespace

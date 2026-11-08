@@ -1,9 +1,12 @@
 // engine::Display: the display mode object. See display.h for the model; names are guesses.
+#include <math.h>
+#include <new>
 #include <string.h>
 
 #include "code/engine/display.h"
 #include "code/pure3d/pddi/dx9/dxcontext.h"
 #include "code/pure3d/pddi/dx9/dxdefaultpoolmanager.h"
+#include "code/pure3d/pddi/dx9/dxtexture.h"
 
 namespace pure3d
 {
@@ -52,6 +55,10 @@ namespace pure3d
 
 namespace engine
 {
+	// The back buffer formats the modes are listed for (0x110BB574: A1R5G5B5, A2R10G10B10, A8R8G8B8, R5G6B5,
+	// X1R5G5B5, X8R8G8B8)
+	static unsigned int sBackBufferFormats[6] = {0x19, 0x23, 0x15, 0x17, 0x18, 0x16};
+
 	// FUNCTION: ENGINE 0x10615F30
 	void SetRenderDisplay(Display* display)
 	{
@@ -78,9 +85,9 @@ namespace engine
 	// FUNCTION: ENGINE 0x10616320
 	void Display::GetGamma(float* a, float* b, float* c)
 	{
-		*a = gamma[0];
-		*b = gamma[1];
-		*c = gamma[2];
+		*a = gamma.values[0];
+		*b = gamma.values[1];
+		*c = gamma.values[2];
 	}
 
 	// FUNCTION: ENGINE 0x10615FE0
@@ -316,7 +323,7 @@ namespace engine
 	{
 		if (unknown != 0)
 		{
-			Unknown106174D0(unknown);
+			pure3d::DisplaySettings::operator=(*(pure3d::DisplaySettings*)unknown);
 		}
 		Unknown10617560();
 		memset(&presentParameters, 0, sizeof(presentParameters));
@@ -336,7 +343,7 @@ namespace engine
 		{
 			Unknown106180B0(&width, &unknown8, &refreshRate, mode.Format);
 		}
-		presentParameters.hDeviceWindow = (void*)unknown0;
+		presentParameters.hDeviceWindow = (void*)window;
 		presentParameters.Windowed = !fullScreen;
 		presentParameters.BackBufferCount = 1;
 		presentParameters.MultiSampleType = 0;
@@ -356,7 +363,7 @@ namespace engine
 		}
 		else
 		{
-			d3d->lpVtbl->CreateDevice(d3d, 0, 1, (void*)unknown0, 0x44, &presentParameters, &device);
+			d3d->lpVtbl->CreateDevice(d3d, 0, 1, (void*)window, 0x44, &presentParameters, &device);
 			gD3DDevice = device;
 			Unknown10615FE0();
 			device->lpVtbl->GetGammaRamp(device, 0, gammaRamp);
@@ -366,5 +373,302 @@ namespace engine
 		Unknown10616660();
 		unknown828 = unknown134;
 		return device != 0;
+	}
+
+}
+
+namespace pure3d
+{
+	// FUNCTION: ENGINE 0x106174D0
+	DisplaySettings& DisplaySettings::operator=(const DisplaySettings& other)
+	{
+		window = other.window;
+		width = other.width;
+		unknown8 = other.unknown8;
+		unknownC = other.unknownC;
+		unknown10 = other.unknown10;
+		unknown14 = other.unknown14;
+		unknown18 = other.unknown18;
+		unknown1C = other.unknown1C;
+		unknown20 = other.unknown20;
+		unknown24 = other.unknown24;
+		unknown28 = other.unknown28;
+		unknown2C = other.unknown2C;
+		unknown2D = other.unknown2D;
+		unknown2E = other.unknown2E;
+		unknown2F = other.unknown2F;
+		sizes = other.sizes;
+		unknown134 = other.unknown134;
+		return *this;
+	}
+
+	// FUNCTION: ENGINE 0x106179B0
+	DisplaySettings::DisplaySettings()
+	{
+		width = 0x280;
+		unknown8 = 0x1E0;
+		unknownC = 0x20;
+		unknown10 = 1.0f;
+		unknown18 = 7;
+		unknown14 = 2;
+		unknown28 = 0;
+		unknown2C = false;
+		unknown2D = true;
+		unknown2E = false;
+		unknown2F = true;
+		unknown1C = 8;
+		unknown20 = 1;
+		unknown24 = false;
+		unknown134 = 0;
+	}
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x10617A30
+	Display::Display(IDirect3D9* direct3D)
+		: d3d(direct3D), device(0), unknown78D(false), unknown78E(false), unknown78F(false), unknown790(false),
+		unknown791(false), maxTextureWidth(0), maxTextureHeight(0), unknown7FC(0), unknown800(1.0f),
+		unknown804(1.0f), unknown808(1.0f), unknown80C(1.0f), unknown810(1.0f), unknown814(1.0f),
+		unknown818(1.0f), unknown81C(1.0f), unknown820(1.0f), unknown824(false), unknown828(0),
+		backBufferTexture(0), unknown830(false)
+	{
+		pure3d::CreateRenderStateCache();
+		gRenderDisplay = this;
+		for (int i = 0; i < 6; i++)
+		{
+			blocks[i].Create(0x1000);
+		}
+		unknown78C = false;
+		width = 0;
+		unknown8 = 0;
+		backBufferTexture = new pure3d::dxTexture(0);
+		backBufferTexture->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x10617BF0
+	// NONMATCHING: scheduling: the engine loads the first two cursors' blocks before it stores the first, ours loads three ahead, best 90.0%
+#ifdef NONMATCHING
+	Display::~Display()
+	{
+		pure3d::ShutdownDefaultPool();
+		Unknown106160D0();
+		if (backBufferTexture != 0)
+		{
+			backBufferTexture->Release();
+		}
+		pure3d::DestroyRenderStateCache();
+		if (device != 0)
+		{
+			device->lpVtbl->Release(device);
+			device = 0;
+			gD3DDevice = 0;
+		}
+		blocks[0].cursor = blocks[0].begin;
+		blocks[1].cursor = blocks[1].begin;
+		blocks[2].cursor = blocks[2].begin;
+		blocks[3].cursor = blocks[3].begin;
+		blocks[4].cursor = blocks[4].begin;
+		blocks[5].cursor = blocks[5].begin;
+	}
+#endif
+}
+
+namespace engine
+{
+	// FUNCTION: ENGINE 0x106164B0
+	int Display::GetFormatIndex(unsigned int format)
+	{
+		int result = -1;
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			if (sBackBufferFormats[i] == format)
+			{
+				result = i;
+				break;
+			}
+		}
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10616500
+	Display::Block* Display::GetModeList(unsigned int format)
+	{
+		int index = -1;
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			if (sBackBufferFormats[i] == format)
+			{
+				index = i;
+				break;
+			}
+		}
+		return &blocks[index];
+	}
+
+	// FUNCTION: ENGINE 0x10616540
+	bool Display::Unknown10616540()
+	{
+		HRESULT result = gD3DDevice->lpVtbl->TestCooperativeLevel(gD3DDevice);
+		if (result < 0)
+		{
+			if (result == (HRESULT)0x88760869)
+			{
+				return true;
+			}
+		}
+		else if (unknown78E && !unknown824)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10616580
+	bool Display::Unknown10616580(int multiSampleType)
+	{
+		if (multiSampleType != 0)
+		{
+			HRESULT colour = d3d->lpVtbl->CheckDeviceMultiSampleType(d3d, 0, 1, (D3DFORMAT)0x15, unknown20 == 1,
+				(D3DMULTISAMPLE_TYPE)multiSampleType, 0);
+			HRESULT depth = d3d->lpVtbl->CheckDeviceMultiSampleType(d3d, 0, 1, (D3DFORMAT)0x71, unknown20 == 1,
+				(D3DMULTISAMPLE_TYPE)multiSampleType, 0);
+			if (colour < 0 || depth < 0)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10616620
+	bool Display::Unknown10616620(int mode)
+	{
+		bool taken = Unknown10616580(pure3d::GetMultiSampleType(mode));
+		if (taken)
+		{
+			unknown28 = mode;
+			presentParameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)0;
+			unknown78E = true;
+		}
+		return taken;
+	}
+
+	// FUNCTION: ENGINE 0x1061C010
+	int Display::GetStretchFilter()
+	{
+		return (unknown78F != false) + 1;
+	}
+
+	// FUNCTION: ENGINE 0x10616EA0
+	bool Display::Unknown10616EA0(unsigned int format)
+	{
+		int index = -1;
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			if (sBackBufferFormats[i] == format)
+			{
+				index = i;
+				break;
+			}
+		}
+		if (index < 0)
+		{
+			return false;
+		}
+		Block& list = blocks[index];
+		unsigned int size = list.cursor - list.begin;
+		bool result = (size & 0xFFFFFFF0) != 0;
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10616EE0
+	bool Display::Unknown10616EE0(unsigned int width, unsigned int height)
+	{
+		pure3d::DisplaySize* end = sizes.End();
+		for (pure3d::DisplaySize* it = sizes.Begin(); it < end; it++)
+		{
+			pure3d::DisplaySize size = *it;
+			if (size.width == width && size.height == height)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10616F20
+	// NONMATCHING: register allocation: the engine keeps the result in ebx (set before the call of the mode list) and the loop in esi / edx, ours folds the result and uses other registers, best 38.5%
+#ifdef NONMATCHING
+	bool Display::Unknown10616F20(unsigned int width, unsigned int height, unsigned int format)
+	{
+		bool result = false;
+		Block* list = GetModeList(format);
+		D3DDISPLAYMODE* mode = (D3DDISPLAYMODE*)list->begin;
+		unsigned int count = (D3DDISPLAYMODE*)list->cursor - (D3DDISPLAYMODE*)list->begin;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (mode->Width == width && mode->Height == height)
+			{
+				return Unknown10616EE0(width, height);
+			}
+			mode++;
+		}
+		return result;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10617560
+	void Display::Unknown10617560()
+	{
+		unsigned int* format = sBackBufferFormats;
+		Block* list = blocks;
+		for (int n = 6; n != 0; n--)
+		{
+			list->cursor = list->begin;
+			unsigned int count = d3d->lpVtbl->GetAdapterModeCount(d3d, 0, *format);
+			for (unsigned int i = 0; i < count; i++)
+			{
+				D3DDISPLAYMODE mode;
+				d3d->lpVtbl->EnumAdapterModes(d3d, 0, *format, i, &mode);
+				if (Unknown10616EE0(mode.Width, mode.Height))
+				{
+					if (list->cursor < list->end)
+					{
+						D3DDISPLAYMODE* item = (D3DDISPLAYMODE*)list->cursor;
+						list->cursor += sizeof(D3DDISPLAYMODE);
+						if (item != 0)
+						{
+							*item = mode;
+						}
+					}
+				}
+			}
+			format++;
+			list++;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10616C90
+	void Display::Unknown10616C90(float a, float b, float c)
+	{
+		gamma.values[0] = a;
+		gamma.values[1] = b;
+		gamma.values[2] = c;
+		float inverseA = 1.0f / a;
+		float inverseB = 1.0f / b;
+		float inverseC = 1.0f / c;
+		unsigned short ramp[3][256];
+		for (int i = 0; i < 256; i++)
+		{
+			float level = i * (1.0f / 255.0f);
+			float red = powf(level, inverseA);
+			float green = powf(level, inverseB);
+			float blue = powf(level, inverseC);
+			ramp[0][i] = (unsigned short)((red > 1.0f ? 1.0f : red) * 65535.0f);
+			ramp[1][i] = (unsigned short)((green > 1.0f ? 1.0f : green) * 65535.0f);
+			ramp[2][i] = (unsigned short)((blue > 1.0f ? 1.0f : blue) * 65535.0f);
+		}
+		device->lpVtbl->SetGammaRamp(device, 0, 0, ramp);
 	}
 }

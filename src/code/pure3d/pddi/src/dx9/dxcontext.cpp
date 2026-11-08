@@ -4,6 +4,7 @@
 #include "code/core/hash.h"
 #include "code/core/strings.h"
 #include "code/engine/display.h"
+#include "code/pure3d/pddi/dx9/dxprogram.h"
 #include "code/pure3d/pddi/dx9/dxsurface.h"
 #include "code/pure3d/pddi/vertexdeclaration.h"
 #include "code/pure3d/shaderconstants.h"
@@ -1123,6 +1124,97 @@ namespace pure3d
 	void dxContext::SetAlphaRef(float ref)
 	{
 		pddiBaseContext::SetAlphaRef(ref);
+	}
+
+	// FUNCTION: ENGINE 0x1061F1D0
+	// NONMATCHING: register allocation: the engine keeps the program in ecx and the cache in eax, ours the other way round, best 32.1%
+#ifdef NONMATCHING
+	bool SetVertexProgram(dxProgram* program)
+	{
+		if (gProgramCache->vertex != program)
+		{
+			gProgramCache->vertex = program;
+			gProgramCache->vertexSets += 1;
+			gD3DDevice->lpVtbl->SetVertexShader(gD3DDevice, program->vertexShader);
+			return true;
+		}
+		return false;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1061F210
+	bool SetPixelProgram(dxProgram* program)
+	{
+		dxProgramCache* cache = gProgramCache;
+		if (!cache->restricted)
+		{
+			if (cache->pixel == 0)
+			{
+				return false;
+			}
+			cache->pixel = 0;
+			gD3DDevice->lpVtbl->SetPixelShader(gD3DDevice, 0);
+			gProgramCache->pixelSets += 1;
+			return true;
+		}
+		if (!cache->frozen)
+		{
+			if (cache->pixel == program)
+			{
+				return false;
+			}
+			cache->pixel = program;
+			gProgramCache->pixelSets += 1;
+			gD3DDevice->lpVtbl->SetPixelShader(gD3DDevice, program->pixelShader);
+			return true;
+		}
+		cache->saved = program;
+		gProgramCache->pixel = 0;
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x1061FF10
+	void dxContext::Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e)
+	{
+		if (unknown680)
+		{
+			dxTexture* depthTexture = (dxTexture*)a;
+			if (depthTexture != 0)
+			{
+				depthTexture->Unknown1061CA00(false);
+			}
+			dxTexture* first = (dxTexture*)surface;
+			if (first != 0)
+			{
+				first->Unknown1061CA00(true);
+			}
+			dxTexture* second = (dxTexture*)b;
+			if (second != 0)
+			{
+				second->Unknown1061CA00(true);
+			}
+			dxTexture* third = (dxTexture*)c;
+			if (third != 0)
+			{
+				third->Unknown1061CA00(true);
+			}
+			dxTexture* fourth = (dxTexture*)d;
+			if (fourth != 0)
+			{
+				fourth->Unknown1061CA00(true);
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1061F410
+	dxContext::dxContext()
+		: unknown650(0), unknown654(0), unknown658(0), queryUnknown660(0), defaultShader(0), unknown668(0),
+		unknown66C(0), unknown670(0), targetWidth(0), targetHeight(0), unknown680(false), endingFrame(false),
+		unknown68C(false)
+	{
+		colourWriteMask = 0xF;
+		depthBiasSlope = 0.0f;
+		depthBias = 0.0f;
 	}
 }
 

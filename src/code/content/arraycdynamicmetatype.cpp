@@ -495,4 +495,93 @@ namespace content
 		return false;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106002B0
+	// NONMATCHING: register allocation: the engine keeps the zero and the index in ebp and the common count in edi, ours the other way round, best 93.6%
+#ifdef NONMATCHING
+	bool ArrayCDynamicMetaType::Compare(ReadContext* first, const char* firstName, ReadContext* second,
+		const char* secondName, int flags, TextWriter* log)
+	{
+		unsigned int firstCount = 0;
+		unsigned int secondCount = 0;
+		if (first != 0)
+		{
+			first->reader->Read(&firstCount, 1, 4);
+		}
+		if (second != 0)
+		{
+			second->reader->Read(&secondCount, 1, 4);
+		}
+		unsigned int common;
+		if (firstCount > secondCount)
+		{
+			common = secondCount;
+		}
+		else
+		{
+			common = firstCount;
+		}
+		log->NewLine();
+		log->Write("{", false);
+		log->NewLine();
+		log->Indent();
+		bool same = true;
+		if (firstCount != secondCount)
+		{
+			log->Write("*******************", false);
+			log->Write(firstName, false);
+			log->WriteUInt(&firstCount);
+			log->Write(secondName, false);
+			log->WriteUInt(&secondCount);
+			log->Write("elements in the array", false);
+			log->NewLine();
+		}
+		for (unsigned int i = 0; i < common; i++)
+		{
+			bool equal = ((MetaTypeView*)element)->Compare(first, firstName, second, secondName, flags, log);
+			same = equal && same;
+			if (common - i > 1)
+			{
+				log->Write(",", false);
+				log->NewLine();
+			}
+		}
+		if (firstCount != secondCount)
+		{
+			log->Write(",", false);
+			log->NewLine();
+			if (common < firstCount)
+			{
+				for (; common < firstCount; common++)
+				{
+					bool equal = ((MetaTypeView*)element)->Compare(first, firstName, 0, secondName, flags, log);
+					same = equal && same;
+					if (firstCount - common > 1)
+					{
+						log->Write(",", false);
+						log->NewLine();
+					}
+				}
+			}
+			else if (common < secondCount)
+			{
+				for (; common < secondCount; common++)
+				{
+					bool equal = ((MetaTypeView*)element)->Compare(0, firstName, second, secondName, flags, log);
+					same = equal && same;
+					if (secondCount - common > 1)
+					{
+						log->Write(",", false);
+						log->NewLine();
+					}
+				}
+			}
+			same = false;
+		}
+		log->Unindent();
+		log->NewLine();
+		log->Write("}", false);
+		return same;
+	}
+#endif
 }

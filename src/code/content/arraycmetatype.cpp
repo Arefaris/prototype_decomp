@@ -36,6 +36,14 @@ namespace content
 		}
 	};
 
+	// RTTI content::VirtualArrayCHelper: the helper for an ItemArray (the object at 0x110BAEC4)
+	class VirtualArrayCHelper : public ArrayCHelperBase
+	{
+	public:
+		virtual void* Get(void* array, int index);
+		virtual void* GetConst(void* array, int index);
+	};
+
 	// FUNCTION: ENGINE 0x106061E0
 	const char* GetArrayCTypeName()
 	{
@@ -292,4 +300,16 @@ namespace content
 		return false;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106063B0
+	void* VirtualArrayCHelper::GetConst(void* array, int index)
+	{
+		return ((ItemArray*)array)->begin[index];
+	}
+
+	// FUNCTION: ENGINE 0x106063C0
+	void* VirtualArrayCHelper::Get(void* array, int index)
+	{
+		return ((ItemArray*)array)->begin[index];
+	}
 }

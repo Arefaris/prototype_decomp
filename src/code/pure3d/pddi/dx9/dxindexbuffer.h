@@ -63,6 +63,8 @@ namespace pure3d
 		void GetDescription(IndexBufferDescription* description);
 		// 0x10626910: the format of the indices (an index into the Direct3D format codes)
 		int GetFormatIndex();
+		// 0x1061F2C0: sets the buffer on the device unless it is the one set already
+		void Bind();
 		// 0x10626920: the first word of the state (the draws take it for how many indices there are)
 		int GetUnknown1C();
 

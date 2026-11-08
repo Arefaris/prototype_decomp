@@ -2,8 +2,11 @@
 // basecontext.cpp): the state accessors over the four state stacks, the clocks and the frame counter. Names of
 // the states' words are guesses.
 #include "code/core/debug.h"
+#include "code/core/leafstandins.h"
 #include "code/core/time.h"
+#include "code/engine/display.h"
 #include <new>
+#include <string.h>
 #include "code/pure3d/pddi.h"
 
 namespace pure3d
@@ -1014,5 +1017,154 @@ namespace pure3d
 	{
 		viewState->unknown14.Set(a, b, c, d);
 		Unknown67();
+	}
+
+	// The slots of the constants the device looked up for itself (shaderconstants.cpp)
+	extern ConstantSlot gConstantSlot11276BE4;
+	extern ConstantSlot gConstantSlot11276BE0;
+
+	// FUNCTION: ENGINE 0x10615720
+	static bool DeleteNode(container::TreeBase::Node* node, void* context)
+	{
+		delete[] (char*)node;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10615CF0
+	pddiBaseContext::pddiBaseContext()
+		: display(0), unknownC(0), constants(0), constantsDirty(0), unknown150(false), unknown5F8(0),
+		unknown62C(0),
+		unknown630(0)
+	{
+		initialized = false;
+		unknown628 = 1;
+	}
+
+	// FUNCTION: ENGINE 0x10615E70
+	pddiBaseContext::~pddiBaseContext()
+	{
+		delete viewStack;
+		delete renderStack;
+		delete zStack;
+		delete stencilStack;
+		gConstantSlot11276BE4.index = -1;
+		gConstantSlot11276BE0.index = -1;
+		constants->Release();
+		leaf::LeafNothing<0x10618590>();
+		nodes.Clear(DeleteNode, &nodes);
+	}
+
+	// FUNCTION: ENGINE 0x1061C3B0
+	void pddiBaseContext::AddToClock(int index, float amount)
+	{
+		clocks[index] += amount;
+	}
+
+	// FUNCTION: ENGINE 0x106153D0
+	void pddiBaseContext::ResetStates()
+	{
+		viewState->unknown4 = 0xFF000000;
+		viewState->unknown8 = 1.0f;
+		viewState->unknownC = 0;
+		viewState->unknown10 = 0;
+		viewState->unknown14.Set(0.0f, 0.0f, 1.0f, 1.0f);
+		float aspect = display->GetAspectRatio();
+		viewState->unknown24.Set(1.0f, 1000.0f, 1.0f, aspect, 0.0f, 0.0f);
+		renderState->colourWrite[0] = true;
+		renderState->colourWrite[1] = true;
+		renderState->colourWrite[2] = true;
+		renderState->colourWrite[3] = true;
+		renderState->cullMode = 1;
+		renderState->fillMode = 0;
+		renderState->unknownC = 0;
+		renderState->alphaTest = false;
+		renderState->blend[2] = 0;
+		renderState->blend[3] = 0;
+		renderState->blend[0] = display->GetWidth();
+		renderState->blend[1] = display->GetUnknown8();
+		renderState->fog = false;
+		renderState->fogNear = 0.0f;
+		renderState->fogFar = 0.0f;
+		renderState->alphaRef = 1.0f;
+		renderState->unknown38 = true;
+		zState->zBuffer = true;
+		zState->zCompare = 3;
+		zState->zWrite = true;
+		zState->zBias = 0.0f;
+		zState->zSlope = 1.0f;
+		stencilState->enabled = false;
+		stencilState->compare = 1;
+		stencilState->ref = 0;
+		stencilState->mask = -1;
+		stencilState->writeMask = -1;
+		stencilState->fail = 0;
+		stencilState->zFail = 0;
+		stencilState->zPass = 0;
+		stencilState->unknown24 = false;
+		stencilState->unknown28 = 1;
+		stencilState->unknown2C = 0;
+		stencilState->unknown30 = 0;
+		stencilState->unknown34 = 0;
+		ApplyStates();
+	}
+
+	// FUNCTION: ENGINE 0x106151A0
+	void pddiBaseContext::FindDepthConstant(int kind, const core::Name<core::CaseInsensitiveKey32>* name)
+	{
+		constants->Unknown1061A840(kind, name, &unknown630, &unknown62C, &unknown628);
+	}
+
+	// FUNCTION: ENGINE 0x10615B50
+	void pddiBaseContext::Init(IDirect3DDevice9* device, engine::Display* newDisplay)
+	{
+		unknownC = device;
+		display = newDisplay;
+		memset(&frameNumber, 0, 0x2C);
+		unknown7C[0] = 0.0f;
+		unknown7C[1] = 0.0f;
+		unknownBC[0] = 0.0f;
+		unknownBC[1] = 0.0f;
+		unknownBC[2] = 0.0f;
+		unknownBC[3] = 0.0f;
+		unknownBC[4] = 0.0f;
+		unknownBC[5] = 0.0f;
+		unknownBC[6] = 0.0f;
+		unknownBC[7] = 0.0f;
+		unknownBC[8] = 0.0f;
+		unknownBC[9] = 0.0f;
+		unknownBC[10] = 0.0f;
+		unknownBC[11] = 0.0f;
+		unknownFC[0] = 0.0f;
+		unknownFC[1] = 0.0f;
+		unknownFC[2] = 0.0f;
+		unknown110[0] = 0.0f;
+		unknown110[1] = 0.0f;
+		unknown110[2] = 0.0f;
+		unknown110[3] = 0.0f;
+		unknown110[4] = 0.0f;
+		unknown110[5] = 0.0f;
+		unknown110[6] = 0.0f;
+		unknown110[7] = 0.0f;
+		unknown110[8] = 0.0f;
+		unknown110[9] = 0.0f;
+		unknownBC[12] = 0.0f;
+		unknownBC[13] = 0.0f;
+		unknownBC[14] = 0.0f;
+		unknownBC[15] = 0.0f;
+		textureMemory = 0.0f;
+		unknown13C[1] = 0.0f;
+		unknown13C[0] = 0.0f;
+		Unknown10614910();
+		CreateStacks();
+		{
+			core::Name<core::CaseInsensitiveKey32> zScale("p3dZScale", 1);
+			FindDepthConstant(3, &zScale);
+		}
+		{
+			core::Name<core::CaseInsensitiveKey32> zNearFar("p3dZNearFar", 1);
+			FindDepthConstant(3, &zNearFar);
+		}
+		matrices.Bind(this);
+		initialized = true;
 	}
 }

@@ -154,6 +154,9 @@ namespace pure3d
 		// 0x1061CA00: copies the surface this texture was made from into its first level again (a texture whose
 		// format the device does not take directly goes through a stretched copy, with a linear filter when asked)
 		void Unknown1061CA00(bool stretched);
+		// 0x1061D350: lets go of the texture this one was copied from and of the one that was copied from this
+		// (name guess)
+		void Detach();
 
 		// 0x10628010 / 0x10628030 / 0x10628050: the Direct3D texture of each kind the device draws with (the one of
 		// the texture this was copied from, when it was)

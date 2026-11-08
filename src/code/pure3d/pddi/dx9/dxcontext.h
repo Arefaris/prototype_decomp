@@ -26,6 +26,7 @@ namespace pure3d
 	struct DisplaySettings;
 	class dxDevice;
 	class dxContext;
+	class dxProgram;
 
 	// The techniques of a shader (name guess). 0x10618560 is `bool IsEnabled(int technique)` (the entry's first byte), not
 	// declared here: a fifth member function of this class moves two locals of Context::LoadDebugFont (0x1070FC90)
@@ -38,7 +39,10 @@ namespace pure3d
 		// 0x10618550: the entry of the table at +0x2D0 for a technique number
 		void* Get(int technique);
 
-		unsigned char unknown0[0x2E8];
+		unsigned char unknown0[0x2D0];
+		// The table of the techniques' entries
+		void** entries;
+		unsigned char unknown2D4[0x2E8 - 0x2D4];
 		// The name of the shader template the techniques belong to
 		core::Name<core::CaseInsensitiveKey32> templateName;
 		// 0x106283E0 / 0x10628400: the first and second program of the Z fill technique
@@ -292,7 +296,10 @@ namespace pure3d
 		// Slot 3 (0x1061FDB0, does nothing), 6 (0x1061FF70) and 7 (0x1061FF10)
 		virtual void Unknown3(int a, int b, int c);
 		virtual void SetRenderTargets(const pddiRenderTargets* targets);
+		// Slot 7 (0x1061FF10): lets the textures of the targets the context drew into be stretched
 		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e);
+		// Slot 27 (0x10623720)
+		virtual void Unknown27();
 		// Slots 9 - 21 are the device's queries (0x1061F650 - 0x1061F860, see the base class)
 		virtual void Unknown9();
 		virtual IDirect3DQuery9* Unknown10();
@@ -322,6 +329,12 @@ namespace pure3d
 		virtual void SetBlendMode(int source, int destination, int sourceAlpha, int destinationAlpha);
 		virtual void SetAlphaRef(float ref);
 		virtual void Unknown68();
+		// Slots 0, 4, 65 and 67 (the engine's functions; not reconstructed): they only keep the class from being abstract
+		virtual void Clear(int flags);
+		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
+			const void* parameters);
+		virtual void Unknown65();
+		virtual void Unknown67();
 
 		// Slots 22 and 23 (0x10620BE0, 0x10620C30)
 		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
@@ -357,13 +370,17 @@ namespace pure3d
 		unsigned char unknown634[0x638 - 0x634];
 		// 0x638: the viewport the device is given (the depth range at +0x10 holds the bias of slot 41)
 		D3DVIEWPORT9 viewport;
-		unsigned char unknown650[0x65C - 0x650];
+		int unknown650;
+		int unknown654;
+		int unknown658;
 		// 0x65C / 0x660: what slot 24 hands out for the flags 0x400001 and 0x102
 		pddiQuery* queryUnknown65C;
 		pddiQuery* queryUnknown660;
 		// 0x664: the shader a draw without one goes through
 		dxShader* defaultShader;
-		unsigned char unknown668[0x674 - 0x668];
+		int unknown668;
+		int unknown66C;
+		int unknown670;
 		// 0x674 / 0x678: the size of the surface the device draws into
 		unsigned int targetWidth;
 		unsigned int targetHeight;
@@ -377,7 +394,8 @@ namespace pure3d
 		// 0x684 / 0x688: the two words of the depth bias
 		float depthBiasSlope;
 		float depthBias;
-		unsigned char unknown68C[4];
+		bool unknown68C;
+		unsigned char unknown68D[3];
 		dxDrawTracker* tracker;
 		int unknown694;
 	};
@@ -393,6 +411,10 @@ namespace pure3d
 	void SetCurrentDevice(dxDevice* device);
 	void SetD3DDevice(IDirect3DDevice9* device);
 	IDirect3DDevice9* GetD3DDevice();
+	// 0x1061F1D0 / 0x1061F210: set a vertex / pixel program on the device unless it is the one set (the pixel one
+	// follows the cache's two flags); true when the device was given a program
+	bool SetVertexProgram(dxProgram* program);
+	bool SetPixelProgram(dxProgram* program);
 	// 0x10615F80 / 0x10615F90: the vertex / pixel constants written from now on are not the ones the registers hold
 	void NextVertexConstantPass();
 	void NextPixelConstantPass();

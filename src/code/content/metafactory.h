@@ -82,6 +82,8 @@ namespace content
 		MetaInstanceCreator(const char* newName, unsigned short newFlag, ClassMetaType* newType);
 
 		virtual void* Create() = 0;
+		// 0x105FF6F0
+		ClassMetaType* GetType();
 
 		const char* name;  // +4
 		unsigned short flag;  // +8
@@ -101,6 +103,9 @@ namespace content
 			return new T;
 		}
 	};
+
+	// 0x105FFCA0: the creator registered under that name and flag, null for none
+	MetaInstanceCreator* FindInstanceCreator(const char* name, unsigned short flag);
 
 	// 0x105FFD60: adds the creator to the library's map under the hash of its name
 	void RegisterInstanceCreator(MetaInstanceCreator* creator);
