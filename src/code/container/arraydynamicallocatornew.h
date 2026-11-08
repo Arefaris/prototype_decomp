@@ -130,6 +130,10 @@ namespace container
 		{
 			return end - begin;
 		}
+		bool IsEmpty() const
+		{
+			return begin == end;
+		}
 		unsigned int Capacity() const
 		{
 			return capacity - begin;

@@ -5,9 +5,12 @@
 #ifndef PROTO_RENDER_LODRENDERBEHAVIOUR_H
 #define PROTO_RENDER_LODRENDERBEHAVIOUR_H
 
-#include "code/container/arraydynamic.h"
+#include "code/container/arraydynamicallocatornew.h"
+#include "code/content/arrayhelpercount.h"
 #include "code/core/name.h"
+#include "code/core/refptr.h"
 #include "code/content/metatype.h"
+#include "code/engine/render/drawablearchetype.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/async/drawable.h"
 #include "code/math/aabb.h"
@@ -85,12 +88,44 @@ namespace proto
 		unsigned short lastUses;
 	};
 
-	// One drawable that is ready to be shown (0x10 bytes: the source the instance is made from, then unknown words)
-	struct LODReady
+	// One level of detail as the content describes it (RTTI LODRenderData; reflected: "drawable", the archetype and the
+	// name it was found by). 0x10 bytes: the archetype, a word the copies leave alone, the name
+	struct LODRenderData
 	{
-		engine::render::SourceDrawable* source;
-		unsigned char unknown4[0xC];
+		// 0x102D9870, 0x102DAB40 (a copy), 0x102DAB10 (the assignment: the archetype is taken without a reference), 0x102D9890
+		LODRenderData() : source(0)
+		{
+		}
+		explicit LODRenderData(core::IRefCount* newSource)
+		{
+			source = newSource;
+		}
+		LODRenderData(const LODRenderData& other);
+		LODRenderData& operator=(const LODRenderData& other);
+		~LODRenderData()
+		{
+			core::SafeRelease(source);
+		}
+		// 0x102D90A0 / 0x102D90B0 / 0x102D98A0: the reflected "drawable"
+		engine::render::DrawableArchetype* GetArchetype() const;
+		const content::ObjectName* GetArchetypeName() const;
+		void SetArchetype(engine::render::DrawableArchetype* newArchetype, const content::ObjectName& newName);
+		// The archetype as the drawable instances are made from it
+		engine::render::SourceDrawable* GetSource() const
+		{
+			return (engine::render::SourceDrawable*)source;
+		}
+		// 0x102D91B0
+		static content::ClassInfo* GetClassInfo();
+		// 0x102DB940
+		static content::MemberList* GetMembers();
+
+		core::IRefCount* source;
+		int unknown4;
+		content::ObjectName name;
 	};
+
+	typedef container::ArrayDynamic<LODRenderData, container::AllocatorNew> LODRenderDataArray;
 
 	// The objects the behaviour reads its pose and its scale from (their first word is unknown)
 	struct LODPoseSource
@@ -112,18 +147,15 @@ namespace proto
 		math::Vector scale;
 	};
 
-	// One level of detail as the content describes it (RTTI LODRenderData; the members are not recovered)
-	struct LODRenderData
-	{
-		// 0x102D91B0
-		static content::ClassInfo* GetClassInfo();
-	};
-
 	class LODRenderBehaviour : public engine::Behaviour
 	{
 	public:
+		// 0x102DCD20
+		explicit LODRenderBehaviour(engine::GameObject* newOwner);
 		// 0x102D91F0 (reflected as "LODRenderBehaviour")
 		static content::ClassInfo* GetClassInfo();
+		// 0x102DC390
+		static content::MemberList* GetMembers();
 
 		// The vftable (0x10DEA9F4): slots 0 and 2 are the base's. The destructor is 0x102DCF80, the vftable holds its
 		// scalar deleting copy 0x102DD0D0.
@@ -145,7 +177,7 @@ namespace proto
 		void UpdateFadeIn(float dt);
 		void UpdateForced(float dt);
 		// 0x102DB9F0: makes the level of a ready drawable and adds it to the table
-		void AddLevel(const LODReady* ready);
+		void AddLevel(const LODRenderData* data);
 		// 0x102D9ED0 / 0x102DA090: the messages of type 8 and 10 are handed to every level's drawable
 		void OnSegmentMessage(engine::Message* message);
 		void OnPlaybackMessage(engine::Message* message);
@@ -166,6 +198,16 @@ namespace proto
 		void ResetLevels();
 		// 0x102DA910
 		void SetAnimation(pure3d::Animation* newAnimation);
+		// The reflected members: "enableGeoLOD" 0x102D90E0 / 0x102DB450 (SetBound), "enableGeoFade" 0x102D90F0 / 0x102D94A0,
+		// "drawableSource" 0x102D94C0 (always null) / 0x102D94D0 / 0x102DBF90, "animSource" 0x102D90C0 (always null) /
+		// 0x102DA910 (SetAnimation)
+		bool GetEnableGeoLOD() const;
+		bool GetEnableGeoFade() const;
+		void SetEnableGeoFade(bool enable);
+		engine::render::DrawableArchetype* GetSource() const;
+		const content::ObjectName* GetSourceName() const;
+		void SetSource(engine::render::DrawableArchetype* archetype, const content::ObjectName& name);
+		pure3d::Animation* GetAnimation() const;
 		// 0x102D9500 / 0x102D9540: the levels from the first to the last begin / stop being used (the behaviour is not read)
 		void ShowLevels(const LODLevel* first, const LODLevel* last);
 		void HideLevels(const LODLevel* first, const LODLevel* last);
@@ -192,10 +234,13 @@ namespace proto
 		unsigned int distanceLevel;
 		// +0x3C: the smallest number of levels that is ever handed over
 		unsigned int minimumLevels;
-		// +0x40: the drawables that are ready (begin, end, capacity and the heap; empty: none)
-		container::ArrayDynamicHeap<LODReady> ready;
-		// +0x50: the level table (8-byte records; the engine's inline code tests it for emptiness and walks it by index)
-		container::ArrayDynamicHeap<LODLevel> levels;
+		// +0x40: the levels of detail the content describes (reflected as "lod"), then a word
+		LODRenderDataArray lod;
+		int unknown4C;
+		// +0x50: the level table (8-byte records; the engine's inline code tests it for emptiness and walks it by index),
+		// then a word
+		container::ArrayDynamic<LODLevel, container::AllocatorNew> levels;
+		int unknown5C;
 		// +0x60: the level drawn now (-1: none yet)
 		unsigned int level;
 		// +0x64: how far the fade between two levels has run (0 - 1)
@@ -208,16 +253,46 @@ namespace proto
 		float fadeInScale;
 		// +0x78: a multiplier on this behaviour's fade distance
 		float fadeScale;
-		unsigned char unknown7C[0x88 - 0x7C];
+		unsigned char unknown7C[0x80 - 0x7C];
+		// +0x80: the name of the archetype the drawables were made from (reflected with "drawableSource")
+		content::ObjectName sourceName;
 		// +0x88: the package the drawables come from (the empty name: none)
 		core::Name<core::CaseSensitiveKey> packageName;
 		// +0x90: the heap of the bone data, +0x94 the data, +0x98 its size (names guessed)
 		int heap;
 		void* boneData;
 		int boneDataSize;
-		// +0x9C: bit 0 the drawables are bound, bit 2 the level was forced
-		unsigned char flags;
+		// +0x9C: bit 0 the drawables are bound ("enableGeoLOD"), bit 1 they fade ("enableGeoFade"), bit 2 the level was
+		// forced, bit 3 the archetype waits for its package
+		union
+		{
+			unsigned char flags;
+			struct
+			{
+				unsigned char bound : 1;
+				unsigned char geoFade : 1;
+				unsigned char forced : 1;
+				unsigned char deferred : 1;
+			} bits;
+		};
 	};
+}
+
+namespace container
+{
+	// The engine moves the elements down in Erase with a call of AssignRange
+	template<> struct ArrayEraseInline<proto::LODRenderData>
+	{
+		enum
+		{
+			value = 0
+		};
+	};
+}
+
+namespace content
+{
+	CONTENT_ARRAY_HELPER_COUNT_INSERT(proto::LODRenderDataArray);
 }
 
 #endif

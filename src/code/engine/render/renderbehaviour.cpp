@@ -59,7 +59,7 @@ namespace engine
 	extern content::ObjectName gScaleName;
 	extern content::ObjectName gTransformName;
 	// 0x102D9810 (another unit): whether every component of a vector is within a hair of the other's
-	bool IsVectorNear(const math::Vector& a, const math::Vector& b);
+	int IsVectorNear(const math::Vector& a, const math::Vector& b);
 	// Whether the drawables are made when their package has loaded, not at once (0x11315B60; name guessed)
 	extern bool gRenderSourcesDeferred;
 	extern int gAttributeHeap;
