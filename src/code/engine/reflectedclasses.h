@@ -11,6 +11,7 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/render/renderbehaviour.h"
 #include "code/engine/advertisementbehaviour.h"
+#include "code/engine/gameobjecttemplatebuilder.h"
 #include "code/engine/physicsbehaviour.h"
 #include "code/engine/poseanimationbehaviour.h"
 #include "code/engine/ragdolllodbehaviour.h"
@@ -35,17 +36,6 @@ namespace engine
 		static content::MemberList* GetMembers();
 
 		unsigned char unknown8[0x68];
-	};
-
-	// GameObjectTemplateBuilder: constructor 0x1090CE10, reflection 0x1090C110 / 0x1090CC30
-	class GameObjectTemplateBuilder : public content::MetaLoadObject
-	{
-	public:
-		GameObjectTemplateBuilder();
-		static content::ClassInfo* GetClassInfo();
-		static content::MemberList* GetMembers();
-
-		unsigned char unknown8[0x30];
 	};
 
 	// SkuInfo: constructor 0x10892E60, reflection 0x10892630 / 0x10892CE0
