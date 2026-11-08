@@ -1519,6 +1519,36 @@ namespace proto
 				return result;
 			}
 
+			// FUNCTION: ENGINE 0x101E9770
+			// NONMATCHING: this sits in edi in ours and in ebx in the engine, every other instruction is the same (96.1 %)
+#ifdef NONMATCHING
+			bool IsDisguiseActionEnabledCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (GetFrontEndHud()->GetPopups()->disguiseActions != 0 && !GetFrontEndHud()->GetPopups()->disguiseActions->GetEnabled())
+				{
+					return false;
+				}
+				GetDisguiseActionInfoMsg message;
+				object->SendMessage(&message);
+				switch (action)
+				{
+				case 0:
+					return !(message.timeLeft > 0.0f);
+				case 1:
+					return message.uses > 0;
+				case 2:
+					return false;
+				}
+				return false;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x101EB9F0
 			fight::Action* SetUserTooltipTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{

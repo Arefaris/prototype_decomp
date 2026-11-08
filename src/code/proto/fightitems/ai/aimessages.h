@@ -7,6 +7,11 @@
 #include "code/proto/fightitems/ai/aicodecommon.h"
 #include "code/math/vector.h"
 
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
 namespace proto
 {
 	// The fixed destination an object has been given (the part the actions read; layout from their users)
@@ -107,6 +112,21 @@ namespace proto
 
 		bool unknownC;
 		float alert;  // +0x10
+	};
+
+	// RTTI: proto::GetDisguiseActionInfoMsg: the object answers how long its disguise action has left and how many uses it has
+	struct GetDisguiseActionInfoMsg : public DisguiseMessage
+	{
+		GetDisguiseActionInfoMsg() : DisguiseMessage(0x44), timeLeft(choreo::gMinusOne), uses(0), unknown14(0)
+		{
+		}
+		virtual ~GetDisguiseActionInfoMsg()
+		{
+		}
+
+		float timeLeft;  // +0xC
+		int uses;  // +0x10
+		int unknown14;
 	};
 
 	// RTTI: proto::GetTargetMessage: the object answers its target
@@ -307,7 +327,7 @@ namespace proto
 		}
 	};
 
-	// What the object answers for its aim: filled in by the sender through the pointer (0x18 bytes, member names are guesses)
+	// What the object answers for its aim: filled in by the sender through the pointer (0x24 bytes, member names are guesses)
 	struct AimParameters
 	{
 		int active;  // +0x0
@@ -315,6 +335,7 @@ namespace proto
 		math::Vector offset;  // +0x8
 		bool forceWorldAngles;  // +0x14
 		unsigned char unknown15[0x3];
+		math::Vector unknown18;  // +0x18
 	};
 
 	// RTTI: proto::GetAimParametersMovementMessage: the object answers the block of its aim parameters

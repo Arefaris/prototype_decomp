@@ -203,6 +203,13 @@ namespace proto
 				// vftable slot 7 (0x101F70D0)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101F6080: sends the object to the destination (name guess)
+				void MoveToDestination(engine::GameObject* object);
+				// 0x101F6130 / 0x101F6BA0 / 0x101F61F0: the three states of the action (state 0 takes the destination, 1 goes there and reports the arrival, 2 follows it; name guesses)
+				void TakeDestination(engine::GameObject* object, float time);
+				void GoToDestination(engine::GameObject* object, float time);
+				void FollowDestination(engine::GameObject* object, float time);
+
 				core::Link<GoToTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
 				int unknown2C;  // +0x2C
