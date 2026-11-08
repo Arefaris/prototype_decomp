@@ -66,7 +66,45 @@ namespace proto
 		// 0x103902C0: gives the table room for count buckets (the items move over)
 		void Resize(unsigned int count);
 		// 0x103901B0: files an item under a key
-		void Insert(const unsigned int* key, void* item);
+		void Insert(const int* key, void* item);
+		// 0x103951F0: takes every slot holding the item out (answers how many); a table that shrinks packs itself when too many
+		// removed slots pile up
+		int Remove(void* item);
+
+		// The probing of the table: the first slot is the key masked to the bucket count, the step comes from the next bits of
+		// the key (always odd)
+		class Probe
+		{
+		public:
+			// 0x103949B0
+			Probe(HeightCache* newTable) : table(newTable), key(0), start(0), current(0), step(0)
+			{
+			}
+			// 0x1038CAA0: the position of a hash in the table
+			unsigned int Mask(unsigned int hash)
+			{
+				return (table->bucketCount - 1) & hash;
+			}
+			// 0x1038CAC0: the step of a key (odd, from the bits behind the lowest nine)
+			static unsigned int Step(__int64 hash)
+			{
+				return (unsigned int)((hash >> 9) & 0xfe) | 1;
+			}
+			// 0x1038DCA0: the first slot that is free, removed or filed under the key (null when the probing came round)
+			void* StartInsert(const int* newKey);
+			// 0x1038DC00: the first free slot or the slot filed under the key that is not a removed one
+			void* Find(const int* newKey);
+			// 0x1038CA20: the next slot to try for an insertion
+			void* Next();
+			// 0x10393340: the next slot to try for a search
+			void* FindNext();
+
+			HeightCache* table;  // +0
+			int key;  // +4
+			unsigned int start;  // +8
+			unsigned int current;  // +0xC
+			unsigned int step;  // +0x10
+		};
 
 		// Walks the stored items in bucket order (removed slots and empty ones are skipped)
 		class Iterator
@@ -133,7 +171,7 @@ namespace proto
 		unsigned int maxLoadPercent;  // +0x14
 		int heap;  // +0x18
 		void** slots;  // +0x1C
-		unsigned int* keys;  // +0x20
+		int* keys;  // +0x20
 		void* removedMarker;  // +0x24
 	};
 

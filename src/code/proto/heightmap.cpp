@@ -90,10 +90,10 @@ namespace proto
 		core::HeapScope scope(heap);
 		unsigned int oldCount = bucketCount;
 		void** oldSlots = slots;
-		unsigned int* oldKeys = keys;
+		int* oldKeys = keys;
 		bucketCount = count;
 		slots = new void*[count];
-		keys = new unsigned int[count];
+		keys = new int[count];
 		usedCount = 0;
 		removedCount = 0;
 		for (unsigned int i = 0; i < bucketCount; i++)
@@ -113,6 +113,124 @@ namespace proto
 			}
 			operator delete[](oldSlots);
 			operator delete[](oldKeys);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1038DCA0
+	// NONMATCHING: the engine keeps the 64-bit shift of the key's step and loads the key through the pointer for every use, ours folds the shift (8.0 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::StartInsert(const int* newKey)
+	{
+		key = *newKey;
+		start = Mask(*newKey);
+		step = Step(*newKey);
+		unsigned int position = start;
+		while (table->slots[position] != 0 && table->keys[position] != key
+			&& table->slots[position] != &table->removedMarker)
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1038DC00
+	// NONMATCHING: the engine keeps the 64-bit shift of the key's step and loads the key through the pointer for every use, ours folds the shift (9.2 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::Find(const int* newKey)
+	{
+		key = *newKey;
+		start = Mask(*newKey);
+		step = Step(*newKey);
+		unsigned int position = start;
+		while ((table->slots[position] != 0 && table->keys[position] != key)
+			|| table->slots[position] == &table->removedMarker)
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1038CA20
+	void* HeightCache::Probe::Next()
+	{
+		unsigned int position = (current + step) & (table->bucketCount - 1);
+		while (table->slots[position] != 0 && table->keys[position] != key
+			&& table->slots[position] != &table->removedMarker)
+		{
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+			position = (position + step) & (table->bucketCount - 1);
+		}
+		current = position;
+		return table->slots[position];
+	}
+
+	// FUNCTION: ENGINE 0x10393340
+	// NONMATCHING: the engine hoists the mask before the position (83.5 %)
+#ifdef NONMATCHING
+	void* HeightCache::Probe::FindNext()
+	{
+		unsigned int position = current;
+		do
+		{
+			position = (position + step) & (table->bucketCount - 1);
+			if ((table->slots[position] == 0 || table->keys[position] == key)
+				&& table->slots[position] != &table->removedMarker)
+			{
+				break;
+			}
+			if (position == start)
+			{
+				current = position;
+				return 0;
+			}
+		}
+		while (true);
+		current = position;
+		return table->slots[position];
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x103901B0
+	// NONMATCHING: the probes it calls are not reproduced (34.7 %)
+#ifdef NONMATCHING
+	void HeightCache::Insert(const int* key, void* item)
+	{
+		Probe probe(this);
+		void* found = probe.StartInsert(key);
+		while (found != 0 && found != &removedMarker)
+		{
+			found = probe.Next();
+		}
+		void** slot = &slots[probe.current];
+		if (*slot == &removedMarker)
+		{
+			removedCount--;
+		}
+		*slot = item;
+		keys[probe.current] = *key;
+		usedCount++;
+		if (maxLoadPercent < usedCount * 100 / bucketCount)
+		{
+			Resize(bucketCount * 2);
 		}
 	}
 #endif
