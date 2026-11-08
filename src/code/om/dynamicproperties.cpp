@@ -8,6 +8,18 @@
 
 namespace om
 {
+	// Left to the engine: the members of the float, boolean, string and vector properties that the factories' vftables name
+	// (the other units' copies are the engine's)
+	template<> bool DynamicProperty<float>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<Vector>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<String>::ReadText(const TextValue*);
+	template<> void DynamicProperty<String>::WriteText(TextValue*);
+	template<> void CommandDelegate<String>::Set(String);
+	template<> bool WriteValueBinary<String>(BinaryStream*, const String&);
+	template<> bool DynamicProperty<bool>::ReadText(const TextValue*);
+	template<> bool DynamicProperty<bool>::ReadBinary(BinaryStream*);
+	template<> bool DynamicProperty<bool>::WriteBinary(BinaryStream*);
+
 	// The properties of these two types start from zero when a factory makes them (the default constructors below are only
 	// expanded into the factories)
 	template<> inline DynamicProperty<float>::DynamicProperty() :
