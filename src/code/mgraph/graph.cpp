@@ -143,6 +143,43 @@ namespace mgraph
 		return connection;
 	}
 
+	// FUNCTION: ENGINE 0x10AC75F0
+	// NONMATCHING: the engine lays out the three arms of the search differently and saves ebp and esi at the entry (41.5 %)
+#ifdef NONMATCHING
+	Node* NodeTree::Find(const om::ClassName& nodeName)
+	{
+		om::TreeNode* current = root;
+		while (current != &nil)
+		{
+			Node* other = NodeOfTreeNode(current);
+			if (other->name.key > nodeName.key)
+			{
+				current = current->left;
+			}
+			else if (other->name.key >= nodeName.key)
+			{
+				om::TreeNode* previous = Previous(current);
+				while (previous != 0)
+				{
+					Node* earlier = NodeOfTreeNode(previous);
+					if (nodeName.key < earlier->name.key || nodeName.key > earlier->name.key)
+					{
+						break;
+					}
+					current = previous;
+					previous = Previous(previous);
+				}
+				return NodeOfTreeNode(current);
+			}
+			else
+			{
+				current = current->right;
+			}
+		}
+		return 0;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10AC6A30
 	Graph* Graph::FirstInGroup()
 	{

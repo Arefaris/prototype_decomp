@@ -4,6 +4,10 @@
 #include "code/mgraph/nodes.h"
 #include "code/mgraph/pins.h"
 #include "code/mgraph/listnodes.h"
+#include "code/mgraph/graph.h"
+#include "code/mgraph/inlets.h"
+#include "code/mgraph/propertynode.h"
+#include "code/mgraph/throw.h"
 #include "code/om/delegate.h"
 #include "code/om/invoke.h"
 #include "code/om/metaclass.h"
@@ -6717,4 +6721,393 @@ namespace mgraph
 	template void* mgraph::PacketBlock<String>::operator new(size_t, om::Allocator*);
 	// FUNCTION: ENGINE 0x10AE6A80
 	template void* mgraph::PacketBlock<Complex>::operator new(size_t, om::Allocator*);
+}
+
+// The allocation tags of the node types and pins, and the cached node type lookups, that the engine keeps out of line
+namespace mgraph
+{
+	// FUNCTION: ENGINE 0x10AD4BC0
+	template char const* InputPin<Packet<TriggerData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD4BD0
+	template char const* InputPin<Packet<om::Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD4C30
+	template char const* NodeType<PropertyNodeBase>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5020
+	template char const* NodeType<CommutativeMath<VectorAdd> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5030
+	template char const* NodeType<CommutativeMath<FloatAdd> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5040
+	template char const* NodeType<CommutativeMath<FloatMultiply> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5050
+	template char const* NodeType<CommutativeMath<BoolOr> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5060
+	template char const* NodeType<CommutativeMath<BoolAnd> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5070
+	template char const* NodeType<CommutativeMath<TriggerAnd> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5080
+	template char const* NodeType<CommutativeMath<TriggerOr> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5090
+	template char const* NodeType<NonCommutativeMath<FloatSub> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50A0
+	template char const* NodeType<Operator2<GreaterThan<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50B0
+	template char const* NodeType<Operator2<GreaterThanOrEqual<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50C0
+	template char const* NodeType<Operator2<LessThanOrEqual<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50D0
+	template char const* NodeType<Operator2<LessThan<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50E0
+	template char const* NodeType<Operator2<Equal<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD50F0
+	template char const* NodeType<Operator2<NotEqual<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5100
+	template char const* NodeType<UnaryMath<BoolNot> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD5110
+	template char const* InputPin<Packet<bool> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9070
+	template char const* NodeType<Rand<om::Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD90E0
+	template char const* NodeType<Rand<float> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD90F0
+	template char const* NodeType<Rand<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9100
+	template NodeTypeBase* CachedNodeType<Throw<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AD9130
+	template NodeTypeBase* CachedNodeType<Catch<Packet<bool> > >();
+	// FUNCTION: ENGINE 0x10AD9160
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9190
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<bool,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD91C0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AD91F0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<float> > >();
+	// FUNCTION: ENGINE 0x10AD9220
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9250
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<float,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9280
+	template NodeTypeBase* CachedNodeType<Throw<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AD92B0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<unsigned int> > >();
+	// FUNCTION: ENGINE 0x10AD92E0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9310
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<unsigned int,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9340
+	template NodeTypeBase* CachedNodeType<Throw<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AD9370
+	template NodeTypeBase* CachedNodeType<Catch<Packet<unsigned __int64> > >();
+	// FUNCTION: ENGINE 0x10AD93A0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD93D0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9400
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10AD9430
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::String> > >();
+	// FUNCTION: ENGINE 0x10AD9460
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9490
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<om::String,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD94C0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AD94F0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::Vector> > >();
+	// FUNCTION: ENGINE 0x10AD9520
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9550
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<om::Vector,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9580
+	template NodeTypeBase* CachedNodeType<Throw<Packet<TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AD95B0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<TriggerData> > >();
+	// FUNCTION: ENGINE 0x10AD95E0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9610
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<TriggerData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9640
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AD9670
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::Complex> > >();
+	// FUNCTION: ENGINE 0x10AD96A0
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD96D0
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<om::Complex,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9700
+	template NodeTypeBase* CachedNodeType<Throw<Packet<EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AD9730
+	template NodeTypeBase* CachedNodeType<Catch<Packet<EnvelopeData> > >();
+	// FUNCTION: ENGINE 0x10AD9760
+	template NodeTypeBase* CachedNodeType<Throw<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9790
+	template NodeTypeBase* CachedNodeType<Catch<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >();
+	// FUNCTION: ENGINE 0x10AD9B60
+	template char const* NodeType<Throw<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9B70
+	template char const* NodeType<Catch<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9B80
+	template char const* NodeType<Throw<Packet<om::DynamicArray<bool,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9B90
+	template char const* NodeType<Catch<Packet<om::DynamicArray<bool,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BA0
+	template char const* NodeType<Throw<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BB0
+	template char const* NodeType<Catch<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BC0
+	template char const* NodeType<Throw<Packet<om::DynamicArray<float,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BD0
+	template char const* NodeType<Catch<Packet<om::DynamicArray<float,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BE0
+	template char const* NodeType<Throw<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9BF0
+	template char const* NodeType<Catch<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C00
+	template char const* NodeType<Throw<Packet<om::DynamicArray<unsigned int,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C10
+	template char const* NodeType<Catch<Packet<om::DynamicArray<unsigned int,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C20
+	template char const* NodeType<Throw<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C30
+	template char const* NodeType<Catch<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C40
+	template char const* NodeType<Throw<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C50
+	template char const* NodeType<Catch<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C60
+	template char const* NodeType<Throw<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C70
+	template char const* NodeType<Catch<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C80
+	template char const* NodeType<Throw<Packet<om::DynamicArray<om::String,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9C90
+	template char const* NodeType<Catch<Packet<om::DynamicArray<om::String,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CA0
+	template char const* NodeType<Throw<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CB0
+	template char const* NodeType<Catch<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CC0
+	template char const* NodeType<Throw<Packet<om::DynamicArray<om::Vector,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CD0
+	template char const* NodeType<Catch<Packet<om::DynamicArray<om::Vector,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CE0
+	template char const* NodeType<Throw<Packet<TriggerData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9CF0
+	template char const* NodeType<Catch<Packet<TriggerData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D00
+	template char const* NodeType<Throw<Packet<om::DynamicArray<TriggerData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D10
+	template char const* NodeType<Catch<Packet<om::DynamicArray<TriggerData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D20
+	template char const* NodeType<Throw<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D30
+	template char const* NodeType<Catch<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D40
+	template char const* NodeType<Throw<Packet<om::DynamicArray<om::Complex,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D50
+	template char const* NodeType<Catch<Packet<om::DynamicArray<om::Complex,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D60
+	template char const* NodeType<Throw<Packet<EnvelopeData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D70
+	template char const* NodeType<Catch<Packet<EnvelopeData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D80
+	template char const* NodeType<Throw<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9D90
+	template char const* NodeType<Catch<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9DA0
+	template char const* InputPin<Packet<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9DB0
+	template char const* InputPin<Packet<unsigned __int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9DC0
+	template char const* InputPin<Packet<om::String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10AD9DD0
+	template char const* InputPin<Packet<om::Complex> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADDA30
+	template NodeTypeBase* CachedNodeType<ListCount<bool> >();
+	// FUNCTION: ENGINE 0x10ADDA60
+	template NodeTypeBase* CachedNodeType<ListEntry<bool> >();
+	// FUNCTION: ENGINE 0x10ADDAC0
+	template NodeTypeBase* CachedNodeType<ListCount<float> >();
+	// FUNCTION: ENGINE 0x10ADDAF0
+	template NodeTypeBase* CachedNodeType<ListEntry<float> >();
+	// FUNCTION: ENGINE 0x10ADDB50
+	template NodeTypeBase* CachedNodeType<ListCount<unsigned int> >();
+	// FUNCTION: ENGINE 0x10ADDB80
+	template NodeTypeBase* CachedNodeType<ListEntry<unsigned int> >();
+	// FUNCTION: ENGINE 0x10ADDBE0
+	template NodeTypeBase* CachedNodeType<ListCount<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10ADDC10
+	template NodeTypeBase* CachedNodeType<ListEntry<unsigned __int64> >();
+	// FUNCTION: ENGINE 0x10ADDC70
+	template NodeTypeBase* CachedNodeType<ListCount<om::String> >();
+	// FUNCTION: ENGINE 0x10ADDCA0
+	template NodeTypeBase* CachedNodeType<ListEntry<om::String> >();
+	// FUNCTION: ENGINE 0x10ADDD00
+	template NodeTypeBase* CachedNodeType<ListCount<om::Vector> >();
+	// FUNCTION: ENGINE 0x10ADDD90
+	template NodeTypeBase* CachedNodeType<ListCount<TriggerData> >();
+	// FUNCTION: ENGINE 0x10ADDE20
+	template NodeTypeBase* CachedNodeType<ListCount<om::Complex> >();
+	// FUNCTION: ENGINE 0x10ADDEB0
+	template NodeTypeBase* CachedNodeType<ListCount<EnvelopeData> >();
+	// FUNCTION: ENGINE 0x10ADE060
+	template char const* NodeType<PropertyNode<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE070
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<bool,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE080
+	template char const* NodeType<PropertyNode<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE090
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<float,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0A0
+	template char const* NodeType<PropertyNode<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0B0
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<unsigned int,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0C0
+	template char const* NodeType<PropertyNode<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0D0
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0E0
+	template char const* NodeType<PropertyNode<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE0F0
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<om::String,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE100
+	template char const* NodeType<PropertyNode<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE110
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<om::Vector,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE120
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<TriggerData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE130
+	template char const* NodeType<PropertyNode<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE140
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<om::Complex,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE150
+	template char const* NodeType<PropertyNode<Packet<EnvelopeData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE160
+	template char const* NodeType<PropertyNode<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE170
+	template char const* NodeType<Inlet<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE180
+	template char const* NodeType<Outlet<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE190
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<bool,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1A0
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<bool,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1B0
+	template char const* NodeType<Inlet<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1C0
+	template char const* NodeType<Outlet<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1D0
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<float,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1E0
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<float,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE1F0
+	template char const* NodeType<Inlet<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE200
+	template char const* NodeType<Outlet<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE210
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<unsigned int,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE220
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<unsigned int,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE230
+	template char const* NodeType<Inlet<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE240
+	template char const* NodeType<Outlet<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE250
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE260
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<unsigned __int64,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE270
+	template char const* NodeType<Inlet<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE280
+	template char const* NodeType<Outlet<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE290
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<om::String,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2A0
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<om::String,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2B0
+	template char const* NodeType<Inlet<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2C0
+	template char const* NodeType<Outlet<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2D0
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<om::Vector,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2E0
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<om::Vector,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE2F0
+	template char const* NodeType<Inlet<Packet<TriggerData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE300
+	template char const* NodeType<Outlet<Packet<TriggerData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE310
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<TriggerData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE320
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<TriggerData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE330
+	template char const* NodeType<Inlet<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE340
+	template char const* NodeType<Outlet<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE350
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<om::Complex,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE360
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<om::Complex,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE370
+	template char const* NodeType<Inlet<Packet<EnvelopeData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE380
+	template char const* NodeType<Outlet<Packet<EnvelopeData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE390
+	template char const* NodeType<Inlet<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3A0
+	template char const* NodeType<Outlet<Packet<om::DynamicArray<EnvelopeData,unsigned short> > > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3B0
+	template char const* NodeType<ListCount<bool> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3C0
+	template char const* NodeType<ListEntry<bool> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3D0
+	template char const* NodeType<Switch<Packet<bool> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3E0
+	template char const* NodeType<ListCount<float> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE3F0
+	template char const* NodeType<ListEntry<float> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE400
+	template char const* NodeType<Switch<Packet<float> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE410
+	template char const* NodeType<ListCount<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE420
+	template char const* NodeType<ListEntry<unsigned int> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE430
+	template char const* NodeType<Switch<Packet<unsigned int> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE440
+	template char const* NodeType<ListCount<unsigned __int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE450
+	template char const* NodeType<ListEntry<unsigned __int64> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE460
+	template char const* NodeType<Switch<Packet<unsigned __int64> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE470
+	template char const* NodeType<ListCount<om::String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE480
+	template char const* NodeType<ListEntry<om::String> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE490
+	template char const* NodeType<Switch<Packet<om::String> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4A0
+	template char const* NodeType<ListCount<om::Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4B0
+	template char const* NodeType<ListEntry<om::Vector> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4C0
+	template char const* NodeType<Switch<Packet<om::Vector> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4D0
+	template char const* NodeType<ListCount<TriggerData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4E0
+	template char const* NodeType<ListEntry<TriggerData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE4F0
+	template char const* NodeType<Switch<Packet<TriggerData> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE500
+	template char const* NodeType<ListCount<om::Complex> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE510
+	template char const* NodeType<ListEntry<om::Complex> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE520
+	template char const* NodeType<Switch<Packet<om::Complex> > >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE530
+	template char const* NodeType<ListCount<EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE540
+	template char const* NodeType<ListEntry<EnvelopeData> >::AllocationTag();
+	// FUNCTION: ENGINE 0x10ADE550
+	template char const* NodeType<Switch<Packet<EnvelopeData> > >::AllocationTag();
 }
