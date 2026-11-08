@@ -24,6 +24,7 @@ namespace pure3d
 	class ProtoLightUserData : public LightUserData
 	{
 	public:
+		ProtoLightUserData();
 		float unknown8;
 		float unknownC;
 		float unknown10;

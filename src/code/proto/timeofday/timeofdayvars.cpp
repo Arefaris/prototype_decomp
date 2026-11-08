@@ -1,4 +1,6 @@
 #include "code/proto/timeofday/timeofdayvars.h"
+#include "code/engine/gameobject/gameobject.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/content/colourmetatype.h"
 #include "code/content/vectormetatype.h"
 #include "code/math/colour128.h"
@@ -489,6 +491,52 @@ namespace proto
 					return variation;
 				}
 			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10524C30
+	void TimeOfDayVars::ResolveLight(TimeOfDayLightInfo* light)
+	{
+		if (!light->handle.IsValid() && light->unknown10)
+		{
+			light->unknown10 = false;
+			engine::GameObject* object = inventory->Find<engine::GameObject>(light->name);
+			if (object != 0)
+			{
+				engine::GameObjectHandle handle = engine::GetHandle(object);
+				if (handle.Exists())
+				{
+					light->handle = handle;
+					core::HeapScope scope(0x76);
+					pure3d::ProtoLightUserData* data = new pure3d::ProtoLightUserData();
+					core::RefAssign(light->userData, data);
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10529370
+	// NONMATCHING: shrink-wrap: the engine pushes ebp after the emptiness test and keeps ebx and edi zeroed before it, 10 %
+#ifdef NONMATCHING
+	TimeOfDayLightInfo* TimeOfDayVars::FindLight(const core::Name<core::CaseSensitiveKey>& lightName)
+	{
+		if (lights.Size() != 0)
+		{
+			TimeOfDayLightInfo* first = lights.begin;
+			TimeOfDayLightInfo* light = first;
+			unsigned int i = 0;
+			do
+			{
+				if (light->name == lightName)
+				{
+					ResolveLight(&first[i]);
+					return &first[i];
+				}
+				i++;
+				light++;
+			} while (i < (unsigned int)(lights.end - first));
 		}
 		return 0;
 	}

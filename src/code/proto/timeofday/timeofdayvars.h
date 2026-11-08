@@ -122,7 +122,7 @@ namespace proto
 		static content::MemberList* GetMembers();
 
 		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;
-		engine::HandleBase handle;  // +8
+		engine::GameObjectHandle handle;  // +8
 		pure3d::ProtoLightUserData* userData;  // +0xC
 		bool unknown10;
 	};
@@ -224,6 +224,11 @@ namespace proto
 			const core::Name<core::CaseSensitiveKey>& variationName);
 		TimeOfDayVariation* FindVariation(const core::Name<core::CaseSensitiveKey>& groupName,
 			const core::Name<core::CaseSensitiveKey>& variationName) const;
+		// Looks the light's game object up by its name once its handle is gone, and gives it the light user data the lit
+		// pass reads
+		void ResolveLight(TimeOfDayLightInfo* light);
+		// The light of that name, resolved
+		TimeOfDayLightInfo* FindLight(const core::Name<core::CaseSensitiveKey>& lightName);
 		// The light at an index and the number of lights
 		TimeOfDayLightInfo* GetLight(int index);
 		int GetLightCount();

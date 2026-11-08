@@ -108230,3 +108230,6 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ?Free@?$ArrayDynamic@PAVTimeOfDayVarGroup@proto@@UAllocatorNew@container@@@container@@QAEXXZ = 0x10522530 ; function size:0x28 | public: void __thiscall container::ArrayDynamic<class proto::TimeOfDayVarGroup *,struct container::A (kept copy)
 ?Clear@?$ArrayDynamic@PAVTimeOfDayVarGroup@proto@@UAllocatorNew@container@@@container@@QAEXXZ = 0x10522570 ; function size:0x6 | public: void __thiscall container::ArrayDynamic<class proto::TimeOfDayVarGroup *,struct container::A (kept copy)
 ?Free@?$ArrayDynamic@V?$Name@UCaseSensitiveKey@core@@@core@@UAllocatorNew@container@@@container@@QAEXXZ = 0x10523240 ; function size:0x28 | public: void __thiscall container::ArrayDynamic<class core::Name<struct core::CaseSensitiveKey>,stru (kept copy)
+??0ProtoLightUserData@pure3d@@QAE@XZ = 0x100C1180 ; function size:0x39 | pure3d::ProtoLightUserData::ProtoLightUserData (another unit; name guess)
+?ResolveLight@TimeOfDayVars@proto@@QAEXPAUTimeOfDayLightInfo@2@@Z = 0x10524C30 ; function size:0xB8 | proto::TimeOfDayVars::ResolveLight (name guess)
+?FindLight@TimeOfDayVars@proto@@QAEPAUTimeOfDayLightInfo@2@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x10529370 ; function size:0x81 | proto::TimeOfDayVars::FindLight (name guess)
