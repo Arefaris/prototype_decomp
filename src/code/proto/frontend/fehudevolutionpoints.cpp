@@ -28,8 +28,25 @@ namespace ravenphysics
 	extern const float gDefaultMaxForce;
 }
 
+namespace core
+{
+	// 0x1063B990
+	int SNPrintfCount(char* destination, int size, const char* format, ...);
+}
+
+namespace engine
+{
+	class FrontEnd;
+	// 0x10864330
+	FrontEnd* Unknown10864330();
+	// 0x10872840: calls a function of the front end's movie with a format and the arguments it names (name unknown)
+	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* format, ...);
+}
+
 namespace proto
 {
+	// 0x1109A08C: the movie clip of the counter
+	static const char* sEvolutionClip = "mcAnchor.epHUD";
 	// 0x10D977E0
 	extern const float gHundred;
 	// 0x1126E4C0 (profilekeys.cpp)
@@ -116,7 +133,7 @@ namespace proto
 	void FEHudEvolutionPoints::Unknown104D0A90()
 	{
 		engine::GameDatabase* database = engine::gGameDatabase;
-		Unknown104D00F0(database->GetInt(gSmartHintSettingName, 0, 0));
+		Reset(database->GetInt(gSmartHintSettingName, 0, 0));
 		Unknown104D0870(database->GetInt(gSmartHintSettingName, 0, 0), true);
 	}
 
@@ -134,5 +151,30 @@ namespace proto
 	// FUNCTION: ENGINE 0x104CFED0
 	void FEHudEvolutionPoints::Unknown104CFED0()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x104D00F0
+	void FEHudEvolutionPoints::Reset(int value)
+	{
+		engine::Unknown10872840(engine::Unknown10864330(), "AS_CallASFunction", "%s%s", sEvolutionClip, "Reset");
+		unknown389 = false;
+		unknown388 = false;
+		unknown38A = false;
+		unknown380 = 0.0f;
+		unknown37C = 0.0f;
+		unknown39C = 0.0f;
+		unknown384 = 0.0f;
+		unknown364 = 0;
+		unknown360 = value;
+		unknown36C = value;
+		unknown368 = value;
+		unknown370 = 0;
+		char text[0x40];
+		core::SNPrintfCount(text, 0x40, "%d", value);
+		epText.Set(FlashValue(text));
+		epShadowText.Set(FlashValue(text));
+		core::SNPrintfCount(text, 0x40, "%d", unknown370);
+		gainText.Set(FlashValue(text));
+		gainShadowText.Set(FlashValue(text));
 	}
 }

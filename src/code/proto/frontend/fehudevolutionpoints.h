@@ -38,8 +38,9 @@ namespace proto
 		void Unknown104D0A90();
 		// 0x104CFED0: does nothing (the screen calls it every frame)
 		void Unknown104CFED0();
-		// 0x104D00F0 / 0x104D0870 (not reconstructed)
-		void Unknown104D00F0(int value);
+		// 0x104D00F0: sets the counter to a value and clears the gain
+		void Reset(int value);
+		// 0x104D0870 (not reconstructed)
 		bool Unknown104D0870(int value, bool force);
 
 		FEHudVariableTemplate<SymbolPathStoragePolicy_Literal, 0> epText;  // +0x18
@@ -54,8 +55,8 @@ namespace proto
 		int unknown370;
 		int unknown374;
 		int unknown378;
-		int unknown37C;
-		int unknown380;
+		float unknown37C;
+		float unknown380;
 		float unknown384;
 		bool unknown388;
 		bool unknown389;

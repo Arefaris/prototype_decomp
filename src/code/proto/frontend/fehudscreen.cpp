@@ -1,6 +1,7 @@
 #include "code/proto/frontend/fehudscreen.h"
 
 #include "code/core/heap.h"
+#include "code/core/name.h"
 #include "code/engine/camera/cinematographer.h"
 #include "code/engine/camera/director.h"
 #include "code/engine/frontend/frontend.h"
@@ -24,6 +25,23 @@ namespace engine
 		// 0x10D94CC4
 		extern const float gHalf;
 	}
+}
+
+namespace engine
+{
+	// The names of the kinds of characters the head-up display tells apart (incidentnames.cpp)
+	extern core::Name<core::CaseSensitiveKey> gCivilian;
+	extern core::Name<core::CaseSensitiveKey> gMilitary;
+	extern core::Name<core::CaseSensitiveKey> gCommander4;
+	extern core::Name<core::CaseSensitiveKey> gInfected3;
+	extern core::Name<core::CaseSensitiveKey> gAlex3;
+	extern core::Name<core::CaseSensitiveKey> gPowered;
+	extern core::Name<core::CaseSensitiveKey> gChameleon;
+	extern core::Name<core::CaseSensitiveKey> gUav3;
+	extern core::Name<core::CaseSensitiveKey> gTank2;
+	extern core::Name<core::CaseSensitiveKey> gHelicopter2;
+	extern core::Name<core::CaseSensitiveKey> gBlackwatch3;
+	extern core::Name<core::CaseSensitiveKey> gBwcommander;
 }
 
 namespace proto
@@ -89,6 +107,50 @@ namespace proto
 			}
 		}
 	}
+
+	// FUNCTION: ENGINE 0x104C1030
+	// NONMATCHING: the engine keeps the result in edi and duplicates the returns of the constants, 58 %
+#ifdef NONMATCHING
+	int GetCharacterKind(const core::Name<core::CaseSensitiveKey>& name)
+	{
+		int kind = -1;
+		if (name == engine::gCivilian)
+		{
+			kind = 2;
+		}
+		else if (name == engine::gMilitary || name == engine::gCommander4)
+		{
+			kind = 3;
+		}
+		else if (name == engine::gInfected3)
+		{
+		}
+		else if (name == engine::gAlex3 || name == engine::gPowered || name == engine::gChameleon)
+		{
+			kind = 1;
+		}
+		else if (name == engine::gUav3)
+		{
+		}
+		else if (name == engine::gTank2)
+		{
+			kind = 4;
+		}
+		else if (name == engine::gHelicopter2)
+		{
+			kind = 5;
+		}
+		else if (name == engine::gBlackwatch3)
+		{
+			kind = 3;
+		}
+		else
+		{
+			kind = (name == engine::gBwcommander) ? 3 : -1;
+		}
+		return kind;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x104C1000
 	void ScaleFEHud(float* x, float* y, bool shift)
