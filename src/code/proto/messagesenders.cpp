@@ -7,6 +7,9 @@
 #include "code/engine/render/renderbehaviour.h"
 #include "code/proto/fightitems/motion/motion_patsy.h"
 #include "code/proto/messages/statemessages.h"
+#include "code/engine/camera/director.h"
+#include "code/pure3d/camera.h"
+#include "code/proto/fightitems/motion/motion_underground.h"
 #include "code/proto/lifetimemanager.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/system/simulationdriver.h"
@@ -463,6 +466,76 @@ namespace proto
 			core::Name<core::CaseSensitiveKey> state(*query.intention->GetStateName());
 			if (state == engine::gPursuit || state == engine::gSearch || state == engine::gSearchFast ||
 				state == engine::gStopPursuit || state == engine::gSearchScan)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x103B9940
+	void Unknown103B9940(engine::GameObject* object, int channel, const char* text)
+	{
+	}
+
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x103B9BB0
+			void SetTunnelingState(engine::GameObject* object, bool underground, bool instantaneous)
+			{
+				if (underground)
+				{
+					if (instantaneous)
+					{
+						InstantGoUndergroundStateChangeMessage message;
+						object->SendMessage(&message);
+					}
+					else
+					{
+						GoUnderGroundStatChangeMessage message;
+						object->SendMessage(&message);
+					}
+				}
+				else
+				{
+					if (instantaneous)
+					{
+						InstantComeOutsideStateChangeMessage message;
+						object->SendMessage(&message);
+					}
+					else
+					{
+						ComeOutsideStateChangeMessage message;
+						object->SendMessage(&message);
+					}
+				}
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x103B9E90
+	bool IsPointInsideCamera(const math::Vector* point)
+	{
+		for (int player = 0; player < 1; player++)
+		{
+			pure3d::Camera* camera = (pure3d::Camera*)engine::camera::Director::Get()->GetCameraUnknown44(player, 0);
+			if (camera->IsPointInside(point))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x103B9ED0
+	bool IsPointVisibleToCamera(const math::Vector* point, float radius)
+	{
+		for (int player = 0; player < 1; player++)
+		{
+			pure3d::Camera* camera = (pure3d::Camera*)engine::camera::Director::Get()->GetCameraUnknown44(player, 0);
+			if (camera->IsPointVisible(point, radius))
 			{
 				return true;
 			}
