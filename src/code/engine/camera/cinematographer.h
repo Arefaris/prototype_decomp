@@ -25,11 +25,15 @@ namespace engine
 		class AnimatedCamera;
 		class DebugCamera;
 
-		// Whatever a view follows: only its matrix at 0x90 is known (it is a pure3d camera)
+		// Whatever a view follows: only its matrix at 0x90 and the two numbers whose ratio is its aspect are known (it is a
+		// pure3d camera)
 		class CameraTarget
 		{
 		public:
-			unsigned char unknown0[0x90];
+			unsigned char unknown0[0x28];
+			float width;  // +0x28
+			float height;  // +0x2C
+			unsigned char unknown30[0x90 - 0x30];
 			math::Matrix* MatrixAt90()
 			{
 				return (math::Matrix*)(unknown0 + 0x90);
