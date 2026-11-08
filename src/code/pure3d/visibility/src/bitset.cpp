@@ -178,5 +178,33 @@ namespace pure3d
 			}
 		}
 #endif
+
+		// FUNCTION: ENGINE 0x1071A620
+		int BitSet::Test(unsigned int bit)
+		{
+			return (words[bit >> 5] & 1 << (bit & 0x1F)) != 0;
+		}
+
+		// FUNCTION: ENGINE 0x1071A650
+		void BitSet::Set(unsigned int bit, bool value)
+		{
+			unsigned int* word = &words[bit >> 5];
+			unsigned int mask = 1 << (bit & 0x1F);
+			if (value)
+			{
+				*word |= mask;
+			}
+			else
+			{
+				*word &= ~mask;
+			}
+		}
+
+		// FUNCTION: ENGINE 0x1071A680
+		void BitSet::SetBit(unsigned int bit)
+		{
+			unsigned int* word = &words[bit >> 5];
+			*word |= 1 << (bit & 0x1F);
+		}
 	}
 }
