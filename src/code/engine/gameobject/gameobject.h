@@ -11,9 +11,15 @@
 #include "code/engine/gameobject/behaviour.h"
 #include "code/math/matrix.h"
 
+namespace fight
+{
+	class Branch;
+}
+
 namespace engine
 {
 	struct Message;
+	class ScenarioTreeBehaviour;
 
 	// The dynamic attribute list heap and length (gameobjectsystem.cpp's InitGameObjectSystem sets them)
 	extern int gAttributeListHeap;
@@ -251,6 +257,9 @@ namespace engine
 		void RemoveDynamicAttribute(const content::ObjectName& name);
 		// 0x10963B90 (another unit): the byte at +0x9C, answering the old value (name guess)
 		bool SetUnknown9C(bool value);
+		// 0x1082FEE0 (the scenario manager's unit): makes the scenario tree behaviour on a root branch, in the
+		// construction heap, and adds it (name guessed)
+		ScenarioTreeBehaviour* AddScenarioTreeBehaviour(fight::Branch* root);
 
 		AttributeList attributes;
 		DynamicAttributeList* dynamicAttributes;
