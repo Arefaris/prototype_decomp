@@ -104663,3 +104663,4 @@ _KSDATAFORMAT_SUBTYPE_PCM = 0x10EA348C ; data size:0x10 | KSDATAFORMAT_SUBTYPE_P
 ?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@M@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA4440 ; function size:0x51 | (name guess)
 ?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@_N@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA44A0 ; function size:0x4D | (name guess)
 ?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@VString@om@@@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA44F0 ; function size:0x51 | (name guess)
+?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@VVector@om@@@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA4550 ; function size:0x5B | (name guess)

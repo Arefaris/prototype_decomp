@@ -2,6 +2,7 @@
 // for the number types and the arrays.
 #include "code/om/dynamicarray.h"
 #include "code/om/dynamicproperty.h"
+#include "code/om/vector.h"
 
 #pragma warning(disable: 4661)
 
@@ -20,6 +21,13 @@ namespace om
 		name(0)
 	{
 		value = false;
+	}
+
+	template<> inline DynamicProperty<Vector>::DynamicProperty() :
+		value(VectorInOrder()),
+		type(FindMetaType(typeid(Vector))),
+		name(0)
+	{
 	}
 
 	// FUNCTION: ENGINE 0x10AA32D0
@@ -1298,4 +1306,6 @@ namespace om
 	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<bool> >::Create(void*);
 	// FUNCTION: ENGINE 0x10AA44F0
 	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<String> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA4550
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<Vector> >::Create(void*);
 }
