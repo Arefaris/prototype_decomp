@@ -6,24 +6,68 @@
 #ifndef PURE3D_LIGHTSELECTION_H
 #define PURE3D_LIGHTSELECTION_H
 
+#include <new>
+
 namespace pure3d
 {
 	class Light;
+	class PassContext;
 
 	// A list of lights (16 bytes: begin, end, capacity and the allocator word)
 	struct LightList
 	{
+		// 0x10718830 makes the three lists of the selection: room for 1024 lights each
+		LightList()
+		{
+			begin = new Light*[1024];
+			if (begin != 0)
+			{
+				end = begin;
+				capacity = begin + 1024;
+			}
+			else
+			{
+				end = 0;
+				capacity = 0;
+			}
+		}
+		~LightList()
+		{
+			end = begin;
+			if (begin != 0)
+			{
+				delete[] begin;
+			}
+		}
+
 		Light** begin;
 		Light** end;
 		Light** capacity;
 		int unknownC;
+
+		// Puts the light behind the last one when there is room
+		void PushBack(Light* light)
+		{
+			if (end < capacity)
+			{
+				new (end++) Light*(light);
+			}
+		}
 	};
 
 	class LightSelection
 	{
 	public:
+		// 0x10718830 / 0x107188C0: three lists of 1024 lights
+		LightSelection();
+		~LightSelection();
+		// 0x10718900 / 0x107189C0: make and delete the global selection
+		static void Start();
+		static void Stop();
 		// 0x10717920
 		static LightSelection* Get();
+		// 0x10718B30: picks the lights the pass context's scene lights up (see the lists below)
+		void Fill(PassContext* context);
 		// 0x10717930: mode 1 becomes 3 while the vertex lighting flag is set
 		void SetMode(int newMode);
 		// 0x10717950
