@@ -104660,3 +104660,6 @@ _KSDATAFORMAT_SUBTYPE_PCM = 0x10EA348C ; data size:0x10 | KSDATAFORMAT_SUBTYPE_P
 ?Slot6@?$MetaSimpleType@V?$Dictionary@V?$Name@UCaseSensitive64BitKey@om@@@om@@V12@U?$Comparer@V?$Name@UCaseSensitive64BitKey@om@@@om@@@2@@om@@@om@@UAEXPAX@Z = 0x10A9D7D0 ; function size:0x3 | vftable slot
 ?GetType@?$MetaSimpleType@V?$Dictionary@V?$Name@UCaseSensitive64BitKey@om@@@om@@V12@U?$Comparer@V?$Name@UCaseSensitive64BitKey@om@@@om@@@2@@om@@@om@@UAEPBVtype_info@@XZ = 0x10A9C9A0 ; function size:0x6 | vftable slot
 ??_R0?AV?$MetaSimpleType@V?$Dictionary@V?$Name@UCaseSensitive64BitKey@om@@@om@@V12@U?$Comparer@V?$Name@UCaseSensitive64BitKey@om@@@om@@@2@@om@@@om@@@8 = 0x111F30D0 ; data size:0x8 | RTTI type descriptor
+?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@M@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA4440 ; function size:0x51 | (name guess)
+?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@_N@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA44A0 ; function size:0x4D | (name guess)
+?Create@?$Factory@VDynamicPropertyBase@om@@V?$DynamicProperty@VString@om@@@2@@om@@UAEPAVDynamicPropertyBase@2@PAX@Z = 0x10AA44F0 ; function size:0x51 | (name guess)

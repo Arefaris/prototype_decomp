@@ -7,6 +7,21 @@
 
 namespace om
 {
+	// The properties of these two types start from zero when a factory makes them (the default constructors below are only
+	// expanded into the factories)
+	template<> inline DynamicProperty<float>::DynamicProperty() :
+		type(FindMetaType(typeid(float))),
+		name(0)
+	{
+		value = 0.0f;
+	}
+	template<> inline DynamicProperty<bool>::DynamicProperty() :
+		type(FindMetaType(typeid(bool))),
+		name(0)
+	{
+		value = false;
+	}
+
 	// FUNCTION: ENGINE 0x10AA32D0
 	template<> __declspec(noinline) bool ReadText<__int64>(const TextValue* text, __int64* value)
 	{
@@ -1277,4 +1292,10 @@ namespace om
 	template Command1<void,short>::~Command1();
 	// FUNCTION: ENGINE 0x10AA1780
 	template Command1<void,int>::~Command1();
+	// FUNCTION: ENGINE 0x10AA4440
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<float> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA44A0
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<bool> >::Create(void*);
+	// FUNCTION: ENGINE 0x10AA44F0
+	template DynamicPropertyBase* Factory<DynamicPropertyBase,DynamicProperty<String> >::Create(void*);
 }
