@@ -11,6 +11,7 @@
 namespace pure3d
 {
 	class Light;
+	struct LightList;
 	class LightingScene;
 
 	// A growable array of lights (0x10756830 resizes it, filling new slots with fill)
@@ -95,6 +96,8 @@ namespace pure3d
 		// 0x10756890 / 0x10756500: takes a light into the scene / out of it (names guessed)
 		void AddLight(Light* light);
 		void RemoveLight(Light* light);
+		// 0x10756630: puts the lights the scene lights up into the list, returns how many it took (name guess)
+		int CollectLights(LightList* out);
 
 		unsigned char unknown0[8];
 		// The lights with a decay range (the ones the visibility regions know) and the ones without; the light's

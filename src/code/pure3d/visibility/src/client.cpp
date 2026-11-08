@@ -4,8 +4,76 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1071A780
+	PartAnimationState::PartAnimationState(const math::AABB& box, const math::Sphere& sphere, unsigned int flags) :
+		bounds(box), unknown18(sphere.centre), unknown24(sphere.radius)
+	{
+		unknown28.SetBits(flags);
+	}
+
 	namespace visibility
 	{
+		// FUNCTION: ENGINE 0x1071A6D0
+		Client::~Client()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x1071A7F0
+		Client::Client(Server* newServer, int region, int slot)
+		{
+			server = newServer;
+			index = newServer->offsets[region] + slot | region << 28;
+		}
+
+		// FUNCTION: ENGINE 0x1071A6E0
+		void Client::SetServer(Server* newServer)
+		{
+			server = newServer;
+		}
+
+		// FUNCTION: ENGINE 0x1071A730
+		Server* Client::GetServer()
+		{
+			return server;
+		}
+
+		// FUNCTION: ENGINE 0x1071A6F0
+		void Client::SetIndex(int region, unsigned int slot)
+		{
+			index = region << 28 | slot;
+		}
+
+		// FUNCTION: ENGINE 0x1071A710
+		void Client::Clear()
+		{
+			index = -1;
+			server = 0;
+		}
+
+		// FUNCTION: ENGINE 0x1071AE30
+		void Client::SetListed(int list, bool value)
+		{
+			switch (list)
+			{
+			case 0:
+				if (value)
+				{
+					Register(true);
+				}
+				else
+				{
+					Unregister();
+				}
+				break;
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+				server->bits->results[list].Set(GetSlot(), value);
+				break;
+			}
+		}
+
 		// FUNCTION: ENGINE 0x1071A720
 		unsigned int Client::GetRegion() const
 		{

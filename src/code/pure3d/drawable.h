@@ -367,6 +367,9 @@ namespace pure3d
 		void UpdatePart(unsigned int index);
 		// 0x106E18A0: UpdatePart for every part when the parts are dirty
 		void UpdateParts();
+		// 0x10712360 (the scene's unit): updates the batch of every part and puts the ones that have a drawable batch on the
+		// list (name guess)
+		void CollectBatchParts(container::ArrayDynamicHeap<DrawablePart*>* list);
 
 		// The parts and bounds need updating
 		void MarkTransformDirty()
