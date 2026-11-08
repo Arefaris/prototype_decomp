@@ -318,3 +318,4 @@ template class container::ArrayFixed<proto::TargetSelectionBehaviour::Candidate,
 // FUNCTION: ENGINE 0x103FFE70
 // FUNCTION: ENGINE 0x103FFE90
 // FUNCTION: ENGINE 0x103FFEB0
+// FUNCTION: ENGINE 0x102A9E20

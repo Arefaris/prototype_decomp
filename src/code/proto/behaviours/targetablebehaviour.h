@@ -63,8 +63,7 @@ namespace proto
 			void SetTargetFilterAlertObject(bool on);
 
 			int jointIndex;  // +0x0 (0xFFFF: none)
-			int unknown4;
-			core::Name<core::CaseSensitiveKey> jointName;  // +0x8
+			__declspec(align(8)) core::Name<core::CaseSensitiveKey> jointName;  // +0x8
 			math::Vector offset;  // +0x10
 			unsigned int filters;  // +0x1C
 		};
