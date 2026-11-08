@@ -1,6 +1,7 @@
 // The graph of the mgraph library (0x10AC5CF0, 0x10AC7730 - 0x10AC78D0).
 #include "code/mgraph/graph.h"
 #include "code/mgraph/connectiondata.h"
+#include "code/mgraph/events.h"
 #include "code/mgraph/nodes.h"
 #include "code/mgraph/pins.h"
 #include "code/om/metaproperty.h"
@@ -51,6 +52,26 @@ namespace mgraph
 	{
 		context = 0;
 		unknown28 = true;
+	}
+
+	// FUNCTION: ENGINE 0x10AC5D20
+	bool Graph::OnContextThread()
+	{
+		if (context != 0)
+		{
+			return context->IsOwnerThread();
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10AC5D30
+	bool Graph::ContextLocked()
+	{
+		if (context != 0)
+		{
+			return context->IsLocked();
+		}
+		return true;
 	}
 
 	// FUNCTION: ENGINE 0x10AC5CF0

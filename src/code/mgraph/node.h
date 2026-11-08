@@ -113,6 +113,10 @@ namespace mgraph
 		virtual void Slot16(EvaluationFrame* frame);
 		OM_ALLOCATION(Node);
 
+		// 0x10AC89D0 / 0x10AC89E0 (names guessed): whether the caller runs on the thread of the node's context, and whether the
+		// context is locked (both false without a context)
+		bool OnContextThread();
+		bool ContextLocked();
 		// 0x10AC9FD0 / 0x10ACA020: the input and the output pin of a name, null when there is none
 		InputPinBase* FindInput(const om::ClassName& pinName);
 		OutputPinBase* FindOutput(const om::ClassName& pinName);

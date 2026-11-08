@@ -18,6 +18,26 @@ namespace mgraph
 		return cache;
 	}
 
+	// FUNCTION: ENGINE 0x10AC89D0
+	bool Node::OnContextThread()
+	{
+		if (context != 0)
+		{
+			return context->IsOwnerThread();
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10AC89E0
+	bool Node::ContextLocked()
+	{
+		if (context != 0)
+		{
+			return context->IsLocked();
+		}
+		return false;
+	}
+
 	// FUNCTION: ENGINE 0x10AC88F0
 	bool Node::Slot3(void* argument)
 	{

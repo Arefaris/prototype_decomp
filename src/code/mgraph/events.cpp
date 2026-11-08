@@ -1,6 +1,7 @@
 // The events of the mgraph library's context (0x10AC3B00 - 0x10AC7700).
 #include "code/mgraph/events.h"
 #include "code/mgraph/graph.h"
+#include "code/core/criticalsection.h"
 #include "code/core/time.h"
 
 namespace mgraph
@@ -355,6 +356,29 @@ namespace mgraph
 			}
 			node = next;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x10AC3380
+	bool Context::IsOwnerThread()
+	{
+		if (owner != 0)
+		{
+			return owner->IsCurrentThread();
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10AC33A0
+	void Context::Unlock()
+	{
+		lockCount--;
+		core::CriticalSectionLeave(lockSection);
+	}
+
+	// FUNCTION: ENGINE 0x10AC33C0
+	bool Context::IsLocked()
+	{
+		return lockCount > 0;
 	}
 
 	// FUNCTION: ENGINE 0x10AC33D0

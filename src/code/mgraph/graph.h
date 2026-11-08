@@ -51,6 +51,10 @@ namespace mgraph
 		Node* FindNode(const om::ClassName& nodeName);
 		// 0x10AD3D00: the connection that ends at a pin of a node and starts at a pin of another, null when there is none
 		GraphConnectionBase* FindConnection(const om::ClassName& toNode, const om::ClassName& toPin, const om::ClassName& fromNode, const om::ClassName& fromPin);
+		// 0x10AC5D20 / 0x10AC5D30 (names guessed): whether the caller runs on the thread of the graph's context (false without a
+		// context), and whether the context is locked (true without a context)
+		bool OnContextThread();
+		bool ContextLocked();
 		// 0x10AC6A30 / 0x10AC6A50: the first graph of the group, and the one after another (this graph itself when it has no group)
 		Graph* FirstInGroup();
 		Graph* NextInGroup(Graph* graph);
