@@ -440,6 +440,10 @@ namespace proto
 		return &dofKeys;
 	}
 
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>;
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::TonemapParameters>;
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
+	template class TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
@@ -678,3 +682,12 @@ namespace container
 // FUNCTION: ENGINE 0x1052F280
 // FUNCTION: ENGINE 0x10533B50
 // FUNCTION: ENGINE 0x10536C60
+// FUNCTION: ENGINE 0x1052f220
+// FUNCTION: ENGINE 0x10539630
+// FUNCTION: ENGINE 0x10533640
+// FUNCTION: ENGINE 0x10539670
+// FUNCTION: ENGINE 0x10533690
+// FUNCTION: ENGINE 0x1053c220
+// FUNCTION: ENGINE 0x10539450
+// FUNCTION: ENGINE 0x1053c250
+// FUNCTION: ENGINE 0x105394c0
