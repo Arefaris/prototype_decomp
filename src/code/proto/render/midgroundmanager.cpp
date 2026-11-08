@@ -103,7 +103,7 @@ namespace proto
 				{
 					core::Name<core::CaseSensitiveKey> name(*archetype->GetName());
 					engine::render::Drawable drawable = engine::render::Drawable::CreateInstance(
-						(engine::render::SourceDrawable*)archetype, true, false);
+						(engine::render::DrawableArchetype*)archetype, true, false);
 					drawable.SetUnknownCC(2);
 					drawables.PushBack(drawable);
 					map.Insert(name.GetHash(), drawables.end - 1);

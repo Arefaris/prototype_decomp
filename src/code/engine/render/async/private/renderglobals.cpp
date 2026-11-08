@@ -667,7 +667,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x10818790
-		Drawable AllocateDrawable(SourceDrawable* source, bool registerOnCreate)
+		Drawable AllocateDrawable(DrawableArchetype* source, bool registerOnCreate)
 		{
 			Drawable drawable;
 			DrawableData* data = gDrawableTable->Alloc((HandleParts*)&drawable.mHandle);
@@ -699,7 +699,7 @@ namespace engine
 			DrawableData* data = gDrawableTable->Get((const HandleParts&)drawable.mHandle);
 			if (data != 0)
 			{
-				SourceDrawable* source = data->sourceDrawable;
+				DrawableArchetype* source = data->sourceDrawable;
 				if (source != 0 && data->drawable == source->drawable)
 				{
 					source->flags24 &= 0xFB;

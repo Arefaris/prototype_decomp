@@ -42,12 +42,6 @@ namespace engine
 
 	namespace render
 	{
-		// A source the drawables are made from (the archetype is one); 0x10825960 makes a pose of its drawable
-		class SourceDrawable
-		{
-		public:
-			pure3d::Pose* CreatePoseInstance();
-		};
 	}
 
 	// The names of the attributes the behaviour reads (0x112834A0, 0x112834D8, 0x11283548; "drawableName", "asleep",
@@ -383,17 +377,17 @@ namespace engine
 		{
 			if (source != 0)
 			{
-				SetDrawable(render::Drawable::CreateInstance((render::SourceDrawable*)source, true, poseAttribute != 0),
+				SetDrawable(render::Drawable::CreateInstance((render::DrawableArchetype*)source, true, poseAttribute != 0),
 					sourceName);
 				if (poseAttribute != 0)
 				{
-					SetPose(((render::SourceDrawable*)source)->CreatePoseInstance());
+					SetPose(((render::DrawableArchetype*)source)->CreatePoseInstance());
 				}
 			}
 		}
 		else if (poseAttribute != 0 && source != 0)
 		{
-			SetPose(((render::SourceDrawable*)source)->CreatePoseInstance());
+			SetPose(((render::DrawableArchetype*)source)->CreatePoseInstance());
 		}
 	}
 
@@ -590,7 +584,7 @@ namespace engine
 						}
 					}
 					core::HeapScope scope(heap);
-					SetDrawable(render::Drawable::CreateInstance((render::SourceDrawable*)source, true, poseAttribute != 0),
+					SetDrawable(render::Drawable::CreateInstance((render::DrawableArchetype*)source, true, poseAttribute != 0),
 						sourceName);
 					if (poseAttribute != 0 && poseAttribute->value == 0)
 					{

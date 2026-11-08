@@ -330,7 +330,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107E8560
-		Drawable Drawable::Allocate(SourceDrawable* source)
+		Drawable Drawable::Allocate(DrawableArchetype* source)
 		{
 			return AllocateDrawable(source, true);
 		}
@@ -1978,7 +1978,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107ED5F0
-		Drawable Drawable::CreateInstance(SourceDrawable* source, bool registerOnCreate, bool flag)
+		Drawable Drawable::CreateInstance(DrawableArchetype* source, bool registerOnCreate, bool flag)
 		{
 			Drawable drawable = AllocateDrawable(source, registerOnCreate);
 			int heap = GetRenderObjectHeap();
@@ -1987,7 +1987,7 @@ namespace engine
 		}
 
 		// FUNCTION: ENGINE 0x107ED650
-		Drawable Drawable::CreateInstance(SourceDrawable* source, const InstanceOptions& options,
+		Drawable Drawable::CreateInstance(DrawableArchetype* source, const InstanceOptions& options,
 			bool registerOnCreate)
 		{
 			int heap = GetRenderObjectHeap();

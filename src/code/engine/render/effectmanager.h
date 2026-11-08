@@ -631,7 +631,7 @@ namespace engine
 			// 0x1081E2F0: the same in the manager's heap
 			void AddInstanceInHeap(unsigned int drawable, const EffectSetup* setup);
 			// 0x1081CE70: makes an effect that is stretched between two points and adds it (when its list has room)
-			Drawable CreateSpanEffect(SourceDrawable* source, const math::Vector* from, const math::Vector* to, float unused,
+			Drawable CreateSpanEffect(DrawableArchetype* source, const math::Vector* from, const math::Vector* to, float unused,
 				unsigned int key);
 			// 0x1081D470: the same for the drawable archetype of a name
 			Drawable CreateSpanEffectNamed(const EffectName* archetype, const math::Vector* from, const math::Vector* to,
@@ -640,9 +640,9 @@ namespace engine
 			// an effect started on a slot ends the one that was on it
 			Drawable StartEffect(const EffectName* archetype, EffectSetup* setup);
 			// 0x1081E390: makes the drawable of an effect from a source drawable and adds the effect
-			Drawable CreateEffect(SourceDrawable* source, const EffectSetup* setup);
+			Drawable CreateEffect(DrawableArchetype* source, const EffectSetup* setup);
 			// 0x1081DAF0: makes the drawable of an effect as an instance of the shared drawable of its store
-			Drawable CreateEffectFromStore(SourceDrawable* source, Drawable store, const EffectSetup* setup);
+			Drawable CreateEffectFromStore(DrawableArchetype* source, Drawable store, const EffectSetup* setup);
 
 			// 0x1081D850: ends the effect of a list that has run longest, one that was made from a store only when it
 			// has no other; false when the list has none to end
