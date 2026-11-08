@@ -707,3 +707,4 @@ template core::Link<proto::fightitems::ai::ReformTrack>::Link(proto::fightitems:
 // FUNCTION: ENGINE 0x101F3A60
 // FUNCTION: ENGINE 0x101F3AB0
 // FUNCTION: ENGINE 0x101F3AE0
+// FUNCTION: ENGINE 0x101ED5C0

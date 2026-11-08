@@ -139,8 +139,34 @@ namespace proto
 	}
 }
 
+namespace
+{
+	typedef container::ArrayDynamic<proto::CharacterBudgetPolicy, container::AllocatorNew> PolicyArrayInstance;
+}
+
+template PolicyArrayInstance::ArrayDynamic(unsigned int);
+template PolicyArrayInstance::ArrayDynamic(unsigned int, const container::AllocatorNew&);
+template PolicyArrayInstance::ArrayDynamic(const PolicyArrayInstance&);
+template PolicyArrayInstance& PolicyArrayInstance::operator=(const PolicyArrayInstance&);
+template proto::CharacterBudgetPolicy* PolicyArrayInstance::Begin();
+template proto::CharacterBudgetPolicy* PolicyArrayInstance::End();
+template proto::CharacterBudgetPolicy& PolicyArrayInstance::operator[](int);
+template const proto::CharacterBudgetPolicy& PolicyArrayInstance::operator[](int) const;
+template bool PolicyArrayInstance::Create(unsigned int);
+template void PolicyArrayInstance::Clear();
+template bool PolicyArrayInstance::PushBack(const proto::CharacterBudgetPolicy&);
+template void PolicyArrayInstance::Free();
+template proto::CharacterBudgetPolicy* PolicyArrayInstance::Grow();
+template void PolicyArrayInstance::Erase(proto::CharacterBudgetPolicy*, proto::CharacterBudgetPolicy*);
+template void PolicyArrayInstance::Resize(unsigned int, const proto::CharacterBudgetPolicy&);
+
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x10385F90
+// FUNCTION: ENGINE 0x10385FB0
+// FUNCTION: ENGINE 0x10386000
+// FUNCTION: ENGINE 0x10386020
+// FUNCTION: ENGINE 0x103860A0
 // FUNCTION: ENGINE 0x10386120
 // FUNCTION: ENGINE 0x103861A0
 // FUNCTION: ENGINE 0x103861B0
@@ -159,6 +185,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10386D00
 // FUNCTION: ENGINE 0x10386D20
 // FUNCTION: ENGINE 0x10386D80
+// FUNCTION: ENGINE 0x10386DB0
 // FUNCTION: ENGINE 0x10386DD0
 // FUNCTION: ENGINE 0x10386E30
 // FUNCTION: ENGINE 0x10386FB0
@@ -173,6 +200,7 @@ namespace proto
 // FUNCTION: ENGINE 0x10387C70
 // FUNCTION: ENGINE 0x103886C0
 // FUNCTION: ENGINE 0x10388730
+// FUNCTION: ENGINE 0x10388B50
 // FUNCTION: ENGINE 0x10388B60
 // FUNCTION: ENGINE 0x10388BA0
 // FUNCTION: ENGINE 0x10388D00

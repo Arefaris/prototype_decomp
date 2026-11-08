@@ -191,6 +191,13 @@ namespace engine
 		queue.Clear();
 	}
 
+	// FUNCTION: ENGINE 0x10876B30
+	bool ScenarioTreeBehaviour::Reset()
+	{
+		ClearQueue();
+		return ResetSequencers();
+	}
+
 	// FUNCTION: ENGINE 0x10876120
 	// EQUIVALENT: scheduling only: the engine stores the running flag right before the virtual call, after loading the
 	// branch's vftable, ours stores it first, 83.5 %

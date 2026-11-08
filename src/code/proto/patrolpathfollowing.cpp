@@ -72,7 +72,7 @@ namespace proto
 				return;
 			}
 			message.parameters->where = 7;
-			math::Vector* look = &message.parameters->direction;
+			math::Vector* look = &message.parameters->unknown18;
 			look->x = direction->x;
 			look->y = direction->y;
 			look->z = direction->z;

@@ -12,6 +12,7 @@
 #include "code/core/name.h"
 #include "code/engine/gameobject/behaviour.h"
 #include "code/engine/gameobject/gameobjecthandle.h"
+#include "code/engine/message.h"
 #include "code/math/vector.h"
 
 namespace content
@@ -26,6 +27,9 @@ namespace ravenphysics
 
 namespace proto
 {
+	// 0x10D977EC
+	extern const float gTen;
+
 	// A place on the grabber that holds an object (RTTI proto::GrabSlot; reflected: name, temporary, wakeUpPhysics)
 	struct GrabSlot
 	{
@@ -80,7 +84,22 @@ namespace proto
 	public:
 		typedef container::ArrayDynamic<GrabSlot, container::AllocatorNew> SlotArray;
 
+		// 0x102C9BB0
 		explicit GrabBehaviour(engine::GameObject* newOwner);
+		// 0x102C9C40 (the engine's: it lets the held objects go; the deleting destructor is 0x102C9E30)
+		virtual ~GrabBehaviour();
+		// 0x102C7120: the index of the slot of that name, -1 when there is none
+		int FindSlot(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x102C7180: what the slot of that name holds (an empty handle when there is none)
+		engine::HandleBase GetSlotHandle(const core::Name<core::CaseSensitiveKey>& name);
+		// 0x102C80D0: hands a message to every object the slots hold
+		void SendToHeld(engine::Message* message);
+		// vftable slot 1 (0x102C7110): nothing
+		virtual void Slot1()
+		{
+		}
+		// vftable slot 6 (0x102C8840): the messages
+		virtual void OnMessage(engine::Message* message);
 		// 0x102C6910
 		static content::ClassInfo* GetClassInfo();
 		// 0x102C8730
@@ -97,7 +116,16 @@ namespace proto
 	public:
 		typedef container::ArrayDynamic<GrabSpawnListEntry, container::AllocatorNew> SpawnArray;
 
+		// 0x102C9E60 (the destructor 0x102C9EB0, the deleting destructor 0x102CA0C0)
 		explicit GrabAutoSpawnBehaviour(engine::GameObject* newOwner);
+		virtual ~GrabAutoSpawnBehaviour();
+		// vftable slots 0 (0x102C7350): nothing; 1 (0x102C98E0, a jump to 0x102C8A50): spawns the objects of the list;
+		// 6 (0x102C92F0): the messages
+		virtual void Slot0()
+		{
+		}
+		virtual void Slot1();
+		virtual void OnMessage(engine::Message* message);
 		// 0x102C6950
 		static content::ClassInfo* GetClassInfo();
 		// 0x102C9800
@@ -110,7 +138,14 @@ namespace proto
 	class GrabSelectionBehaviour : public GrabBehaviour
 	{
 	public:
+		// 0x102CA4F0
 		explicit GrabSelectionBehaviour(engine::GameObject* newOwner);
+		// 0x102CA590 (the deleting destructor is 0x102CAA40)
+		virtual ~GrabSelectionBehaviour();
+		// vftable slot 4 (0x102CA360): the timer runs out, then the behaviour stops being updated
+		virtual void Update(float dt, unsigned short mask);
+		// 0x102CA3B0: forgets the object picked
+		void ClearTarget();
 		// 0x102CA310
 		static content::ClassInfo* GetClassInfo();
 		// 0x102CB320
@@ -118,7 +153,7 @@ namespace proto
 
 		engine::HandleBase unknown28;
 		float range;  // +0x2C
-		int unknown30;
+		float timer;  // +0x30
 		bool unknown34;
 		ravenphysics::IntersectionPropertiesLoader* grabbableIntersectionProperties;  // +0x38
 		unsigned int allowedNavmeshAreas;  // +0x3C

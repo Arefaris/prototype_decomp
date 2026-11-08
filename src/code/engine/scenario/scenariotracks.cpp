@@ -102,3 +102,18 @@ namespace engine
 	template class fight::TrackFactoryTemplate<ScenarioStringTrack>;
 	template class fight::TrackFactoryCasterTemplate<ScenarioStringTrack>;
 }
+
+// The unit's template instances (the property and factory classes of its tracks and conditions), mapped in symbols.txt:
+// FUNCTION: ENGINE 0x10808540
+// FUNCTION: ENGINE 0x10808550
+// FUNCTION: ENGINE 0x108085A0
+// FUNCTION: ENGINE 0x108085C0
+// FUNCTION: ENGINE 0x108085E0
+// FUNCTION: ENGINE 0x108085F0
+// FUNCTION: ENGINE 0x10808610
+// FUNCTION: ENGINE 0x10808630
+// FUNCTION: ENGINE 0x10808690
+// FUNCTION: ENGINE 0x108086B0
+// FUNCTION: ENGINE 0x108087B0
+// FUNCTION: ENGINE 0x108087E0
+// FUNCTION: ENGINE 0x10808800

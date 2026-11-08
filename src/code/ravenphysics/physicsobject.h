@@ -52,7 +52,7 @@ namespace ravenphysics
 
 		BroadPhaseBox bounds;            // 0x08
 		int id;                          // 0x20 (the handle the body is registered under)
-		unsigned char unknown24[4];
+		int unknown24;
 		// What the object collides with, kept in the detector next to its box (0x28)
 		BroadPhaseMasks masks;
 		BroadPhaseDetector* detector;

@@ -11,9 +11,23 @@
 
 namespace engine
 {
+	// What a player is made from (the game's sound player factory fills it; the members are unknown but for the name
+	// and the three flags the remote player is created with)
+	struct AudioPlayerDescription
+	{
+		const char* name;
+		int unknown4;
+		int unknown8;
+		int unknownC;
+		unsigned char unknown10[0x58 - 0x10];
+		unsigned char unknown58[4];
+	};
+
 	class AudioPlayerSimple : public AudioPlayer
 	{
 	public:
+		// 0x1087F5E0: creates the remote player of the description
+		explicit AudioPlayerSimple(const AudioPlayerDescription* description);
 		// 0x1087F660 is the body (the audio library's player of the handle goes away); the deleting destructor is
 		// 0x1087F8F0 and the class's operator delete 0x1087F640
 		virtual ~AudioPlayerSimple();
@@ -44,6 +58,26 @@ namespace engine
 		int unknown8;
 		audio::RemotePlayerHandle player;  // +0xC
 		__declspec(align(8)) core::Name<core::CaseSensitiveKey> name;  // +0x10
+	};
+
+	// The player of a physics object (a vehicle's engine, say): the simple player and six members
+	class AudioPlayerPhysics : public AudioPlayerSimple
+	{
+	public:
+		// 0x1087F7D0
+		explicit AudioPlayerPhysics(const AudioPlayerDescription* description);
+		// The deleting destructor is 0x1087FFE0 and the class's operator delete 0x1087F810
+		static void operator delete(void* memory)
+		{
+			om::Release(memory, 0x30, 8);
+		}
+
+		int unknown18;
+		int unknown1C;
+		int unknown20;
+		float unknown24;
+		float unknown28;
+		float unknown2C;
 	};
 }
 

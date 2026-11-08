@@ -12,6 +12,7 @@
 #include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/message.h"
 #include "code/math/vector.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
 
 namespace proto
 {
@@ -28,12 +29,6 @@ namespace proto
 		bool flag;  // +0x14
 		math::Vector unknown18;
 	};
-
-	// An object and the position it was at (motion_boundary.h)
-	struct JumpDestination;
-
-	// 0x103BAE00 (another unit): the object takes the point to aim at (name guess)
-	void Unknown103BAE00(engine::GameObject* object, JumpDestination* target);
 
 	// The query / reset messages the behaviour answers (type 0x26 id 0x57 / 0x58, type 0x2F id 2)
 	struct AimSlotMessage : public engine::Message

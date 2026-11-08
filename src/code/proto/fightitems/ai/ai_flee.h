@@ -66,9 +66,18 @@ namespace proto
 				// vftable slot 7 (0x101F3680)
 				virtual bool Slot7(int arg, float value);
 
+				// 0x101F3320: runs along a direction away from the threat and enters the state of fleeing (name guess)
+				void Flee(const math::Vector* direction);
+				// 0x101F33A0: runs directly away from the threat (name guess)
+				void FleeFromThreat();
+				// 0x101F3130: keeps the object running directly away from the threat (name guess)
+				bool KeepFleeing(engine::GameObject* object, float time);
+				// 0x101F34C0: picks the object's target as the threat and starts to flee from it (name guess)
+				bool StartFleeing(engine::GameObject* object, float time);
+
 				int unknown1C;  // +0x1C
-				engine::HandleBase unknown20;  // +0x20
-				unsigned char unknown24[0xC];
+				engine::GameObjectHandle unknown20;  // +0x20
+				math::Vector direction;  // +0x24
 				core::Link<FleeTrack> link;  // +0x30
 				engine::GameObjectHandle target;  // +0x3C
 			};

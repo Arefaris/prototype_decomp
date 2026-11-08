@@ -1,5 +1,18 @@
 // The om library's memory stream (0x105E4630 - 0x105E4780).
 #include "code/om/memorystream.h"
+#include "code/om/string.h"
+
+namespace engine
+{
+	// The string "?Name?" (0x112768D4, name guessed)
+	extern om::String gName;
+
+	// FUNCTION: ENGINE 0x105E4620
+	om::String* GetName()
+	{
+		return &gName;
+	}
+}
 
 namespace om
 {

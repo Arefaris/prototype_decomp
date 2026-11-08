@@ -7,6 +7,11 @@
 #include "code/proto/fightitems/ai/aicodecommon.h"
 #include "code/math/vector.h"
 
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
 namespace proto
 {
 	// The fixed destination an object has been given (the part the actions read; layout from their users)
@@ -124,6 +129,50 @@ namespace proto
 
 		bool unknownC;
 		float alert;  // +0x10
+	};
+
+	// RTTI: proto::GetDisguiseActionInfoMsg: the object answers how long its disguise action has left and how many uses it has
+	struct GetDisguiseActionInfoMsg : public DisguiseMessage
+	{
+		GetDisguiseActionInfoMsg() : DisguiseMessage(0x44), timeLeft(choreo::gMinusOne), uses(0), unknown14(0)
+		{
+		}
+		virtual ~GetDisguiseActionInfoMsg()
+		{
+		}
+
+		float timeLeft;  // +0xC
+		int uses;  // +0x10
+		int unknown14;
+	};
+
+	// RTTI: proto::GetTargetLOFMessage: the object answers whether it has a line of fire to its target (0x64 bytes; member names are guesses)
+	struct GetTargetLOFMessage : public TargetMessage
+	{
+		GetTargetLOFMessage(float newTimeTolerance, float newDistanceTolerance, int newCollisionFlags, int newCollideWithType, float newRadius, math::Vector newOffset) : TargetMessage(0xd), hasLineOfFire(false), unknown10(choreo::gMinusOne), collisionFlags(1), unknown38(0.0f), unknown3C(-1), timeTolerance(newTimeTolerance), distanceTolerance(newDistanceTolerance), offset(newOffset), unknown60(false)
+		{
+			collisionFlags = newCollisionFlags;
+			collideWithType = newCollideWithType;
+			radius = newRadius;
+		}
+		virtual ~GetTargetLOFMessage()
+		{
+		}
+
+		bool hasLineOfFire;  // +0xC
+		float unknown10;
+		unsigned char unknown14[0x18];
+		int collisionFlags;  // +0x2C
+		int collideWithType;  // +0x30
+		float radius;  // +0x34
+		float unknown38;
+		int unknown3C;
+		float timeTolerance;  // +0x40
+		float distanceTolerance;  // +0x44
+		math::Vector offset;  // +0x48
+		unsigned char unknown54[0xC];
+		bool unknown60;
+		unsigned char unknown61[0x3];
 	};
 
 	// RTTI: proto::GetTargetMessage: the object answers its target
@@ -324,7 +373,7 @@ namespace proto
 		}
 	};
 
-	// What the object answers for its aim: filled in by the sender through the pointer (member names are guesses)
+	// What the object answers for its aim: filled in by the sender through the pointer (0x24 bytes, member names are guesses)
 	struct AimParameters
 	{
 		int active;  // +0x0
@@ -332,7 +381,7 @@ namespace proto
 		math::Vector offset;  // +0x8
 		bool forceWorldAngles;  // +0x14
 		unsigned char unknown15[0x3];
-		math::Vector direction;  // +0x18 (where to look when the place is 7)
+		math::Vector unknown18;  // +0x18 (where to look when the place is 7)
 	};
 
 	// RTTI: proto::GetAimParametersMovementMessage: the object answers the block of its aim parameters

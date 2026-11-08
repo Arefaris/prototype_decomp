@@ -6,6 +6,11 @@
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x1072E570
+	ShaderAnimationController::ShaderAnimationController() : mShader(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1072E5F0
 	ShaderAnimationController::~ShaderAnimationController()
 	{

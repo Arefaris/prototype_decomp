@@ -36,6 +36,32 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x101F16D0
+			bool FixedDestinationDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetFixedDestinationMessage message;
+					object->SendMessage(&message);
+					if (message.destination == 0)
+					{
+						return false;
+					}
+					math::Vector target(message.destination->position.x, message.destination->position.y, message.destination->position.z);
+					math::Matrix* world = object->transform->GetPointer();
+					math::Vector position(world->m[3][0], world->m[3][1], world->m[3][2]);
+					math::Vector offset;
+					offset.Sub(target, position);
+					int selector = direction;
+					float limit = distance;
+					int op = compare;
+					result = fight::CompareVectorMeasure(op, &offset, selector, limit);
+				}
+				return result;
+			}
+
 			// FUNCTION: ENGINE 0x10230870
 			fight::Property* FixedDestinationDistanceCondition::GetProperty(int index)
 			{

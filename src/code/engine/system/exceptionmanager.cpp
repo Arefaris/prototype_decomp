@@ -3,6 +3,7 @@
 #include "code/core/file/filesystem.h"
 #include "code/core/interlocked.h"
 #include "code/core/thread.h"
+#include "code/engine/online/olsgame.h"
 #include "code/engine/system/engineflags.h"
 #include "code/engine/system/enginememory.h"
 #include "code/engine/system/gamestatetable.h"
@@ -230,7 +231,7 @@ namespace engine
 				while (true)
 				{
 					OLS* ols = OLS::Get();
-					OLSLocalUser* user = ols->localUsers != 0 ? ols->localUsers[ols->selectedLocalUser] : 0;
+					OLSGame* user = ols->localUsers != 0 ? ols->localUsers[ols->selectedLocalUser] : 0;
 					if (user->Unknown108882C0())
 					{
 						break;
@@ -284,7 +285,7 @@ namespace engine
 				bool watch = gPauseFlagA;
 				if (id == 0 && watch)
 				{
-					if (message->user != OLS::Get()->profile->currentProfile)
+					if (message->Words()->user != OLS::Get()->profile->currentProfile)
 					{
 						return;
 					}
@@ -295,7 +296,7 @@ namespace engine
 					{
 						return;
 					}
-					if (message->user != OLS::Get()->profile->currentProfile)
+					if (message->Words()->user != OLS::Get()->profile->currentProfile)
 					{
 						return;
 					}
@@ -305,11 +306,11 @@ namespace engine
 				return;
 			}
 		}
-		else if (message->type == 2 && message->id == 4 && message->unknown10 != 0)
+		else if (message->type == 2 && message->id == 4 && message->Words()->unknown10 != 0)
 		{
 			OLSUserTable* table = OLS::Get()->userTable;
 			if (table->count <= 1 ||
-				table->items + table->current * 0x40 == table->items + message->user * 0x40)
+				table->items + table->current * 0x40 == table->items + message->Words()->user * 0x40)
 			{
 				peerLost = true;
 				dialogs[1]->Unknown10883D50(-1, true);

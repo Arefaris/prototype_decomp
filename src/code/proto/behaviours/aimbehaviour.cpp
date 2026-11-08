@@ -1,5 +1,5 @@
-#include "code/proto/fightitems/motion/motion_boundary.h"
 #include "code/proto/behaviours/aimbehaviour.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
 #include "code/proto/messages/movementrestrictionsmessage.h"
 
 namespace engine
@@ -281,11 +281,11 @@ namespace proto
 		position.x = point.x + info->unknown8.x;
 		position.y = info->unknown8.y + point.y;
 		position.z = info->unknown8.z + point.z;
-		JumpDestination aimTarget;
-		aimTarget.position.x = position.x;
-		aimTarget.position.y = position.y;
-		aimTarget.position.z = position.z;
-		Unknown103BAE00(owner, &aimTarget);
+		JumpDestination destination;
+		destination.position.x = position.x;
+		destination.position.y = position.y;
+		destination.position.z = position.z;
+		Unknown103BAE00(owner, &destination);
 	}
 #endif
 
@@ -302,11 +302,11 @@ namespace proto
 		position.x = point.x + info->unknown8.x;
 		position.y = info->unknown8.y + point.y;
 		position.z = info->unknown8.z + point.z;
-		JumpDestination aimTarget;
-		aimTarget.position.x = position.x;
-		aimTarget.position.y = position.y;
-		aimTarget.position.z = position.z;
-		Unknown103BAE00(owner, &aimTarget);
+		JumpDestination destination;
+		destination.position.x = position.x;
+		destination.position.y = position.y;
+		destination.position.z = position.z;
+		Unknown103BAE00(owner, &destination);
 	}
 #endif
 

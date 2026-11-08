@@ -11,6 +11,8 @@
 
 namespace engine
 {
+	struct OLSMessageWords;
+
 	// An online event (RTTI: engine::OLSMessage; the user it concerns at +0x14)
 	struct OLSMessage : public IntrusiveMessage
 	{
@@ -23,31 +25,55 @@ namespace engine
 		}
 
 		int unknownC;
+
+		// The words a handler reads behind the common part (see OLSMessageWords)
+		OLSMessageWords* Words();
+	};
+
+	// The messages that carry two more words (the profile and storage ones; +0x10 and the user they concern at +0x14).
+	// The common part is 0x10 bytes: the game message has nothing behind it and the user message one word
+	struct OLSMessageWords : public OLSMessage
+	{
+		OLSMessageWords(int newType, short newId) : OLSMessage(newType, newId)
+		{
+		}
+
 		int unknown10;
 		unsigned int user;
 	};
+
+	inline OLSMessageWords* OLSMessage::Words()
+	{
+		return static_cast<OLSMessageWords*>(this);
+	}
 
 	// The messages of the online services' parts (RTTI names; the part's message type is the constructor's first
 	// argument to the base)
 	struct OLSUserMessage : public OLSMessage
 	{
-		// 0x10886A30 (the engine kept this copy)
-		explicit OLSUserMessage(short newId);
+		// 0x10886A30 (the engine kept an out-of-line copy as well, olsmessages.cpp)
+		explicit OLSUserMessage(short newId) : OLSMessage(5, newId)
+		{
+		}
 		virtual ~OLSUserMessage()
 		{
 		}
+
+		int user;  // +0x10
 	};
 
 	struct OLSGameMessage : public OLSMessage
 	{
-		// 0x10887D20
-		explicit OLSGameMessage(short newId);
+		// 0x10887D20 (the engine kept an out-of-line copy as well, olsmessages.cpp)
+		explicit OLSGameMessage(short newId) : OLSMessage(3, newId)
+		{
+		}
 		virtual ~OLSGameMessage()
 		{
 		}
 	};
 
-	struct OLSProfileStorageMessage : public OLSMessage
+	struct OLSProfileStorageMessage : public OLSMessageWords
 	{
 		// 0x1088ACA0
 		explicit OLSProfileStorageMessage(short newId);
@@ -58,9 +84,9 @@ namespace engine
 
 	// Tells that a profile was picked (type 0, id 6 and 7; the inline constructor is the engine's, the deleting destructor is
 	// shared with the other messages)
-	struct OLSProfileMessage : public OLSMessage
+	struct OLSProfileMessage : public OLSMessageWords
 	{
-		explicit OLSProfileMessage(short newId) : OLSMessage(0, newId)
+		explicit OLSProfileMessage(short newId) : OLSMessageWords(0, newId)
 		{
 		}
 		virtual ~OLSProfileMessage()
@@ -110,19 +136,30 @@ namespace engine
 		unsigned char* items;  // +0x1C
 		unsigned char unknown20[4];
 		int current;  // +0x24
+		unsigned char unknown28[0x10];
+		bool unknown38;
+		// 0x108E7F60 (another unit)
+		bool Unknown108E7F60();
 	};
 
-	// A user that plays on this machine (another unit)
-	class OLSLocalUser
-	{
-	public:
-		// 0x108882C0: leaves the online session; false when there was none
-		bool Unknown108882C0();
-	};
+	// The game the services run on this machine (RTTI engine::OLSGame, olsgame.h)
+	class OLSGame;
 
 	// The list of users at OLS +0x94 and the friend list at +0x98 (olsfriend.h)
 	class OLSUserList;
 	class OLSFriend;
+
+	// What the online services tell about the users they hear of (OLS +0xA0; of its slots only the two the user list
+	// calls are declared, names guessed)
+	class OLSUserObserver
+	{
+	public:
+		virtual void Slot0();
+		virtual void Slot1();
+		virtual void Slot2();
+		virtual void OnUserLinked(int index);
+		virtual void OnUserUnlinked(int index);
+	};
 
 	class OLS
 	{
@@ -140,7 +177,7 @@ namespace engine
 		void SendMessage(OLSMessage* message);
 
 		// The local user that is selected: null when there are none
-		OLSLocalUser* GetLocalUser()
+		OLSGame* GetLocalUser()
 		{
 			return localUsers != 0 ? localUsers[selectedLocalUser] : 0;
 		}
@@ -175,11 +212,13 @@ namespace engine
 		OLSUserTable* userTable;  // +0x80
 		unsigned char unknown84[4];
 		int selectedLocalUser;  // +0x88
-		OLSLocalUser** localUsers;  // +0x8C
+		OLSGame** localUsers;  // +0x8C
 		unsigned char unknown90[4];
 		OLSUserList* userList;  // +0x94
 		OLSFriend* friends;  // +0x98
-		unsigned char unknown9C[0xac - 0x9c];
+		unsigned char unknown9C[4];
+		OLSUserObserver* userObserver;  // +0xA0
+		unsigned char unknownA4[8];
 		container::SListLite<Callback> callbacks;
 	};
 }
