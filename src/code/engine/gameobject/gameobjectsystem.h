@@ -198,6 +198,10 @@ namespace engine
 	GameObjectHandle FindGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
 	GameObjectHandle SearchGameObject(const content::ObjectName& name, const content::ObjectName& inventoryName);
 	content::ObjectName GetGameObjectName(GameObjectHandle handle);
+	// 0x1082FDB0 (another unit): the master scenario's game object (name guess)
+	GameObject* GetMasterScenarioObject();
+	// 0x1130D448: the name of the master scenario's game object
+	extern content::ObjectName gMasterScenario;
 	bool UpdateGameObjectSystemShutdown();
 
 	// Updates the behaviours of the objects in the passes of mask: first the objects of pass 0, then pass by pass

@@ -1101,6 +1101,12 @@ namespace proto
 		StateMachineStateChangedMessage() : engine::ScenarioMessage(0x30)
 		{
 		}
+		// 0x104952C0 (the state machine's unit): from the object that changed its state
+		explicit StateMachineStateChangedMessage(engine::GameObjectHandle source) : engine::ScenarioMessage(0x30)
+		{
+			handles[0] = source;
+			newState = 0;
+		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
