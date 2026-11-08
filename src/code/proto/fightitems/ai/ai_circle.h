@@ -223,6 +223,15 @@ namespace proto
 				unsigned char unknown3C[0x8];
 			};
 
+			// RTTI: proto::fightitems::ai::IntersectionCirclePatrolAction (9 vftable slots, 0x58 bytes; only what the track's CreateAction needs is declared)
+			class IntersectionCirclePatrolAction : public fight::Action
+			{
+			public:
+				// 0x101E1F90
+				IntersectionCirclePatrolAction(IntersectionCirclePatrolTrack* newTrack, engine::GameObjectHandle newTarget);
+
+				unsigned char unknown1C[0x58 - 0x1C];
+			};
 			// ---- actions end
 		}
 	}

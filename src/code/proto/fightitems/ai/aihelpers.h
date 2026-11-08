@@ -138,6 +138,8 @@ namespace proto
 	bool Unknown103C02D0(engine::GameObject* object);
 	// 0x103B8DC0: the level of detail state of an object (name guess)
 	int Unknown103B8DC0(engine::GameObject* object);
+	// 0x103B9ED0: whether a position is in the view of the first player's camera, with a margin (name guess)
+	bool Unknown103B9ED0(const math::Vector* position, float margin);
 	// 0x103B8C10: makes the object press its crouch button (name guess)
 	void Unknown103B8C10(engine::GameObject* object);
 	// 0x103BDB60: aims the object at a target with the weapon of a grab slot (name guess)

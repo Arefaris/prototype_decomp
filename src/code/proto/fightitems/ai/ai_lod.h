@@ -691,6 +691,15 @@ namespace proto
 				engine::GameObjectHandle target;  // +0x28
 			};
 
+			// RTTI: proto::fightitems::ai::LodGotoFixedDestinationAction (9 vftable slots, 0x16C bytes; only what the track's CreateAction needs is declared)
+			class LodGotoFixedDestinationAction : public fight::Action
+			{
+			public:
+				// 0x101FC480
+				LodGotoFixedDestinationAction(LodGotoFixedDestinationTrack* newTrack, engine::GameObjectHandle newTarget);
+
+				unsigned char unknown1C[0x16C - 0x1C];
+			};
 			// ---- actions end
 		}
 	}

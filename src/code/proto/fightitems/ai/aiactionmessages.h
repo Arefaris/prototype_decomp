@@ -51,6 +51,19 @@ namespace proto
 		core::Name<core::CaseSensitiveKey> state;  // +0x10
 	};
 
+	// RTTI: proto::AICollisionStateChangeMessage: the object turns its collision with the ai on or off
+	struct AICollisionStateChangeMessage : public StateChangeMessage
+	{
+		explicit AICollisionStateChangeMessage(bool newCollide) : StateChangeMessage(3), collide(newCollide)
+		{
+		}
+		virtual ~AICollisionStateChangeMessage()
+		{
+		}
+
+		bool collide;  // +0xC
+	};
+
 	// What an object follows (the part the follow target action reads)
 	struct FollowInformation
 	{

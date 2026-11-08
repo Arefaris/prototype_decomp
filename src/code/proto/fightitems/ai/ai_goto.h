@@ -242,6 +242,18 @@ namespace proto
 				bool unknown44;  // +0x44
 				unsigned char unknown45[0x3];
 			};
+			// RTTI: proto::fightitems::ai::DumbGotoLODAction (9 vftable slots, 0x54 bytes; only what the track's CreateAction needs is declared)
+			class DumbGotoLODAction : public fight::Action
+			{
+			public:
+				// 0x101F6FB0
+				DumbGotoLODAction(DumbGotoLODTrack* newTrack, engine::GameObjectHandle newTarget);
+
+				// vftable slot 5 (0x101F60D0)
+				virtual bool Slot5(int arg, float value);
+
+				unsigned char unknown1C[0x54 - 0x1C];
+			};
 			// ---- actions end
 		}
 	}

@@ -691,6 +691,19 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x101F60D0
+			bool DumbGotoLODAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101F7A00
+			fight::Action* DumbGotoLODTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new DumbGotoLODAction(this, handle);
+			}
+
 			// FUNCTION: ENGINE 0x101F7170
 			fight::Action* DumbGotoTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{

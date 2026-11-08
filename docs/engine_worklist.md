@@ -7893,3 +7893,27 @@ Of 2257 open functions about 1940 have no name; the rest are dead copies of 1 - 
   `DynamicArray<Packet<T>>::FillElements / CopyElements / Resize` (82 % / 70 %: the engine strength-reduces the source pointer), and the roughly 300 second copies of template instances.
 - Shared header changes: `mgraph/nodes.h` (`InletBase`, `OutletBase`, `Inlet`, `Outlet`, `Abstraction::Refresh`, `PropertyNodeBase` / `PropertyNode` constructors, `PropertyValueAccess<Vector>`),
   `mgraph/pins.h` (the abstract pin constructors, `AddSource`, `AddTarget`), `mgraph/listnodes.h`, `mgraph/throw.h`.
+## proto/fightitems/ai: the action half of 0x101E0000 - 0x10200000, third pass (sn-ev)
+Written into the existing units (`ai_flee`, `ai_goto`, `ai_reserveposition`, `ai_emotionalstate`, `ai_token`, `ai_disguise`, `ai_fixeddestination`, `ai_lod`, `ai_takeoff`, `ai_circle`, `ai_message`). Of the 1013 functions without an annotation
+about 880 are unreferenced 3 - 8 byte copies of inline members (getters, `ret`, `mov al, 1`) of classes no caller names; they stay unreconstructed.
+- Match: `FleeAction` (`Flee` 0x101F3320, `FleeFromThreat` 0x101F33A0, `KeepFleeing` 0x101F3130, `StartFleeing` 0x101F34C0, `Slot7`), `GoToAction` (`MoveToDestination` 0x101F6080, `TakeDestination` 0x101F6130, `Slot7`),
+  `EngageAction` (`RunState5`, `AcceptPosition` 0x101ED6C0, `PositionAllowed` 0x101ED8A0, `ReservePosition` 0x101EDBE0), the request conditions of the player requests (`RequestPointing`, `RequestSuspicion`, `RequestLostHim`,
+  `RequestStopPursuit`, `RequestPlayerDiversion`, `RequestRadioHQ`, `RequestCallStrikeTeam` `Evaluate`), `LandAction::Slot6`, `ResetPhysicVelocitiesAction::Slot5` / `Slot7`, `InTargetsCameraCondition::Evaluate`, the five `CreateAction`s
+  of the tracks whose actions' constructors are left to the engine (`DumbGotoLODTrack`, `LodGotoFixedDestinationTrack`, `IntersectionCirclePatrolTrack`, `MessageTrack`, `PeriodicMessageTrack`: the action classes are declared with their size and
+  constructors only), the trivial slots of `DumbGotoLODAction` / `MessageAction` / `PeriodicMessageAction`, and the kept copies `keptmap.py` found (the constructors of `GetAimParametersMovementMessage`, `SetStateStateChangeMessage`,
+  `GetSpeedMovementMessage`, `SquadMessage`, the destructors of `GetAlertedDisguiseMsg`, `GetGoalAIMsg` and the other sides of them).
+- Findings: (1) `math::Vector` locals built from the three matrix components (`math::Vector p(m->m[3][0], m->m[3][1], m->m[3][2]);`) give the engine's loads of all components into registers before the subtractions
+  (the plain `float x = m->m[3][0]` form folds the loads into the arithmetic). (2) The player lookup `GetPlayerHandle(i)` is an inline function that returns the empty handle on `i < 0 || i >= count` and the global otherwise;
+  the result is kept in a named `engine::GameObjectHandle` local before `.Get()`. A `?:` between the global and a temporary compiles to a pointer choice. (3) The conditions of the requests keep their result in a `bool result` that is
+  assigned in the branch and returned at the end (a direct `return` in the branch gives `xor eax, eax / sete`). (4) `unknown59 = true;` before the call that takes the token manager sinks below the pushes only when the manager and the
+  time are read into locals first. (5) An inline constructor of a message that sits out of line in the engine (`GetTargetLOFMessage` 0x101E39F0) is the engine's kept copy; it is only emitted when a compiled function calls it.
+- NONMATCHING (reason, best %): `FixedDestinationDistanceCondition::Evaluate` (the comparison selector is in edx in ours, esi in the engine, 96.4), `IsDisguiseActionEnabledCondition::Evaluate` (`this` in edi against ebx, 96.1),
+  `EngageAction::RunState2` (93.2), `TargetHasLoFCondition::Evaluate` (the arguments of the message constructor are loaded in another order, 84), `GoToAction::GoToDestination` / `FollowDestination` (stack frame and the order of the
+  squared distances, the arrival message is expanded in line), `RequestRecognizePatsyCondition` / `RequestDenyPatsyCondition` (shrink-wrap), `AnyPlayerDistanceCondition::Evaluate` (the engine's loop keeps its test of the result at the top and does not
+  unroll; the player handle block order differs).
+- Not done: the flying constraints message (`SetFlyingContraintsMessage`, 0x5C bytes with two inline arrays, copy 0x101E1690) and everything that sends it (`CirclePatrol`, `FlyingIdle`, `Reform`, `FixedDestinationFlyto`), the big updates
+  (`CircleStrafeAction::Slot7`, `CombatDestinationFindAction::Slot7`, `FollowFormationAction::Slot7`, `AddDiversionAction`, `LandAction::Slot5` / `Slot7`, `DumbGotoAction::Slot7`, `KeepPlace`), the conditions that read the height grid or the
+  destination parameters (`TargetFreeHeightRadius`, `DestinationTargetDistance`, `InfectedAlerted`, `FacingAngleTarget`, `AimingAt`), `FloatShotAllowed` / `TargetIsHuman` (`GetMotionStateMsg` has an out-of-line constructor), `HaveToken`
+  (`GetOwnersTokenMsg`), `BlindAction` (the grab slot lookup 0x101FD420).
+- Shared header changes: `aimessages.h` (`GetDisguiseActionInfoMsg`, `GetTargetLOFMessage`, `AimParameters::unknown18`), `aiactionmessages.h` (`AICollisionStateChangeMessage`), `aihelpers.h` (`PlayerRequest`, the table and methods of
+  `StrafeRunTokens`, `GetPlayerObject`, a few `Unknown...` functions), `aiactionhelpers.h` (`Unknown103BAE00`), the action classes of `ai_flee.h`, `ai_goto.h`, `ai_reserveposition.h`, `ai_lod.h`, `ai_circle.h`, `ai_message.h`.

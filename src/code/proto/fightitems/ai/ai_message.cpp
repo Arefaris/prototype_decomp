@@ -374,6 +374,53 @@ namespace proto
 			}
 
 			// ---- actions begin
+			// FUNCTION: ENGINE 0x101FD200
+			bool MessageAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FD220
+			bool PeriodicMessageAction::Slot5(int arg, float value)
+			{
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x101FD230
+			void PeriodicMessageAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x101FE230
+			// NONMATCHING: the temporary registers differ (edx and eax in the engine, ecx and edx in ours), every other instruction is the engine's (96.2 %)
+#ifdef NONMATCHING
+			fight::Action* MessageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				if (owner != 0 && ((MessageEvent*)owner)->kind == 0x40000)
+				{
+					MessageEvent* event = (MessageEvent*)owner;
+					return new MessageAction(this, event->data, event->value);
+				}
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new MessageAction(this, handle);
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x101FE2C0
+			// NONMATCHING: the temporary registers differ (edx and eax in the engine, ecx and edx in ours), every other instruction is the engine's (96.2 %)
+#ifdef NONMATCHING
+			fight::Action* PeriodicMessageTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				if (owner != 0 && ((MessageEvent*)owner)->kind == 0x40000)
+				{
+					MessageEvent* event = (MessageEvent*)owner;
+					return new PeriodicMessageAction(this, event->data, event->value);
+				}
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new PeriodicMessageAction(this, handle);
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x101FDF90
 			BlindAction::BlindAction(BlindTrack* newTrack, engine::GameObjectHandle newTarget) : fight::Action(0x600), link(newTrack), target(newTarget)
 			{

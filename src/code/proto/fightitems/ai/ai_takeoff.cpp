@@ -315,6 +315,31 @@ namespace proto
 				}
 			}
 
+			// FUNCTION: ENGINE 0x101F9580
+			void LandAction::Slot6()
+			{
+				engine::GameObject* object = 0;
+				if (link.object != 0)
+				{
+					object = target.Get();
+					if (object != 0)
+					{
+						if (link.object->clearDestination)
+						{
+							ClearFixedDestinationMessage clear(this);
+							object->SendMessage(&clear);
+						}
+						if (!unknown6C)
+						{
+							SetStateStateChangeMessage state(engine::gDriverAI3);
+							object->SendMessage(&state);
+							AICollisionStateChangeMessage collision(true);
+							object->SendMessage(&collision);
+						}
+					}
+				}
+			}
+
 			// FUNCTION: ENGINE 0x101F9BD0
 			// NONMATCHING: the engine schedules the grid size product after the loads of the position, ours before them, 86 %
 #ifdef NONMATCHING
@@ -430,3 +455,5 @@ template core::Link<proto::fightitems::ai::LandTrack>::Link(proto::fightitems::a
 // FUNCTION: ENGINE 0x101F9080
 // FUNCTION: ENGINE 0x101F8D40
 // FUNCTION: ENGINE 0x101F8D80
+// FUNCTION: ENGINE 0x101F8CE0
+// FUNCTION: ENGINE 0x101F8D10

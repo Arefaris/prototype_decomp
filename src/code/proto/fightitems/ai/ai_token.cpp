@@ -2329,6 +2329,29 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x101E66F0
+			bool InTargetsCameraCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				bool result = true;
+				engine::GameObject* target = Unknown103B8B80(object).Get();
+				if (target != 0)
+				{
+					engine::GameObjectHandle playerHandle = GetPlayerHandle(0);
+					if (target == playerHandle.Get())
+					{
+						math::Matrix* world = object->transform->GetPointer();
+						math::Vector position(world->m[3][0], world->m[3][1], world->m[3][2]);
+						result = Unknown103B9ED0(&position, size);
+					}
+				}
+				return result;
+			}
+
 			// FUNCTION: ENGINE 0x101E63B0
 			// EQUIVALENT: instruction selection (the engine compares into al, ours through cl); the same calls in the same order (best 86.0 %)
 			bool ShouldRadioHQCondition::Evaluate(int a, int b, int c, int d)
