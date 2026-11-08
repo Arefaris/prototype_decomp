@@ -63,6 +63,14 @@ namespace engine
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x1087D520
+	AudioPeakAmplitudeMessage::AudioPeakAmplitudeMessage(const AudioName& newJoint, float newAmplitude) :
+		AudioMessage(0x15, 2),
+		joint(newJoint),
+		amplitude(newAmplitude)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x1087D770
 	AudioUDOBehaviour::AudioUDOBehaviour(GameObject* newOwner) :
 		Behaviour(newOwner)

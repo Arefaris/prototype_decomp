@@ -57,6 +57,7 @@ template class audio::RemotePlayerEvent_Param2<audio::MixBin, float>;
 
 // Kept copies of the instance's members (the unit keeps its own set; the other members, the allocation and the
 // execution, are in the neighbouring units):
+// FUNCTION: ENGINE 0x1087F290
 // FUNCTION: ENGINE 0x1087F2B0
 // FUNCTION: ENGINE 0x1087F2E0
 // FUNCTION: ENGINE 0x1087F2F0

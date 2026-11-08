@@ -162,7 +162,9 @@ namespace engine
 		AudioMessage(int newType, short newId) : IntrusiveMessage(newType, newId)
 		{
 		}
-		virtual ~AudioMessage();
+		virtual ~AudioMessage()
+		{
+		}
 
 		int unknownC;
 	};

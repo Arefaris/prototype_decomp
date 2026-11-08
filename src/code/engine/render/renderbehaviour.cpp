@@ -288,13 +288,15 @@ namespace engine
 	}
 
 	// The handle an attribute of drawables starts with: no drawable (a function-local static, 0x11315B98)
-	static inline const render::Drawable& GetNoDrawable()
+	// FUNCTION: ENGINE 0x10862500
+	inline const render::Drawable& GetNoDrawable()
 	{
 		static render::Drawable sNone;
 		return sNone;
 	}
 
-	// 0x10862BA0 (the engine keeps this instance in the unit): the handle is the empty one
+	// The handle is the empty one (the engine keeps this instance in the unit)
+	// FUNCTION: ENGINE 0x10862BA0
 	template<> Attribute<render::Drawable>::Attribute() : ConstAttribute<render::Drawable>(GetNoDrawable())
 	{
 	}
@@ -742,6 +744,7 @@ namespace engine
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x108624F0
+// FUNCTION: ENGINE 0x10862770
 // FUNCTION: ENGINE 0x10862790
 // FUNCTION: ENGINE 0x10862BE0
 // FUNCTION: ENGINE 0x10862BF0
