@@ -51,6 +51,21 @@ namespace mgraph
 		NodeLink* previous;
 	};
 
+	// The head and the tail of such a list
+	struct NodeLinkList
+	{
+		NodeLinkList() :
+			head(0),
+			tail(0)
+		{
+		}
+		// 0x10AAC0A0: how many links are in the list
+		unsigned int GetCount();
+
+		NodeLink* head;
+		NodeLink* tail;
+	};
+
 	class __declspec(align(8)) Node : public GraphItem
 	{
 	public:
@@ -98,6 +113,10 @@ namespace mgraph
 		virtual void Slot16(EvaluationFrame* frame);
 		OM_ALLOCATION(Node);
 
+		// 0x10AC89D0 / 0x10AC89E0 (names guessed): whether the caller runs on the thread of the node's context, and whether the
+		// context is locked (both false without a context)
+		bool OnContextThread();
+		bool ContextLocked();
 		// 0x10AC9FD0 / 0x10ACA020: the input and the output pin of a name, null when there is none
 		InputPinBase* FindInput(const om::ClassName& pinName);
 		OutputPinBase* FindOutput(const om::ClassName& pinName);

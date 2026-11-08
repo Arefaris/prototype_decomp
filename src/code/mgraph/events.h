@@ -47,6 +47,17 @@ namespace mgraph
 	// 0x10AC46F0 (name guessed): puts a node in the list of a level (null: none) and takes it out of the list of its old one
 	void SetNodeLevel(Node* node, Level* level);
 
+	// What a context is run by (RTTI not recovered; the name is a guess): it knows whether the caller is its thread
+	class ContextOwner
+	{
+	public:
+		virtual void Slot0() = 0;
+		virtual void Slot1() = 0;
+		virtual void Slot2() = 0;
+		virtual void Slot3() = 0;
+		virtual bool IsCurrentThread() = 0;
+	};
+
 	// What the evaluation context does for the events (RTTI not recovered; the name and the methods are guesses)
 	class Context
 	{
@@ -57,8 +68,21 @@ namespace mgraph
 		NodeLink* firstNode;  // 0x18: the nodes of the context (the links at 0x2C of the nodes)
 		NodeLink* lastNode;  // 0x1C
 		NodeLink* firstLevel;  // 0x20: the levels of the nodes (the links at 0x20 of the levels)
-		char unknown24[0x94];
+		NodeLink* lastLevel;  // 0x24
+		char unknown28[0x24];
+		ContextOwner* owner;  // 0x4C
+		char unknown50[0x40];
+		char lockSection[0x18];  // 0x90: the critical section the context is locked with
+		unsigned int lockCount;  // 0xA8
+		char unknownAC[0xC];
 		unsigned int evaluationCount;  // 0xB8
+
+		// 0x10AC3380: whether the caller runs on the thread of the context's owner (false without an owner)
+		bool IsOwnerThread();
+		// 0x10AC33A0: lets go of the lock (see 0x10AC5680)
+		void Unlock();
+		// 0x10AC33C0: whether the context is locked
+		bool IsLocked();
 
 		// 0x10AC4950 / 0x10AC49B0: puts a node in the lists of the context, takes it out
 		void AddNode(Node* node);

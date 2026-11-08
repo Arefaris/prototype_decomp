@@ -4,6 +4,7 @@
 #define MGRAPH_GRAPH_H
 
 #include "code/mgraph/node.h"
+#include "code/om/dynamicarray.h"
 #include "code/om/entity.h"
 
 namespace mgraph
@@ -19,13 +20,13 @@ namespace mgraph
 	};
 
 	// The list of the graphs that belong together (name guessed): the graphs link themselves in with the links at 0x84
-	struct GraphGroup
+	struct GraphGroup : NodeLinkList
 	{
-		NodeLink* head;
-		NodeLink* tail;
+		OM_ALLOCATION(GraphGroup);
 	};
 
 	class Abstraction;
+	class ConnectionData;
 	class GraphConnectionBase;
 
 	class __declspec(align(8)) Graph : public om::Entity
@@ -36,7 +37,7 @@ namespace mgraph
 		// 0x10AC77D0 (the deleting destructor is 0x10AC8430)
 		virtual ~Graph();
 		// The entity's slots: 0x10AC5CF0 answers true; 3 and 4 read and write the graph as text (nodes and connections), 6 and 7 in
-		// binary form, 8 checks the connections (not reconstructed); the last is the entity type
+		// binary form, 8 makes the connections the graph read (the nodes check themselves first); the last is the entity type
 		virtual bool Slot1();
 		virtual bool Slot3(void* argument);
 		virtual void Slot4(void* argument);
@@ -50,6 +51,10 @@ namespace mgraph
 		Node* FindNode(const om::ClassName& nodeName);
 		// 0x10AD3D00: the connection that ends at a pin of a node and starts at a pin of another, null when there is none
 		GraphConnectionBase* FindConnection(const om::ClassName& toNode, const om::ClassName& toPin, const om::ClassName& fromNode, const om::ClassName& fromPin);
+		// 0x10AC5D20 / 0x10AC5D30 (names guessed): whether the caller runs on the thread of the graph's context (false without a
+		// context), and whether the context is locked (true without a context)
+		bool OnContextThread();
+		bool ContextLocked();
 		// 0x10AC6A30 / 0x10AC6A50: the first graph of the group, and the one after another (this graph itself when it has no group)
 		Graph* FirstInGroup();
 		Graph* NextInGroup(Graph* graph);
@@ -81,11 +86,9 @@ namespace mgraph
 		bool unknown28;
 		int attachCount;  // 0x2C
 		unsigned int numChannels;  // 0x30
-		void* unknown34;
-		unsigned short unknown38;
-		unsigned short unknown3A;
-		NodeLink* firstConnection;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
-		NodeLink* lastConnection;  // 0x40
+		// The connections the graph read from its text or binary form and has not made yet (name guessed)
+		om::DynamicArray<ConnectionData, unsigned short> connectionData;  // 0x34
+		NodeLinkList connections;  // 0x3C: the connections of the graph (a list linked at 0x18 of the connection)
 		NodeTree nodes;  // 0x44
 		NodeLink* firstAbstraction;  // 0x58: the abstractions that contain the graph (a list linked at 0x50 of the abstraction)
 		NodeLink* lastAbstraction;  // 0x5C
@@ -100,6 +103,9 @@ namespace mgraph
 		bool unknown80;
 		NodeLink groupLink;  // 0x84
 	};
+
+	// 0x10AC6840 (name guessed): deletes every node of a tree of nodes
+	void DeleteAllNodes(om::TreeHead* tree);
 
 	// 0x105B9740: the graph of a name, null when there is none (name guessed)
 	Graph* FindGraph(const om::ClassName& graphName);

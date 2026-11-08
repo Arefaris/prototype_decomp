@@ -2,9 +2,21 @@
 // of each of its two pins and in the list of its graph.
 #include "code/mgraph/graph.h"
 #include "code/mgraph/pins.h"
+#include "code/om/textvalue.h"
+
+namespace engine
+{
+	// 0x105E4620: the string "?Name?"
+	om::String* GetName();
+}
 
 namespace mgraph
 {
+	// 0x10AD2880 / 0x10AD2960 (names guessed): put the context connections of the pins a connection joins in the context, and take
+	// them out of it (the abstract pins are replaced by the concrete pins of their abstractions)
+	bool AttachConnectionPins(Context* context, Pin* from, Pin* to);
+	void DetachConnectionPins(Context* context, Pin* from, Pin* to);
+
 	// Takes a link out of the list it is in (the head and the tail of a list are two consecutive pointers)
 	static __forceinline void Unlink(NodeLink** list, NodeLink* link)
 	{
@@ -51,7 +63,37 @@ namespace mgraph
 		from = newFrom;
 		Append(&newFrom->firstConnection, &fromLink);
 		Append(&newTo->firstConnection, &toLink);
-		Append(&graph->firstConnection, &graphLink);
+		Append(&graph->connections.head, &graphLink);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2A40
+	void GraphConnectionBase::Attach(Context* newContext)
+	{
+		AttachConnectionPins(newContext, from, to);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2A60
+	void GraphConnectionBase::Detach(Context* oldContext)
+	{
+		DetachConnectionPins(oldContext, from, to);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2720
+	AbstractToConcreteGraphConnectionBase::AbstractToConcreteGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10AD2740
+	ConcreteToAbstractGraphConnectionBase::ConcreteToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x10AD2770
+	AbstractToAbstractGraphConnectionBase::AbstractToAbstractGraphConnectionBase(Pin* newFrom, Pin* newTo) :
+		GraphConnectionBase(newFrom, newTo)
+	{
 	}
 
 	// FUNCTION: ENGINE 0x10AD22B0
@@ -59,7 +101,27 @@ namespace mgraph
 	{
 		Unlink(&to->firstConnection, &toLink);
 		Unlink(&from->firstConnection, &fromLink);
-		Unlink(&graph->firstConnection, &graphLink);
+		Unlink(&graph->connections.head, &graphLink);
+	}
+
+	// FUNCTION: ENGINE 0x10AD2350
+	void GraphConnectionBase::Slot5(void* argument)
+	{
+		om::TextValue* text = static_cast<om::TextValue*>(argument);
+		om::TextNode* input = new om::TextNode(text, om::String::Wrap("Input"));
+		om::TextNode* output = new om::TextNode(text, om::String::Wrap("Output"));
+		om::TextNode* inputNodeName = new om::TextNode(input, om::String::Wrap("NodeName"));
+		om::TextNode* inputPinName = new om::TextNode(input, om::String::Wrap("PinName"));
+		om::TextNode* outputNodeName = new om::TextNode(output, om::String::Wrap("NodeName"));
+		om::TextNode* outputPinName = new om::TextNode(output, om::String::Wrap("PinName"));
+		om::String* outputNodeNameValue = engine::GetName();
+		new om::TextNode(outputNodeName, *outputNodeNameValue);
+		om::String* outputPinNameValue = engine::GetName();
+		new om::TextNode(outputPinName, *outputPinNameValue);
+		om::String* inputNodeNameValue = engine::GetName();
+		new om::TextNode(inputNodeName, *inputNodeNameValue);
+		om::String* inputPinNameValue = engine::GetName();
+		new om::TextNode(inputPinName, *inputPinNameValue);
 	}
 
 	// FUNCTION: ENGINE 0x10AD2810
