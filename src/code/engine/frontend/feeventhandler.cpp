@@ -209,3 +209,7 @@ namespace engine
 		return gFEEventHandler;
 	}
 }
+
+// Kept copies (inline members of this unit):
+// FUNCTION: ENGINE 0x108E13E0
+// FUNCTION: ENGINE 0x108E1520
