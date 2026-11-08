@@ -60,6 +60,8 @@ namespace engine
 		void Unknown106174D0(void* unknown);
 		void Unknown10617560();
 		void Unknown106180B0(int* width, int* height, unsigned int* refreshRate, unsigned int format);
+		// 0x10616320: the three gamma values Unknown10616C90 was given
+		void GetGamma(float* a, float* b, float* c);
 		// 0x10616C90: the same value three times (the one at +0x10)
 		void Unknown10616C90(float a, float b, float c);
 
@@ -128,6 +130,8 @@ namespace engine
 	extern Display* gDisplay;
 	// 0x11276D34: the object the back end renders through (0x10617A30 installs it; name guess)
 	extern Display* gRenderDisplay;
+	// 0x10615F30
+	void SetRenderDisplay(Display* display);
 }
 
 #endif

@@ -184,7 +184,7 @@ namespace proto
 
 		// 0x103954E0
 		Heightmap();
-		// 0x10395080 (not reconstructed: it frees the cached heights through the pool; the deleting form is 0x103952B0)
+		// 0x10395080: frees the heights and gives the cached heights back to the pool (the deleting form is 0x103952B0)
 		virtual ~Heightmap();
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();

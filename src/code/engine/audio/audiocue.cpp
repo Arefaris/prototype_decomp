@@ -39,3 +39,7 @@ namespace engine
 		return "";
 	}
 }
+
+// Kept copies (inline members of this unit):
+// FUNCTION: ENGINE 0x1087E970
+// FUNCTION: ENGINE 0x1087EA90

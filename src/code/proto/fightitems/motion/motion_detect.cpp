@@ -719,6 +719,126 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100B15A0
+			float DetectedObjectFacingCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x100B15B0
+			float DetectedObjectFacingCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x100B15C0
+			int DetectedObjectAngleCondition::GetType() const
+			{
+				return type;
+			}
+
+			// FUNCTION: ENGINE 0x100B15D0
+			float DetectedObjectAngleCondition::GetAngle() const
+			{
+				return angle;
+			}
+
+			// FUNCTION: ENGINE 0x100B15E0
+			float DetectedObjectAngleCondition::GetArc() const
+			{
+				return arc;
+			}
+
+			// FUNCTION: ENGINE 0x100B15F0
+			int DetectedObjectDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x100B1600
+			int DetectedObjectDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100B1610
+			float DetectedObjectDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x100B1620
+			bool DetectedObjectIsTargetCondition::GetIsTarget() const
+			{
+				return isTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100B1640
+			bool DetectedObjectIsSeenCondition::GetSeen() const
+			{
+				return seen;
+			}
+
+			// FUNCTION: ENGINE 0x100B1650
+			float DetectedObjectIsSeenCondition::GetMaxDistanceFactor() const
+			{
+				return maxDistanceFactor;
+			}
+
+			// FUNCTION: ENGINE 0x100B1660
+			float DetectedObjectIsSeenCondition::GetMaxAngle() const
+			{
+				return maxAngle;
+			}
+
+			// FUNCTION: ENGINE 0x100B1670
+			bool DetectedObjectIsSeenCondition::GetOnlyMilitary() const
+			{
+				return onlyMilitary;
+			}
+
+			// FUNCTION: ENGINE 0x100B1680
+			bool DetectedObjectIsSeenCondition::GetExcludeIfCantReport() const
+			{
+				return excludeIfCantReport;
+			}
+
+			// FUNCTION: ENGINE 0x100B1690
+			float DetectedObjectIsSeenCondition::GetMaxDistance() const
+			{
+				return maxDistance;
+			}
+
+			// FUNCTION: ENGINE 0x100B16A0
+			const fight::Name& DetectTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x100B16D0
+			float DetectTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x100B16E0
+			int DetectTrack::GetCollideWith() const
+			{
+				return collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100B16F0
+			const fight::BranchHolder& DetectTrack::GetBranch() const
+			{
+				return branch;
+			}
+
+			// FUNCTION: ENGINE 0x100B1700
+			int DetectTrack::GetPriority() const
+			{
+				return priority;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<DetectedObjectFacingCondition>;
 			template class fight::ConditionFactoryTemplate<DetectedObjectFacingCondition>;

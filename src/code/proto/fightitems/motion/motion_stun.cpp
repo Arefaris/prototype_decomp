@@ -245,17 +245,16 @@ namespace proto
 			}
 
 			// FUNCTION: ENGINE 0x1011A190
-			// EQUIVALENT: block order (the engine falls into the failure return and jumps to the body) (61.4 %)
 			bool StunnedCondition::Evaluate(int a, int b, int c, int d)
 			{
 				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
-				if (object != 0)
+				if (object == 0)
 				{
-					GetStunnedMovementMessage message;
-					object->SendMessage(&message);
-					return stunned == message.stunned;
+					return false;
 				}
-				return false;
+				GetStunnedMovementMessage message;
+				object->SendMessage(&message);
+				return stunned == message.stunned;
 			}
 
 			// FUNCTION: ENGINE 0x1011A030
@@ -295,6 +294,33 @@ namespace proto
 					{ fight::Name("Stun", 0) },
 					{ fight::Name("Recover", 0) }
 				};
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10119FB0
+			bool StunnedCondition::GetStunned() const
+			{
+				return stunned;
+			}
+
+			// FUNCTION: ENGINE 0x10119FC0
+			int StunTrack::GetOnBegin() const
+			{
+				return onBegin;
+			}
+
+			// FUNCTION: ENGINE 0x10119FD0
+			int StunTrack::GetOnEnd() const
+			{
+				return onEnd;
+			}
 		}
 	}
 }

@@ -35,6 +35,12 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::ConditionList& GetConditions() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetObject() const;
+
 					fight::ConditionList conditions;  // +0xC
 					int object;  // +0x10
 			};
@@ -64,6 +70,11 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetComponent() const;
+				int GetCompare() const;
+				float GetPosition() const;
 
 					float position;  // +0xC
 					int compare;  // +0x10
@@ -96,6 +107,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetType() const;
+				int GetCompare() const;
+				float GetDamage() const;
+
 					float damage;  // +0xC
 					int compare;  // +0x10
 					int type;  // +0x14
@@ -125,6 +141,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetCharge() const;
 
 					float charge;  // +0xC
 					int compare;  // +0x10
@@ -156,6 +176,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetDistance() const;
+
 					float distance;  // +0xC
 					int compare;  // +0x10
 					int direction;  // +0x14
@@ -185,6 +210,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetIsTarget() const;
+
 					bool isTarget;  // +0xC
 					unsigned char unknownD[0x3];
 			};
@@ -213,6 +241,9 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetGrabType() const;
+
 					int grabType;  // +0xC
 			};
 
@@ -240,6 +271,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetIsReactionEvent() const;
+				int GetReactionType() const;
 
 					int reactionType;  // +0xC
 					bool isReactionEvent;  // +0x10
@@ -270,6 +305,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				math::Vector GetNormal() const;
+				float GetArc() const;
 
 					math::Vector normal;  // +0xC
 					float arc;  // +0x18
@@ -381,6 +420,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetAngle() const;
+				float GetArc() const;
+
 					float angle;  // +0xC
 					float arc;  // +0x10
 			};
@@ -408,6 +451,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetMuscleMassActive() const;
 
 					bool muscleMassActive;  // +0xC
 					unsigned char unknownD[0x3];
@@ -437,6 +483,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				const fight::Name& GetCollisionFlag() const;
+				bool GetDoesMatch() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name collisionFlag;  // +0x10
@@ -468,6 +518,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDoesMatch() const;
+				const fight::Name& GetHitType() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name hitType;  // +0x10
@@ -501,6 +555,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetDirection() const;
+				int GetCompare() const;
+				float GetImpulse() const;
+
 					float impulse;  // +0xC
 					int compare;  // +0x10
 					int direction;  // +0x14
@@ -530,6 +589,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDoesMatch() const;
+				int GetDamageType() const;
 
 					int damageType;  // +0xC
 					bool doesMatch;  // +0x10
@@ -561,6 +624,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetDirection() const;
+				float GetArc() const;
+
 					float arc;  // +0xC
 					float direction;  // +0x10
 			};
@@ -588,6 +655,9 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDoesMatch() const;
 
 					bool doesMatch;  // +0xC
 					unsigned char unknownD[0x3];
@@ -617,6 +687,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDoesMatch() const;
+				int GetAttackType() const;
 
 					int attackType;  // +0xC
 					bool doesMatch;  // +0x10
@@ -648,6 +722,10 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
+				float GetHeight() const;
+
 					float height;  // +0xC
 					int compare;  // +0x10
 			};
@@ -676,6 +754,10 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				bool GetDoesMatch() const;
+				const fight::Name& GetHitType() const;
 
 					unsigned char unknownC[0x4];
 					fight::Name hitType;  // +0x10
@@ -707,6 +789,12 @@ namespace proto
 				// The property list, built once and freed again
 				static void RegisterProperties();
 				static void ClearProperties();
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetAngle() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompare() const;
 
 					float angle;  // +0xC
 					int compare;  // +0x10

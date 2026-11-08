@@ -11,7 +11,7 @@ namespace mgraph
 
 	class __declspec(align(8)) Chooser : public Node
 	{
-		MGRAPH_NODE_BODY(Chooser, Node, 0x60);
+		MGRAPH_NODE_BODY_OUT(Chooser, Node, 0x60);
 	};
 
 }

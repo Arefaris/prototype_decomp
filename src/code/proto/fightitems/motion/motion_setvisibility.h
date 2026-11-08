@@ -41,6 +41,11 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetActionOnBegin() const;
+				int GetActionOnEnd() const;
+				bool GetApplyToGrabSlots() const;
+
 					float timeBegin;  // +0x10
 					float timeEnd;  // +0x14
 					int actionOnBegin;  // +0x18

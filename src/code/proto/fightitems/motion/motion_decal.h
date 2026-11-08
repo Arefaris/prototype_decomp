@@ -45,6 +45,15 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				const fight::Name& GetShaderName() const;
+				float GetOrientation() const;
+				float GetScaleX() const;
+				float GetScaleY() const;
+				float GetMaxDistance() const;
+				float GetMinNormalArc() const;
+				float GetFadeOutTime() const;
+
 					fight::Name joint;  // +0x10
 					fight::Name shaderName;  // +0x18
 					math::Vector positionOffset;  // +0x20

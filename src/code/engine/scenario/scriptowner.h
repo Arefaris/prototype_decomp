@@ -28,6 +28,9 @@ namespace engine
 			return (unsigned int)value - 1 <= 0xFFFE;
 		}
 
+		// 0x1130D3A8: the id of the node the scripts run for now
+		static int sCurrentId;
+
 		int id;  // +0xC
 		unsigned char unknown10[0x80];
 		GameObjectHandle handle;  // +0x90

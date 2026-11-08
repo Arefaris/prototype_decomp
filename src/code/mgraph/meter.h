@@ -11,7 +11,7 @@ namespace mgraph
 
 	class __declspec(align(8)) Meter : public Node
 	{
-		MGRAPH_NODE_BODY(Meter, Node, 0x50);
+		MGRAPH_NODE_BODY_OUT(Meter, Node, 0x50);
 	};
 
 }

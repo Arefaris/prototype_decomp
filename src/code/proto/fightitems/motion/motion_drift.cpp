@@ -125,6 +125,18 @@ namespace proto
 				return new DriftAction(this, handle);
 			}
 
+			// FUNCTION: ENGINE 0x100B8600
+			float DriftTrack::GetMinVelocity() const
+			{
+				return minVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100B8610
+			float DriftTrack::GetMaxVelocity() const
+			{
+				return maxVelocity;
+			}
+
 			// ---- actions end
 			// FUNCTION: ENGINE 0x100B8890
 			void DriftAction::Slot6()

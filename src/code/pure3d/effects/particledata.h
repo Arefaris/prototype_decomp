@@ -9,6 +9,7 @@
 #include "code/core/name.h"
 #include "code/math/vector.h"
 #include "code/pure3d/channel.h"
+#include "code/pure3d/effects/multiarray.h"
 #include "code/pure3d/entity.h"
 
 namespace pure3d
@@ -83,6 +84,19 @@ namespace pure3d
 		float deltaTime;
 		unsigned char unknown18[0x24];
 		math::Vector position;
+	};
+
+	// RTTI pure3d::ParticleData (one slot, the destructor): the attributes of the particles of a state; the state keeps one
+	// at +0xE4
+	class ParticleData
+	{
+	public:
+		// 0x1070CC70
+		ParticleData();
+		// 0x1070CC90 (the deleting destructor 0x1070CCB0)
+		virtual ~ParticleData();
+
+		particles::AttributeData<57> attributes;
 	};
 
 	// Where the attributes of a block of particles start in the block (8 bytes per attribute: the offset, and a

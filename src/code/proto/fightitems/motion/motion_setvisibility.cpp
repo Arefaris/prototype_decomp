@@ -218,6 +218,33 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1010E970
+			int SetVisibilityTrack::GetActionOnBegin() const
+			{
+				return actionOnBegin;
+			}
+
+			// FUNCTION: ENGINE 0x1010E980
+			int SetVisibilityTrack::GetActionOnEnd() const
+			{
+				return actionOnEnd;
+			}
+
+			// FUNCTION: ENGINE 0x1010E990
+			bool SetVisibilityTrack::GetApplyToGrabSlots() const
+			{
+				return applyToGrabSlots;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4EA40
 // FUNCTION: ENGINE 0x10D4EA80

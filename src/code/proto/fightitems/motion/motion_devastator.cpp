@@ -1126,6 +1126,264 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100B29B0
+			bool DevastatorAvailableCondition::GetAvailable() const
+			{
+				return available;
+			}
+
+			// FUNCTION: ENGINE 0x100B29C0
+			int DevastatorTargetDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x100B29D0
+			int DevastatorTargetDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x100B29E0
+			float DevastatorTargetDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x100B29F0
+			const fight::Name& DevastatorTargetGroundSpikeTrack::GetTemplateValue() const
+			{
+				return templateValue;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A20
+			float DevastatorTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A30
+			int DevastatorTrack::GetTargetCount() const
+			{
+				return targetCount;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A40
+			const fight::BranchHolder& DevastatorTrack::GetTargetBranch() const
+			{
+				return targetBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A50
+			const fight::BranchHolder& DevastatorTrack::GetRandomTargetBranch() const
+			{
+				return randomTargetBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A60
+			int DevastatorTrack::GetMinTargetCount() const
+			{
+				return minTargetCount;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A70
+			float DevastatorTrack::GetRandomHeightArc() const
+			{
+				return randomHeightArc;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A80
+			float DevastatorTrack::GetRandomMinRadius() const
+			{
+				return randomMinRadius;
+			}
+
+			// FUNCTION: ENGINE 0x100B2A90
+			float DevastatorTrack::GetMinHeightArcOnGround() const
+			{
+				return minHeightArcOnGround;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AA0
+			int DevastatorTrack::GetMinTargetCategory() const
+			{
+				return minTargetCategory;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AB0
+			int DevastatorTrack::GetMinTargetPriority() const
+			{
+				return minTargetPriority;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AC0
+			float DevastatorTrack::GetAttackTimeBeginStart() const
+			{
+				return attackTimeBeginStart;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AD0
+			float DevastatorTrack::GetAttackTimeBeginStop() const
+			{
+				return attackTimeBeginStop;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AE0
+			bool DevastatorTrack::GetAttackTimeBeginRandom() const
+			{
+				return attackTimeBeginRandom;
+			}
+
+			// FUNCTION: ENGINE 0x100B2AF0
+			float DevastatorTrack::GetAttackTimeDuration() const
+			{
+				return attackTimeDuration;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B00
+			float DevastatorTrack::GetAttackDamage() const
+			{
+				return attackDamage;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B10
+			float DevastatorTrack::GetCameraMaxArc() const
+			{
+				return cameraMaxArc;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B20
+			int DevastatorTrack::GetCameraMaxTargets() const
+			{
+				return cameraMaxTargets;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B30
+			int DevastatorTrack::GetCameraMinTargetCategory() const
+			{
+				return cameraMinTargetCategory;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B40
+			int DevastatorTrack::GetCameraMinTargetPriority() const
+			{
+				return cameraMinTargetPriority;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B50
+			float DevastatorTrack::GetCameraLookAtTargetArc() const
+			{
+				return cameraLookAtTargetArc;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B60
+			float DevastatorTrack::GetCameraLookAtTargetTime() const
+			{
+				return cameraLookAtTargetTime;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B70
+			float DevastatorTrack::GetCameraSwitchTargetTime() const
+			{
+				return cameraSwitchTargetTime;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B80
+			bool DevastatorTrack::GetUseCharacterHeap() const
+			{
+				return useCharacterHeap;
+			}
+
+			// FUNCTION: ENGINE 0x100B2B90
+			bool DevastatorTargetExecuteTrack::GetUseAttackTimeBegin() const
+			{
+				return useAttackTimeBegin;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BA0
+			bool DevastatorTargetExecuteTrack::GetUseAttackTimeEnd() const
+			{
+				return useAttackTimeEnd;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BB0
+			bool DevastatorTargetExecuteTrack::GetSetTarget() const
+			{
+				return setTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BC0
+			const fight::BranchHolder& DevastatorTargetExecuteTrack::GetReceiverBranch() const
+			{
+				return receiverBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BD0
+			int DevastatorTargetExecuteTrack::GetInterruptPriority() const
+			{
+				return interruptPriority;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BE0
+			float TendrilDevastatorTrack::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x100B2BF0
+			const fight::BranchHolder& TendrilDevastatorTrack::GetTargetBranch() const
+			{
+				return targetBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C00
+			int TendrilDevastatorTrack::GetTendrilCount() const
+			{
+				return tendrilCount;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C10
+			float TendrilDevastatorTrack::GetAttackTimeBegin() const
+			{
+				return attackTimeBegin;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C20
+			float TendrilDevastatorTrack::GetAttackTimeDuration() const
+			{
+				return attackTimeDuration;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C30
+			int TendrilDevastatorTrack::GetAttackType() const
+			{
+				return attackType;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C40
+			float TendrilDevastatorTrack::GetAttackDamage() const
+			{
+				return attackDamage;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C50
+			bool DevastatorTargetHitTrack::GetUseAttackTimeBegin() const
+			{
+				return useAttackTimeBegin;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C60
+			bool DevastatorTargetHitTrack::GetUseAttackTimeEnd() const
+			{
+				return useAttackTimeEnd;
+			}
+
+			// FUNCTION: ENGINE 0x100B2C70
+			float DevastatorTargetHitTrack::GetDamage() const
+			{
+				return damage;
+			}
+
 			// ---- actions end
 			template class fight::PropertyConditionGroup<DevastatorTargetConditionGroupCondition>;
 			template class fight::ConditionFactoryTemplate<DevastatorTargetConditionGroupCondition>;

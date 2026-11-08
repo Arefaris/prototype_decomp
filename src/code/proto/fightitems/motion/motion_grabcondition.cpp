@@ -1,8 +1,31 @@
 // Fight items of the motion group: GrabbedCondition, GrabbedConditionGroupCondition, HaveGrabTargetCondition, GrabSlotObjectTemplateCondition, GrabbedClassNameCondition, IsGrabbableCondition, GrabbedGrabbableClassCondition, GrabbedBySlotCondition, GrabbedByPlayerCondition, GrabSlotClassNameCondition, GrabSlotDistanceCondition, GrabTargetConditionGroupCondition, GrabSlotGrabbableClassCondition, GrabbableSizeCondition, GrabSlotConditionGroupCondition, TargetIsGrabTargetCondition, GrabSlotCondition, TargetCanGrabCondition, GrabSlotMassCondition, GrabbableClassCondition, GrabTargetAngleCondition, GrabTargetDistanceCondition (unit 0x10163FA0 - 0x10169790; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_grabcondition.h"
 #include "code/proto/fightitems/motion/motionmessages5.h"
+#include "code/proto/fightitems/motion/motionattachmentmessage.h"
 #include "code/engine/fight/fightcommon.h"
 #include "code/engine/gameobject/gameobject.h"
+
+namespace fight
+{
+	// FUNCTION: ENGINE 0x100C2350
+	bool BoolsEqual(const bool* lhs, const bool* rhs)
+	{
+		return *lhs == *rhs;
+	}
+
+	// FUNCTION: ENGINE 0x100C2430
+	bool CompareBools(int op, const bool* lhs, const bool* rhs)
+	{
+		switch (op)
+		{
+		case 0:
+			return BoolsEqual(lhs, rhs);
+		case 1:
+			return !BoolsEqual(lhs, rhs);
+		}
+		return false;
+	}
+}
 
 namespace proto
 {
@@ -1784,6 +1807,164 @@ namespace proto
 			}
 #endif
 
+			// FUNCTION: ENGINE 0x100C3290
+			// NONMATCHING: the engine keeps this in esi and the object in edi, ours the other way round (91.4 %)
+#ifdef NONMATCHING
+			bool GrabSlotMassCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetGrabbedObjectMessage query(&grabSlot);
+					object->SendMessage(&query);
+					engine::GameObject* grabbed = query.grabbed.Get();
+					if (grabbed != 0)
+					{
+						float grabbedMass = proto::GetPhysicsMass(grabbed);
+						float wanted = mass;
+						result = fight::CompareFloats(compare, &grabbedMass, &wanted);
+					}
+				}
+				return result;
+			}
+#endif
+
+			// FUNCTION: ENGINE 0x100C2840
+			bool GrabSlotConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage query(&grabSlot);
+				object->SendMessage(&query);
+				engine::GameObjectHandle held = query.grabbed;
+				engine::GameObject* heldObject = held.Get();
+				if (heldObject == 0)
+				{
+					return false;
+				}
+				engine::FightGetGameObjectParamsMessage message;
+				heldObject->PostMessage(&message);
+				engine::GameObjectParams* params = message.params;
+				if (params == 0)
+				{
+					params = new engine::GameObjectParams(0x10001);
+					params->handle = held;
+				}
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x100C3960
+			bool GrabTargetConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabTargetGrabMessage query;
+				object->SendMessage(&query);
+				engine::GameObject* heldObject = query.target.Get();
+				if (heldObject == 0)
+				{
+					return false;
+				}
+				engine::FightGetGameObjectParamsMessage message;
+				heldObject->PostMessage(&message);
+				engine::GameObjectParams* params = message.params;
+				if (params == 0)
+				{
+					params = new engine::GameObjectParams(0x10001);
+					params->handle = query.target;
+				}
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x100C29E0
+			bool GrabbedConditionGroupCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				engine::AttachmentGetAttachmentStateMessage attachment;
+				object->PostMessage(&attachment);
+				if (attachment.parent == 0)
+				{
+					return false;
+				}
+				engine::GameObjectHandle held = *attachment.parent;
+				engine::GameObject* heldObject = held.Get();
+				if (heldObject == 0)
+				{
+					return false;
+				}
+				engine::FightGetGameObjectParamsMessage message;
+				heldObject->PostMessage(&message);
+				engine::GameObjectParams* params = message.params;
+				if (params == 0)
+				{
+					params = new engine::GameObjectParams(0x10001);
+					params->handle = held;
+				}
+				params->AddRef();
+				bool result = conditions.Evaluate(a, 0, (int)params, d);
+				params->Release();
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x100C3000
+			bool GrabSlotObjectTemplateCondition::Evaluate(int a, int b, int c, int d)
+			{
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetGrabbedObjectMessage query(&grabSlot);
+				object->SendMessage(&query);
+				bool matches = proto::MatchesObjectTemplate(query.grabbed, &objectTemplate);
+				bool wanted = true;
+				return fight::CompareBools(compare, &wanted, &matches);
+			}
+
+			// FUNCTION: ENGINE 0x100C30F0
+			// NONMATCHING: the engine derives the owner's matrix pointer late and orders the argument loads of the compare differently (90.5 %)
+#ifdef NONMATCHING
+			bool GrabSlotDistanceCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObject* object = engine::GetObjectHandle(AsOwner(c)).Get();
+				if (object != 0)
+				{
+					GetGrabbedObjectMessage query(&grabSlot);
+					object->SendMessage(&query);
+					engine::GameObject* grabbed = query.grabbed.Get();
+					if (grabbed != 0)
+					{
+						math::Matrix* grabbedMatrix = grabbed->transform->GetPointer();
+						math::Matrix* ownerMatrix = object->transform->GetPointer();
+						math::Vector from(grabbedMatrix->m[3][0], grabbedMatrix->m[3][1], grabbedMatrix->m[3][2]);
+						math::Vector to(ownerMatrix->m[3][0], ownerMatrix->m[3][1], ownerMatrix->m[3][2]);
+						math::Vector local(from.x - to.x, from.y - to.y, from.z - to.z);
+						ownerMatrix->RotateInverse(local, local);
+						result = fight::CompareVectorMeasure(compare, &local, direction, distance);
+					}
+				}
+				return result;
+			}
+#endif
+
 			// FUNCTION: ENGINE 0x100C2640
 			bool GrabbedByPlayerCondition::Evaluate(int a, int b, int c, int d)
 			{
@@ -1921,6 +2102,16 @@ namespace proto
 	// FUNCTION: ENGINE 0x100C2370
 	FindGrabTargetGrabMessage::FindGrabTargetGrabMessage(bool vC, int v14, core::Name<core::CaseSensitiveKey> newClassName, bool vD, int v10, float v18) : GrabMessage(7), unknownC(vC), unknownD(vD), unknown10(v10), unknown14(v14), unknown18(v18), className(newClassName), target()
 	{
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+		}
 	}
 }
 

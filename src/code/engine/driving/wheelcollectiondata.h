@@ -76,6 +76,14 @@ namespace engine
 
 namespace container
 {
+	// The engine's Reserve of the wheels stores the begin pointer before the end pointer
+	template<> struct ArrayReserveBeginFirst<engine::driving::WheelData>
+	{
+		enum
+		{
+			value = 1
+		};
+	};
 	// The wheels are too large for the compiler to inline the assignment of their elements
 	template<> struct ArrayEraseInline<engine::driving::WheelData>
 	{

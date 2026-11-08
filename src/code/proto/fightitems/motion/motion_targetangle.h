@@ -36,6 +36,15 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetAngle() const;
+				float GetArc() const;
+
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				int GetCompareTime() const;
+				bool GetUseMovementDirection() const;
+				bool GetUseInputDirection() const;
+
 					float angle;  // +0xC
 					float arc;  // +0x10
 					int compareTime;  // +0x14

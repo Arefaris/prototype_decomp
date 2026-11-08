@@ -8,6 +8,11 @@ namespace engine
 {
 	namespace controller
 	{
+		// FUNCTION: ENGINE 0x108A2290
+		IControllerPacker::IControllerPacker() : packedBytes(0), bufferSize(0)
+		{
+		}
+
 		// FUNCTION: ENGINE 0x108A2690
 		// NONMATCHING: shrink-wrap: the engine saves ebx and edi after the test of the count (50 %)
 #ifdef NONMATCHING

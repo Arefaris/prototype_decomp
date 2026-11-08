@@ -5,6 +5,7 @@
 
 #include "code/core/strings.h"
 #include "code/engine/controller/inputsystem.h"
+#include "code/engine/controller/monkeycontrollermanager.h"
 #include "code/engine/system/desynchunter.h"
 #include "code/engine/system/gamestatetable.h"
 
@@ -683,14 +684,6 @@ namespace engine
 		}
 	}
 
-	// The object 0x10890930 answers (its byte at +0x26 keeps some request away; names guessed)
-	struct StateGate
-	{
-		unsigned char unknown0[0x26];
-		bool unknown26;
-	};
-	StateGate* Unknown10890930();
-
 	// The front end's request line (0x10864330 answers the front end; the names are guesses)
 	class FrontEnd
 	{
@@ -1293,7 +1286,7 @@ namespace engine
 	// FUNCTION: ENGINE 0x10838B40
 	void RequestGameState(int state, int mode, SyncCommands::SyncCallback* callback)
 	{
-		if (state == 2 && Unknown10890930() != 0 && Unknown10890930()->unknown26)
+		if (state == 2 && controller::GetMonkeyControllerManager() != 0 && controller::GetMonkeyControllerManager()->stayInFE)
 		{
 			return;
 		}

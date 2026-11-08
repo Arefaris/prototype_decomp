@@ -510,6 +510,270 @@ namespace proto
 
 			// ---- actions begin
 
+			// FUNCTION: ENGINE 0x100A7F00
+			float CollisionHitTrack::GetTimeBetweenHits() const
+			{
+				return timeBetweenHits;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F10
+			const fight::Name& CollisionHitTrack::GetJoint() const
+			{
+				return joint;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F20
+			const fight::Name& CollisionHitTrack::GetJointEnd() const
+			{
+				return jointEnd;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F30
+			math::Vector CollisionHitTrack::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F60
+			float CollisionHitTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F70
+			int CollisionHitTrack::GetCollideWith() const
+			{
+				return collideWith;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F80
+			float CollisionHitTrack::GetDamageMin() const
+			{
+				return damageMin;
+			}
+
+			// FUNCTION: ENGINE 0x100A7F90
+			float CollisionHitTrack::GetDamageMax() const
+			{
+				return damageMax;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FA0
+			bool CollisionHitTrack::GetUseTransformationDamageMultiplier() const
+			{
+				return useTransformationDamageMultiplier;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FB0
+			bool CollisionHitTrack::GetUseWeaponDamageMultiplier() const
+			{
+				return useWeaponDamageMultiplier;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FC0
+			float CollisionHitTrack::GetFriendlyFire() const
+			{
+				return friendlyFire;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FD0
+			int CollisionHitTrack::GetAttackType() const
+			{
+				return attackType;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FE0
+			const fight::Name& CollisionHitTrack::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x100A7FF0
+			int CollisionHitTrack::GetDamageType() const
+			{
+				return damageType;
+			}
+
+			// FUNCTION: ENGINE 0x100A8000
+			const fight::Name& CollisionHitTrack::GetEffectType() const
+			{
+				return effectType;
+			}
+
+			// FUNCTION: ENGINE 0x100A8010
+			float CollisionHitTrack::GetScaleX() const
+			{
+				return scaleX;
+			}
+
+			// FUNCTION: ENGINE 0x100A8020
+			float CollisionHitTrack::GetScaleY() const
+			{
+				return scaleY;
+			}
+
+			// FUNCTION: ENGINE 0x100A8030
+			float CollisionHitTrack::GetEffectScale() const
+			{
+				return effectScale;
+			}
+
+			// FUNCTION: ENGINE 0x100A8040
+			float CollisionHitTrack::GetPropAreaEmissionScale() const
+			{
+				return propAreaEmissionScale;
+			}
+
+			// FUNCTION: ENGINE 0x100A8050
+			int CollisionHitTrack::GetPropAreaEmissionScaleFunction() const
+			{
+				return propAreaEmissionScaleFunction;
+			}
+
+			// FUNCTION: ENGINE 0x100A8060
+			float CollisionHitTrack::GetPropAreaSizeScale() const
+			{
+				return propAreaSizeScale;
+			}
+
+			// FUNCTION: ENGINE 0x100A8070
+			int CollisionHitTrack::GetPropAreaSizeScaleFunction() const
+			{
+				return propAreaSizeScaleFunction;
+			}
+
+			// FUNCTION: ENGINE 0x100A8080
+			math::Vector CollisionHitTrack::GetImpulseMin() const
+			{
+				return impulseMin;
+			}
+
+			// FUNCTION: ENGINE 0x100A80B0
+			math::Vector CollisionHitTrack::GetImpulseMax() const
+			{
+				return impulseMax;
+			}
+
+			// FUNCTION: ENGINE 0x100A80E0
+			float CollisionHitTrack::GetImpulseRandomPlusMinus() const
+			{
+				return impulseRandomPlusMinus;
+			}
+
+			// FUNCTION: ENGINE 0x100A80F0
+			bool CollisionHitTrack::GetUseMotion() const
+			{
+				return useMotion;
+			}
+
+			// FUNCTION: ENGINE 0x100A8100
+			math::Vector CollisionHitTrack::GetCollisionDirection() const
+			{
+				return collisionDirection;
+			}
+
+			// FUNCTION: ENGINE 0x100A8130
+			float CollisionHitTrack::GetDeformDirStr() const
+			{
+				return deformDirStr;
+			}
+
+			// FUNCTION: ENGINE 0x100A8140
+			float CollisionHitTrack::GetDeformStr() const
+			{
+				return deformStr;
+			}
+
+			// FUNCTION: ENGINE 0x100A8150
+			const fight::Name& CollisionHitTrack::GetCollisionFlag() const
+			{
+				return collisionFlag;
+			}
+
+			// FUNCTION: ENGINE 0x100A8160
+			const fight::BranchHolder& CollisionHitTrack::GetGiverBranch() const
+			{
+				return giverBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100A8170
+			const fight::BranchHolder& CollisionHitTrack::GetReceiverBranch() const
+			{
+				return receiverBranch;
+			}
+
+			// FUNCTION: ENGINE 0x100A8180
+			bool CollisionHitTrack::GetUseDamageOriginator() const
+			{
+				return useDamageOriginator;
+			}
+
+			// FUNCTION: ENGINE 0x100A8190
+			bool CollisionHitTrack::GetSendAlert() const
+			{
+				return sendAlert;
+			}
+
+			// FUNCTION: ENGINE 0x100A81A0
+			bool CollisionHitTrack::GetSendOnlyToAIManager() const
+			{
+				return sendOnlyToAIManager;
+			}
+
+			// FUNCTION: ENGINE 0x100A81B0
+			bool CollisionHitTrack::GetUseOriginatorToValidate() const
+			{
+				return useOriginatorToValidate;
+			}
+
+			// FUNCTION: ENGINE 0x100A81C0
+			bool CollisionHitTrack::GetIsThrown() const
+			{
+				return isThrown;
+			}
+
+			// FUNCTION: ENGINE 0x100A81D0
+			float CollisionHitTrack::GetMomentumDamageVelocity() const
+			{
+				return momentumDamageVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100A81E0
+			float CollisionHitTrack::GetMomentumDamageMax() const
+			{
+				return momentumDamageMax;
+			}
+
+			// FUNCTION: ENGINE 0x100A81F0
+			float CollisionHitTrack::GetTravelVelocity() const
+			{
+				return travelVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x100A8200
+			int CollisionHitTrack::GetTravelTowardTarget() const
+			{
+				return travelTowardTarget;
+			}
+
+			// FUNCTION: ENGINE 0x100AABD0
+			int CollisionHitTrack::GetCollisionCountMax() const
+			{
+				return collisionCountMax;
+			}
+
+			// FUNCTION: ENGINE 0x100AABE0
+			float CollisionHitTrack::GetArcOffset() const
+			{
+				return arcOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100AABF0
+			float CollisionHitTrack::GetArcRange() const
+			{
+				return arcRange;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<CollisionHitTrack>;
 			template class fight::PropertyBool<CollisionHitTrack>;

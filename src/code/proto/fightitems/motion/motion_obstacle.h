@@ -5,6 +5,7 @@
 #include "code/engine/fight/bitfieldproperty.h"
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
+#include "code/choreo/rootdriver.h"
 
 namespace proto
 {
@@ -510,7 +511,80 @@ namespace proto
 			fight::TrackFactory* CreateObstacleTestTrackFactory(const char* name);
 			void RegisterObstacleTestTrackFactory(fight::TrackRegistry* registry, const char* name);
 
+			// 0x100F70C0: asks the object for its intersection properties and answers the result (name guess)
+			int GetObstacleIntersection(engine::GameObject* object);
+
 			// ---- actions begin
+			// RTTI: proto::fightitems::motion::ObstacleTestAction (9 vftable slots, 0x7044 bytes)
+			class ObstacleTestAction : public fight::Action
+			{
+			public:
+				// 0x100FCBC0 (not reconstructed)
+				ObstacleTestAction(ObstacleTestTrack* newTrack, fight::Track* listener, core::IRefCount* newEffect, engine::GameObjectHandle newTarget);
+				virtual ~ObstacleTestAction();
+
+				// vftable slot 5 (0x100F9850)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100F7600)
+				virtual void Slot6();
+				// vftable slot 7 (0x100FDD70, not reconstructed)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ObstacleTestTrack> link;  // +0x1C
+				unsigned char unknown28[0x38 - 0x28];
+				engine::GameObjectHandle target;  // +0x38
+				int intersection;  // +0x3C
+				unsigned char unknown40[0x7044 - 0x40];
+			};
+
+			// RTTI: proto::fightitems::motion::ObstacleAvoidAction (9 vftable slots, 0x709C bytes)
+			class ObstacleAvoidAction : public fight::Action
+			{
+			public:
+				// 0x100FCCB0 (not reconstructed)
+				ObstacleAvoidAction(ObstacleAvoidTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100FCD90
+				virtual ~ObstacleAvoidAction();
+
+				// vftable slot 5 (0x100FB810, not reconstructed)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100F98D0)
+				virtual void Slot6();
+				// vftable slot 7 (0x100FE370, not reconstructed)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ObstacleAvoidTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				choreo::RootDriver* driver;  // +0x30
+				math::Vector direction;  // +0x34
+				float speed;  // +0x40
+				unsigned char unknown44[0x709C - 0x44];
+			};
+
+			// RTTI: proto::fightitems::motion::ObstacleAvoidExitAction (9 vftable slots, 0x40 bytes)
+			class ObstacleAvoidExitAction : public fight::Action
+			{
+			public:
+				// 0x100FBAE0 (not reconstructed)
+				ObstacleAvoidExitAction(ObstacleAvoidExitTrack* newTrack, engine::GameObjectHandle newTarget, core::IRefCount* newEvent);
+				// 0x100F99E0
+				virtual ~ObstacleAvoidExitAction();
+
+				// vftable slot 5 (0x100FBBB0, not reconstructed)
+				virtual bool Slot5(int arg, float value);
+				// vftable slot 6 (0x100F9A30)
+				virtual void Slot6();
+				// vftable slot 7 (0x100FBE00, not reconstructed)
+				virtual bool Slot7(int arg, float value);
+
+				core::Link<ObstacleAvoidExitTrack> link;  // +0x1C
+				engine::GameObjectHandle target;  // +0x28
+				core::IRefCount* event;  // +0x2C
+				choreo::Driver* driver;  // +0x30
+				unsigned char unknown34[0x40 - 0x34];
+			};
+
 			// RTTI: proto::fightitems::motion::PushFromObstacleAction (9 vftable slots, 0x2C bytes)
 			class PushFromObstacleAction : public fight::Action
 			{

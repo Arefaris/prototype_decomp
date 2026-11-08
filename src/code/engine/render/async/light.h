@@ -80,7 +80,7 @@ namespace engine
 			void ApplyUnknown17C(float value);
 			void ApplyUnknown180(float value);
 			void ApplyUnknown184(float value);
-			void ApplyUnknown1075C500(const unsigned int* a, const unsigned int* b, const unsigned int* c);
+			void ApplyUnknown1075C500(const float* a, const float* b, const float* c);
 			void ApplyUnknown188(bool value);
 			void ApplyUnknown107587C0(float value);
 			void ApplyUnknown190(bool value);

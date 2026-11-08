@@ -1,5 +1,7 @@
 // Fight items of the motion group: ReactionTargetGiverTrack (unit 0x101A8000 - 0x101A8330; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_reactiontargetgiver.h"
+#include "code/proto/fightitems/motion/motionmessages4.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
 
 namespace proto
 {
@@ -114,6 +116,20 @@ namespace proto
 			ReactionTargetGiverAction::~ReactionTargetGiverAction()
 			{
 				SafeReleaseRefTargetGiver(event);
+			}
+
+			// FUNCTION: ENGINE 0x10109420
+			bool ReactionTargetGiverAction::Slot5(int arg, float value)
+			{
+				if (event != 0)
+				{
+					if (target.Get() != 0)
+					{
+						SetTargetMessage message(((ReactionHitEvent*)event)->giver);
+						target.Get()->SendMessage(&message);
+					}
+				}
+				return false;
 			}
 
 			// FUNCTION: ENGINE 0x10109620

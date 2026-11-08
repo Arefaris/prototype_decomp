@@ -40,7 +40,11 @@ namespace engine
 	class AudioListener
 	{
 	public:
-		char unknown0[0x54];
+		char unknown0[0xC];
+		float x;  // 0xC: the position of the listener
+		float y;
+		float z;
+		char unknown18[0x54 - 0x18];
 		float listenerOffset;  // 0x54
 	};
 	extern AudioListener* gAudioListener;

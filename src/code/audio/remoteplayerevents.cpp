@@ -4,15 +4,6 @@
 #include "code/mgraph/nodes.h"
 #include "code/om/name.h"
 
-namespace dsp
-{
-	// The volumes of a voice for every channel and bin (RTTI: dsp::MixVoiceChannelBinVolumes, 0x240 bytes)
-	struct MixVoiceChannelBinVolumes
-	{
-		float volumes[144];
-	};
-}
-
 template class audio::RemotePlayerEvent_Param1<unsigned int>;
 template class audio::RemotePlayerEvent_Param1<bool>;
 template class audio::RemotePlayerEvent_Param1<const om::String&>;

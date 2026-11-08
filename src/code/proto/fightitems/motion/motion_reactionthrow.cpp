@@ -390,6 +390,105 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10109840
+			float ReactionThrowTrack::GetDamageMin() const
+			{
+				return damageMin;
+			}
+
+			// FUNCTION: ENGINE 0x10109850
+			float ReactionThrowTrack::GetDamageMax() const
+			{
+				return damageMax;
+			}
+
+			// FUNCTION: ENGINE 0x101098A0
+			float ReactionThrowTrack::GetSelfDamageScale() const
+			{
+				return selfDamageScale;
+			}
+
+			// FUNCTION: ENGINE 0x101098B0
+			bool ReactionThrowTrack::GetUsePuppet() const
+			{
+				return usePuppet;
+			}
+
+			// FUNCTION: ENGINE 0x101098D0
+			int ReactionThrowTrack::GetPriority() const
+			{
+				return priority;
+			}
+
+			// FUNCTION: ENGINE 0x101098E0
+			float ReactionThrowTrack::GetBlendInTime() const
+			{
+				return blendInTime;
+			}
+
+			// FUNCTION: ENGINE 0x101098F0
+			float ReactionThrowTrack::GetBlendOutTime() const
+			{
+				return blendOutTime;
+			}
+
+			// FUNCTION: ENGINE 0x10109900
+			float ReactionThrowTrack::GetPhysicalVelocityCheckDelay() const
+			{
+				return physicalVelocityCheckDelay;
+			}
+
+			// FUNCTION: ENGINE 0x10109910
+			float ReactionThrowTrack::GetStopAtVelocityRatio() const
+			{
+				return stopAtVelocityRatio;
+			}
+
+			// FUNCTION: ENGINE 0x10109920
+			float ReactionThrowTrack::GetThreatRadiusScale() const
+			{
+				return threatRadiusScale;
+			}
+
+			// FUNCTION: ENGINE 0x10109930
+			float ReactionThrowTrack::GetThreatProjectedDist() const
+			{
+				return threatProjectedDist;
+			}
+
+			// FUNCTION: ENGINE 0x10109950
+			int ReactionThrowTrack::GetCollisionInterruptPriority() const
+			{
+				return collisionInterruptPriority;
+			}
+
+			// FUNCTION: ENGINE 0x10109960
+			float ReactionThrowTrack::GetCollisionReactionDelay() const
+			{
+				return collisionReactionDelay;
+			}
+
+			// FUNCTION: ENGINE 0x10109970
+			int ReactionThrowTrack::GetMaxHitEffects() const
+			{
+				return maxHitEffects;
+			}
+
+			// FUNCTION: ENGINE 0x10109980
+			int ReactionThrowTrack::GetOverrideTargetClass() const
+			{
+				return overrideTargetClass;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101A86D0
 // FUNCTION: ENGINE 0x101A8850

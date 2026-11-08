@@ -3,7 +3,14 @@
 #include "code/core/name.h"
 #include "code/core/strings.h"
 #include "code/engine/database/gamedatabase.h"
+#include "code/engine/frontend/frontend.h"
 #include "code/engine/world/zoneset.h"
+
+namespace engine
+{
+	// 0x10848EE0: the value of a command line option, null when it has none
+	const char* GetCommandLineValue(const char* option);
+}
 
 namespace proto
 {
@@ -22,6 +29,8 @@ namespace proto
 	public:
 		// 0x104AE020
 		void Unknown104AE020();
+		// 0x104AE150
+		void Unknown104AE150();
 	};
 	class FrontEndHud
 	{
@@ -34,10 +43,131 @@ namespace proto
 
 	// 0x1126E538 (midgroundmanager.cpp)
 	extern core::Name<core::CaseSensitiveKey> gLevelNameKey;
+	// The keys of the profile and the saved game (profilekeys.cpp)
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveProtoVersion;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveSpawnFacing;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveSpawnPosition;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveMissionsCompleted;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveNextStoryMission;
+	extern core::Name<core::CaseSensitiveKey> gProtoSaveDifficulty;
+	extern core::Name<core::CaseSensitiveKey> gProtoVolatileStartType;
+	extern core::Name<core::CaseSensitiveKey> gProtoVolatileIsInVehicle;
+	extern core::Name<core::CaseSensitiveKey> gProtoTutorial;
+	extern core::Name<core::CaseSensitiveKey> gProtoTutorialImageName;
+	extern core::Name<core::CaseSensitiveKey> gProtoTutorialImageCaption;
+	extern core::Name<core::CaseSensitiveKey> gProtoTutorialNum;
 
-	// 0x104DF950 / 0x104DEEC0: whether the level is in the list, and starts it
+	// 0x104DF950: whether the level is in the list
 	bool HasDevSelectLevel(const char* name);
-	void StartDevSelectLevel(const char* name, int flag, const char* group);
+
+	// The save manager (another unit)
+	class SaveManager
+	{
+	public:
+		// 0x1047FD10
+		void Unknown1047FD10();
+	};
+	// 0x1047FD10's owner: the save manager singleton
+	SaveManager* GetSaveManager();
+
+	// 0x1126E46C: whether the dev select start is finished
+	static bool sDevSelectStarted;
+
+	// FUNCTION: ENGINE 0x104DEFC0
+	void FinishDevSelectStart()
+	{
+		sDevSelectStarted = true;
+	}
+
+	// FUNCTION: ENGINE 0x104DEFD0
+	void ClearDevSelectStart()
+	{
+		sDevSelectStarted = false;
+	}
+
+	// FUNCTION: ENGINE 0x104DEFE0
+	bool IsDevSelectStarted()
+	{
+		return sDevSelectStarted;
+	}
+
+	// FUNCTION: ENGINE 0x104DEDA0
+	GameDatabaseHelper::GameDatabaseHelper(const Config& config) : engine::GameDBHelper(config)
+	{
+	}
+
+	// FUNCTION: ENGINE 0x104DEDE0
+	void GameDatabaseHelper::OnMessage(engine::OLSMessage* message)
+	{
+		if (message->type == 0xB && message->id == 4)
+		{
+			GetFrontEndHud()->Unknown104B0CB0()->Unknown104AE150();
+		}
+		engine::GameDBHelper::OnMessage(message);
+	}
+
+	// FUNCTION: ENGINE 0x104DEDD0
+	void GameDatabaseHelper::Start()
+	{
+		engine::GameDBHelper::Start();
+	}
+
+	// FUNCTION: ENGINE 0x104DEE30
+	void GameDatabaseHelper::Stop()
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		database->ReleaseSubject(gProtoSaveProtoVersion);
+		database->ReleaseSubject(gProtoSaveSpawnFacing);
+		database->ReleaseSubject(gProtoSaveSpawnPosition);
+		database->ReleaseSubject(gProtoSaveMissionsCompleted);
+		database->ReleaseSubject(gProtoSaveNextStoryMission);
+		database->ReleaseSubject(gProtoVolatileStartType);
+		database->ReleaseSubject(gLevelNameKey);
+		database->ReleaseSubject(gProtoVolatileIsInVehicle);
+		engine::GameDBHelper::Stop();
+	}
+
+	// FUNCTION: ENGINE 0x104DF040
+	void GameDatabaseHelper::AddSubjects()
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		engine::DBSubjectInfo info(false, 1, -1);
+		database->AddStringSubject(gLevelNameKey, 0, "", 0x20, info);
+		database->AddObserver(gLevelNameKey, this, 0, 0);
+		database->AddStringSubject(gProtoVolatileStartType, 0, "", 0x10, info);
+		database->AddIntSubject(gProtoVolatileIsInVehicle, 0, 0, info);
+		engine::DBSubjectInfo tutorialInfo(true, 1, -1);
+		tutorialInfo.b = 0;
+		tutorialInfo.a = 0x10;
+		tutorialInfo.flag = false;
+		engine::DBSubjectInfo tutorialNumberInfo(true, 1, -1);
+		tutorialNumberInfo.b = 0;
+		tutorialNumberInfo.a = 1;
+		tutorialNumberInfo.flag = false;
+		database->AddStringSubject(gProtoTutorial, 0, "", 0x100, tutorialInfo);
+		database->AddStringSubject(gProtoTutorialImageName, 0, "", 0x100, tutorialInfo);
+		database->AddStringSubject(gProtoTutorialImageCaption, 0, "", 0x100, tutorialInfo);
+		database->AddIntSubject(gProtoTutorialNum, 0, 0, tutorialNumberInfo);
+	}
+
+	// FUNCTION: ENGINE 0x104DF210
+	void GameDatabaseHelper::ReleaseSubjects()
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		database->RemoveObserver(gLevelNameKey, static_cast<engine::DBObserver*>(this));
+		database->ReleaseSubject(gProtoTutorial);
+		database->ReleaseSubject(gProtoTutorialImageName);
+		database->ReleaseSubject(gProtoTutorialImageCaption);
+		database->ReleaseSubject(gProtoTutorialNum);
+		database->ReleaseSubject(gLevelNameKey);
+		database->ReleaseSubject(gProtoVolatileStartType);
+		database->ReleaseSubject(gProtoVolatileIsInVehicle);
+	}
+
+	// FUNCTION: ENGINE 0x104DF2B0
+	void GameDatabaseHelper::OnDBSlot1(int a, int b)
+	{
+	}
 
 	// FUNCTION: ENGINE 0x104E0790
 	void GameDatabaseHelper::OnDBSlot0(int a, int b)
@@ -122,5 +252,56 @@ namespace proto
 		{
 			database->ResetSubject(name, player);
 		}
+	}
+}
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x104DEFF0
+	// NONMATCHING: the engine keeps the constant 1 in ecx for the comparisons and the stored flag, 48 %
+#ifdef NONMATCHING
+	void SetGameDatabaseMode(int mode)
+	{
+		switch (mode)
+		{
+		case 0:
+			engine::gGameDatabase->inputMode = false;
+			engine::gGameDatabase->onlineHelper.Unknown10893CD0();
+			break;
+		case 1:
+			engine::gGameDatabase->inputMode = true;
+			engine::gGameDatabase->onlineHelper.Unknown108939A0();
+			break;
+		case 2:
+			engine::gGameDatabase->inputMode = true;
+			engine::gGameDatabase->onlineHelper.Unknown108939A0();
+			break;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x104DEEC0
+	void StartDevSelectLevel(const char* name, int difficulty, const char* group)
+	{
+		engine::gGameDatabase->SetString(gLevelNameKey, 0, name, 0);
+		engine::gGameDatabase->SetString(gProtoSaveNextStoryMission, 0, name, 0);
+		if (engine::HasCommandLineOption("Difficulty"))
+		{
+			const char* value = engine::GetCommandLineValue("Difficulty");
+			if (value != 0)
+			{
+				for (int i = 0; i < 6; i++)
+				{
+					if (core::StrICmp(value, gDifficultyNames[2 + i]) == 0)
+					{
+						difficulty = i % 3;
+						break;
+					}
+				}
+			}
+		}
+		engine::gGameDatabase->SetInt(gProtoSaveDifficulty, 0, difficulty, 0);
+		engine::gGameDatabase->SetString(gProtoVolatileStartType, 0, group, 0);
+		GetSaveManager()->Unknown1047FD10();
 	}
 }

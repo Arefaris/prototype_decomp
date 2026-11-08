@@ -2,9 +2,62 @@
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/fight/lodactions.h"
 #include "code/proto/webofintrigue/webofintriguemanager.h"
+#include "code/engine/fmv/fmvplayer.h"
+#include "code/proto/webofintrigue/webofintriguenode.h"
+#include "code/proto/fightitems/ai/aicodemessages.h"
+#include "code/proto/fightitems/motion/motionreaction2.h"
+#include "code/proto/scenariomessages.h"
+#include "code/engine/fight/branch.h"
+#include <stdlib.h>
+#include <new>
+
+namespace core
+{
+	// 0x1063B990: SNPrintf that returns the count
+	int SNPrintfCount(char* destination, int size, const char* format, ...);
+}
+
+namespace engine
+{
+	// 0x1088C370: whether a player pressed the button that skips (name unknown)
+	bool Unknown1088C370();
+	// 0x11273078: the scenario's listeners
+	extern MessageListeners gScenario7;
+	// 0x10873F30
+	const char* GetLocalizedText(const char* key);
+}
 
 namespace proto
 {
+	// The pieces of the heads up display the actions of this unit go through (name guesses)
+	class HintPopup
+	{
+	public:
+		// 0x104D1A10
+		void Close();
+		// 0x104D17A0: shows a text (name guess)
+		void Show(int kind, const char* text);
+
+		unsigned char unknown0[0x2C];
+		int unknown2C;
+	};
+	class PopupController
+	{
+	public:
+		unsigned char unknown0[0xC];
+		HintPopup* hint;  // +0xC
+	};
+	class FrontEndHud
+	{
+	public:
+		// 0x104B0CE0: the popup controller inside the hud object (+0x180)
+		PopupController* GetPopups();
+		// 0x104B1090
+		void SetVisible(bool visible);
+	};
+	// 0x104B0A00
+	FrontEndHud* GetFrontEndHud();
+
 	fight::Property** gIsWOITargetConditionProperties;  // 0x11273084
 	fight::Property** gWOIShowTargetNameTrackProperties;  // 0x11273088
 	fight::Property** gWOIFMVTrackProperties;  // 0x1127308C
@@ -202,6 +255,23 @@ namespace proto
 		engine::AssignRefCounted(&owner, newOwner);
 	}
 
+	// FUNCTION: ENGINE 0x10563350
+	bool WOIFMVAction::Slot7(int arg, float value)
+	{
+		return engine::IsMoviePlaying() && !engine::Unknown1088C370();
+	}
+
+	// FUNCTION: ENGINE 0x10563380
+	void WOIFMVAction::Slot6()
+	{
+		if (unknown70)
+		{
+			unknown70 = false;
+			return;
+		}
+		GetFrontEndHud()->SetVisible(true);
+	}
+
 	// FUNCTION: ENGINE 0x105636D0
 	WOIFMVAction::~WOIFMVAction()
 	{
@@ -315,6 +385,32 @@ namespace proto
 		engine::AssignRefCounted(&owner, newOwner);
 	}
 
+	// FUNCTION: ENGINE 0x10563CA0
+	// NONMATCHING: the compiler keeps the message's constructor out of line here, the engine expands it (65 %)
+#ifdef NONMATCHING
+	bool WOISendEventAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		fightitems::motion::ReactionScriptedEvent* event = (fightitems::motion::ReactionScriptedEvent*)owner;
+		if (event == 0 || event->kind != 0x21004)
+		{
+			return false;
+		}
+		int nodeID = atoi(event->text);
+		if (nodeID < 0 || !link.object->toScenario)
+		{
+			return false;
+		}
+		WOINodeFMVPlayedScenarioMessage message;
+		message.nodeID = nodeID;
+		engine::SendMessage(&message, &engine::gScenario7);
+		return false;
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10563740
 	WOISendEventAction::~WOISendEventAction()
 	{
@@ -425,6 +521,79 @@ namespace proto
 	template class fight::PropertyNameList<WOIShowTargetNameTrack>;
 	template class fight::TrackFactoryTemplate<WOIShowTargetNameTrack>;
 	template class fight::TrackFactoryCasterTemplate<WOIShowTargetNameTrack>;
+
+	// FUNCTION: ENGINE 0x105633A0
+	void WOIShowTargetNameAction::Slot6()
+	{
+		PopupController* popups = GetFrontEndHud()->GetPopups();
+		if (popups->hint != 0 && popups->hint->unknown2C == 0)
+		{
+			popups->hint->Close();
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105640E0
+	// NONMATCHING: the engine's block order differs behind the last test (the failure return before the display), 64 %
+#ifdef NONMATCHING
+	bool WOIShowTargetNameAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		engine::GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		fight::Name slot = link.object->targetGrabSlot;
+		int nodeIndex;
+		if (!slot.IsEmpty())
+		{
+			GetGrabbedObjectMessage message(&slot);
+			object->SendMessage(&message);
+			WebOfIntrigueManager::Node* found = gWebOfIntrigueManager->FindNode(message.grabbed);
+			if (found == 0)
+			{
+				return false;
+			}
+			nodeIndex = found->id;
+		}
+		else
+		{
+			fightitems::motion::ReactionScriptedEvent* event = (fightitems::motion::ReactionScriptedEvent*)listener;
+			if (event == 0 || event->kind != 0x21004)
+			{
+				return false;
+			}
+			nodeIndex = atoi(event->text);
+			if (nodeIndex < 0)
+			{
+				return false;
+			}
+		}
+		if (nodeIndex == -1)
+		{
+			return false;
+		}
+		char key[0x40];
+		core::SNPrintfCount(key, 0x40, "WOI_NODE_%d", nodeIndex);
+		char text[0x40];
+		core::SNPrintfCount(text, 0x40, "%s - %s", engine::GetLocalizedText("WOI_NODE_COMPLETE_TITLE"),
+			engine::GetLocalizedText(key));
+		HintPopup* hint = GetFrontEndHud()->GetPopups()->hint;
+		if (hint != 0)
+		{
+			if (hint->unknown2C == 0)
+			{
+				hint->Close();
+			}
+			hint->Show(1, text);
+			return true;
+		}
+		return false;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10564020
 	WOIShowTargetNameAction::WOIShowTargetNameAction(engine::GameObjectHandle newTarget, WOIShowTargetNameTrack* newTrack,
@@ -559,6 +728,76 @@ namespace proto
 		node(-1)
 	{
 	}
+
+	// FUNCTION: ENGINE 0x10563DE0
+	bool WOIPlayReactionAction::Slot5(int arg, float value)
+	{
+		if (link.object == 0)
+		{
+			return false;
+		}
+		engine::GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return false;
+		}
+		if (link.object->woiBranch.GetBranch() == 0)
+		{
+			return false;
+		}
+		fight::Name slot = link.object->targetGrabSlot;
+		GetGrabbedObjectMessage message(&slot);
+		object->SendMessage(&message);
+		WebOfIntrigueManager::Node* found = gWebOfIntrigueManager->FindNode(message.grabbed);
+		if (found == 0)
+		{
+			return false;
+		}
+		node = found->id;
+		return true;
+	}
+
+	// FUNCTION: ENGINE 0x10563EE0
+	// NONMATCHING: the engine zeroes a word of the frame at the entry (a word of the frame; every other instruction matches)
+#ifdef NONMATCHING
+	void WOIPlayReactionAction::Slot6()
+	{
+		if (link.object == 0)
+		{
+			return;
+		}
+		engine::GameObject* object = target.Get();
+		if (object == 0)
+		{
+			return;
+		}
+		fight::Branch* branch = link.object->woiBranch.GetBranch();
+		if (branch == 0 || node == -1)
+		{
+			return;
+		}
+		char text[0x40];
+		core::SNPrintfCount(text, 0x40, "%d", node);
+		void* memory = operator new(0x68);
+		fightitems::motion::ReactionScriptedEvent* event;
+		if (memory != 0)
+		{
+			fight::Name name("woi_node", true);
+			event = new (memory) fightitems::motion::ReactionScriptedEvent(target, target, target, name, text);
+		}
+		else
+		{
+			event = 0;
+		}
+		event->AddRef();
+		fight::Branch* started = branch->Slot10((fight::Sequencer*)effect, event, 0, false);
+		if (started != 0)
+		{
+			started->Slot11((fight::Sequencer*)effect, event, link.object->priority);
+		}
+		event->Release();
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x105637A0
 	WOIPlayReactionAction::~WOIPlayReactionAction()

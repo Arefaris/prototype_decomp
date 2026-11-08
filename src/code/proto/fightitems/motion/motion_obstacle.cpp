@@ -1,5 +1,19 @@
 // Fight items of the motion group: ObstacleDistanceCondition, ObstacleTimeToObstacleCondition, ObstacleSlopeCondition, ObstacleFaceHeightSlopeCondition, ObstacleFaceHeightCondition, ObstacleColliderTypeCondition, ObstacleVelocityCondition, ObstacleLengthCondition, ObstacleWidthCondition, ObstacleHeightCondition, ObstacleAvoidExitTrack, ObstacleAvoidTrack, PushFromObstacleTrack, ObstacleTestTrack (unit 0x10193D60 - 0x10198800; no assert path, the file name is a guess).
 #include "code/proto/fightitems/motion/motion_obstacle.h"
+#include "code/engine/physics/getintersectionpropertiesmessage.h"
+
+namespace core
+{
+	// FUNCTION: ENGINE 0x100F7730
+	void SafeReleaseRefCopy6(IRefCount** object)
+	{
+		if (*object != 0)
+		{
+			(*object)->Release();
+			*object = 0;
+		}
+	}
+}
 
 namespace proto
 {
@@ -1372,6 +1386,106 @@ namespace proto
 				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
 				return new PushFromObstacleAction(this, handle);
 			}
+
+			// FUNCTION: ENGINE 0x100FCDF0
+			fight::Action* ObstacleAvoidExitTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* obstacle = AsObstacleEventOwner(owner);
+				return new ObstacleAvoidExitAction(this, handle, obstacle);
+			}
+
+			// FUNCTION: ENGINE 0x100FD5C0
+			fight::Action* ObstacleAvoidTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				core::IRefCount* obstacle = AsObstacleEventOwner(owner);
+				return new ObstacleAvoidAction(this, handle, obstacle);
+			}
+
+			// FUNCTION: ENGINE 0x100FD530
+			fight::Action* ObstacleTestTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
+			{
+				engine::GameObjectHandle handle = engine::GetObjectHandle(owner);
+				return new ObstacleTestAction(this, listener, effect, handle);
+			}
+
+			// FUNCTION: ENGINE 0x100F99E0
+			ObstacleAvoidExitAction::~ObstacleAvoidExitAction()
+			{
+				core::SafeReleaseRefCopy6(&event);
+				engine::ReleaseDriverCopy2(&driver);
+			}
+
+			// FUNCTION: ENGINE 0x100F70C0
+			int GetObstacleIntersection(engine::GameObject* object)
+			{
+				engine::GetIntersectionPropertiesMessage message;
+				object->PostMessage(&message);
+				return message.result;
+			}
+
+			// FUNCTION: ENGINE 0x100F7600
+			void ObstacleTestAction::Slot6()
+			{
+			}
+
+			// FUNCTION: ENGINE 0x100F9850
+			bool ObstacleTestAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				intersection = GetObstacleIntersection(object);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x100F9A30
+			void ObstacleAvoidExitAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy2(&driver);
+						}
+					}
+				}
+			}
+
+			// FUNCTION: ENGINE 0x100F98D0
+			// NONMATCHING: the engine loads the direction and the speed before it multiplies, and ours interleaves the loads and the stores (best 52 %)
+#ifdef NONMATCHING
+			void ObstacleAvoidAction::Slot6()
+			{
+				if (driver != 0)
+				{
+					driver->mDelta.Reset();
+					engine::GameObject* object = target.Get();
+					if (object != 0)
+					{
+						math::Vector velocity;
+						velocity.x = speed * direction.x;
+						velocity.y = speed * direction.y;
+						velocity.z = direction.z * speed;
+						driver->mDelta.SetVelocity(velocity, object->transform->value);
+						choreo::Puppet* puppet = engine::GetPuppet(object);
+						if (puppet != 0)
+						{
+							puppet->RemoveDriver(driver, false);
+							engine::ReleaseDriverCopy2((choreo::Driver**)&driver);
+						}
+					}
+				}
+			}
+#endif
 
 			// ---- actions end
 			template class fight::PropertyEnumConstList<ObstacleDistanceCondition>;

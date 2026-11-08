@@ -83,6 +83,52 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetTimeBetweenHits() const;
+				const fight::Name& GetJoint() const;
+				const fight::Name& GetJointEnd() const;
+				math::Vector GetOffset() const;
+				float GetRadius() const;
+				int GetCollideWith() const;
+				float GetDamageMin() const;
+				float GetDamageMax() const;
+				bool GetUseTransformationDamageMultiplier() const;
+				bool GetUseWeaponDamageMultiplier() const;
+				float GetFriendlyFire() const;
+				int GetAttackType() const;
+				const fight::Name& GetHitType() const;
+				int GetDamageType() const;
+				const fight::Name& GetEffectType() const;
+				float GetScaleX() const;
+				float GetScaleY() const;
+				float GetEffectScale() const;
+				float GetPropAreaEmissionScale() const;
+				int GetPropAreaEmissionScaleFunction() const;
+				float GetPropAreaSizeScale() const;
+				int GetPropAreaSizeScaleFunction() const;
+				math::Vector GetImpulseMin() const;
+				math::Vector GetImpulseMax() const;
+				float GetImpulseRandomPlusMinus() const;
+				bool GetUseMotion() const;
+				math::Vector GetCollisionDirection() const;
+				float GetDeformDirStr() const;
+				float GetDeformStr() const;
+				const fight::Name& GetCollisionFlag() const;
+				const fight::BranchHolder& GetGiverBranch() const;
+				const fight::BranchHolder& GetReceiverBranch() const;
+				bool GetUseDamageOriginator() const;
+				bool GetSendAlert() const;
+				bool GetSendOnlyToAIManager() const;
+				bool GetUseOriginatorToValidate() const;
+				bool GetIsThrown() const;
+				float GetMomentumDamageVelocity() const;
+				float GetMomentumDamageMax() const;
+				float GetTravelVelocity() const;
+				int GetTravelTowardTarget() const;
+				int GetCollisionCountMax() const;
+				float GetArcOffset() const;
+				float GetArcRange() const;
+
 					fight::BranchHolder giverBranch;  // +0x10
 					fight::BranchHolder receiverBranch;  // +0x34
 					fight::Name collisionFlag;  // +0x58

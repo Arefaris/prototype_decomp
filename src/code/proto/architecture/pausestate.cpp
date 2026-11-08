@@ -38,8 +38,8 @@ namespace engine
 	};
 	// 0x10864330
 	FrontEnd* Unknown10864330();
-	// 0x10872840: calls a function of the front end's movie with one text argument (name unknown)
-	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* argument);
+	// 0x10872840: calls a function of the front end's movie with a format and the arguments it names (name unknown)
+	void Unknown10872840(FrontEnd* frontEnd, const char* function, const char* format, ...);
 	// 0x1088A9D0 / 0x1088A690 / 0x108644B0 / 0x1085FC10 / 0x10864440 (names unknown)
 	void Unknown1088A9D0(int value);
 	void Unknown1088A690();
@@ -119,7 +119,7 @@ namespace proto
 	// 0x1126E4F0 (profilekeys.cpp)
 	extern core::Name<core::CaseSensitiveKey> gProtoTutorialNum;
 	// 0x104DEFD0 (name unknown)
-	void Unknown104DEFD0();
+	void ClearDevSelectStart();
 	// 0x110A1374 / 0x110A137C: the movies the front end loads (names guessed)
 	extern const char* gFrontEndFlashFiles[];
 	extern unsigned int gFrontEndFlashFileCount;
@@ -239,7 +239,7 @@ namespace proto
 		engine::Unknown1088A690();
 		if (unknown8F)
 		{
-			Unknown104DEFD0();
+			ClearDevSelectStart();
 			UnloadFrontEndPackages("FETransient");
 		}
 		else
@@ -472,14 +472,14 @@ namespace proto
 			{
 				if (id == 0)
 				{
-					if (message->user == engine::OLS::Get()->currentUser->id)
+					if (message->Words()->user == engine::OLS::Get()->currentUser->id)
 					{
 						unknown8A = true;
 					}
 				}
 				else if (id == 1)
 				{
-					if (message->user == engine::OLS::Get()->currentUser->id)
+					if (message->Words()->user == engine::OLS::Get()->currentUser->id)
 					{
 						unknown8A = true;
 					}

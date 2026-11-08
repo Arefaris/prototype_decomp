@@ -86,6 +86,23 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Accessors the engine keeps as unreferenced copies in the action half (names guessed)
+				float GetDamageMin() const;
+				float GetDamageMax() const;
+				float GetSelfDamageScale() const;
+				bool GetUsePuppet() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+				float GetPhysicalVelocityCheckDelay() const;
+				float GetStopAtVelocityRatio() const;
+				float GetThreatRadiusScale() const;
+				float GetThreatProjectedDist() const;
+				int GetCollisionInterruptPriority() const;
+				float GetCollisionReactionDelay() const;
+				int GetMaxHitEffects() const;
+				int GetOverrideTargetClass() const;
+
 					fight::BranchHolder onCollision;  // +0x10
 					unsigned char unknown34[0x4];
 					fight::Name threatName;  // +0x38

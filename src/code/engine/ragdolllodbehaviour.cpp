@@ -1,9 +1,25 @@
 #include "code/engine/ragdolllodbehaviour.h"
+#include "code/engine/physics/ragdollmessages.h"
 #include "code/engine/reflectedclasses.h"
 
 namespace engine
 {
 #define ENGINE_OFFSET(type, member) 	content::MemberOffset(&((type*)0)->member, (int)&((type*)0)->member)
+
+	// FUNCTION: ENGINE 0x10924FA0
+	CharacterSolverRagdollActivatedMessage::CharacterSolverRagdollActivatedMessage(bool newActivated)
+		: IntrusiveMessage(0x11, 0xb)
+	{
+		activated = newActivated;
+	}
+
+	// FUNCTION: ENGINE 0x10925010
+	RagdollPhysicsObjectAddedRemovedMessage::RagdollPhysicsObjectAddedRemovedMessage(bool newAdded, int newPhysicsObject)
+		: IntrusiveMessage(6, 1)
+	{
+		added = newAdded;
+		physicsObject = newPhysicsObject;
+	}
 
 	// FUNCTION: ENGINE 0x10925050
 	content::ClassInfo* RagdollBehaviour::GetClassInfo()
@@ -35,6 +51,16 @@ namespace engine
 		Listen(3, true);
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x109263A0
+	bool RagdollLODBehaviour::Slot2()
+	{
+		if (requested.Test(7))
+		{
+			OnActiveChanged(false);
+		}
+		return true;
+	}
 
 	// FUNCTION: ENGINE 0x109274D0
 	content::MemberList* RagdollLODBehaviour::GetMembers()
@@ -96,3 +122,7 @@ namespace engine
 // FUNCTION: ENGINE 0x10926510
 // FUNCTION: ENGINE 0x109252E0
 // FUNCTION: ENGINE 0x109252F0
+// FUNCTION: ENGINE 0x10924FD0
+// FUNCTION: ENGINE 0x10925040
+// FUNCTION: ENGINE 0x109252A0
+// FUNCTION: ENGINE 0x109252C0

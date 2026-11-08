@@ -43,6 +43,10 @@ namespace pure3d
 		~dxProgramName();
 		// 0x1061B000
 		void Assign(const char* text);
+		// 0x1061AFE0: printf into the text
+		void Format(const char* format, ...);
+		// 0x1061B0D0: the characters before the terminator
+		int Length() const;
 
 		char* text;
 		unsigned int capacity;

@@ -5,6 +5,7 @@
 #define ENGINE_RENDER_ASYNC_PRIVATE_FLASH_H
 
 #include "code/container/string.h"
+#include "code/core/interlocked.h"
 #include "code/engine/render/async/renderevent.h"
 
 namespace engine
@@ -14,9 +15,109 @@ namespace engine
 		class FlashMovieHandler
 		{
 		public:
-			unsigned short index;  // +0
-			unsigned short generation;  // +2
+			unsigned int index : 16;  // the position in the table of movies
+			unsigned int generation : 16;  // the serial the entry must still carry
 		};
+
+		// What the front end tells the movie (0x1C bytes; names guessed): the kind of input (1 the cursor, 2 / 3 a
+		// value set / cleared, 4 a number), its three numbers and the index it concerns
+		struct FlashMovieInput
+		{
+			FlashMovieInput(int newKind, float newX, float newY, float newZ, int newIndex)
+			{
+				kind = newKind;
+				flag = false;
+				x = newX;
+				y = newY;
+				z = newZ;
+				index = newIndex;
+				unknown18 = 0;
+			}
+
+			int kind;
+			bool flag;  // +4
+			float x;  // +8
+			float y;  // +0xC
+			float z;  // +0x10
+			int index;  // +0x14
+			int unknown18;
+		};
+
+		// The movie the Flash player runs (another unit; names guessed)
+		class FlashMovie
+		{
+		public:
+			// 0x10964000
+			void Unknown10964000(float value);
+			// 0x10964120: hands the movie an input
+			void Unknown10964120(const FlashMovieInput* input);
+
+			unsigned char unknown0[0x9C];
+			bool unknown9C;
+			bool unknown9D;
+			bool unknown9E;
+		};
+
+		// The player (0x109602F0 answers it, another unit)
+		class FlashRenderer
+		{
+		public:
+			static FlashRenderer* Get();
+			// 0x10960E60: lets the movie go
+			void Unknown10960E60(FlashMovie* movie);
+		};
+
+		// The movies by handle: a table of pointers with the serial each entry must still carry (0x2C bytes, made by
+		// 0x108865F0, global 0x11316E3C; names guessed)
+		class FlashMovieTable
+		{
+		public:
+			// The slot of the handle's movie, null when the handle is out of date
+			FlashMovie** Find(FlashMovieHandler handle)
+			{
+				if (handle.index < capacity && handle.generation == serials[handle.index])
+				{
+					return objects + handle.index;
+				}
+				return 0;
+			}
+			// 0x10884FD0: gives the handle's entry back
+			void Free(const FlashMovieHandler* handle);
+
+			// An unused entry waits in a list headed by freeHead (a node per entry: the next one and the index)
+			struct FreeNode
+			{
+				FreeNode* next;
+				unsigned int index;
+			};
+
+			FlashMovie** objects;  // +0
+			FlashMovie** objectsEnd;  // +4
+			int unknown8;
+			volatile long freeHead;  // +0xC
+			FreeNode* nodes;  // +0x10
+			void* nodesEnd;  // +0x14
+			int unknown18;
+			unsigned int* serials;  // +0x1C
+			unsigned int* serialsEnd;  // +0x20
+			int unknown24;
+			unsigned int capacity;  // +0x28
+		};
+		extern FlashMovieTable* gFlashMovieTable;  // 0x11316E3C
+
+		// What the movie's events run on the render thread (flash.cpp's neighbours, another unit; names guessed)
+		// 0x108854E0 / 0x10885540 / 0x108855D0 / 0x10885610 / 0x108856A0 / 0x10885720
+		void DestroyMovie(FlashMovieHandler movie);
+		void SetMovieFloat(FlashMovieHandler movie, float value);
+		void SetMovieFlag(FlashMovieHandler movie, bool value);
+		// 0x10885590
+		void SetMovieFlagB(FlashMovieHandler movie, bool value);
+		void SetMovieValue(FlashMovieHandler movie, unsigned int index, bool value, int a, int b);
+		void SetMovieCursor(FlashMovieHandler movie, int x, int y);
+		void SetMovieNumber(FlashMovieHandler movie, int index, int a, float value);
+
+		// 0x10886410: has the render thread let the movie go
+		void ReleaseMovie(FlashMovieHandler movie);
 	}
 }
 

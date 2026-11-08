@@ -9,33 +9,12 @@
 #include "code/engine/message.h"
 #include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/engine/physics/getphysicsobjectmessage.h"
+#include "code/engine/physics/setintersectionpropertiesmessage.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
 namespace engine
 {
-	// Sets what the object's collision tests include (id 10)
-	struct SetIntersectionPropertiesMessage : public IntrusiveMessage
-	{
-		SetIntersectionPropertiesMessage(unsigned int newMask, bool newEnable, int newValue, bool newFlag)
-			: IntrusiveMessage(3, 10)
-		{
-			mask = newMask;
-			enable = newEnable;
-			value = newValue;
-			flag = newFlag;
-		}
-		virtual ~SetIntersectionPropertiesMessage()
-		{
-		}
-
-		unsigned int mask;
-		bool enable;
-		int value;
-		bool flag;
-	};
-
-
 	// Switches the physics object between simulated and keyframed (id 0x1A)
 	struct SetPhysicsObjectKeyframedMessage : public IntrusiveMessage
 	{
@@ -228,6 +207,22 @@ namespace engine
 		float factor;  // +0xC
 		float duration;  // +0x10
 		const core::Name<core::CaseSensitiveKey>* joint;  // +0x14
+	};
+
+	// Tells the owner that its physics object went to sleep or woke up (type 6, id 0)
+	struct PhysicsObjectAddedRemovedMessage : public IntrusiveMessage
+	{
+		PhysicsObjectAddedRemovedMessage(bool newAwake, ravenphysics::ObjectHandle newPhysicsObject) : IntrusiveMessage(6, 0)
+		{
+			awake = newAwake;
+			physicsObject = newPhysicsObject;
+		}
+		virtual ~PhysicsObjectAddedRemovedMessage()
+		{
+		}
+
+		bool awake;  // +0xC
+		ravenphysics::ObjectHandle physicsObject;  // +0x10
 	};
 }
 

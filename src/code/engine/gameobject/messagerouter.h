@@ -74,6 +74,11 @@ namespace engine
 			return HandleIterator(handles.end, &handles);
 		}
 
+		// 0x10832780: the channel's name and the heap of the handles
+		MessageListenerList(const core::Name<core::CaseSensitiveKey>& newName,
+			const container::AllocatorCoreAligned<16>& allocator);
+		// 0x10832660: drops the entries of objects that are gone (unless the list is locked)
+		void DropInvalid();
 		// The unit's own calls on the handles of the list (0x10832500 - 0x108327E0; names guessed)
 		bool AddHandle(GameObjectHandle handle);
 		void QueryHandle(GameObjectHandle handle);

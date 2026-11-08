@@ -404,6 +404,120 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011E500
+			float TargetCanJumpToCondition::GetGravity() const
+			{
+				return gravity;
+			}
+
+			// FUNCTION: ENGINE 0x1011E510
+			float TargetCanJumpToCondition::GetMaxInitialVelocity() const
+			{
+				return maxInitialVelocity;
+			}
+
+			// FUNCTION: ENGINE 0x1011E520
+			bool TargetCanJumpToCondition::GetUseStoredValues() const
+			{
+				return useStoredValues;
+			}
+
+			// FUNCTION: ENGINE 0x1011E530
+			float TargetCanJumpToCondition::GetMargin() const
+			{
+				return margin;
+			}
+
+			// FUNCTION: ENGINE 0x1011E540
+			int TargetDistanceWithOffsetCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011E550
+			int TargetDistanceWithOffsetCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011E560
+			float TargetDistanceWithOffsetCondition::GetDistance() const
+			{
+				return distance;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x1011E4B0
+			int TargetDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011E4C0
+			int TargetDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011E4D0
+			float TargetDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+
+			// FUNCTION: ENGINE 0x1011E4E0
+			float TargetCanJumpToCondition::GetLaunchAngle() const
+			{
+				return launchAngle;
+			}
+
+			// FUNCTION: ENGINE 0x1011E4F0
+			float TargetCanJumpToCondition::GetMinLaunchAngle() const
+			{
+				return minLaunchAngle;
+			}
+
+			// FUNCTION: ENGINE 0x1011E570
+			math::Vector TargetDistanceWithOffsetCondition::GetOffset() const
+			{
+				return offset;
+			}
+
+			// FUNCTION: ENGINE 0x1011E590
+			int AutoTargetDistanceCondition::GetDirection() const
+			{
+				return direction;
+			}
+
+			// FUNCTION: ENGINE 0x1011E5A0
+			int AutoTargetDistanceCondition::GetCompare() const
+			{
+				return compare;
+			}
+
+			// FUNCTION: ENGINE 0x1011E5B0
+			float AutoTargetDistanceCondition::GetDistance() const
+			{
+				return distance;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101BC3A0
 // FUNCTION: ENGINE 0x101BC3D0

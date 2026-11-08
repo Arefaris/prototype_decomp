@@ -1181,6 +1181,123 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10102140
+			bool NPCAnimationVersionCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x10102150
+			int NPCAnimationVersionCondition::GetVersion() const
+			{
+				return version;
+			}
+
+			// FUNCTION: ENGINE 0x10102160
+			bool PedestrianFirstFrameUpgradedCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x10102170
+			bool PedestrianStateCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x10102180
+			int PedestrianStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x10102190
+			int PedestrianAngleToTargetCondition::GetCompareTime() const
+			{
+				return compareTime;
+			}
+
+			// FUNCTION: ENGINE 0x101021B0
+			bool CharacterCloudStateCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x101021C0
+			int CharacterCloudStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x101021E0
+			bool PedestrianAlertStateCondition::GetMatch() const
+			{
+				return match;
+			}
+
+			// FUNCTION: ENGINE 0x101021F0
+			int PedestrianAlertStateCondition::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x10102200
+			bool SetPedestrianReadyForDowngradeTrack::GetReady() const
+			{
+				return ready;
+			}
+
+			// FUNCTION: ENGINE 0x10102210
+			float SpreadPedestrianAlertStateTrack::GetRadius() const
+			{
+				return radius;
+			}
+
+			// FUNCTION: ENGINE 0x10102220
+			float SpreadPedestrianAlertStateTrack::GetMaxDistanceFromSource() const
+			{
+				return maxDistanceFromSource;
+			}
+
+			// FUNCTION: ENGINE 0x10102230
+			int SpreadPedestrianAlertStateTrack::GetMaxPasses() const
+			{
+				return maxPasses;
+			}
+
+			// FUNCTION: ENGINE 0x10102240
+			int SpreadPedestrianAlertStateTrack::GetAlertFrequency() const
+			{
+				return alertFrequency;
+			}
+
+			// FUNCTION: ENGINE 0x10102250
+			int SetPedestrianAlertStateTrack::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x10102260
+			int SetPedestrianStateTrack::GetState() const
+			{
+				return state;
+			}
+
+			// FUNCTION: ENGINE 0x10102270
+			int CharacterCloudStateTrack::GetState() const
+			{
+				return state;
+			}
+		}
+	}
+}
+
 // The dynamic initialisers and atexit stubs of the unit's names:
 // FUNCTION: ENGINE 0x10D4E6D0
 // FUNCTION: ENGINE 0x10D59340

@@ -1,23 +1,16 @@
 #include "code/engine/frontend/feinputhandler.h"
+#include "code/engine/controller/monkeycontrollermanager.h"
 #include "code/core/heap.h"
 #include "code/core/strings.h"
 #include "code/engine/display.h"
 #include "code/engine/frontend/femovie.h"
 #include "code/engine/frontend/frontend.h"
+#include "code/engine/frontend/frontendscreen.h"
 #include "code/engine/function.h"
 #include "code/engine/luascriptmanager.h"
 
 namespace engine
 {
-	// The object at +0x2C of the frontend object (0x10886490 and the following, another unit; names guessed)
-	class FrontendScreen
-	{
-	public:
-		void SetValue(int index, bool value, int a, int b);
-		void SetCursor(int x, int y);
-		void SetFloat(int index, int a, float value);
-	};
-
 	// The front end's movie as this unit uses it (the object GetFrontend answers; 0x10872830: calls an ActionScript
 	// function)
 	class FrontendMovie
@@ -28,13 +21,6 @@ namespace engine
 		unsigned char unknown0[0x2C];
 		FrontendScreen screen;
 	};
-
-	// The gate that decides which state gets the input (0x10890930, 0x108909E0; another unit; names guessed)
-	struct StateGate
-	{
-		void SetFocus(const char* name);
-	};
-	StateGate* Unknown10890930();
 
 	// One of a control's three events: the state value it is read as and the names the movie knows it by
 	struct ControlEvent
@@ -320,9 +306,9 @@ namespace engine
 	// FUNCTION: ENGINE 0x10881560
 	void FEInputHandler::SetInputFocus(const char* name)
 	{
-		if (Unknown10890930() != 0)
+		if (controller::GetMonkeyControllerManager() != 0)
 		{
-			Unknown10890930()->SetFocus(name);
+			controller::GetMonkeyControllerManager()->SetFocus(name);
 		}
 	}
 

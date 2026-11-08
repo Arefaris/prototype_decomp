@@ -1,7 +1,11 @@
 // pure3d::ParticleGenerator and the generators built on it (unit around 0x10740000 - 0x10748800; the file name is a
 // guess). Names are guesses.
+#include <math.h>
+
 #include "code/core/refptr.h"
 #include "code/pure3d/effects/particlecontroller.h"
+#include "code/math/quaternion.h"
+#include "code/math/worldbounds.h"
 #include "code/pure3d/primitive.h"
 
 namespace engine
@@ -15,6 +19,14 @@ namespace engine
 namespace choreo
 {
 	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gZero;
+	}
 }
 
 namespace pure3d
@@ -39,6 +51,174 @@ namespace pure3d
 		attributes.ResetValues();
 	}
 
+	// FUNCTION: ENGINE 0x10740490
+	void ParticleGenerator::SetUnknown254(float value)
+	{
+		unknown254 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740520
+	void ParticleGenerator::SetUnknown260(float value)
+	{
+		unknown260 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740540
+	void ParticleGenerator::SetUnknown264(float value)
+	{
+		unknown264 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740410
+	void ParticleGenerator::Unknown10740410(float value)
+	{
+		if (!unknown291 && value > 0.00001f)
+		{
+			unknown294 = (float)ceil((double)value);
+			unknown291 = true;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x10740730
+	void ParticleGenerator::Unknown10740730()
+	{
+		unknown292 = true;
+	}
+
+	// FUNCTION: ENGINE 0x10740180
+	void ParticlePointGenerator::SetUnknown420(float value)
+	{
+		unknown420 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401A0
+	void ParticlePointGenerator::SetUnknown424(float value)
+	{
+		unknown424 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401C0
+	void ParticlePointGenerator::SetUnknown428(float value)
+	{
+		unknown428 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107401E0
+	void ParticlePlaneGenerator::SetUnknown428(float value)
+	{
+		unknown428 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740200
+	void ParticlePlaneGenerator::SetUnknown42C(float value)
+	{
+		unknown42C = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740220
+	void ParticlePlaneGenerator::SetUnknown430(float value)
+	{
+		unknown430 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740240
+	void ParticlePlaneGenerator::SetUnknown434(float value)
+	{
+		unknown434 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740260
+	void ParticlePlaneGenerator::SetUnknown438(float value)
+	{
+		unknown438 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740280
+	void ParticlePlaneGenerator::SetUnknown43C(float value)
+	{
+		unknown43C = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402A0
+	void ParticlePlaneGenerator::SetUnknown440(float value)
+	{
+		unknown440 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402C0
+	void ParticleSphereGenerator::SetUnknown41C(float value)
+	{
+		unknown41C = value;
+	}
+
+	// FUNCTION: ENGINE 0x107402E0
+	void ParticleSphereGenerator::SetUnknown420(float value)
+	{
+		unknown420 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740300
+	void ParticleGridGenerator::SetUnknown438(float value)
+	{
+		unknown438 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740320
+	void ParticleGridGenerator::SetUnknown43C(float value)
+	{
+		unknown43C = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740340
+	void ParticleGridGenerator::SetUnknown440(float value)
+	{
+		unknown440 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740360
+	void ParticleGridGenerator::SetUnknown444(float value)
+	{
+		unknown444 = value;
+	}
+
+	// FUNCTION: ENGINE 0x10740380
+	void ParticleGridGenerator::SetUnknown448(float value)
+	{
+		unknown448 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403A0
+	void ParticleGridGenerator::SetUnknown430(float value)
+	{
+		unknown430 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403C0
+	void ParticleGridGenerator::SetUnknown434(float value)
+	{
+		unknown434 = value;
+	}
+
+	// FUNCTION: ENGINE 0x107403E0
+	void ParticleMeshGenerator::SetUnknown410(const math::Vector& value)
+	{
+		unknown410 = value.x;
+		unknown414 = value.y;
+		unknown418 = value.z;
+	}
+
+	// FUNCTION: ENGINE 0x10740940
+	int ParticleMeshGenerator::GetUnknown424()
+	{
+		return unknown424;
+	}
+
+	// FUNCTION: ENGINE 0x10740950
+	void ParticleMeshGenerator::SetUnknown424(int value)
+	{
+		unknown424 = value;
+	}
+
 	// FUNCTION: ENGINE 0x10740500
 	void* ParticleGenerator::operator new(unsigned int size)
 	{
@@ -51,10 +231,81 @@ namespace pure3d
 		FreeParticle(pointer);
 	}
 
+	// FUNCTION: ENGINE 0x10742720
+	void ParticleGenerator::Unknown10742720()
+	{
+		indices.Clear();
+		for (int i = particleCount - 1; i >= 0; i--)
+		{
+			unsigned int index = i;
+			indices.PushBack(index);
+		}
+		unknown10.Identity();
+		transform.Identity();
+		unknown50.Identity();
+		unknown292 = false;
+	}
+
+	// FUNCTION: ENGINE 0x10740E50
+	// NONMATCHING: the engine's frame is 0xD0 bytes and shares its vector slots, ours is 0xDC (25.2 %)
+#ifdef NONMATCHING
+	void ParticleGenerator::GetUnknown10740E50(math::Matrix* out)
+	{
+		math::Vector vector;
+		out->Identity();
+		if (unknown292)
+		{
+			if (unknown24C > engine::driving::gZero)
+			{
+				math::Quaternion from;
+				from.FromMatrix(unknown50);
+				math::Quaternion to;
+				to.FromMatrix(transform);
+				from.x = math::WORLD_MIN - from.x;
+				from.y = math::WORLD_MIN - from.y;
+				from.z = math::WORLD_MIN - from.z;
+				math::Quaternion difference;
+				math::Multiply(difference, to, from);
+				math::Quaternion identity;
+				identity.x = 0.0f;
+				identity.y = 0.0f;
+				identity.z = 0.0f;
+				identity.w = engine::driving::gOne;
+				math::Quaternion blended;
+				blended.Slerp(identity, difference, unknown24C);
+				blended.ToMatrix(*out);
+				math::Matrix pivot;
+				pivot.Identity();
+				vector.x = transform.m[3][0];
+				vector.y = transform.m[3][1];
+				vector.z = transform.m[3][2];
+				pivot.SetTranslation(vector);
+				math::Matrix pivotCopy;
+				pivotCopy = pivot;
+				pivot.Invert();
+				out->Multiply(pivot, *out);
+				out->Multiply(*out, pivotCopy);
+			}
+			if (unknown250 > engine::driving::gZero)
+			{
+				vector.x = transform.m[3][0] - unknown50.m[3][0];
+				vector.y = transform.m[3][1] - unknown50.m[3][1];
+				vector.z = transform.m[3][2] - unknown50.m[3][2];
+				math::Matrix move;
+				move.Identity();
+				move.m[3][0] = vector.x * unknown250;
+				move.m[3][1] = vector.y * unknown250;
+				move.m[3][2] = vector.z * unknown250;
+				out->Multiply(*out, move);
+			}
+		}
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x10741080
 	bool ParticleGenerator::Unknown10741080()
 	{
-		return unknown2F4 != unknown2F8;
+		return indices.end != indices.capacity;
 	}
 
 	// FUNCTION: ENGINE 0x107407A0

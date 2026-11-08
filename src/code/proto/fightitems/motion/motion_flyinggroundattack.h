@@ -48,6 +48,17 @@ namespace proto
 				static void RegisterProperties();
 				static void ClearProperties();
 
+				// Getters of the members (the engine keeps their copies)
+				float GetVelocityXZMin() const;
+				float GetVelocityXZMax() const;
+				float GetAccelerationXZ() const;
+				float GetGravity() const;
+				float GetTurningVelocity() const;
+				float GetTargetOffset() const;
+				int GetPriority() const;
+				float GetBlendInTime() const;
+				float GetBlendOutTime() const;
+
 					float accelerationXZ;  // +0x10
 					float blendInTime;  // +0x14
 					float blendOutTime;  // +0x18

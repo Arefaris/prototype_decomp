@@ -200,6 +200,60 @@ namespace proto
 				return new FootstepDamageAction(this, engine::GetObjectHandle(owner));
 			}
 
+			// FUNCTION: ENGINE 0x100BFE60
+			float FootstepDamageTrack::GetPhase() const
+			{
+				return phase;
+			}
+
+			// FUNCTION: ENGINE 0x100BFE70
+			const fight::Name& FootstepDamageTrack::GetJointName() const
+			{
+				return jointName;
+			}
+
+			// FUNCTION: ENGINE 0x100BFE80
+			math::Vector FootstepDamageTrack::GetJointOffset() const
+			{
+				return jointOffset;
+			}
+
+			// FUNCTION: ENGINE 0x100BFEA0
+			int FootstepDamageTrack::GetDamageType() const
+			{
+				return damageType;
+			}
+
+			// FUNCTION: ENGINE 0x100BFEB0
+			int FootstepDamageTrack::GetAttackType() const
+			{
+				return attackType;
+			}
+
+			// FUNCTION: ENGINE 0x100BFEC0
+			const fight::Name& FootstepDamageTrack::GetHitType() const
+			{
+				return hitType;
+			}
+
+			// FUNCTION: ENGINE 0x100BFED0
+			const fight::Name& FootstepDamageTrack::GetEffectType() const
+			{
+				return effectType;
+			}
+
+			// FUNCTION: ENGINE 0x100BFEE0
+			float FootstepDamageTrack::GetScaleX() const
+			{
+				return scaleX;
+			}
+
+			// FUNCTION: ENGINE 0x100BFEF0
+			float FootstepDamageTrack::GetScaleY() const
+			{
+				return scaleY;
+			}
+
 			// ---- actions end
 			template class fight::PropertyFloatConstRange<FootstepDamageTrack>;
 			template class fight::PropertyNameList<FootstepDamageTrack>;

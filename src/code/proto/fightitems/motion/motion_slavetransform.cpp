@@ -135,6 +135,36 @@ namespace proto
 	}
 }
 
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10115C10
+			const fight::Name& SlaveTransformTrack::GetMasterObject() const
+			{
+				return masterObject;
+			}
+		}
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x10115C20
+			math::Vector SlaveTransformTrack::GetOffset() const
+			{
+				return offset;
+			}
+		}
+	}
+}
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x101B35A0
 // FUNCTION: ENGINE 0x101B35B0

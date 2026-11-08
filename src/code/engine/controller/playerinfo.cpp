@@ -2,7 +2,21 @@
 // a guess, the unit starts at 0x108A1280). Names are guesses.
 #include "code/engine/controller/inputsystem.h"
 #include "code/core/strings.h"
+#include <math.h>
 #include <string.h>
+
+namespace choreo
+{
+	extern const float gMinusOne;
+}
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gOne;
+	}
+}
 
 namespace engine
 {
@@ -29,6 +43,117 @@ namespace engine
 					buttons[control].bits[part] = 1;
 				}
 			}
+		}
+
+		// FUNCTION: ENGINE 0x108A11E0
+		void PlayerInput::SetControlState(int control, int state)
+		{
+			controlStates[control] = state;
+		}
+
+		// FUNCTION: ENGINE 0x108A1200
+		void PlayerInput::SetButtonBits(int control, unsigned int value, int which)
+		{
+			buttons[control].bits[which] = value;
+		}
+
+		// FUNCTION: ENGINE 0x108A1500
+		// NONMATCHING: the engine loads the dead zone after both stick values and keeps the two clamp bounds in registers (61.5 %)
+#ifdef NONMATCHING
+		void PlayerInput::ApplySquareDeadZone(int first, int second)
+		{
+			float x = analog[first].input;
+			float y = analog[second].input;
+			InputSystem* system = InputSystem::Get();
+			float lengthSquared = y * y + x * x;
+			float deadZone = system->config.deadZone;
+			if (deadZone * deadZone > lengthSquared)
+			{
+				analog[first].value = 0.0f;
+				analog[second].value = 0.0f;
+				return;
+			}
+			float low = choreo::gMinusOne;
+			float high = engine::driving::gOne;
+			float clampedX = x;
+			if (!(clampedX - low >= 0.0f))
+			{
+				clampedX = low;
+			}
+			if (clampedX - high >= 0.0f)
+			{
+				clampedX = high;
+			}
+			analog[first].value = clampedX;
+			if (!(y - low >= 0.0f))
+			{
+				y = low;
+			}
+			if (y - high >= 0.0f)
+			{
+				y = high;
+			}
+			analog[second].value = y;
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x108A1640
+		// NONMATCHING: the length stays in a stack word across the call and the frame is eight bytes (10 %)
+#ifdef NONMATCHING
+		void PlayerInput::ApplyRoundDeadZone(int first, int second)
+		{
+			float x = analog[first].input;
+			float y = analog[second].input;
+			float length = sqrtf(y * y + x * x);
+			float deadZone = InputSystem::Get()->config.deadZone;
+			if (length <= deadZone)
+			{
+				analog[first].value = 0.0f;
+				analog[second].value = 0.0f;
+			}
+			else
+			{
+				float scale = (length - deadZone) / (engine::driving::gOne - deadZone);
+				if (scale < 0.0f)
+				{
+					scale = 0.0f;
+				}
+				if (scale - engine::driving::gOne >= 0.0f)
+				{
+					scale = engine::driving::gOne;
+				}
+				float inverse = engine::driving::gOne / length;
+				analog[first].value = scale * (inverse * x);
+				analog[second].value = scale * (inverse * y);
+			}
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x108A1720
+		void PlayerInput::ApplyDeadZones()
+		{
+			if (InputSystem::Get()->config.flag18)
+			{
+				ApplyRoundDeadZone(0, 1);
+				ApplyRoundDeadZone(2, 3);
+				ApplyRoundDeadZone(4, 5);
+				ApplyRoundDeadZone(9, 10);
+				ApplyRoundDeadZone(11, 12);
+				ApplyRoundDeadZone(13, 14);
+				ApplyRoundDeadZone(15, 16);
+			}
+			else
+			{
+				ApplySquareDeadZone(0, 1);
+				ApplySquareDeadZone(2, 3);
+				ApplySquareDeadZone(4, 5);
+				ApplySquareDeadZone(9, 10);
+				ApplySquareDeadZone(11, 12);
+				ApplySquareDeadZone(13, 14);
+				ApplySquareDeadZone(15, 16);
+			}
+			analog[6].value = analog[6].input;
+			analog[7].value = analog[7].input;
 		}
 
 		// FUNCTION: ENGINE 0x108A15F0

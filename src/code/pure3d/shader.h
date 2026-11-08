@@ -4,6 +4,7 @@
 #ifndef PURE3D_SHADER_H
 #define PURE3D_SHADER_H
 
+#include "code/math/vector4.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/primstream.h"
 #include "code/pure3d/visibility.h"
@@ -17,6 +18,15 @@ namespace pure3d
 	public:
 		// 0x107064A0: a shader of that name (the device's shader of the same name is looked up for it)
 		explicit Shader(const char* shaderName);
+		// Slot 2 (the body is 0x10705280, the deleting destructor 0x107060E0): lets go of the device's shader
+		virtual ~Shader();
+		// 0x107049D0 / 0x107049E0: set an input of the device's shader (the colour of an input, a matrix input)
+		void SetColour(const core::Name<core::CaseInsensitiveKey32>& inputName, const math::Vector4& value);
+		void SetMatrix(const core::Name<core::CaseInsensitiveKey32>& inputName, const float* value);
+		// 0x10704B40: takes the constants of another shader
+		void CopyConstants(Shader* other);
+		// 0x10704B10: bit 0 of the flags of the device shader's template (name guess)
+		bool GetTemplateFlag();
 		// 0x107062D0: takes the draw parameters and sets the flags that follow from them
 		void SetParameters(const PrimStreamParameters& newParameters);
 		// 0x102F39D0: the value of a float input of the device's shader

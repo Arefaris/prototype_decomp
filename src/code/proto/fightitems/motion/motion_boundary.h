@@ -51,6 +51,10 @@ namespace proto
 		JumpDestination() : target(), position(math::kZeroVector)
 		{
 		}
+		// The destination of an action that has not found one yet: nobody, at the origin written as three zeros
+		JumpDestination(float x, float y, float z) : target(), position(x, y, z)
+		{
+		}
 
 		// 0x103C5C60 (another unit): takes the position of the object
 		void Update();

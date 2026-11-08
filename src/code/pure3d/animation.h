@@ -7,15 +7,24 @@
 
 namespace pure3d
 {
+	class AnimationMemoryBlock;
+
 	// A group of channels of an animation, found by a name (the members are in another unit)
 	class AnimationGroup
 	{
 	public:
+		// 0x106E8240: the hash of the name
+		unsigned __int64 GetNameHash();
 		// 0x106E7910: the channel of the group by its type and the type of its values
 		void* FindChannel(unsigned int type, unsigned int format);
 
 		unsigned char unknown0[8];
 		core::Name<core::CaseSensitiveKey> mName;
+		// The id the group is found by in an animation sorted by id (the overall groups)
+		int mId;
+		unsigned int mChannelCount;
+		void** mChannels;
+		AnimationMemoryBlock* mBlock;
 	};
 
 	// pure3d::AnimationMemoryBlock (RTTI name; base pure3d::RefCounted): the memory an animation's data sits in
@@ -60,6 +69,10 @@ namespace pure3d
 		void Unknown106E9310(int mode);
 		// 0x106E8590 / 0x106E79E0: the group of the animation for a name, and the group of the whole animation
 		AnimationGroup* FindGroup(const core::Name<core::CaseSensitiveKey>* name);
+		// 0x106E8D30 / 0x106E8D60 / 0x106E8690: the group of a name given as text, and the index of a group by text and by name
+		AnimationGroup* FindGroup(const char* name);
+		int FindGroupIndex(const char* name);
+		int FindGroupIndex(const core::Name<core::CaseSensitiveKey>* name);
 		// 0x106E8770: moves a frame on by dt (scaled by the frame rate) inside the range the way the cycle mode says;
 		// remaining is the time left to play and forward the direction the frame moves in (name guess)
 		float AdvanceFrame(float* remaining, bool* forward, float frame, float dt, float start, float end, bool unlimited,
@@ -67,6 +80,8 @@ namespace pure3d
 		// 0x106E79D0: the group at an index
 		AnimationGroup* GetGroup(int index);
 		AnimationGroup* FindOverallGroup(int mode);
+		// 0x106E7A90: the index of the group of that id (-1 for none)
+		int FindOverallGroupIndex(int id);
 
 		float numFrames;
 		float mFrameRate;
@@ -75,9 +90,11 @@ namespace pure3d
 		// The four characters of the kind of animation (the frame controllers test it); the number of groups
 		unsigned int mType;
 		float mUnknown20;
-		unsigned char unknown24[4];
+		// How the groups are kept: 1 sorted by id, 0 sorted by name
+		int mSortMode;
 		int mGroupCount;
-		unsigned char unknown2C[0x10];
+		AnimationGroup** mGroups;
+		unsigned char unknown30[0xC];
 		AnimationMemoryBlock* mBlock;
 	};
 
