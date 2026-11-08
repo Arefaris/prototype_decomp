@@ -47,6 +47,12 @@ namespace om
 	template void TreeHead::DeleteAll<MetaMethodBase>();
 #endif
 
+	// FUNCTION: ENGINE 0x105C0D60
+	MetaClassBase* FindMetaClassByName(const ClassName& name)
+	{
+		return engine::gTreeHeadObject3.FindMetaClassByName(&name);
+	}
+
 	// FUNCTION: ENGINE 0x105C0D80
 	MetaClassBase::MetaClassBase(const ClassName& newName, const type_info* newType, MetaClassBase* newParent) :
 		MetaTypeBase(newName, newType),

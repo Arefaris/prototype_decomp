@@ -269,7 +269,10 @@ namespace proto
 	}
 }
 
+template proto::fightitems::motion::LocoClimbTrack* core::Link<proto::fightitems::motion::LocoClimbTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100E4F90
 // FUNCTION: ENGINE 0x100E4F70
 // FUNCTION: ENGINE 0x100E4FA0
 // FUNCTION: ENGINE 0x100E51A0

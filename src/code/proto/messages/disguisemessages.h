@@ -16,6 +16,15 @@ namespace proto
 		}
 	};
 
+	// Starts the grace period in which the player may switch disguises (sent by the head-up display's hint; no payload)
+	struct StartGraceSwitchDisguisesMsg : public DisguiseMessage
+	{
+	public:
+		StartGraceSwitchDisguisesMsg() : DisguiseMessage(0x19)
+		{
+		}
+	};
+
 	struct GetBlownDisguiseMsg : public DisguiseMessage
 	{
 	public:

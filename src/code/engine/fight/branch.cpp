@@ -578,6 +578,12 @@ namespace fight
 		return name;
 	}
 
+	// FUNCTION: ENGINE 0x105A5160
+	void Entity::SetName(const core::Name<core::CaseSensitiveKey>& newName)
+	{
+		name = newName;
+	}
+
 	// FUNCTION: ENGINE 0x105A3160
 	unsigned __int64 Entity::GetNameHash() const
 	{

@@ -5,6 +5,7 @@
 #ifndef PURE3D_VISIBILITY_H
 #define PURE3D_VISIBILITY_H
 
+#include "code/core/asynctask.h"
 #include "code/core/bitfield.h"
 #include "code/math/aabb.h"
 #include "code/math/sphere.h"
@@ -56,16 +57,41 @@ namespace pure3d
 			unsigned int planeCount;
 			// Boxes whose diagonal is shorter than sqrt(12) * this are skipped
 			float minimumSize;
-			unsigned char unknownB0[0x30];
+			// What the occlusion test of the slot reads: a word, the viewer's position, the server and the heap the
+			// test allocates from
+			int unknownB0;
+			math::Vector viewer;
+			Server* server;
+			unsigned char unknownC4[0x10];
+			int heap;
+			unsigned char unknownD8[8];
 		};
 
 		// A set of bits as the server keeps them (16 bytes: the words are at +8)
 		struct BitSet
 		{
-			int unknown0;
-			int unknown4;
+			// 0x1060F540: no bits
+			BitSet();
+			// 0x1060F550: room for that many bits (a multiple of 32), in a block of its own aligned to 128 bytes when
+			// there is no memory to take (the bits start cleared), else over that memory
+			void Create(unsigned int bits, void* memory);
+			// 0x1060F5C0
+			void Free();
+			// 0x1060F4F0
+			void ClearAll();
+			// 0x1060F5F0: how many bits are set
+			int CountSet();
+			// 0x1060F670 / 0x1060F690: the bits of another set of the same size / the bits it does not have
+			void CopyFrom(const BitSet* other);
+			void SetNot(const BitSet* other);
+			// 0x1060F6F0 / 0x1060F780: both sets' bits together / either's
+			void SetAnd(const BitSet* first, const BitSet* second);
+			void SetOr(const BitSet* first, const BitSet* second);
+
+			unsigned int bitCount;
+			bool ownsBlock;
 			unsigned int* words;
-			int unknownC;
+			void* block;
 		};
 
 		// RTTI pure3d::visibility::Server::BitFieldStack: the result sets of the tests (5) and then the flag sets
@@ -75,12 +101,38 @@ namespace pure3d
 			BitSet flags[1];
 		};
 
+		// RTTI pure3d::visibility::VisibilityTestTaskCallBack (base core::AsyncTaskCallback, one slot): the callback of a
+		// test task, which signals the event of its slot when the test has run (0xC bytes, the server keeps one a slot)
+		class VisibilityTestTaskCallBack : public core::AsyncTaskCallback
+		{
+		public:
+			// 0x10726510
+			VisibilityTestTaskCallBack();
+			// Slot 0 (0x10728330)
+			virtual void OnResult(int result);
+
+			unsigned char event[8];
+		};
+
 		// The bounds and bits of the clients (layout partial; the rest of the class lives in the server's unit)
 		class Server
 		{
 		public:
 			// 0x10726590: how many flag sets there are
 			unsigned int GetFlagSetCount();
+			// 0x107298B0: the occlusion test of the boxes of a slot against the occluders (name guess)
+			void RunOcclusionTest(const math::Vector* viewer, unsigned int* outputBits, int a, unsigned int slot);
+			// 0x10726F20: sets in the third result set the bit of every active client whose sphere touches the given
+			// sphere (name guess)
+			void TestSphere(const math::Sphere* sphere);
+			// 0x107265A0 / 0x10726E20: the size boxes must have to be tested (kept squared), and the setter
+			float GetUnknown1EC();
+			void SetUnknown1EC(float size);
+			// 0x10726970: how many words of user data the server keeps
+			int GetUserDataCount();
+			// 0x10726930 / 0x10726950: the first client of a region in the bits, from the tables at +0xA0 / +0x94
+			int GetRegionBase(int region);
+			int GetRegionBase2(int region);
 			// 0x10728350: waits until the test of a task slot is done and marks the slot free (nothing for -1; name guess)
 			void FinishTest(int slot);
 
@@ -90,9 +142,14 @@ namespace pure3d
 			math::Sphere* spheres;
 			unsigned char unknown28[8];
 			void** userData;
-			unsigned char unknown34[0x14];
+			void** userDataEnd;
+			unsigned char unknown38[0x10];
 			BitFieldStack* bits;
-			unsigned char unknown4C[0xF4];
+			unsigned char unknown4C[0x48];
+			int* regionTable94;
+			unsigned char unknown98[8];
+			int* regionTableA0;
+			unsigned char unknownA4[0x9C];
 			// How many clients each region holds, and where each region starts in the slots
 			int counts[28];
 			int offsets[14];

@@ -71,9 +71,6 @@ namespace mgraph
 			channel(newChannel)
 		{
 		}
-		virtual ~PropertyNodeInputEvent()
-		{
-		}
 		virtual void Execute(Context* context);
 		OM_ALLOCATION(PropertyNodeInputEvent);
 

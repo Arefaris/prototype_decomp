@@ -1,9 +1,12 @@
 #include "code/proto/navarea.h"
+#include "code/math/random.h"
+#include "code/proto/ai/ambientmanager/behaviours/vehiclebehaviourambient.h"
 
 namespace engine
 {
 	namespace driving
 	{
+		extern const float gOne;
 		extern const float gHalf;
 		extern const float gTwo;
 	}
@@ -86,6 +89,76 @@ namespace proto
 	{
 		return forwardClaims * scale;
 	}
+
+	// FUNCTION: ENGINE 0x10568060
+	bool NavArea::ContainsVehicle(VehicleBehaviour* vehicle)
+	{
+		if (vehicles.count != 0)
+		{
+			container::ListBase::Node* node = reinterpret_cast<container::ListBase::Node*>(vehicles.head);
+			while (node != 0)
+			{
+				if (static_cast<VehicleBehaviour*>(node) == vehicle)
+				{
+					return true;
+				}
+				node = node->next;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10568240
+	bool NavArea::IsBackwardFull(float scale)
+	{
+		if ((float)(unsigned int)vehicles.count >= GetBackwardLoad(scale))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10568290
+	bool NavArea::IsForwardFull(float scale)
+	{
+		if ((float)walkers >= GetForwardLoad(scale))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10568190
+	bool NavArea::HasRoom(float count, float capacity)
+	{
+		float room = capacity - count;
+		if (room >= engine::driving::gOne)
+		{
+			return true;
+		}
+		if (room > math::gRandom->Range(0.0f, 1.0f))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x105682D0
+	bool NavArea::HasBackwardRoom(float scale)
+	{
+		float capacity = GetBackwardLoad(scale);
+		unsigned int count = vehicles.count;
+		return HasRoom((float)count, capacity);
+	}
+
+	// FUNCTION: ENGINE 0x10568320
+	// NONMATCHING: the engine converts the walker count through a stack word with fild, ours with cvtsi2ss, 62.2 %
+#ifdef NONMATCHING
+	bool NavArea::HasForwardRoom(float scale)
+	{
+		return HasRoom((float)walkers, GetForwardLoad(scale));
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x10568360
 	void NavArea::AddWalker()

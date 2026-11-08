@@ -572,7 +572,7 @@ namespace pure3d
 		return frame;
 	}
 
-	template<class T> void ChannelKeys<T>::GetKey(unsigned int index, float* frame, typename KeyValue<T>::Type* out)
+	template<class T> void ChannelKeys<T>::GetKeyAt(unsigned int index, float* frame, typename KeyValue<T>::Type* out)
 	{
 		short key;
 		pure3d::GetKey(frames, index, &key);
@@ -942,16 +942,16 @@ template void pure3d::GetKeys<math::CompressedQuaternion4>(const math::Compresse
 	int index1, math::CompressedQuaternion4* out0, math::CompressedQuaternion4* out1);
 
 // FUNCTION: ENGINE 0x106E4020
-template void pure3d::ChannelKeys<int>::GetKey(unsigned int index, float* frame, int* out);
+template void pure3d::ChannelKeys<int>::GetKeyAt(unsigned int index, float* frame, int* out);
 
 // FUNCTION: ENGINE 0x106E4180
-template void pure3d::ChannelKeys<float>::GetKey(unsigned int index, float* frame, float* out);
+template void pure3d::ChannelKeys<float>::GetKeyAt(unsigned int index, float* frame, float* out);
 
 // FUNCTION: ENGINE 0x106E42E0
-template void pure3d::ChannelKeys<pure3d::Float2>::GetKey(unsigned int index, float* frame, pure3d::Float2* out);
+template void pure3d::ChannelKeys<pure3d::Float2>::GetKeyAt(unsigned int index, float* frame, pure3d::Float2* out);
 
 // FUNCTION: ENGINE 0x106E5700
-template void pure3d::ChannelKeys<math::Vector>::GetKey(unsigned int index, float* frame, math::Vector* out);
+template void pure3d::ChannelKeys<math::Vector>::GetKeyAt(unsigned int index, float* frame, math::Vector* out);
 
 // FUNCTION: ENGINE 0x106E5AD0
-template void pure3d::ChannelKeys<math::Quaternion>::GetKey(unsigned int index, float* frame, math::Quaternion* out);
+template void pure3d::ChannelKeys<math::Quaternion>::GetKeyAt(unsigned int index, float* frame, math::Quaternion* out);

@@ -170,6 +170,8 @@ namespace engine
 				}
 				return (tail - begin) + (end - head);
 			}
+			// The link at an index counted from the head, wrapping around the end of the block (the engine inlines it;
+			// 0x10819AE0 is its out-of-line copy)
 			DrawableLink& At(unsigned int index)
 			{
 				int firstPart = end - head;
@@ -184,6 +186,8 @@ namespace engine
 			{
 				return (int)Size() == end - begin;
 			}
+			// 0x10819A80: takes a block of that many places; false (and an empty ring) when there is none to take
+			bool Allocate(unsigned int count);
 			// Takes the first link out of the ring and answers its drawable
 			Drawable PopFront()
 			{
@@ -330,6 +334,8 @@ namespace engine
 			// 0x1081D170: a table of that many slots (rounded up to a power of two), the load in percent it grows at
 			// and the number of removed places it tolerates
 			HashTable(unsigned int newSlotCount, unsigned int newMaxLoad, unsigned int newMaxRemoved);
+			// 0x1081C4C0: the value of a key (a probe made and run in one go), null when the table has none
+			void* Find(const unsigned int* key);
 			// 0x1081C6C0: moves everything into a table of that many slots
 			void Rehash(unsigned int newSlotCount);
 			// 0x1081C620: puts a value under a key (the key must not be in the table)
@@ -499,9 +505,65 @@ namespace engine
 			int unknown10;
 		};
 
+		// A list of 32-bit values over one block (begin, end, end of storage and a word the engine never uses)
+		struct ConfigList
+		{
+			unsigned int* begin;
+			unsigned int* end;
+			unsigned int* capacity;
+			int unknownC;
+		};
+
+		// The record the manager is made from (the engine's start-up changes it before it makes the manager): the heaps,
+		// the callbacks, how many lights, waiting drawables and attached drawables fit, and per kind of effect the
+		// number of effects that may play at once
+		struct EffectManagerConfig
+		{
+			// 0x1081C7B0: the defaults (the effect heap 10, the attached drawables' heap 0x77, 4 starts a frame, 64 lights,
+			// 8 waiting drawables) and room for 16 kinds of effect and 4 kinds of attached drawable
+			EffectManagerConfig();
+
+			int heap;  // +0x00
+			int attachedHeap;  // +0x04
+			void (*resetCallback)(int);  // +0x08
+			int resetCallbackArgument;  // +0x0C
+			void (*startCallback)(unsigned int, void*);  // +0x10
+			int unknown14;
+			unsigned int startLimit;  // +0x18
+			unsigned int lightCount;  // +0x1C
+			unsigned int waitingCount;  // +0x20
+			int effectSuspendCount;  // +0x24
+			// The keys of the kinds of effect and how many of each may play (the lists of the manager's table)
+			ConfigList effectKeys;  // +0x28
+			ConfigList effectCounts;  // +0x38
+			// The same for the attached drawables
+			ConfigList attachedKeys;  // +0x48
+			ConfigList attachedCounts;  // +0x58
+		};
+
 		class EffectManager
 		{
 		public:
+			// 0x1081DE50: makes the manager from the record the engine's start-up fills (the inventories, the limits of the
+			// containers it keeps and the start callbacks)
+			explicit EffectManager(const EffectManagerConfig* config);
+			// 0x1081D1E0: destroys the containers of the manager
+			~EffectManager();
+			// 0x10819F60 / 0x10819F40: take a reference to the inventory the manager finds shaders and archetypes in
+			void SetInventory(content::LoadInventory* newInventory);
+			void SetSecondInventory(content::LoadInventory* newInventory);
+			// 0x108193B0: sets the function the manager calls (with an argument) when it is reset
+			void SetResetCallback(void (*callback)(int), int argument);
+			// 0x10819F80: lets go of both inventories
+			void ReleaseInventories();
+			// 0x10819FD0: whether another light fits and the manager makes lights
+			bool CanAddLight();
+			// 0x1081CF90: whether the list of playing effects of a key has no room for another
+			bool IsListFull(unsigned int key);
+			// 0x1081CFE0: whether the ring of attached drawables of a key has no place left
+			bool IsAttachedRingFull(unsigned int key);
+			// 0x1081C410: switches the particles of the effect of a drawable on or off (nothing without the effect)
+			void SetEffectEmitting(const unsigned int* effect, bool emitting, float fadeTime);
 			// 0x10819560: releases a drawable the manager made
 			void ReleaseDrawable(Drawable* drawable);
 			// 0x10819520: releases an attached drawable (given by value)
@@ -695,6 +757,12 @@ namespace engine
 
 		// 0x108193A0: the global manager
 		EffectManager* GetEffectManager();
+
+		// 0x1081E520: makes the global manager (in the heap of the effects)
+		void CreateEffectManager(const EffectManagerConfig* config);
+
+		// 0x1081E570: destroys the global manager
+		void DestroyEffectManager();
 	}
 }
 

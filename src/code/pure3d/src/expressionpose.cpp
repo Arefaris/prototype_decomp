@@ -21,6 +21,18 @@ namespace pure3d
 		}
 	}
 
+	// FUNCTION: ENGINE 0x10730BC0
+	int ExpressionPose::GetWeightCount()
+	{
+		return mArray.end - mArray.begin;
+	}
+
+	// FUNCTION: ENGINE 0x10730BF0
+	float ExpressionPose::GetWeight(int index)
+	{
+		return mArray.begin[index].weight;
+	}
+
 	// FUNCTION: ENGINE 0x10730BD0
 	void ExpressionPose::SetWeight(int index, float newWeight)
 	{

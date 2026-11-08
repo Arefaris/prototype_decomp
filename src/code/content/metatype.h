@@ -438,6 +438,15 @@ namespace content
 		virtual void Slot10();
 		virtual void Slot11();
 
+		// The slots as the engine's code takes them (see MatrixMetaType). A value is one of four kinds of name, selected by
+		// the two flags
+		// 0x105FD350 (slot 7)
+		void Destroy(void* object);
+		// 0x105FCDE0 (slot 9): always 1
+		int Unknown9(int a, int b);
+		// 0x105FCDF0 (slot 11): the name's key is written as it is
+		void WriteBinaryShort(WriteContext* context, unsigned int key);
+
 		bool flag8;
 		bool flag9;
 	};

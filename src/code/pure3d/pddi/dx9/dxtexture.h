@@ -85,6 +85,9 @@ namespace pure3d
 		}
 	}
 
+	// 0x1061CCE0: lets go of the default textures (name guess)
+	void ReleaseDefaultTextures();
+
 	// 0x1061C020: the Direct3D format a pddi format is made in, and whether the device takes it (the third argument
 	// asks for the format of a texture drawn into)
 	bool ResolveTextureFormat(unsigned int* d3dFormat, unsigned int format, bool renderTarget);

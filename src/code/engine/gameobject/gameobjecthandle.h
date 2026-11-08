@@ -94,6 +94,8 @@ namespace engine
 		{
 			return *(const unsigned int*)this == *(const unsigned int*)&other;
 		}
+		// 0x1006B210 (a kept function of another unit that callers do not expand): whether the object exists
+		bool Exists() const;
 		bool IsValid() const
 		{
 			return index != 0xffff && GetGameObjectEntries()[index].serial == serial && GetGameObjectEntries()[index].object != 0;

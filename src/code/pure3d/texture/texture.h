@@ -168,6 +168,9 @@ namespace pure3d
 		virtual void Write(const void* data, unsigned int bytes, unsigned int count);
 	};
 
+	// 0x10729B50 / 0x10729C00: a 2D texture of that size in the format 5 / 0x12 (name guesses)
+	Texture* MakeTextureFormat5(int width, int height);
+	Texture* MakeTextureFormat12(int width, int height);
 	// 0x1072B360: writes the texture's levels to a stream as a DDS file; false when its format has no DDS form
 	bool SaveTexture(OutputStream* stream, Texture* texture);
 }

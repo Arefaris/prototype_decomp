@@ -392,10 +392,74 @@ namespace proto
 		return &sList;
 	}
 
+	// FUNCTION: ENGINE 0x1052E430
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>* GlobalFBEffectsRig::GetBloomKeys()
+	{
+		return &bloomKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E440
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>* GlobalFBEffectsRig::GetTonemapKeys()
+	{
+		return &tonemapKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E450
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>* GlobalFBEffectsRig::GetColourMatrixKeys()
+	{
+		return &colourMatrixKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E460
+	GlobalFBEffectsRigChannel<GlobalFBEffectsRig::DOFParameters>* GlobalFBEffectsRig::GetDofKeys()
+	{
+		return &dofKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E470
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>* GlobalFBEffectsRig::GetBloomKeys() const
+	{
+		return &bloomKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E480
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>* GlobalFBEffectsRig::GetTonemapKeys() const
+	{
+		return &tonemapKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E490
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>* GlobalFBEffectsRig::GetColourMatrixKeys() const
+	{
+		return &colourMatrixKeys;
+	}
+
+	// FUNCTION: ENGINE 0x1052E4A0
+	const GlobalFBEffectsRigChannel<GlobalFBEffectsRig::DOFParameters>* GlobalFBEffectsRig::GetDofKeys() const
+	{
+		return &dofKeys;
+	}
+
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::BloomParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::TonemapParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
 	template class GlobalFBEffectsRigChannel<GlobalFBEffectsRig::DOFParameters>;
+	// FUNCTION: ENGINE 0x1052EA90
+	// NONMATCHING: 65 %: the engine computes the last index twice and branches on it differently
+#ifdef NONMATCHING
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::FindPreviousKey(float time);
+#endif
+	// FUNCTION: ENGINE 0x1052EB20
+	// NONMATCHING: 88 %: the engine tests the emptiness with a shift, ours masks the size
+#ifdef NONMATCHING
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::FindNextKey(float time);
+#endif
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::TonemapParameters>::FindPreviousKey(float time);
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::TonemapParameters>::FindNextKey(float time);
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>::FindPreviousKey(float time);
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>::FindNextKey(float time);
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>::FindPreviousKey(float time);
+	template int TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>::FindNextKey(float time);
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
@@ -565,3 +629,17 @@ namespace proto
 // FUNCTION: ENGINE 0x1053C180
 // FUNCTION: ENGINE 0x1053C1D0
 // FUNCTION: ENGINE 0x1053C620
+// FUNCTION: ENGINE 0x10534330
+// FUNCTION: ENGINE 0x10535080
+// FUNCTION: ENGINE 0x105368D0
+// FUNCTION: ENGINE 0x10537B10
+// FUNCTION: ENGINE 0x1053BF40
+// FUNCTION: ENGINE 0x1053BFD0
+// FUNCTION: ENGINE 0x1053C020
+// FUNCTION: ENGINE 0x1053C0B0
+// FUNCTION: ENGINE 0x1052EBB0
+// FUNCTION: ENGINE 0x1052EC50
+// FUNCTION: ENGINE 0x1052ED10
+// FUNCTION: ENGINE 0x1052EDB0
+// FUNCTION: ENGINE 0x1052EE70
+// FUNCTION: ENGINE 0x1052EF10

@@ -97,6 +97,42 @@ namespace pure3d
 		return true;
 	}
 
+	// FUNCTION: ENGINE 0x10729B50
+	// A 2D texture of that size in the format 5 (name guess)
+	Texture* MakeTextureFormat5(int width, int height)
+	{
+		TextureDescription description;
+		description.type = 1;
+		description.levels = 1;
+		description.depth = 1;
+		description.width = width;
+		description.height = height;
+		description.format = 5;
+		description.usage = 3;
+		description.flags = 0;
+		Texture* texture = new Texture();
+		texture->Create(&description, 0);
+		return texture;
+	}
+
+	// FUNCTION: ENGINE 0x10729C00
+	// A 2D texture of that size in the format 0x12 (name guess)
+	Texture* MakeTextureFormat12(int width, int height)
+	{
+		TextureDescription description;
+		description.type = 1;
+		description.levels = 1;
+		description.depth = 1;
+		description.width = width;
+		description.height = height;
+		description.format = 0x12;
+		description.usage = 3;
+		description.flags = 0;
+		Texture* texture = new Texture();
+		texture->Create(&description, 0);
+		return texture;
+	}
+
 	// FUNCTION: ENGINE 0x1072A100
 	void Texture::SetInfo(dxTexture* newInfo)
 	{

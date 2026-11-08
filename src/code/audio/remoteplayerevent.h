@@ -10,6 +10,12 @@
 
 namespace audio
 {
+	// The output bins of a mix (RTTI: the argument of RemotePlayerEvent_Param2<enum audio::MixBin, float>)
+	enum MixBin
+	{
+		MIXBIN_FIRST = 0
+	};
+
 	// The ring buffer the events live in (0x1127636C holds its address; 0x105BA7B0 / 0x105BA730)
 	class EventQueue
 	{
@@ -42,15 +48,54 @@ namespace audio
 	long AtomicExchange(volatile long* value, const long* newValue);
 	extern EventQueue* gEventQueue;
 
-	// A remote player of the audio library (the entry's first word, a pointer, is the player)
-	class RemotePlayer;
+	// A remote player of the audio library (the entry's first word, a pointer, is the player). The events keep the
+	// method they call as a pointer to a member of it; only the methods the game posts are declared.
+	class RemotePlayer
+	{
+	public:
+		// 0x104A5E20 (behind the jump thunk 0x1003CD62) and 0x104A2D90 (behind 0x10023DDF); names guessed
+		void Stop(unsigned int value);
+		void Play(unsigned int value);
+
+		// The setters of the unit 0x1087F100 - 0x1087F200 (names guessed): the audio thread writes the settings the game
+		// sent in events into the player
+		void SetUnknown444(float value);
+		void SetUnknown528(float value);
+		void SetUnknown52C(float value);
+		void SetUnknown520(float value);
+		void SetUnknown524(float value);
+		void SetUnknown544(float value);
+		void SetBinVolume(MixBin bin, float value);
+		void SetChannelVolume(unsigned int channel, float value);
+
+		unsigned char unknown0[0xb0];
+		float channelVolumes[18];  // +0xB0
+		float binVolumes[(0x444 - 0xf8) / 4];  // +0xF8
+		float unknown444;
+		unsigned char unknown448[0x520 - 0x448];
+		float unknown520;
+		float unknown524;
+		float unknown528;
+		float unknown52C;
+		unsigned char unknown530[0x544 - 0x530];
+		float unknown544;
+	};
 	struct RemotePlayerEntry
 	{
 		RemotePlayer* player;
-		unsigned char unknown4[0x3c - 4];
+		unsigned char unknown4[0x28 - 4];
+		bool unknown28;
+		unsigned int unknown2C;
+		float amplitude;  // +0x30
+		int unknown34;
+		float unknown38;
 	};
+	struct RemotePlayerHandle;
 	struct RemotePlayerTable
 	{
+		// 0x105BAF90: lets the player of the handle go
+		void Destroy(RemotePlayerHandle handle);
+
 		RemotePlayerEntry* entries;
 	};
 	extern RemotePlayerTable* gRemotePlayers;
@@ -110,7 +155,7 @@ namespace audio
 	template<class T> class RemotePlayerEvent_Param1 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T);
+		typedef void (RemotePlayer::*Function)(T);
 
 		RemotePlayerEvent_Param1(const RemotePlayerHandle& newPlayer, Function newFunction, T newValue) :
 			RemotePlayerEvent(newPlayer),
@@ -120,7 +165,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value);
+			(gRemotePlayers->entries[player.index].player->*function)(value);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param1)
 
@@ -131,7 +176,7 @@ namespace audio
 	template<class T1, class T2> class RemotePlayerEvent_Param2 : public RemotePlayerEvent
 	{
 	public:
-		typedef void (__thiscall *Function)(RemotePlayer*, T1, T2);
+		typedef void (RemotePlayer::*Function)(T1, T2);
 
 		RemotePlayerEvent_Param2(RemotePlayerHandle newPlayer, Function newFunction, T1 newValue1, T2 newValue2) :
 			RemotePlayerEvent(newPlayer),
@@ -142,7 +187,7 @@ namespace audio
 		}
 		virtual void Execute()
 		{
-			function(gRemotePlayers->entries[player.index].player, value1, value2);
+			(gRemotePlayers->entries[player.index].player->*function)(value1, value2);
 		}
 		AUDIO_EVENT_MEMORY(RemotePlayerEvent_Param2)
 

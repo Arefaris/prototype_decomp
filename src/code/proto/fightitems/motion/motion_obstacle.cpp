@@ -1458,7 +1458,10 @@ namespace proto
 // FUNCTION: ENGINE 0x10D81BC0
 
 
+template proto::fightitems::motion::PushFromObstacleTrack* core::Link<proto::fightitems::motion::PushFromObstacleTrack>::Get() const;
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x100F8810
 // FUNCTION: ENGINE 0x100F77F0
 // FUNCTION: ENGINE 0x100F8790
 // FUNCTION: ENGINE 0x100F8820

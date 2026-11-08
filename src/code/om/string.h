@@ -112,6 +112,9 @@ namespace om
 	int FormatBuffer(char* buffer, unsigned int size, const char* format, ...);
 	// 0x105B4500: the string with a space in front of every capital letter that does not follow one (up to 255 characters)
 	String SpaceOutCapitals(const String& source);
+	// 0x105B45D0: the text with an underscore in front of a capital that follows a small letter and in place of every
+	// space, made small (up to 255 characters)
+	String ToSnakeCase(const String& source);
 	// 0x105B46B0: sets the string to the last characters of the source (a number of them, the end of the text included)
 	void AssignTail(String& result, const String& source, unsigned int count);
 	// 0x105B4180: sets the string to the formatted text

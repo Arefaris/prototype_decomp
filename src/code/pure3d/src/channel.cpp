@@ -182,7 +182,7 @@ namespace pure3d
 	{
 		ChannelKeys<int> keys;
 		keys.Set(mode, count, frames, values);
-		keys.GetKey(index, frame, out);
+		keys.GetKeyAt(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x10734FE0
@@ -249,7 +249,7 @@ namespace pure3d
 	{
 		ChannelKeys<float> keys;
 		keys.Set(mode, count, frames, values);
-		keys.GetKey(index, frame, out);
+		keys.GetKeyAt(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x107350B0
@@ -324,7 +324,7 @@ namespace pure3d
 	{
 		ChannelKeys<Float2> keys;
 		keys.Set(mode, count, frames, values);
-		keys.GetKey(index, frame, out);
+		keys.GetKeyAt(index, frame, out);
 	}
 
 	// FUNCTION: ENGINE 0x107351D0

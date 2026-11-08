@@ -169,6 +169,16 @@ namespace proto
 		static content::ClassInfo* GetClassInfo();
 		static content::MemberList* GetMembers();
 
+		// The channels of the effects (the engine keeps a copy for const rigs)
+		GlobalFBEffectsRigChannel<BloomParameters>* GetBloomKeys();
+		GlobalFBEffectsRigChannel<TonemapParameters>* GetTonemapKeys();
+		GlobalFBEffectsRigChannel<ColourMatrixParameters>* GetColourMatrixKeys();
+		GlobalFBEffectsRigChannel<DOFParameters>* GetDofKeys();
+		const GlobalFBEffectsRigChannel<BloomParameters>* GetBloomKeys() const;
+		const GlobalFBEffectsRigChannel<TonemapParameters>* GetTonemapKeys() const;
+		const GlobalFBEffectsRigChannel<ColourMatrixParameters>* GetColourMatrixKeys() const;
+		const GlobalFBEffectsRigChannel<DOFParameters>* GetDofKeys() const;
+
 		GlobalFBEffectsRigChannel<BloomParameters> bloomKeys;  // +0
 		GlobalFBEffectsRigChannel<TonemapParameters> tonemapKeys;  // +0x18
 		GlobalFBEffectsRigChannel<ColourMatrixParameters> colourMatrixKeys;  // +0x30

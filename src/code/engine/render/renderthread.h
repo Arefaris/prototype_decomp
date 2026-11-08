@@ -3,6 +3,8 @@
 #ifndef ENGINE_RENDER_RENDERTHREAD_H
 #define ENGINE_RENDER_RENDERTHREAD_H
 
+#include "code/engine/render/async/renderevent.h"
+
 namespace engine
 {
 	namespace render
@@ -14,6 +16,24 @@ namespace engine
 			void* semaphore;
 			bool waiting;
 		};
+
+		// RTTI: engine::render::RenderThreadCallbackAdapter: an event that runs another event on the render thread and
+		// then returns its own memory (the other event frees itself)
+		class RenderThreadCallbackAdapter : public RenderEvent
+		{
+		public:
+			// 0x10860B90 (the kept out-of-line copy of the inline constructor)
+			RenderThreadCallbackAdapter(RenderEvent* newEvent) : event(newEvent)
+			{
+			}
+			// 0x10860BB0
+			virtual void Execute();
+
+			RenderEvent* event;
+		};
+
+		// 0x10860BD0: queues the event for the render thread inside an adapter
+		void QueueRenderThreadCallback(RenderEvent* event);
 
 		class RenderQueue
 		{

@@ -122,6 +122,8 @@ namespace om
 		void Remove(GarbageLink* link);
 		// 0x105CF410: takes the holders out one by one and deletes them
 		void DeleteAll();
+		// Makes a holder of a value that the list deletes with the others, and answers the value (name guessed)
+		template<class V> V* Hold(V* value);
 
 		GarbageLink* head;
 		GarbageLink* tail;
@@ -147,6 +149,12 @@ namespace om
 	template<class V> const char* Garbage<V>::AllocationTag()
 	{
 		return "";
+	}
+
+	template<class V> V* GarbageList::Hold(V* value)
+	{
+		Add(new Garbage<V>(value));
+		return value;
 	}
 }
 

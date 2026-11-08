@@ -40,5 +40,21 @@ namespace engine
 			core::CriticalSectionLeave(lock);
 			core::SemaphoreWait(&waiter->semaphore);
 		}
+
+		// FUNCTION: ENGINE 0x10860BB0
+		void RenderThreadCallbackAdapter::Execute()
+		{
+			event->Execute();
+			FreeRenderEvent(this);
+		}
+
+		// FUNCTION: ENGINE 0x10860BD0
+		void QueueRenderThreadCallback(RenderEvent* event)
+		{
+			PushRenderEvent(new (AllocRenderEvent(sizeof(RenderThreadCallbackAdapter))) RenderThreadCallbackAdapter(event));
+		}
 	}
 }
+
+// Kept copy of the inline constructor of RenderThreadCallbackAdapter:
+// FUNCTION: ENGINE 0x10860B90

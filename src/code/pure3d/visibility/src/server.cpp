@@ -2,6 +2,9 @@
 // server and the frustum tests its asynchronous tasks run. Names are guesses.
 #include "code/core/asynctask.h"
 #include "code/core/criticalsection.h"
+#include <math.h>
+
+#include "code/core/heap.h"
 #include "code/pure3d/visibility.h"
 
 namespace pure3d
@@ -66,6 +69,97 @@ namespace pure3d
 		// 0x10729A90: the occlusion test task (another unit's part of the same file)
 		void RunOcclusionTestTask(Test* test, core::AsyncTaskCallback* callback);
 
+		// FUNCTION: ENGINE 0x10726510
+		VisibilityTestTaskCallBack::VisibilityTestTaskCallBack()
+		{
+		}
+
+		// FUNCTION: ENGINE 0x10728330
+		void VisibilityTestTaskCallBack::OnResult(int result)
+		{
+			core::EventSignal(event, 1);
+		}
+
+		// FUNCTION: ENGINE 0x107265A0
+		float Server::GetUnknown1EC()
+		{
+			return (float)sqrt((double)unknown1EC);
+		}
+
+		// FUNCTION: ENGINE 0x10726E20
+		void Server::SetUnknown1EC(float size)
+		{
+			float clamped = 0.0f;
+			if (!(size < 0.0f))
+			{
+				clamped = size;
+			}
+			unknown1EC = clamped * clamped;
+		}
+
+		// FUNCTION: ENGINE 0x10726970
+		int Server::GetUserDataCount()
+		{
+			return userDataEnd - userData;
+		}
+
+		// FUNCTION: ENGINE 0x10726930
+		int Server::GetRegionBase(int region)
+		{
+			return regionTableA0[region] << 5;
+		}
+
+		// FUNCTION: ENGINE 0x10726950
+		int Server::GetRegionBase2(int region)
+		{
+			return regionTable94[region] << 5;
+		}
+
+		// FUNCTION: ENGINE 0x10726F20
+		// NONMATCHING: the engine keeps the server and the result sets on the stack and the sphere in ebx, and reads the
+		// components in order (8 %)
+#ifdef NONMATCHING
+		void Server::TestSphere(const math::Sphere* sphere)
+		{
+			unsigned int lastWord = ((userDataEnd - userData) - 1U) >> 5;
+			BitFieldStack* stack = bits;
+			unsigned int word = 0;
+			do
+			{
+				unsigned int candidates = stack->results[1].words[word] & stack->results[4].words[word];
+				if (candidates == 0)
+				{
+					stack->results[2].words[word] = 0;
+				}
+				else
+				{
+					unsigned int result = 0;
+					int offset = word << 9;
+					unsigned int bit = 1;
+					do
+					{
+						if (candidates & bit)
+						{
+							const math::Sphere* other = (const math::Sphere*)((char*)spheres + offset);
+							float dx = sphere->centre.x - other->centre.x;
+							float dy = sphere->centre.y - other->centre.y;
+							float dz = sphere->centre.z - other->centre.z;
+							float reach = other->radius + sphere->radius;
+							if (dx * dx + dy * dy + dz * dz <= reach * reach)
+							{
+								result |= bit;
+							}
+						}
+						bit += bit;
+						offset += 0x10;
+					} while (bit != 0);
+					stack->results[2].words[word] = result;
+				}
+				word++;
+			} while (word <= lastWord);
+		}
+#endif
+
 		// FUNCTION: ENGINE 0x10726590
 		unsigned int Server::GetFlagSetCount()
 		{
@@ -98,6 +192,23 @@ namespace pure3d
 				&gTestTaskId);
 			core::RegisterAsyncTaskFunction("pure3dVisibilityOcclusionTest",
 				(void (*)(void*, core::AsyncTaskCallback*))RunOcclusionTestTask, &gOcclusionTestTaskId);
+		}
+
+		// FUNCTION: ENGINE 0x10729A50
+		// The occlusion test of a task on the calling thread (name guess)
+		void RunOcclusionTestHere(Test* test)
+		{
+			core::SetCurrentHeap(test->heap);
+			test->server->RunOcclusionTest(&test->viewer, test->outputBits, test->unknownB0, test->slot);
+		}
+
+		// FUNCTION: ENGINE 0x10729A90
+		void RunOcclusionTestTask(Test* test, core::AsyncTaskCallback* callback)
+		{
+			RunTest(test, (core::AsyncTask*)callback);
+			core::SetCurrentHeap(test->heap);
+			test->server->RunOcclusionTest(&test->viewer, test->outputBits, test->unknownB0, test->slot);
+			callback->SetResult(test->slot);
 		}
 
 		// FUNCTION: ENGINE 0x10726570

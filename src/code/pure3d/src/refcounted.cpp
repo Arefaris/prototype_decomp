@@ -1,6 +1,7 @@
 // pure3d::RefCounted and pure3d::LockableRefCounted (code/pure3d/src/refcounted.cpp, file name guessed from the
 // classes; the unit starts at 0x106E2900): the interlocked reference counts of the render objects. Names are guesses.
 #include "code/core/interlocked.h"
+#include "code/pure3d/camera.h"
 #include "code/pure3d/context.h"
 #include "code/pure3d/entity.h"
 #include "code/pure3d/pose.h"
@@ -24,6 +25,12 @@ namespace pure3d
 	void RefCounted::operator delete(void* block)
 	{
 		::operator delete(block);
+	}
+
+	// FUNCTION: ENGINE 0x106E2920
+	void Camera::ReleaseThunk()
+	{
+		Release();
 	}
 
 	// FUNCTION: ENGINE 0x106E2930

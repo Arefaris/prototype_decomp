@@ -58,7 +58,7 @@ namespace om
 	};
 
 	// 0x105C0E10: formats into a buffer of 2048 characters and writes it (cdecl, the stream first)
-	void StreamPrintf(Stream* stream, const char* format, ...);
+	char StreamPrintf(Stream* stream, const char* format, ...);
 }
 
 #endif

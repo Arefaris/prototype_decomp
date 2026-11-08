@@ -120,6 +120,9 @@ namespace core
 	class AsyncTaskJob
 	{
 	public:
+		// 0x10B7F960: clears the node and the state; 0x10B7F990 does nothing
+		AsyncTaskJob();
+		~AsyncTaskJob();
 		// 1: idle or done; 3: submitted; 4: run on the calling thread
 		int state;
 		int unknown4[3];
