@@ -24,6 +24,8 @@
 #include "code/pure3d/pose.h"
 #include "code/pure3d/shaderparameters.h"
 
+struct IDirect3DQuery9;
+
 namespace pure3d
 {
 	class PartBinding;
@@ -1110,12 +1112,17 @@ namespace pure3d
 	// A state the particle module keeps and whether it has been released (8 bytes)
 	struct ParticleStateRecord
 	{
+		// 0x106EDA00
+		explicit ParticleStateRecord(PrimitiveState* newState);
+
 		PrimitiveState* state;
 		bool released;
 		unsigned char unknown5[3];
 	};
 
 	// The particle module (0x106EDA80 returns the global at 0x1127EE4C; names guessed)
+	class ParticleTaskManager;
+
 	class ParticleManager
 	{
 	public:
@@ -1147,6 +1154,8 @@ namespace pure3d
 		void Unknown106EE500();
 		// 0x106EEC50: the multisample mode the surfaces are made with, from the display's sample count
 		void Unknown106EEC50(int samples);
+		// 0x106EDC20: the value at +0x1A0 and the budget of the surfaces that goes with it (name guess)
+		void SetUnknown1A0(int value);
 
 		// 0x106EDAB0 / 0x106EDAA0, 0x106EDB20 / 0x106EDB30, 0x106EDAC0, 0x106EDB40, 0x106EDBE0: the flags at +0x184,
 		// +0x198 (cleared), +0x199 (set when the argument is clear) and +0x19A, and the float at +0x19C (names guessed)
@@ -1168,6 +1177,10 @@ namespace pure3d
 		float GetUnknown1B8();
 		void SetUnknown1B8(float value);
 
+		// 0x106F2830 (the module is made by 0x106F2D00); 0x106F2AD0
+		ParticleManager();
+		~ParticleManager();
+
 		ParticleParameter** parameters;
 		ParticleParameter** parametersEnd;
 		unsigned char unknown8[8];
@@ -1177,7 +1190,11 @@ namespace pure3d
 		container::ArrayDynamicHeap<ParticleStateRecord> states;
 		unsigned char unknown70[0x114];
 		bool unknown184;
-		unsigned char unknown185[0x13];
+		unsigned char unknown185[3];
+		unsigned char unknown188[8];
+		unsigned char unknown190[4];
+		// The tasks the particle systems update in
+		ParticleTaskManager* taskManager;
 		bool unknown198;
 		bool unknown199;
 		bool unknown19A;
@@ -1185,10 +1202,19 @@ namespace pure3d
 		float unknown19C;
 		int unknown1A0;
 		int unknown1A4;
-		unsigned char unknown1A8[8];
+		unsigned __int64 unknown1A8;
 		unsigned __int64 unknown1B0;
 		float unknown1B8;
 		float unknown1BC;
+		int unknown1C0;
+		// The two queries the module times its drawing with, whether each has been started and what its result is
+		// scaled by (names guessed)
+		IDirect3DQuery9* queries[2];
+		bool queryStarted[2];
+		unsigned char unknown1CE[2];
+		float queryScale[2];
+		unsigned char unknown1D8[8];
+		int unknown1E0;
 	};
 	// 0x106EDA80
 	ParticleManager* GetParticleManager();

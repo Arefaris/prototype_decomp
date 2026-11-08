@@ -9,6 +9,8 @@
 
 namespace pure3d
 {
+	struct ParticleEntry;
+
 	class ParticleTaskManager
 	{
 	public:
@@ -62,6 +64,8 @@ namespace pure3d
 		// 0x1073BE50 / 0x1073BEE0: the tasks, the lock and the events are made and unmade
 		ParticleTaskManager();
 		~ParticleTaskManager();
+		// 0x1073BBD0: sets the tasks of an entry of the particle module up (name guess)
+		void AddEntry(ParticleEntry* entry);
 		// 0x1073BD60: forgets the queue and every chain
 		void Reset();
 		// 0x1073BDC0: waits until the pass is done, then forgets the queue and every chain
@@ -83,6 +87,8 @@ namespace pure3d
 		unsigned char passes[2][8];
 		int unknown4FE4;
 		unsigned int pass;
+		// Only the module's allocation shows this word (0x4FF0 bytes)
+		unsigned int unknown4FEC;
 	};
 }
 

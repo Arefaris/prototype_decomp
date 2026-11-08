@@ -1,11 +1,28 @@
 // The primitive unit of pure3d (0x106F2D00 - 0x106F4400; file name guessed): primitive states, the render state
 // backup and pure3d::PrimStream. Names are guesses.
 #include "code/core/refptr.h"
+#include "code/pure3d/effects/particletaskmanager.h"
 #include "code/pure3d/pddi.h"
+#include "code/pure3d/primitive.h"
 #include "code/pure3d/primstream.h"
+#include "code/pure3d/shader.h"
+
+namespace engine
+{
+	namespace driving
+	{
+		extern const float gHalf;
+	}
+}
 
 namespace pure3d
 {
+	// 0x1127EE4C
+	extern ParticleManager* gParticleManager;
+
+	// 0x106F3B10: the flush of the streams the context started
+	void Unknown106F3B10();
+
 	// FUNCTION: ENGINE 0x106F31D0
 	void RenderStateBackup::Restore()
 	{
@@ -83,6 +100,55 @@ namespace pure3d
 	ViewMatrixBackup::~ViewMatrixBackup()
 	{
 		pddi->SetViewMatrix(&matrix);
+	}
+
+	// FUNCTION: ENGINE 0x106F2D00
+	void Unknown106F2D00()
+	{
+		if (gParticleManager == 0)
+		{
+			gParticleManager = new ParticleManager();
+		}
+		ParticleTaskManager* taskManager = new ParticleTaskManager();
+		ParticleEntry** end = gParticleManager->entriesEnd;
+		for (ParticleEntry** entry = gParticleManager->entries; entry < end; entry++)
+		{
+			taskManager->AddEntry(*entry);
+		}
+		gParticleManager->taskManager = taskManager;
+	}
+
+	// FUNCTION: ENGINE 0x106F2DB0
+	void Unknown106F2DB0()
+	{
+		delete gParticleManager;
+		gParticleManager = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106F2DE0
+	Primitive* PrimitiveState::GetPrimitive()
+	{
+		return primitive;
+	}
+
+	// FUNCTION: ENGINE 0x106F37E0
+	PrimStream::PrimStream() : parameters(engine::driving::gHalf)
+	{
+		buffer = 0;
+		written = false;
+		shader = new Shader("unlit");
+		shader->AddRef();
+	}
+
+	// FUNCTION: ENGINE 0x106F3C50
+	PrimStream::~PrimStream()
+	{
+		Unknown106F3B10();
+		if (shader)
+		{
+			shader->Release();
+		}
+		buffer = 0;
 	}
 
 	// FUNCTION: ENGINE 0x106F3630

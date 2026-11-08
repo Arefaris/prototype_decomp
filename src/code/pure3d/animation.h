@@ -5,10 +5,16 @@
 
 #include "code/pure3d/entity.h"
 
+namespace compress
+{
+	class Stream;
+}
+
 namespace pure3d
 {
 	class AnimationMemoryBlock;
 	class Channel;
+	class Animation;
 
 	// A group of channels of an animation, found by a name (RTTI: vftable 0x10E55A78, 2 slots)
 	class AnimationGroup
@@ -76,16 +82,39 @@ namespace pure3d
 		unsigned char unknown8[0x28];
 	};
 
+	// The 0x20 bytes in front of the data of an animation in the manager's memory (names guessed)
+	struct AnimationDataHeader
+	{
+		unsigned char unknown0[8];
+		int pool;
+		unsigned char unknownC[4];
+		// How many animations use the data
+		int users;
+		unsigned char unknown14[4];
+		// The stream that decompresses the data (null when it is ready)
+		compress::Stream* stream;
+		unsigned char unknown1C[4];
+	};
+
 	// The manager of the animation memory (the global at 0x1127EDDC)
 	class AnimationMemoryManager
 	{
 	public:
+		// 0x106E7760: a user of the data of an animation (the data is touched unless the flag is set; names guessed)
+		void Use(void* data, int noTouch);
+		// 0x106E77B0: a user lets go of the data
+		void Release(void* data);
+		// 0x106E9180: brings the data of the animation in (name guess)
+		void* Load(Animation* animation);
+
 		// 0x106E76C0: marks the data as used (with the manager's lock held)
 		void Touch(void* data);
 		// 0x106E77E0: gives the data of an animation back (name guess)
 		void FreeData(void* data);
 
-		unsigned char unknown0[0x68];
+		unsigned char unknown0[0x10];
+		// The lock of the manager (a critical section)
+		unsigned char unknown10[0x58];
 		// How many bytes of animation data have been given back (name guess)
 		int mFreed;
 	};

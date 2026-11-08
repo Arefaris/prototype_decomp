@@ -1,6 +1,8 @@
 // pure3d animations (code/pure3d/anim/src/animation.cpp, path from the asserts; the unit starts around 0x106E2A30):
 // the key readers of the channels among others. Names are guesses.
 #include "code/math/compressedquaternion.h"
+#include "code/compress/compress.h"
+#include "code/core/criticalsection.h"
 #include "code/core/heap.h"
 #include "code/core/refptr.h"
 #include "code/math/mathutils.h"
@@ -850,6 +852,66 @@ namespace pure3d
 		return -1;
 	}
 #endif
+
+	// FUNCTION: ENGINE 0x106E76C0
+	void AnimationMemoryManager::Touch(void* data)
+	{
+		AnimationDataHeader* header = (AnimationDataHeader*)data - 1;
+		if (header->stream)
+		{
+			core::CriticalSectionEnter(&unknown10);
+			compress::Stream* stream = header->stream;
+			if (stream && !stream->IsDone())
+			{
+				header->stream->Wait();
+			}
+			core::CriticalSectionLeave(&unknown10);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E9820
+	unsigned int SwapColour(unsigned int colour)
+	{
+		return colour >> 16 & 0xFF | (colour & 0xFF) << 16 | colour & 0xFF00FF00;
+	}
+
+	// FUNCTION: ENGINE 0x106E7910
+	void* AnimationGroup::FindChannel(unsigned int type, unsigned int format)
+	{
+		for (unsigned int i = 0; i < mChannelCount; i++)
+		{
+			if (type == mChannels[i]->unknown8 && format == mChannels[i]->GetType())
+			{
+				return mChannels[i];
+			}
+		}
+		return 0;
+	}
+
+	// FUNCTION: ENGINE 0x106E7B50
+	void Animation::Unknown106E7B50()
+	{
+		AnimationMemoryManager* manager = gAnimationMemoryManager;
+		if (manager && mBlock)
+		{
+			manager->Release(mBlock->mData);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E9310
+	void Animation::Unknown106E9310(int mode)
+	{
+		AnimationMemoryManager* manager = gAnimationMemoryManager;
+		if (manager && mBlock)
+		{
+			if (mBlock->mData == 0)
+			{
+				manager->Load(this);
+				manager = gAnimationMemoryManager;
+			}
+			manager->Use(mBlock->mData, mode);
+		}
+	}
 
 	// FUNCTION: ENGINE 0x106E3050
 	void FrameTime::SetTime(float newTime)

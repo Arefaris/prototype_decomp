@@ -155,6 +155,19 @@ namespace pure3d
 			flag2 = 0;
 		}
 
+		// The same defaults with the first word given (PrimStream starts it at one half)
+		explicit PrimStreamParameters(float newUnknown0)
+		{
+			unknown0 = newUnknown0;
+			blendMode = 1;
+			blendFactor = 0;
+			unknown4Bits10 = 4;
+			unknown4Bits14 = 1;
+			flag0 = 0;
+			flag1 = 0;
+			flag2 = 0;
+		}
+
 		float unknown0;
 		int blendMode : 5;
 		unsigned int blendFactor : 5;
@@ -173,7 +186,7 @@ namespace pure3d
 	public:
 		// 0x106F37E0
 		PrimStream();
-		// Slot 0: the deleting destructor
+		// 0x106F3C50; the deleting destructor (slot 0) is 0x106F3CB0
 		virtual ~PrimStream();
 
 		// 0x106F4100: Open, then the shader name and the parameters when given
@@ -214,7 +227,9 @@ namespace pure3d
 		int colourOffset;
 		unsigned char unknown3C[4];
 		int coordinatesOffset;
-		unsigned char unknown44[0x20];
+		unsigned char unknown44[0x1C];
+		// The shader the stream draws with ("unlit" to begin with)
+		Shader* shader;
 		PrimStreamBuffer* buffer;
 		bool written;
 	};

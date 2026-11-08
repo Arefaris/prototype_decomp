@@ -8,7 +8,7 @@
 namespace pure3d
 {
 	typedef char TaskSizeCheck[sizeof(ParticleTaskManager::Task) == 0x80 ? 1 : -1];
-	typedef char ManagerSizeCheck[sizeof(ParticleTaskManager) == 0x4FEC ? 1 : -1];
+	typedef char ManagerSizeCheck[sizeof(ParticleTaskManager) == 0x4FF0 ? 1 : -1];
 
 	// FUNCTION: ENGINE 0x1073B950
 	ParticleTaskManager::TaskCallback::TaskCallback()
