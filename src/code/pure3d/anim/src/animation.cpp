@@ -1,6 +1,8 @@
 // pure3d animations (code/pure3d/anim/src/animation.cpp, path from the asserts; the unit starts around 0x106E2A30):
 // the key readers of the channels among others. Names are guesses.
 #include "code/math/compressedquaternion.h"
+#include "code/core/heap.h"
+#include "code/core/refptr.h"
 #include "code/math/mathutils.h"
 #include <math.h>
 #include <new>
@@ -14,6 +16,11 @@ namespace engine
 	namespace camera
 	{
 		extern const float gThousandth;
+	}
+
+	namespace driving
+	{
+		extern const float gThirty;
 	}
 }
 
@@ -542,6 +549,307 @@ namespace pure3d
 		out->MultiplyInverse(last, q0);
 		math::Multiply(*out, *out, wrapped);
 	}
+
+	// FUNCTION: ENGINE 0x106E7820
+	// NONMATCHING: the engine keeps no zero register (16 %)
+#ifdef NONMATCHING
+	AnimationMemoryBlock::AnimationMemoryBlock(const unsigned int* sizes)
+	{
+		mSizes[0] = sizes[0];
+		mUsed[0] = 0;
+		mPools[0] = mSizes[0] > 0 ? new char[mSizes[0]] : 0;
+		mSizes[1] = sizes[1];
+		mUsed[1] = 0;
+		if (mSizes[1] > 0)
+		{
+			mPools[1] = new char[mSizes[1]];
+		}
+		else
+		{
+			mPools[1] = 0;
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E7890
+	AnimationMemoryBlock::~AnimationMemoryBlock()
+	{
+		delete[] mPools[0];
+		delete[] mPools[1];
+	}
+
+	// FUNCTION: ENGINE 0x106E78C0
+	// NONMATCHING: the engine computes the address before it stores the new fill (57 %)
+#ifdef NONMATCHING
+	void* AnimationMemoryBlock::Allocate(unsigned int size, unsigned int alignmentMask)
+	{
+		if (size > 0)
+		{
+			unsigned int pool = alignmentMask != 7;
+			unsigned int offset = (mUsed[pool] + alignmentMask) & ~alignmentMask;
+			void* result = mPools[pool] + offset;
+			mUsed[pool] = offset + size;
+			return result;
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E7960
+	// NONMATCHING: scheduling (64 %: the engine loads the frame rate and zeroes the float registers first and stores the
+	// vftable after the member words)
+#ifdef NONMATCHING
+	Animation::Animation()
+	{
+		float zero = 0.0f;
+		float rate = engine::driving::gThirty;
+		mFlag0 = false;
+		mType = 0;
+		mSortMode = 0;
+		mGroupCount = 0;
+		mGroups = 0;
+		mGroupBlock = 0;
+		mEventCount = 0;
+		mEvents = 0;
+		mBlock = 0;
+		numFrames = zero;
+		mFrameRate = rate;
+		mUnknown20 = zero;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E91F0
+	Animation::~Animation()
+	{
+		if (mGroupBlock == 0)
+		{
+			for (int i = 0; i < mGroupCount; i++)
+			{
+				AnimationGroup* group = mGroups[i];
+				if (group)
+				{
+					delete group;
+				}
+			}
+			delete[] mEvents;
+			delete[] mGroups;
+		}
+		else
+		{
+			for (int i = 0; i < mGroupCount; i++)
+			{
+				mGroups[i]->Clear();
+			}
+			if (mEvents)
+			{
+				mGroupBlock->Release();
+			}
+			core::SafeRelease(mGroupBlock);
+		}
+		if (mBlock)
+		{
+			AnimationMemoryManager* manager = gAnimationMemoryManager;
+			if (manager)
+			{
+				manager->mFreed += mBlock->mEnd - mBlock->mStart;
+			}
+			if (mBlock->mData)
+			{
+				if (manager)
+				{
+					manager->FreeData(mBlock->mData);
+				}
+				else
+				{
+					core::FreeAligned(mBlock->mData);
+				}
+				mBlock->mData = 0;
+			}
+			delete[] mBlock->mArray;
+			delete mBlock;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E79B0
+	bool Animation::Unknown3()
+	{
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x106E79C0
+	Animation* Animation::Unknown4()
+	{
+		return this;
+	}
+
+	// FUNCTION: ENGINE 0x106E8550
+	AnimationGroup::AnimationGroup()
+	{
+		mId = 0;
+		mChannelCount = 0;
+		mChannels = 0;
+		mBlock = 0;
+	}
+
+	// FUNCTION: ENGINE 0x106E91E0
+	AnimationGroup::~AnimationGroup()
+	{
+		Clear();
+	}
+
+	// FUNCTION: ENGINE 0x106E8C80
+	void AnimationGroup::Clear()
+	{
+		if (mBlock == 0)
+		{
+			for (unsigned int i = 0; i < mChannelCount; i++)
+			{
+				Channel* channel = mChannels[i];
+				if (channel)
+				{
+					delete channel;
+				}
+			}
+			delete[] mChannels;
+		}
+		else
+		{
+			for (unsigned int i = 0; i < mChannelCount; i++)
+			{
+				mChannels[i]->Clear();
+			}
+			core::SafeRelease(mBlock);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106E8590
+	// NONMATCHING: register allocation (64 %: the engine keeps the group count in ebx and the lower bound in edi; same operations)
+#ifdef NONMATCHING
+	AnimationGroup* Animation::FindGroup(const core::Name<core::CaseSensitiveKey>* name)
+	{
+		int count = mGroupCount;
+		if (count > 0)
+		{
+			if (mSortMode == 0)
+			{
+				count = count - 1;
+				int low = 0;
+				int middle = count / 2;
+				if (count > 0)
+				{
+					AnimationGroup** groups = mGroups;
+					do
+					{
+						AnimationGroup* group = groups[middle];
+						if (group->mName > *name)
+						{
+							count = middle - 1;
+						}
+						else
+						{
+							if (!(group->mName < *name))
+							{
+								return groups[middle];
+							}
+							low = middle + 1;
+						}
+						middle = (count - low) / 2 + low;
+					}
+					while (low < count);
+				}
+				AnimationGroup* group = mGroups[middle];
+				if (group->mName == *name)
+				{
+					return group;
+				}
+			}
+			else
+			{
+				int i = 0;
+				if (count > 0)
+				{
+					AnimationGroup** groups = mGroups;
+					AnimationGroup** item = groups;
+					do
+					{
+						if ((*item)->mName == *name)
+						{
+							return groups[i];
+						}
+						i++;
+						item++;
+					}
+					while (i < count);
+				}
+			}
+		}
+		return 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E8690
+	// NONMATCHING: register allocation (66 %: the engine keeps the group count in ebx and the lower bound in edi; same operations)
+#ifdef NONMATCHING
+	int Animation::FindGroupIndex(const core::Name<core::CaseSensitiveKey>* name)
+	{
+		int count = mGroupCount;
+		if (count > 0)
+		{
+			if (mSortMode == 0)
+			{
+				count = count - 1;
+				int low = 0;
+				int middle = count / 2;
+				if (count > 0)
+				{
+					AnimationGroup** groups = mGroups;
+					do
+					{
+						AnimationGroup* group = groups[middle];
+						if (group->mName > *name)
+						{
+							count = middle - 1;
+						}
+						else
+						{
+							if (!(group->mName < *name))
+							{
+								return middle;
+							}
+							low = middle + 1;
+						}
+						middle = (count - low) / 2 + low;
+					}
+					while (low < count);
+				}
+				if (mGroups[middle]->mName == *name)
+				{
+					return middle;
+				}
+			}
+			else
+			{
+				int i = 0;
+				if (count > 0)
+				{
+					AnimationGroup** groups = mGroups;
+					AnimationGroup** item = groups;
+					do
+					{
+						if ((*item)->mName == *name)
+						{
+							return i;
+						}
+						i++;
+						item++;
+					}
+					while (i < count);
+				}
+			}
+		}
+		return -1;
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x106E3050
 	void FrameTime::SetTime(float newTime)
@@ -1443,3 +1751,9 @@ template void pure3d::ChannelKeys<math::CompressedQuaternion4>::Evaluate(float t
 
 // FUNCTION: ENGINE 0x106E6EE0
 template void pure3d::ChannelKeys<math::CompressedQuaternion3>::Evaluate(float time, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E8200
+template void core::SafeRelease<pure3d::AnimationMemoryBlock>(pure3d::AnimationMemoryBlock*& object);
+
+// FUNCTION: ENGINE 0x106E8220
+template void core::SafeRelease<pure3d::ChannelLoader>(pure3d::ChannelLoader*& object);

@@ -4,6 +4,7 @@
 #include "code/math/pddicolour.h"
 #include "code/math/vector4.h"
 #include "code/pure3d/primitive.h"
+#include "code/pure3d/vertexstream.h"
 
 namespace math
 {
@@ -293,3 +294,29 @@ namespace pure3d
 		return states.Capacity() - states.Size();
 	}
 }
+
+// The streams of vectors and of four-component vectors the particle module's buffers are written through (the
+// engine's kept copies sit in this unit)
+// FUNCTION: ENGINE 0x106EBB40
+template void pure3d::VertexStream<math::Vector>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EBBA0
+template void pure3d::VertexStream<math::Vector4>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC110
+template pure3d::VertexStream<math::Vector>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC140
+template pure3d::VertexStream<math::Vector4>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EBC00
+template void pure3d::VertexStream<math::pddiColour>::Init(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);
+
+// FUNCTION: ENGINE 0x106EC170
+template pure3d::VertexStream<math::pddiColour>::VertexStream(pure3d::dxVertexDeclaration* lock,
+	core::Name<core::CaseInsensitiveKey32> name);

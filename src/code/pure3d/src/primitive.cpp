@@ -1,5 +1,6 @@
 // The primitive unit of pure3d (0x106F2D00 - 0x106F4400; file name guessed): primitive states, the render state
 // backup and pure3d::PrimStream. Names are guesses.
+#include "code/core/refptr.h"
 #include "code/pure3d/pddi.h"
 #include "code/pure3d/primstream.h"
 
@@ -116,3 +117,6 @@ namespace pure3d
 		return opened;
 	}
 }
+
+// FUNCTION: ENGINE 0x106F3740
+template void core::SafeRelease<pure3d::dxVertexBuffer>(pure3d::dxVertexBuffer*& object);
