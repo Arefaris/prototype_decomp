@@ -19,16 +19,6 @@ namespace pure3d
 			const PrimStreamParameters* parameters);
 	};
 
-	// RTTI name pure3d::PSAsyncTaskCallback: the callback of the update task of a particle system state
-	class PSAsyncTaskCallback : public core::AsyncTaskCallback
-	{
-	public:
-		// 0x10709AB0
-		PSAsyncTaskCallback();
-		// 0x1073FD00
-		virtual void OnResult(int result);
-	};
-
 	class ParticleSystem : public Primitive
 	{
 	public:

@@ -25,6 +25,14 @@ namespace pure3d
 	}
 #endif
 
+	// FUNCTION: ENGINE 0x1073E300
+	// NONMATCHING: the engine loads the constant -1 right behind the base constructor, before the member stores (67.3 %)
+#ifdef NONMATCHING
+	VertexAnimController::VertexAnimController() : mKeyFrames(0), mPrimitive(0), mMeshState(0), mExpression(0), mChanged(true), mLastFrame(choreo::gMinusOne)
+	{
+	}
+#endif
+
 	// FUNCTION: ENGINE 0x1073E450
 	VertexAnimController::~VertexAnimController()
 	{

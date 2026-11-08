@@ -21,6 +21,11 @@ namespace pure3d
 		return mDrawable;
 	}
 
+	// FUNCTION: ENGINE 0x10734A20
+	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController() : mDrawable(0)
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10734BF0
 	CompDrawVisibilityAnimationController::CompDrawVisibilityAnimationController(const CompDrawVisibilityAnimationController& other) : SimpleFrameController(other), mDrawable(0)
 	{
