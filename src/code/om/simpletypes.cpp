@@ -10,6 +10,22 @@
 
 namespace om
 {
+	// Left to the engine: the slots whose instances differ from the engine's (the engine writes the 64-bit and boolean forms
+	// and the values of the types that cannot be made through their own code)
+	template<> bool MetaSimpleType<unsigned __int64>::ReadBinary(BinaryStream*, void*);
+	template<> bool MetaSimpleType<unsigned __int64>::WriteBinary(BinaryStream*, void const*);
+	template<> int MetaSimpleType<float>::Slot5();
+	template<> void MetaSimpleType<float>::Slot6(void*);
+	template<> bool MetaSimpleType<bool>::ReadBinary(BinaryStream*, void*);
+	template<> bool MetaSimpleType<bool>::WriteBinary(BinaryStream*, void const*);
+	template<> int MetaSimpleType<bool>::Slot5();
+	template<> void MetaSimpleType<bool>::Slot6(void*);
+	template<> int MetaSimpleType<String>::Slot5();
+	template<> bool MetaSimpleType<String>::WriteBinary(BinaryStream*, void const*);
+	template<> void MetaSimpleType<String>::Slot6(void*);
+	template<> bool MetaSimpleType<Vector>::ReadBinary(BinaryStream*, void*);
+	template<> bool MetaSimpleType<__int64>::ReadText(TextValue const*, void*);
+
 	// FUNCTION: ENGINE 0x10AA2770
 	template void MetaSimpleType<unsigned char>::Create(ClassName const&);
 	// FUNCTION: ENGINE 0x10AA27D0
