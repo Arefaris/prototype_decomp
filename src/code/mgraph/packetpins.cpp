@@ -119,6 +119,14 @@ namespace om
 	template DynamicArray<mgraph::Packet<mgraph::EnvelopeData >,unsigned short>::DynamicArray();
 	// FUNCTION: ENGINE 0x10B09FE0
 	template void DynamicArray<mgraph::Packet<Complex >,unsigned short>::ReleaseElements(mgraph::Packet<Complex >*, unsigned short);
+	// FUNCTION: ENGINE 0x10B12C00
+	template DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::DynamicArray();
+	// FUNCTION: ENGINE 0x10B12C10
+	template void DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::DestroyElements(mgraph::PropertyChannel<bool>*, unsigned short);
+	// FUNCTION: ENGINE 0x10B12C20
+	template void DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::ReleaseElements(mgraph::PropertyChannel<bool>*, unsigned short);
+	// FUNCTION: ENGINE 0x10B12C60
+	template DynamicArray<mgraph::PropertyChannel<bool>,unsigned short>::~DynamicArray();
 	// FUNCTION: ENGINE 0x10B02530
 	template mgraph::Packet<mgraph::TriggerData>* DynamicArray<mgraph::Packet<mgraph::TriggerData>,unsigned short>::Allocate(unsigned short);
 	// FUNCTION: ENGINE 0x10B0C5C0
