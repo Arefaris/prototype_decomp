@@ -63,6 +63,11 @@ namespace engine
 	public:
 		// Out of line in the attribute's unit (Attribute<math::Matrix>: 0x1028AB90, starts at the identity)
 		Attribute();
+		// The attribute made with a value (the content library's instance creators inline the default value)
+		explicit Attribute(T newValue) :
+			ConstAttribute<T>(newValue)
+		{
+		}
 
 		virtual T& Get();
 

@@ -109288,3 +109288,6 @@ _sCementProgress = 0x1131AC88 ; data size:0x4 | cementloader.cpp: percent done (
 ?ShowSelection@StorageManager@engine@@YAHPBD0HPAUFiber@core@@PAHPAPBGPAPAUSlotTime@12@23HH@Z = 0x108E2DC0 ; function size:0x8B | engine::StorageManager::ShowSelection (name guess)
 ?gDialog@StorageManager@engine@@3PAVStorageDialogState@12@A = 0x1131AA70 ; data size:0x4 | engine::StorageManager::gDialog: the storage dialog (name guess)
 ?OnCall@StorageDialogState@StorageManager@engine@@UAEXPAUDialogCall@3@HPAUValue@FEMovie@3@@Z = 0x108E27A0 ; function size:0x451 | engine::StorageManager::StorageDialogState::OnCall vftable slot 7
+?gDefaultBoolAttribute@engine@@3_NB = 0x11261111 ; data size:0x1 | engine::gDefaultBoolAttribute: the value a new bool attribute starts with (name guess)
+?gDefaultIntAttribute@engine@@3HB = 0x1125E03C ; data size:0x4 | engine::gDefaultIntAttribute: the value a new int attribute starts with (name guess)
+?gDefaultFloatAttribute@engine@@3MB = 0x112750C8 ; data size:0x4 | engine::gDefaultFloatAttribute: the value a new float attribute starts with (name guess)
