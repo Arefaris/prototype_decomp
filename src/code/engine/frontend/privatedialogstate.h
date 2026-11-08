@@ -5,27 +5,13 @@
 #ifndef ENGINE_FRONTEND_PRIVATEDIALOGSTATE_H
 #define ENGINE_FRONTEND_PRIVATEDIALOGSTATE_H
 
+#include "code/engine/frontend/feoverlay.h"
 #include "code/engine/gamestate.h"
 #include "code/engine/gameflowmanager.h"
 
 namespace engine
 {
 	class DialogState;
-	class FEOverlay;
-
-	// RTTI: engine::FEOverlay::Callback (a struct with one slot): what the overlay's movie calls the engine back with
-	class FEOverlay
-	{
-	public:
-		struct Callback
-		{
-			// 0x108E3E00 (the engine's copy of the constructor)
-			Callback()
-			{
-			}
-			virtual void OnCall(int call, int a, int b, int c) = 0;
-		};
-	};
 
 	// The dialog states are numbered; the request functions of the game state table (system/gamestate.cpp)
 	GameState* GetGameState(int id);
@@ -67,10 +53,12 @@ namespace engine
 		void SetIcon(int newIcon, bool visible);
 		// 0x108E4390: closes the dialog
 		void Close();
-		// 0x108E3FC0 / 0x108E3FD0 / 0x108E4230 (not reconstructed)
+		// 0x108E3FC0 (not reconstructed)
 		void Unknown108E3FC0();
+		// 0x108E3FD0: lets the main fiber run
 		void Unknown108E3FD0();
-		void Unknown108E4230();
+		// 0x108E4230: the controller the dialog's input goes to (its input contexts follow it)
+		void SetController(int newController);
 
 		DialogState* owner;  // +0x60
 		int stateId;  // +0x64

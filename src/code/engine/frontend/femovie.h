@@ -24,6 +24,7 @@ namespace engine
 			union
 			{
 				const char* string;
+				bool flag;
 				double number;
 				// The payload as two words (copied as such)
 				unsigned __int64 bits;
