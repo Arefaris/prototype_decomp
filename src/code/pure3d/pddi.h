@@ -6,6 +6,7 @@
 #ifndef PURE3D_PDDI_H
 #define PURE3D_PDDI_H
 
+#include "code/container/map.h"
 #include "code/core/memory/imemoryallocator.h"
 #include "code/core/name.h"
 #include "code/math/matrix.h"
@@ -291,7 +292,19 @@ namespace pure3d
 #pragma pack(push, 4)
 	struct Time64
 	{
-		unsigned __int64 value;
+		Time64() : low(0), high(0)
+		{
+		}
+
+		union
+		{
+			unsigned __int64 value;
+			struct
+			{
+				unsigned int low;
+				unsigned int high;
+			};
+		};
 	};
 #pragma pack(pop)
 
@@ -485,25 +498,28 @@ namespace pure3d
 	class pddiBaseContext : public pddiEmptyClass
 	{
 	public:
+		// 0x10615CF0: an empty device (the derived constructors call it)
+		pddiBaseContext();
 		// 0x10615180: one of the device's clocks, as a whole frame number
 		int GetFrameCount(int index);
 		// Clears the buffers named by the flags (1: colour) to the view state's clear colour
-		virtual void Clear(int flags);
+		virtual void Clear(int flags) = 0;
 		// Draws a primitive buffer with a shader and its parameters
 		virtual void DrawPrimitive(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
-			const void* parameters);
+			const void* parameters) = 0;
 		// Draws a primitive buffer with a shader whose world matrix is not the current one (the gpu skin's Draw; the
 		// descriptor is the one DrawPrimitive takes)
 		virtual void Unknown2(const core::Name<core::CaseInsensitiveKey32>* shader, const void* desc,
-			const void* parameters);
-		virtual void Unknown3(int a, int b, int c);
+			const void* parameters) = 0;
+		virtual void Unknown3(int a, int b, int c) = 0;
 		// Draws a part's batch (the 0x2C bytes at +0xA0 of a drawable part) with a shader and its parameters
 		virtual void DrawBatch(const core::Name<core::CaseInsensitiveKey32>* shader, const void* batch,
-			const void* parameters);
+			const void* parameters) = 0;
 		// Draws a list of batches (the shadow casters of a pass)
-		virtual void DrawBatches(const void* const* batches, int count);
-		virtual void SetRenderTargets(const pddiRenderTargets* targets);
-		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e);
+		virtual void DrawBatches(const void* const* batches, int count) = 0;
+		virtual void SetRenderTargets(const pddiRenderTargets* targets) = 0;
+		// Slot 7: the arguments are the textures the context drew into (the depth buffer, then the colours; see dxContext)
+		virtual void Unknown7(int a, pddiSurface* surface, int b, int c, int d, int e) = 0;
 		virtual void Unknown8(int a);
 		virtual void Unknown9();
 		// Slots 10 - 21: the device's queries. 10 makes an event query and ends it; 11 waits for one and lets go of
@@ -514,21 +530,21 @@ namespace pure3d
 		virtual IDirect3DQuery9* Unknown10();
 		virtual void Unknown11(IDirect3DQuery9* query);
 		virtual bool Unknown12(IDirect3DQuery9* query);
-		virtual IDirect3DQuery9* Unknown13(int flag);
-		virtual void Unknown14(IDirect3DQuery9* query);
-		virtual void Unknown15(IDirect3DQuery9* query);
-		virtual void Unknown16(IDirect3DQuery9* query);
-		virtual unsigned int Unknown17(IDirect3DQuery9* query);
+		virtual IDirect3DQuery9* Unknown13(int flag) = 0;
+		virtual void Unknown14(IDirect3DQuery9* query) = 0;
+		virtual void Unknown15(IDirect3DQuery9* query) = 0;
+		virtual void Unknown16(IDirect3DQuery9* query) = 0;
+		virtual unsigned int Unknown17(IDirect3DQuery9* query) = 0;
 		virtual IDirect3DQuery9* Unknown18();
 		virtual void Unknown19(IDirect3DQuery9* query);
 		virtual void Unknown20(IDirect3DQuery9* query);
 		virtual void Unknown21(IDirect3DQuery9* query);
 		// Slot 22 / 23: the projection from a field of view (the angle is multiplied by the radians to degrees factor)
 		// or from the planes of the view volume; both set the projection matrix
-		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect);
-		virtual void SetOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ);
-		virtual pddiQuery* Unknown24(int flags);
-		virtual bool Unknown25(int flags);
+		virtual void SetPerspective(float nearZ, float farZ, float fov, float aspect) = 0;
+		virtual void SetOrthographic(float left, float right, float bottom, float top, float nearZ, float farZ) = 0;
+		virtual pddiQuery* Unknown24(int flags) = 0;
+		virtual bool Unknown25(int flags) = 0;
 		virtual void Unknown26();
 		// Slot 27 / 28 (0x10614B90 / 0x10614C00; the frame start and end): a frame starts (counted; asserts the device was initialised) / ends
 		virtual void Unknown27();
@@ -557,7 +573,7 @@ namespace pure3d
 		virtual void SetStencilMask(int mask);
 		virtual void SetStencilWriteMask(int mask);
 		virtual void SetStencilOp(int fail, int zFail, int zPass);
-		virtual void Unknown48();
+		virtual void Unknown48() = 0;
 		// Slots 49 / 50: the word at +0xC of the render state, set / read
 		virtual void SetRenderUnknownC(int value);
 		virtual int GetRenderUnknownC();
@@ -576,10 +592,9 @@ namespace pure3d
 		virtual void EnableFog(bool enable);
 		virtual void SetFogRange(float nearZ, float farZ);
 		virtual void SetAlphaRef(float ref);
-		virtual void Unknown65();
+		virtual void Unknown65() = 0;
 		virtual ~pddiBaseContext();
-		virtual void Unknown67();
-		virtual void Unknown68();
+		virtual void Unknown67() = 0;
 
 		// The state getters (names follow the setters; 0x10614C40 - 0x10615170)
 		void GetViewUnknown4(int* value);
@@ -608,6 +623,8 @@ namespace pure3d
 		float GetAlphaRef();
 		// 0x106150B0: the four words of the blend mode (name guess; SetBlendMode's own)
 		void GetBlendMode(int* a, int* b, int* c, int* d);
+		// 0x1061C3B0: adds to one of the clocks
+		void AddToClock(int index, float amount);
 		// 0x10615190: the same clock as GetFrameCount, as a float
 		float GetFrameTimeUnknown(int index);
 
@@ -636,6 +653,13 @@ namespace pure3d
 		// 0x10615390: sets the view matrix (nothing when it is the one already set)
 		void SetViewMatrix(const math::Matrix* matrix);
 
+		// 0x106153D0: puts the four states in their starting values (the view on the display) and on the device
+		void ResetStates();
+		// 0x10615B50: sets the device up for a display (the frame counters cleared, the stacks made, the constants of
+		// the depth range found)
+		void Init(IDirect3DDevice9* device, engine::Display* newDisplay);
+		// 0x106151A0: looks a named constant up in the table; the answer goes into the three words at +0x628
+		void FindDepthConstant(int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 		// 0x10615A80: makes the stacks of the four states, two states deep each, and takes the top of each (name guess)
 		void CreateStacks();
 
@@ -661,6 +685,8 @@ namespace pure3d
 			// 0x1061A470: binds a texture to the constant at *slot (a texture constant keeps its sampler state word
 			// at values[*slot + 1])
 			void SetTexture(int* slot, pddiSurface* surface);
+			// 0x1061A840: looks a constant of that kind and name up and gives its three words
+			void Unknown1061A840(int kind, const core::Name<core::CaseInsensitiveKey32>* name, int* c, int* b, int* a);
 			// 0x1061A540: the slot of the constant of that kind and name (-1 in the slot when there is none)
 			ConstantSlot* Find(ConstantSlot* slot, int kind, const core::Name<core::CaseInsensitiveKey32>* name);
 
@@ -766,7 +792,9 @@ namespace pure3d
 		pddiZState* zState;
 		pddiStencilState* stencilState;
 		Constants* constants;
-		unsigned char unknown40[0x1C];
+		// 0x40: a tree whose nodes are blocks of memory the destructor frees (names are guesses)
+		container::TreeBase nodes;
+		unsigned char unknown58[4];
 		// 0x5C: the clocks of the device as floats (GetFrameCount answers them as whole numbers; BeginFrame sets the
 		// first to the frame number)
 		float clocks[2];
@@ -779,7 +807,7 @@ namespace pure3d
 		float drawCalls;
 		// 0x78: the primitives per draw of the frame
 		float primitivesPerDraw;
-		unsigned char unknown7C[8];
+		float unknown7C[2];
 		float unknown84;
 		// 0x88 / 0x8C: what the batch draws added up to (the primitives, then how many draws there were)
 		float batchedPrimitives;
@@ -787,30 +815,43 @@ namespace pure3d
 		// 0x90: 0x84 over the draws
 		float unknown90;
 		float unknown94[10];
-		unsigned char unknownBC[0xFC - 0xBC];
+		float unknownBC[16];
 		float unknownFC[3];
 		unsigned char unknown108[8];
 		float unknown110[10];
 		// The bytes of texture memory the textures made on this device hold (0x1061CD70 adds a new texture's size
 		// to it, 0x1061CBE0 takes it away again)
 		float textureMemory;
-		unsigned char unknown13C[0x10];
+		float unknown13C[2];
+		unsigned char unknown144[8];
 		unsigned int constantsDirty;
-		unsigned char unknown150[4];
+		bool unknown150;
+		unsigned char unknown151[3];
 		// 0x154: the matrices the shaders ask for
 		ShaderMatrices matrices;
 		// Bit 0: a pass draws, bit 2: lit parts, bit 3: shadow parts (set around the passes' draw loops)
-		unsigned int drawFlags;
+		struct DrawFlags
+		{
+			// 0x10433D70: the engine's copy of core::BitField<unsigned int>'s constructor (the word cleared)
+			DrawFlags();
+
+			unsigned int mBits;
+		};
+		DrawFlags drawFlags;
 		// 0x5F4: set by Init (BeginFrame asserts it)
 		bool initialized;
-		unsigned char unknown5F5[0x600 - 0x5F5];
+		unsigned char unknown5F5[3];
+		int unknown5F8;
+		unsigned char unknown5FC[4];
 		// 0x600 - 0x628: eight words of timings, in microseconds as 64-bit values (names are guesses)
 		Time64 timeUnknown600;
 		Time64 timeUnknown608;
 		Time64 timeUnknown610;
 		Time64 timeUnknown618;
 		Time64 timeUnknown620;
-		unsigned char unknown628[0x634 - 0x628];
+		int unknown628;
+		int unknown62C;
+		int unknown630;
 	};
 
 	inline void ConstantMatrix::Assign(const math::Matrix& other)

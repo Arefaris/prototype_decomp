@@ -322,7 +322,7 @@ namespace engine
 	{
 		if (unknown != 0)
 		{
-			Unknown106174D0(unknown);
+			pure3d::DisplaySettings::operator=(*(pure3d::DisplaySettings*)unknown);
 		}
 		Unknown10617560();
 		memset(&presentParameters, 0, sizeof(presentParameters));
@@ -378,6 +378,29 @@ namespace engine
 
 namespace pure3d
 {
+	// FUNCTION: ENGINE 0x106174D0
+	DisplaySettings& DisplaySettings::operator=(const DisplaySettings& other)
+	{
+		window = other.window;
+		width = other.width;
+		unknown8 = other.unknown8;
+		unknownC = other.unknownC;
+		unknown10 = other.unknown10;
+		unknown14 = other.unknown14;
+		unknown18 = other.unknown18;
+		unknown1C = other.unknown1C;
+		unknown20 = other.unknown20;
+		unknown24 = other.unknown24;
+		unknown28 = other.unknown28;
+		unknown2C = other.unknown2C;
+		unknown2D = other.unknown2D;
+		unknown2E = other.unknown2E;
+		unknown2F = other.unknown2F;
+		sizes = other.sizes;
+		unknown134 = other.unknown134;
+		return *this;
+	}
+
 	// FUNCTION: ENGINE 0x106179B0
 	DisplaySettings::DisplaySettings()
 	{
@@ -528,5 +551,100 @@ namespace engine
 			unknown78E = true;
 		}
 		return taken;
+	}
+
+	// FUNCTION: ENGINE 0x1061C010
+	int Display::GetStretchFilter()
+	{
+		return (unknown78F != false) + 1;
+	}
+
+	// FUNCTION: ENGINE 0x10616EA0
+	bool Display::Unknown10616EA0(unsigned int format)
+	{
+		int index = -1;
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			if (sBackBufferFormats[i] == format)
+			{
+				index = i;
+				break;
+			}
+		}
+		if (index < 0)
+		{
+			return false;
+		}
+		Block& list = blocks[index];
+		unsigned int size = list.cursor - list.begin;
+		bool result = (size & 0xFFFFFFF0) != 0;
+		return result;
+	}
+
+	// FUNCTION: ENGINE 0x10616EE0
+	bool Display::Unknown10616EE0(unsigned int width, unsigned int height)
+	{
+		pure3d::DisplaySize* end = sizes.End();
+		for (pure3d::DisplaySize* it = sizes.Begin(); it < end; it++)
+		{
+			pure3d::DisplaySize size = *it;
+			if (size.width == width && size.height == height)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x10616F20
+	// NONMATCHING: register allocation: the engine keeps the result in ebx (set before the call of the mode list) and the loop in esi / edx, ours folds the result and uses other registers, best 38.5%
+#ifdef NONMATCHING
+	bool Display::Unknown10616F20(unsigned int width, unsigned int height, unsigned int format)
+	{
+		bool result = false;
+		Block* list = GetModeList(format);
+		D3DDISPLAYMODE* mode = (D3DDISPLAYMODE*)list->begin;
+		unsigned int count = (D3DDISPLAYMODE*)list->cursor - (D3DDISPLAYMODE*)list->begin;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (mode->Width == width && mode->Height == height)
+			{
+				return Unknown10616EE0(width, height);
+			}
+			mode++;
+		}
+		return result;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10617560
+	void Display::Unknown10617560()
+	{
+		unsigned int* format = sBackBufferFormats;
+		Block* list = blocks;
+		for (int n = 6; n != 0; n--)
+		{
+			list->cursor = list->begin;
+			unsigned int count = d3d->lpVtbl->GetAdapterModeCount(d3d, 0, *format);
+			for (unsigned int i = 0; i < count; i++)
+			{
+				D3DDISPLAYMODE mode;
+				d3d->lpVtbl->EnumAdapterModes(d3d, 0, *format, i, &mode);
+				if (Unknown10616EE0(mode.Width, mode.Height))
+				{
+					if (list->cursor < list->end)
+					{
+						D3DDISPLAYMODE* item = (D3DDISPLAYMODE*)list->cursor;
+						list->cursor += sizeof(D3DDISPLAYMODE);
+						if (item != 0)
+						{
+							*item = mode;
+						}
+					}
+				}
+			}
+			format++;
+			list++;
+		}
 	}
 }

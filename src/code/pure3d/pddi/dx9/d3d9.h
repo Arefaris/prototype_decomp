@@ -425,7 +425,11 @@ struct IDirect3D9Vtbl
 	void* addRef;
 	// 0x08 Release
 	ULONG (__stdcall* Release)(IDirect3D9* d3d);
-	void* unknownC[5];
+	void* unknownC[3];
+	// 0x18 GetAdapterModeCount, 0x1C EnumAdapterModes
+	UINT (__stdcall* GetAdapterModeCount)(IDirect3D9* d3d, UINT adapter, D3DFORMAT format);
+	HRESULT (__stdcall* EnumAdapterModes)(IDirect3D9* d3d, UINT adapter, D3DFORMAT format, UINT mode,
+		D3DDISPLAYMODE* result);
 	// 0x20 GetAdapterDisplayMode
 	HRESULT (__stdcall* GetAdapterDisplayMode)(IDirect3D9* d3d, UINT adapter, D3DDISPLAYMODE* mode);
 	void* checkDeviceType;

@@ -174,4 +174,14 @@ namespace pure3d
 			drawBatch->indexCount = indices->state.unknown0;
 		}
 	}
+
+	// FUNCTION: ENGINE 0x1061F2C0
+	void dxIndexBuffer::Bind()
+	{
+		if (this != gCurrentIndices)
+		{
+			gD3DDevice->lpVtbl->SetIndices(gD3DDevice, buffer);
+			gCurrentIndices = this;
+		}
+	}
 }

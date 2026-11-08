@@ -29,6 +29,9 @@ namespace engine
 		// 0x10616160 / 0x10616170: the Direct3D object and the device it made
 		IDirect3D9* GetDirect3D();
 		IDirect3DDevice9* GetDevice();
+		// 0x1061C010: the filter the levels of a texture are stretched with (D3DTEXF_LINEAR when the device does it, else
+		// D3DTEXF_POINT)
+		int GetStretchFilter();
 		// 0x10616180: the byte at +0x78C; 0x106161A0 answers 0
 		bool GetUnknown78C();
 		int Unknown106161A0();
@@ -53,12 +56,11 @@ namespace engine
 		// 0x106182C0: makes the device (or resets the one there is) from the display's settings; the answer is
 		// whether there is a device afterwards. The argument, when there is one, is handed to 0x106174D0 first.
 		bool Unknown106182C0(void* unknown);
-		// 0x106160D0, 0x10615FE0, 0x10616660, 0x106174D0, 0x10617560, 0x106180B0: steps of the reset and of the
+		// 0x106160D0, 0x10615FE0, 0x10616660, 0x10617560, 0x106180B0: steps of the reset and of the
 		// device's creation (names unknown); 0x106180B0 picks the size and the refresh rate of a full-screen mode
 		void Unknown106160D0();
 		void Unknown10615FE0();
 		void Unknown10616660();
-		void Unknown106174D0(void* unknown);
 		void Unknown10617560();
 		void Unknown106180B0(int* width, int* height, unsigned int* refreshRate, unsigned int format);
 		// 0x106164B0: the place of a back buffer format among the six the modes are listed for, -1 for none
@@ -66,6 +68,12 @@ namespace engine
 		// 0x10616500: the list of modes of that format (the one before the first when it is none of the six)
 		struct Block;
 		Block* GetModeList(unsigned int format);
+		// 0x10616EA0: whether any mode was listed for the back buffer format
+		bool Unknown10616EA0(unsigned int format);
+		// 0x10616EE0: whether the size is one of the sizes the display takes
+		bool Unknown10616EE0(unsigned int width, unsigned int height);
+		// 0x10616F20: whether a mode of that size is listed for the format and the size is one the display takes
+		bool Unknown10616F20(unsigned int width, unsigned int height, unsigned int format);
 		// 0x10616540: whether the device is lost for good and has to be reset, or the window was resized
 		bool Unknown10616540();
 		// 0x10616580: whether the device takes the multisample type with the two formats of the back buffer
@@ -112,7 +120,7 @@ namespace engine
 		// 0x794 / 0x798: the largest texture the device takes
 		unsigned int maxTextureWidth;
 		unsigned int maxTextureHeight;
-		// 0x79C: six blocks of 0x1000 bytes (names guessed)
+		// 0x79C: the display modes (D3DDISPLAYMODE) of each of the six back buffer formats (names guessed)
 		struct Block
 		{
 			Block()
@@ -121,7 +129,7 @@ namespace engine
 				cursor = 0;
 				end = 0;
 			}
-			// makes the block's storage
+			// makes the room for that many bytes
 			void Create(unsigned int size)
 			{
 				begin = new char[size];

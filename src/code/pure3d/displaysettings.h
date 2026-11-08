@@ -3,14 +3,25 @@
 #ifndef PURE3D_DISPLAYSETTINGS_H
 #define PURE3D_DISPLAYSETTINGS_H
 
+#include "code/container/arrayfixed.h"
+
 namespace pure3d
 {
+	// A size of the display window
+	struct DisplaySize
+	{
+		unsigned int width;
+		unsigned int height;
+	};
+
 	// The settings of the display (0x138 bytes): the window it is created on first, the size, the depth of the colour,
 	// the gamma and a few modes. engine::Display (0x10617A30) starts with them.
 	struct DisplaySettings
 	{
 		// 0x106179B0
 		DisplaySettings();
+		// 0x106174D0: copies every setting (Display's step of the device's creation is given another display's)
+		DisplaySettings& operator=(const DisplaySettings& other);
 
 		void* window;
 		int width;
@@ -29,22 +40,8 @@ namespace pure3d
 		bool unknown2D;
 		bool unknown2E;
 		bool unknown2F;
-		// 0x30: a table of 0x100 bytes whose last word points back at the table
-		struct Unknown30
-		{
-			Unknown30()
-			{
-				unknown100 = this;
-			}
-			~Unknown30()
-			{
-				unknown100 = this;
-			}
-
-			unsigned char unknown0[0x100];
-			Unknown30* unknown100;
-		};
-		Unknown30 unknown30;
+		// 0x30: the sizes of the window the display takes (an end pointer behind the storage, 0x104 bytes)
+		container::ArrayFixed<DisplaySize, 32> sizes;
 		int unknown134;
 	};
 }
