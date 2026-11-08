@@ -2273,6 +2273,80 @@ namespace proto
 				return proto::gAISystem->strafeRunTokens->Unknown10384090(handle, flag);
 			}
 
+			// FUNCTION: ENGINE 0x101E4DA0
+			// Whether the object holds one of its tokens, or any object does (the first test is the owner kind of the condition)
+			__declspec(noinline) bool HoldsToken(GetOwnersTokenMsg* message, int owner, engine::GameObjectHandle handle)
+			{
+				bool result = false;
+				switch (owner)
+				{
+				case 0:
+					{
+						TokenBehaviour::TokenGroup* group = message->group;
+						if (group != 0 && !message->unknown10)
+						{
+							TokenBehaviour::TokenGroup::Holder* holder = group->holders.begin;
+							TokenBehaviour::TokenGroup::Holder* end = group->holders.end;
+							unsigned int value = *reinterpret_cast<unsigned int*>(&handle);
+							for (; holder != end; holder++)
+							{
+								if (holder->handle == value)
+								{
+									result = true;
+									break;
+								}
+							}
+						}
+					}
+					break;
+				case 1:
+					{
+						TokenBehaviour::TokenGroup* group = message->group;
+						if (group != 0 && !message->unknown10)
+						{
+							TokenBehaviour::TokenGroup::Holder* holder = group->holders.begin;
+							TokenBehaviour::TokenGroup::Holder* end = group->holders.end;
+							for (; holder != end; holder++)
+							{
+								if (reinterpret_cast<engine::GameObjectHandle*>(&holder->handle)->Get() != 0)
+								{
+									result = true;
+									break;
+								}
+							}
+						}
+					}
+					break;
+				}
+				return result;
+			}
+
+			// FUNCTION: ENGINE 0x101E4E60
+			bool HaveTokenCondition::Evaluate(int a, int b, int c, int d)
+			{
+				bool result = false;
+				engine::GameObjectHandle handle = engine::GetObjectHandle(AsOwner(c));
+				engine::GameObject* object = handle.Get();
+				if (object != 0)
+				{
+					engine::GameObject* target = Unknown103B8B80(object).Get();
+					if (target != 0)
+					{
+						if (IsPlayerObject(target))
+						{
+							GetOwnersTokenMsg message(type);
+							target->SendMessage(&message);
+							result = HoldsToken(&message, owner, handle);
+						}
+						else
+						{
+							result = true;
+						}
+					}
+				}
+				return result;
+			}
+
 			// FUNCTION: ENGINE 0x101E5260
 			// NONMATCHING: the player handle lookup of the engine puts the copy of the global last, and the engine loads the position and the offset into registers before the additions (best 26 %, shifted)
 #ifdef NONMATCHING
@@ -3240,3 +3314,5 @@ namespace proto
 // FUNCTION: ENGINE 0x101E3D50
 // FUNCTION: ENGINE 0x101E3D90
 // FUNCTION: ENGINE 0x101FD210
+// FUNCTION: ENGINE 0x101E3C60
+// FUNCTION: ENGINE 0x101ED5B0
