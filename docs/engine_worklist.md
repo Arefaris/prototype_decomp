@@ -8447,3 +8447,40 @@ the large action slots.
 - `RagdollLODBehaviour::Slot2` (0x109263A0) matches. The rest of the ragdoll behaviours (the helpers 0x109263C0 / 0x10925700 / 0x10926460 and the large `RagdollBehaviour` members) are not done.
 - `CharacterSolverRagdollActivatedMessage` and `RagdollPhysicsObjectAddedRemovedMessage` (ragdollmessages.h; constructors 0x10924FA0 / 0x10925010 in ragdolllodbehaviour.cpp) and `PhysicsObjectAddedRemovedMessage` (physicsmessages.h).
 - networksockets.cpp: `struct sockaddr` is global (as the engine's), so the two address converters 0x1093E710 / 0x1093E750 get a stable decorated name.
+
+## pure3d 0x10700000 - 0x10720000, fourth pass: light selection, the proto render scheme, the scene's lists, the visibility client (sn-fp)
+- **Light selection** (lighting/src/lightselection.cpp, 0x10717920 - 0x10718DB9): constructor, destructor, deleting destructor, `Start` / `Stop` (the global
+  at 0x112817D8), `Fill` and the toolchain's `<algorithm>` for the selection's `LightDistance` entries (a light and its distance, ordered by
+  the distance): every instance the unit keeps (`_Sort`, `_Unguarded_partition`, `_Insertion_sort1`, the heap functions, `_Med3`, `_Median`,
+  the copy helpers, `swap` / `iter_swap`, the construct and destroy helpers) is annotated and matches. `std::sort` is called through a function
+  pointer, as the engine calls it out of line. The three lists are `LightList`s with a constructor (new[] of 1024 lights, the list's end starts at
+  its begin) and a destructor; `Fill` keeps `&candidates` in a local. NONMATCHING: `UploadLight` 0x10717C60 (77.9 %: the engine multiplies the three
+  colour channels with the intensity scale before the first constant store and keeps them in xmm registers across the position stores; ours
+  schedules the multiplications behind them, whatever the source order is). Not done: the other `ArrayFixed` / `new[]` list instances 0x10717A30 -
+  0x10717B00, 0x10717EF0, 0x10717F40 and the second `sort` 0x10718AD0 (no caller, no named type).
+- **ProtoRenderScheme** (pass/src/protorenderscheme.cpp): the pass members from the constructor 0x1071A000 (offsets +0x50 - +0xBC are named by the
+  `CreatePass` calls), the destructor, `Begin` (borrows nine targets of the render target manager and hands them to the decal, light decal, colour
+  matrix, bloom, blur and post effect passes), `End`, the name slot (the letter box pass), slots 4 / 5 (calls of two empty functions of the letter
+  box pass), `SetOverlay` / `SetGrain`, the two pass toggles, `SetWireframeEnabled`, `SetClearColour`, `FindPass` with the comparison it passes to the
+  tree (`-1` or the plain `nodeName < name`) and `Pass::FindDescendant`. `RenderScheme` got its real base layout (a tree of passes at +0x18, the last
+  lookup at +0x40 / +0x48; the hash is two words so that the class stays 4-byte aligned). Not done: the constructor 0x1071A000 (the pass descriptions on the
+  stack are built with `ViewPassDesc`'s constructor inline, which is out of line here) and the tree helpers 0x10719130 - 0x10719200.
+- **Scene** (src/scene.cpp): the lists are `ArrayDynamicHeap<Drawable*>` members now (all drawables +8, the per-frame ones +0x28, the cyclic ones +0x38,
+  the particle drawables +0x58, the added ones +0xA8, the refresh list +0xC8), with the parts list at +0xB8 and the 0x24-byte client records at +0x88.
+  `Add` and `RemoveFromList` (cdecl, the list first) match, as `Drawable::CollectBatchParts`, `Unknown10712760` and `GetDrawables` (two stack
+  arguments, the second unused). `Refresh` is NONMATCHING now: compiled in this unit it lets `Add` keep ecx across the call, the engine's
+  does not. NONMATCHING: `Remove` 0x10712540 (98.0 %: the engine's frame is eight bytes smaller; it shares one part reference slot and keeps the loop
+  counter in the dead argument slot). Not done: the constructor and destructor, `Clear` 0x10712F60 (the light group table at +0xDC is released through a
+  vftable the header does not know), the two scene slots 0x10711760 / 0x107128D0 and the occluder / client members 0x10713100 - 0x10713280.
+- **visibility::Client / BitSet** (visibility/src): the constructor, the destructor body, the server / index setters, `Clear`, `SetListed` (a `switch`),
+  `BitSet::Test` / `Set` / `SetBit` and `PartAnimationState`'s constructor from a box, a sphere and the flags (the flags member is constructed after the
+  copies: the copies are member initialisers). `Client`'s scalar deleting destructor is the copy at 0x104094D0. Not done: `SetFlags` 0x1071AB10 (the engine
+  keeps the mask and the word offset in registers across the `Test` calls and enters its loop in the middle).
+- **ParticleSystemState::CountParticles** 0x1070C560 matches: the dead particles at the end are skipped by decrementing first and putting the count
+  back on the first live one; the compiler unrolls the counting loop itself. Not done: `Unknown1070C340` 0x1070C340 (the four tables are read
+  through the state each time round the loops, ours hoists them), the state's constructors and clones, `Shader::Shader` 0x107064A0 / 0x10706500
+  (89 %: the load of the constant 0.5 stays behind the first pair of loads of the draw parameters in ours; with `PrimStreamParameters(float)` as a
+  member initialiser it is the closest), `ShaderLoader`'s constructor 0x10706640 (the base `SimpleChunkHandler` is built inline, with its vftable stores).
+- Shared header changes: renderscheme.h (the base layout), scene.h (list types, `PartClient`, `GetDrawables`), drawable.h (`CollectBatchParts`), visibility.h
+  (`Client`, `BitSet`, `PartAnimationState` members), lighting.h / lightselection.h (`CollectLights`, `LightList`), pass.h (`FindDescendant`),
+  postprocesspass.h / protopass.h / rendertargetmanager.h (declarations of functions of other units), core/bitfield.h (`SetBits`).
