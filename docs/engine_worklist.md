@@ -5450,6 +5450,26 @@ Findings:
 - `ObjRenderEvent3<C, A1, A2, A3>` and its `QueueObjRenderEvent` were missing from engine/render/async/renderevent.h and were added.
 - `IsWOITargetCondition::Evaluate` is EQUIVALENT (69.8 %: eax / ecx roles of the handle and the table pointer and the result set through
   cl); no replay states exist for it or for the five `RegisterProperties` functions (shrink-wrap).
+Navigation mesh reflection (src/code/proto/navmeshreflection.h/.cpp, 0x10567D90 - 0x1056EF20, sn-dz): `HackVector`, `Edge` and `Area` are
+classes and `LaneData` a struct (RTTI); the member lists of all four and of `AmbientNavMesh` (vertices at +8, intersection names at
++0x18, areas at +0x38; 0x4C bytes) match, with the `GetMemberPrimitiveMetaType` / `GetMemberMetaType` / `GetArrayDynamicMetaType` /
+`MemberOffset` instances and the char / bool getter-setter meta types they use. `LaneData` is the 4-byte lane link (`PathNode::Link` of
+vehiclebehaviourambient.h is a typedef of it): three bytes, a 4-bit light index and the active bit. The record navarea.h calls
+`NavArea` and the hull of navmesh.h are `Area` (0x40 bytes: edges, plane, type, area, vehicle list, walkers, claims, index). The four
+array helpers (vftables 0x10E24910 - 0x10E24988) are declared in the header: Size, Get, GetConst, Capacity and Expand compare, Insert
+and Erase (the engine moves elements with other loops than the generic template) and the `Reserve` of the HackVector / Edge / Area
+arrays stay the engine's (mapped, not defined). `content::PrimitiveMetaType<unsigned char>` (primitivemetatypeuchar.cpp, 13 functions;
+`ReadTextSlot` 0x10568B40 keeps the engine's register order like the char copy) and the `NavArea` tests `ContainsVehicle`,
+`IsBackwardFull`, `IsForwardFull`, `HasRoom`, `HasBackwardRoom` match (`HasForwardRoom` 0x10568320 NONMATCHING: 62 %, the engine converts
+the walker count with fild through a stack word). Not done: the element copies of Edge / Area (0x1056D650 - 0x1056E5F4), `Insert` /
+`Erase` / `Reserve` of the arrays, `AmbientNavMesh` constructor / destructor (0x1056EC90 / 0x1056ED00: it owns a heap object at +0x48 and a
+fourth array at +0x28) and its load slot 0x1056D8F0, the hull builder 0x1056AC70.
+Web of intrigue actions (woifight.cpp): `WOIFMVAction::Slot6` / `Slot7`, `WOIShowTargetNameAction::Slot6` and
+`WOIPlayReactionAction::Slot5` match. NONMATCHING: `WOISendEventAction::Slot5` (65 %: the compiler keeps the message constructor out of line
+where the engine expands it), `WOIPlayReactionAction::Slot6` (the engine zeroes a word of the frame at the entry; every other instruction
+matches) and `WOIShowTargetNameAction::Slot5` (64 %: the failure return comes before the display in the engine). `WOIFMVAction::Slot5`
+and `FMVAction::Slot5` / `Slot7` need the save manager / game state helpers (0x1047FC60, 0x10573440, 0x10575B30) that are not named.
+The node class moved to webofintriguenode.h. `FMVAction::Slot6` matches.
 Not done in the range and what blocks it: the script registration functions of the managers (0x10561BB0, 0x10567520; 0x10567C50 and 0x1056F4E0 (the texture managers) are done, 0x105719A0, 0x10575C40, 0x1057CDF0: member pointers to methods of the managers that are not
 reconstructed), the NIS and zone / district behaviours (HUD and message calls through unnamed functions of the front end), the navigation mesh
 reflection (the element copies of Area / Edge / LaneData are not recovered), the unlock table.

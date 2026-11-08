@@ -9,9 +9,22 @@
 
 namespace proto
 {
+	class VehicleBehaviour;
+
 	class NavArea
 	{
 	public:
+		// 0x10568060: whether a vehicle is on the area (the vehicles hang on their list nodes)
+		bool ContainsVehicle(VehicleBehaviour* vehicle);
+		// 0x10568240 / 0x10568290: whether the vehicles / the walkers reach the load of a lane (names guessed)
+		bool IsBackwardFull(float scale);
+		bool IsForwardFull(float scale);
+		// 0x10568190: whether the capacity exceeds the count by one, or by a chance of the excess (the area itself is not
+		// read; name guessed)
+		bool HasRoom(float count, float capacity);
+		// 0x105682D0 / 0x10568320: the same for the vehicles against the backward load / the walkers against the forward load
+		bool HasBackwardRoom(float scale);
+		bool HasForwardRoom(float scale);
 		// 0x10568010: a sidewalk, a crosswalk, its corner or a stairway
 		bool IsOnFoot() const;
 		// 0x10568040: an intersection or a crosswalk
