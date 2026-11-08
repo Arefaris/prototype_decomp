@@ -440,7 +440,11 @@ namespace proto
 		return &dofKeys;
 	}
 
-	template class TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>;
+	template TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>& TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::operator=(
+		const TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>&);
+	template bool TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::Key::operator<(const Key& other) const;
+	template TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>::TimeOfDayVarChannel(
+		const TimeOfDayVarChannel<GlobalFBEffectsRig::BloomParameters>&);
 	template class TimeOfDayVarChannel<GlobalFBEffectsRig::TonemapParameters>;
 	template class TimeOfDayVarChannel<GlobalFBEffectsRig::ColourMatrixParameters>;
 	template class TimeOfDayVarChannel<GlobalFBEffectsRig::DOFParameters>;
