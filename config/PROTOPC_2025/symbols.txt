@@ -104564,3 +104564,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?Update@PhysicsBehaviour@engine@@UAEXMG@Z = 0x109242C0 ; function size:0x4D | engine::PhysicsBehaviour::Update vftable slot 4
 ?StepObject@PhysicsBehaviour@engine@@QAEXM@Z = 0x10924130 ; function size:0x186 | engine::PhysicsBehaviour::StepObject (name guess)
 ?WritePhysicsPose@engine@@YAXPAVPhysicsObject@ravenphysics@@MPAUPartLookup@proto@@AAVMatrix@math@@@Z = 0x1084BB10 ; function size:0x1A3 | engine::WritePhysicsPose (another unit; name guess)
+?SetPhysicsObjectTransform@engine@@YAXAAVMatrix@math@@PAV?$Attribute@PAUPartLookup@proto@@@1@PAVVector@3@PAUObjectHandle@ravenphysics@@@Z = 0x1084C3E0 ; function size:0x2AB | engine::SetPhysicsObjectTransform (another unit; name guess)
