@@ -46,7 +46,7 @@ namespace pure3d
 		}
 		else
 		{
-			primitive->Draw(shader, state, &worldMatrix, parameters, binding);
+			primitive->Draw(shader, state, &batch.worldMatrix, parameters, binding);
 		}
 	}
 
@@ -134,7 +134,7 @@ namespace pure3d
 			{
 				part->primitive->GetCentre(&sphere.centre);
 			}
-			sphere.centre.Transform(part->worldMatrix);
+			sphere.centre.Transform(part->batch.worldMatrix);
 			float dy = sphere.centre.y - cameraPosition.y;
 			float dz = sphere.centre.z - cameraPosition.z;
 			float dx = sphere.centre.x - cameraPosition.x;
@@ -174,7 +174,7 @@ namespace pure3d
 				{
 					part->primitive->GetCentre(&sphere.centre);
 				}
-				sphere.centre.Transform(part->worldMatrix);
+				sphere.centre.Transform(part->batch.worldMatrix);
 				float dx = sphere.centre.x - cameraPosition.x;
 				float dy = sphere.centre.y - cameraPosition.y;
 				float dz = sphere.centre.z - cameraPosition.z;
@@ -197,7 +197,7 @@ namespace pure3d
 					}
 					else
 					{
-						part->primitive->Draw(&gShaderLit, part->state, &part->worldMatrix, &parameters, part->binding);
+						part->primitive->Draw(&gShaderLit, part->state, &part->batch.worldMatrix, &parameters, part->binding);
 					}
 				}
 			}
@@ -259,7 +259,7 @@ namespace pure3d
 			}
 			else
 			{
-				part->primitive->Draw(&gShaderZFill, part->state, &part->worldMatrix, parameters, part->binding);
+				part->primitive->Draw(&gShaderZFill, part->state, &part->batch.worldMatrix, parameters, part->binding);
 			}
 		}
 	}
@@ -278,7 +278,7 @@ namespace pure3d
 			}
 			else
 			{
-				part->primitive->Draw(&gShaderZFill, part->state, &part->worldMatrix, parameters, part->binding);
+				part->primitive->Draw(&gShaderZFill, part->state, &part->batch.worldMatrix, parameters, part->binding);
 			}
 		}
 	}
@@ -388,7 +388,7 @@ namespace pure3d
 		{
 			DrawablePart* part = *it;
 			part->renderBits.Set(10, false);
-			SetObjectSpaceLightPosition(camera, &part->worldMatrix);
+			SetObjectSpaceLightPosition(camera, &part->batch.worldMatrix);
 			float* joint = pddi->GetConstant(gConstantProtoJointMatrix.index, pddiBaseContext::CONSTANT_MATRIX);
 			const float* from = &part->jointMatrix.m[0][0];
 			float* to = joint;
@@ -483,7 +483,7 @@ namespace pure3d
 				}
 				else
 				{
-					part->primitive->Draw(&gShaderLit, part->state, &part->worldMatrix, parameters, part->binding);
+					part->primitive->Draw(&gShaderLit, part->state, &part->batch.worldMatrix, parameters, part->binding);
 				}
 			}
 		}

@@ -105,6 +105,10 @@ namespace compress
 		unsigned char unknownD8[0xA610 - 0xD8];
 	};
 
+	// 0x106DC680: moves the pointers inside a decompressor's block by the distance of two addresses
+	void RelocateDecompressor(Decompressor_Zlib* object, char* newBase, char* oldBase,
+		void* (*allocate)(void*, unsigned int, unsigned int), void (*release)(void*, void*), void* opaque, bool keepState);
+
 	class Stream
 	{
 	public:

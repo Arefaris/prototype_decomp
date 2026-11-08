@@ -72,7 +72,7 @@ namespace pure3d
 			{
 				part->primitive->GetCentre(&sphere.centre);
 			}
-			part->worldMatrix.Transform(sphere.centre, centre);
+			part->batch.worldMatrix.Transform(sphere.centre, centre);
 			float dx = centre.x - eye->x;
 			float dy = centre.y - eye->y;
 			float dz = centre.z - eye->z;
