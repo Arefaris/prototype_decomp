@@ -153,7 +153,7 @@ namespace proto
 				CharacterFollower follower;  // +0x2C
 				NotifyScenarioDestinationReached notifier;  // +0x34
 				PatrolPathFollowing following;  // +0x3C
-				int unknown74;  // +0x74
+				PatrolPath* path;  // +0x74
 				int unknown78;  // +0x78
 			};
 

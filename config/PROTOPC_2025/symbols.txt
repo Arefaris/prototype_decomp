@@ -108232,3 +108232,6 @@ _sPowersClip = 0x110983E4 ; data size:0x4 | proto::FEHudPowerNodeQuick clip name
 ??_7BroadcastPatrolPointAIMsg@proto@@6B@ = 0x10DCDFB8 ; data size:0x4 | proto::BroadcastPatrolPointAIMsg vftable
 ??_GBroadcastPatrolPointAIMsg@proto@@UAEPAXI@Z = 0x102050C0 ; function size:0x1F | proto::BroadcastPatrolPointAIMsg::scalar deleting destructor vftable slot 0
 ??_R0?AUBroadcastPatrolPointAIMsg@proto@@@8 = 0x11043CE0 ; data size:0x8 | proto::BroadcastPatrolPointAIMsg RTTI type descriptor
+?GetSpeed@PatrolPath@proto@@QAEMXZ = 0x103A6040 ; function size:0x9D | proto::PatrolPath::GetSpeed (name guess)
+?GetPointCount@PatrolPath@proto@@QAEHXZ = 0x103A5E10 ; function size:0x9E | proto::PatrolPath::GetPointCount (name guess)
+?GetPoint@PatrolPath@proto@@QAEPBUPatrolPathPoint@2@H@Z = 0x103A5C80 ; function size:0x97 | proto::PatrolPath::GetPoint (name guess)

@@ -273,6 +273,62 @@ namespace proto
 				return true;
 			}
 
+			// FUNCTION: ENGINE 0x10205930
+			bool PathPatrolAction::Slot5(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				GetPatrolMovementMessage getMessage;
+				object->SendMessage(&getMessage);
+				if (getMessage.path == 0)
+				{
+					return false;
+				}
+				path = getMessage.path;
+				GotoPathMovementMessage message(path->GetSpeed());
+				int count = path->GetPointCount();
+				for (int i = 0; i < count; i++)
+				{
+					const PatrolPathPoint* point = path->GetPoint(i);
+					message.points.PushBack(point->position);
+				}
+				unknown78 = count - 1;
+				target.Get()->SendMessage(&message);
+				return true;
+			}
+
+			// FUNCTION: ENGINE 0x10205B10
+			bool PathPatrolAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				if (Unknown103B8440(object))
+				{
+					GotoPathMovementMessage message(path->GetSpeed());
+					int count = path->GetPointCount();
+					int index = unknown78;
+					for (int i = 0; i < count; i++)
+					{
+						const PatrolPathPoint* point = path->GetPoint(index);
+						message.points.PushBack(point->position);
+						index = (index + 1) % count;
+					}
+					unknown78 = unknown78 - 1;
+					if (unknown78 < 0)
+					{
+						unknown78 = count - 1;
+					}
+					target.Get()->SendMessage(&message);
+				}
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x10205890
 			fight::Action* PatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
