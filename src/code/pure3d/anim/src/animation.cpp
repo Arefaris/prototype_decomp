@@ -3,9 +3,11 @@
 #include "code/math/compressedquaternion.h"
 #include "code/math/mathutils.h"
 #include <math.h>
+#include <new>
 #include "code/pure3d/animation.h"
 #include "code/pure3d/channel.h"
 #include "code/pure3d/effects/particlecontroller.h"
+#include "code/pure3d/vertexstream.h"
 
 namespace engine
 {
@@ -21,6 +23,34 @@ namespace math
 	// The scale factors sit in the data section (initialised there, not constants of the code)
 	float CompressedQuaternion6::sScale = 1.0f / 32767.0f;
 	float CompressedQuaternion3::sScale = 1.0f / 127.0f;
+	float CompressedQuaternion4::sScale = 1.0f / 1023.0f;
+	float CompressedQuaternion4::sScaleZ = 1.0f / 511.0f;
+
+	// FUNCTION: ENGINE 0x106E2F50
+	inline Quaternion CompressedQuaternion8::ToQuaternion() const
+	{
+		Quaternion q;
+		q.x = x * CompressedQuaternion6::sScale;
+		q.y = y * CompressedQuaternion6::sScale;
+		q.z = z * CompressedQuaternion6::sScale;
+		q.w = w * CompressedQuaternion6::sScale;
+		return q;
+	}
+
+	// FUNCTION: ENGINE 0x106E3EA0
+	inline Quaternion CompressedQuaternion4::ToQuaternion() const
+	{
+		float qx = (float)(int)(packed & 0x7FF) * sScale - 1.0f;
+		float qy = (float)(int)((packed >> 11) & 0x7FF) * sScale - 1.0f;
+		float qz = (float)(int)(packed >> 22) * sScaleZ - 1.0f;
+		float qw = sqrtf(Max(1.0f - (qz * qz + qy * qy + qx * qx), 0.0f));
+		Quaternion q;
+		q.x = qx;
+		q.y = qy;
+		q.z = qz;
+		q.w = qw;
+		return q;
+	}
 
 	// FUNCTION: ENGINE 0x106E3E10
 	inline Quaternion CompressedQuaternion6::ToQuaternion() const
@@ -60,6 +90,13 @@ namespace pure3d
 	{
 		frame = 0;
 		time = 0.0f;
+	}
+
+	// FUNCTION: ENGINE 0x106E2FF0
+	FrameTime::FrameTime(short newFrame)
+	{
+		frame = newFrame;
+		time = (float)newFrame;
 	}
 
 	// FUNCTION: ENGINE 0x106E3010
@@ -415,6 +452,95 @@ namespace pure3d
 			((ChannelKeys<math::CompressedQuaternion3>*)&keys)->Evaluate(time, out);
 			break;
 		}
+	}
+
+	// FUNCTION: ENGINE 0x106E3980
+	VectorKeysBase* VectorKeys::GetBase()
+	{
+		switch (type)
+		{
+		case 0:
+			return (DOFKeys<float>*)keys;
+		case 1:
+			return (DOFKeys<Float2>*)keys;
+		case 2:
+			return (ChannelKeys<math::Vector>*)keys;
+		case 3:
+			return (DOFKeys<Short2>*)keys;
+		case 4:
+			return (ChannelKeys<Short3>*)keys;
+		}
+		return (VectorKeysBase*)keys;
+	}
+
+	// FUNCTION: ENGINE 0x106E39B0
+	RotationKeysBase* RotationKeys::GetBase()
+	{
+		switch (type)
+		{
+		case 0:
+			return &keys;
+		case 1:
+			return (ChannelKeys<math::CompressedQuaternion8>*)&keys;
+		case 2:
+			return (ChannelKeys<math::CompressedQuaternion6>*)&keys;
+		case 3:
+			return (ChannelKeys<math::CompressedQuaternion4>*)&keys;
+		case 4:
+			return (ChannelKeys<math::CompressedQuaternion3>*)&keys;
+		}
+		return &keys;
+	}
+
+	// FUNCTION: ENGINE 0x106E5D70
+	// NONMATCHING: the engine schedules the component sums differently (75 %)
+#ifdef NONMATCHING
+	void VectorKeys::GetDelta(FrameTime from, FrameTime to, math::Vector* out)
+	{
+		math::Vector v0;
+		math::Vector v1;
+		Evaluate(from, &v0);
+		Evaluate(to, &v1);
+		if (to.time >= from.time)
+		{
+			out->x = v1.x - v0.x;
+			out->y = v1.y - v0.y;
+			out->z = v1.z - v0.z;
+			return;
+		}
+		math::Vector first;
+		math::Vector last;
+		Evaluate(FrameTime(0.0f), &first);
+		Evaluate(FrameTime((short)GetBase()->GetLastFrame()), &last);
+		math::Vector tail;
+		tail.Sub(last, v0);
+		math::Vector head;
+		head.Sub(v1, first);
+		out->Add(head, tail);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E6FC0
+	void RotationKeys::GetDelta(FrameTime from, FrameTime to, math::Quaternion* out)
+	{
+		math::Quaternion q0;
+		math::Quaternion q1;
+		Evaluate(from, &q0);
+		Evaluate(to, &q1);
+		if (to.time >= from.time)
+		{
+			out->MultiplyInverse(q1, q0);
+			return;
+		}
+		math::Quaternion first;
+		Evaluate(FrameTime(0.0f), &first);
+		int lastFrame = GetBase()->GetLastFrame();
+		math::Quaternion last;
+		Evaluate(FrameTime((float)lastFrame), &last);
+		math::Quaternion wrapped;
+		wrapped.MultiplyInverse(q1, first);
+		out->MultiplyInverse(last, q0);
+		math::Multiply(*out, *out, wrapped);
 	}
 
 	// FUNCTION: ENGINE 0x106E3050
@@ -803,6 +929,316 @@ namespace pure3d
 		pure3d::GetKey(values, index0, &key);
 		*out = key.ToQuaternion();
 	}
+
+	// The matrix of a stored rotation (the key or the value at a time)
+	template<class T> void ChannelKeys<T>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out)
+	{
+		math::Quaternion q;
+		GetKeyAt(index, frame, &q);
+		q.ToMatrix(*out);
+	}
+
+	template<class T> void ChannelKeys<T>::Evaluate(float time, typename KeyValue<T>::Type* out)
+	{
+		Evaluate(FrameTime(time), out);
+	}
+
+	template<class T> void ChannelKeys<T>::Evaluate(float time, math::Matrix* out)
+	{
+		math::Quaternion q;
+		Evaluate(FrameTime(time), &q);
+		q.ToMatrix(*out);
+	}
+
+	// FUNCTION: ENGINE 0x106E5EB0
+	template<> void ChannelKeys<math::CompressedQuaternion8>::GetKeyAt(unsigned int index, float* frame,
+		math::Quaternion* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::CompressedQuaternion8 value;
+		pure3d::GetKey(values, index, &value);
+		*out = value.ToQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x106E6230
+	template<> void ChannelKeys<math::CompressedQuaternion6>::GetKeyAt(unsigned int index, float* frame,
+		math::Quaternion* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::CompressedQuaternion6 value;
+		pure3d::GetKey(values, index, &value);
+		*out = value.ToQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x106E6540
+	template<> void ChannelKeys<math::CompressedQuaternion4>::GetKeyAt(unsigned int index, float* frame,
+		math::Quaternion* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::CompressedQuaternion4 value;
+		pure3d::GetKey(values, index, &value);
+		*out = value.ToQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x106E6890
+	template<> void ChannelKeys<math::CompressedQuaternion3>::GetKeyAt(unsigned int index, float* frame,
+		math::Quaternion* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::CompressedQuaternion3 value;
+		pure3d::GetKey(values, index, &value);
+		*out = value.ToQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x106E5FA0
+	template<> void ChannelKeys<math::CompressedQuaternion8>::Evaluate(FrameTime time, math::Quaternion* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			math::CompressedQuaternion8 a;
+			math::CompressedQuaternion8 b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				*out = a.ToQuaternion();
+				return;
+			}
+			float t = alpha / (time1.time - time0.time);
+			out->Slerp(a.ToQuaternion(), b.ToQuaternion(), t);
+			return;
+		}
+		math::CompressedQuaternion8 key;
+		pure3d::GetKey(values, index0, &key);
+		*out = key.ToQuaternion();
+	}
+
+	// FUNCTION: ENGINE 0x106E6680
+	template<> void ChannelKeys<math::CompressedQuaternion4>::Evaluate(FrameTime time, math::Quaternion* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			math::CompressedQuaternion4 a;
+			math::CompressedQuaternion4 b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				*out = a.ToQuaternion();
+				return;
+			}
+			float t = alpha / (time1.time - time0.time);
+			out->Slerp(a.ToQuaternion(), b.ToQuaternion(), t);
+			return;
+		}
+		math::CompressedQuaternion4 key;
+		pure3d::GetKey(values, index0, &key);
+		*out = key.ToQuaternion();
+	}
+
+	// The two axes a Float2 / Short2 key fills, by the axis the channel leaves to its constant (data section)
+	static int sAxisPairs[3][2] = {{1, 2}, {0, 2}, {0, 1}};
+
+	// FUNCTION: ENGINE 0x106E4460
+	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (55 %)
+#ifdef NONMATCHING
+	template<> void DOFKeys<float>::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::Vector copy(constant.x, constant.y, constant.z);
+		out->x = copy.x;
+		out->y = copy.y;
+		out->z = copy.z;
+		float value;
+		pure3d::GetKey(values, index, &value);
+		((float*)out)[axis] = value;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E4620
+	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (48 %)
+#ifdef NONMATCHING
+	template<> void DOFKeys<Float2>::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		math::Vector copy(constant.x, constant.y, constant.z);
+		out->x = copy.x;
+		out->y = copy.y;
+		out->z = copy.z;
+		Float2 value;
+		pure3d::GetKey(values, index, &value);
+		((float*)out)[sAxisPairs[axis][0]] = value.x;
+		((float*)out)[sAxisPairs[axis][1]] = value.y;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E44D0
+	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (30 %)
+#ifdef NONMATCHING
+	template<> void DOFKeys<float>::Evaluate(FrameTime time, math::Vector* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		math::Vector copy(constant.x, constant.y, constant.z);
+		out->x = copy.x;
+		out->y = copy.y;
+		out->z = copy.z;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			float a;
+			float b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				((float*)out)[axis] = a;
+				return;
+			}
+			((float*)out)[axis] = ((b - a) / (time1.time - time0.time)) * alpha + a;
+			return;
+		}
+		float value;
+		pure3d::GetKey(values, index0, &value);
+		((float*)out)[axis] = value;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E49D0
+	// NONMATCHING: the engine copies the constant vector with the first component through the x87 unit and the others through SSE (27 %)
+#ifdef NONMATCHING
+	template<> void DOFKeys<Float2>::Evaluate(FrameTime time, math::Vector* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		math::Vector copy(constant.x, constant.y, constant.z);
+		out->x = copy.x;
+		out->y = copy.y;
+		out->z = copy.z;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			Float2 a;
+			Float2 b;
+			GetKeys(values, index0, index1, &a, &b);
+			if (alpha == 0.0f)
+			{
+				((float*)out)[sAxisPairs[axis][0]] = a.x;
+				((float*)out)[sAxisPairs[axis][1]] = a.y;
+				return;
+			}
+			float t = alpha / (time1.time - time0.time);
+			((float*)out)[sAxisPairs[axis][0]] = (b.x - a.x) * t + a.x;
+			((float*)out)[sAxisPairs[axis][1]] = (b.y - a.y) * t + a.y;
+			return;
+		}
+		Float2 value;
+		pure3d::GetKey(values, index0, &value);
+		((float*)out)[sAxisPairs[axis][0]] = value.x;
+		((float*)out)[sAxisPairs[axis][1]] = value.y;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106E5740
+	template<> void ChannelKeys<Short3>::GetKeyAt(unsigned int index, float* frame, math::Vector* out)
+	{
+		short key;
+		pure3d::GetKey(frames, index, &key);
+		*frame = (float)key;
+		Short3 value;
+		pure3d::GetKey(values, index, &value);
+		math::Vector vector = ((Half3&)value).ToVector();
+		out->x = vector.x;
+		out->y = vector.y;
+		out->z = vector.z;
+	}
+
+	// FUNCTION: ENGINE 0x106E5930
+	// NONMATCHING: the engine places the two vectors of the keys over the keys' own slots (frame 0x38 against 0x54, 51 %)
+#ifdef NONMATCHING
+	template<> void ChannelKeys<Short3>::Evaluate(FrameTime time, math::Vector* out)
+	{
+		FrameTime time0;
+		FrameTime time1;
+		unsigned int index0;
+		unsigned int index1;
+		int frame0;
+		int frame1;
+		bool found = FindKeys(time, &index0, &index1, (short*)&frame0, (short*)&frame1);
+		time0.SetFrame(frame0);
+		time1.SetFrame(frame1);
+		if (found && mode != 0)
+		{
+			float alpha = time.time - time0.time;
+			Short3 a;
+			Short3 b;
+			GetKeys(values, index0, index1, &a, &b);
+			math::Vector va = ((Half3&)a).ToVector();
+			math::Vector vb = ((Half3&)b).ToVector();
+			if (alpha != 0.0f)
+			{
+				float t = alpha / (time1.time - time0.time);
+				out->x = (vb.x - va.x) * t + va.x;
+				out->y = (vb.y - va.y) * t + va.y;
+				out->z = (vb.z - va.z) * t + va.z;
+				return;
+			}
+			out->x = va.x;
+			out->y = va.y;
+			out->z = va.z;
+			return;
+		}
+		Short3 value;
+		pure3d::GetKey(values, index0, &value);
+		math::Vector v = ((Half3&)value).ToVector();
+		out->x = v.x;
+		out->y = v.y;
+		out->z = v.z;
+	}
+#endif
 }
 
 // FUNCTION: ENGINE 0x106E30C0
@@ -874,6 +1310,13 @@ template void pure3d::GetKey<int>(const int* values, int index, int* out);
 template void pure3d::GetKeys<int>(const int* values, int index0, int index1, int* out0, int* out1);
 
 // The floats of a pair are copied one by one
+// FUNCTION: ENGINE 0x106E3AD0
+template void pure3d::GetKey<pure3d::Short2>(const pure3d::Short2* values, int index, pure3d::Short2* out);
+
+// FUNCTION: ENGINE 0x106E3AF0
+template void pure3d::GetKeys<pure3d::Short2>(const pure3d::Short2* values, int index0, int index1,
+	pure3d::Short2* out0, pure3d::Short2* out1);
+
 // FUNCTION: ENGINE 0x106E3A80
 template<> void pure3d::GetKey<pure3d::Float2>(const pure3d::Float2* values, int index, pure3d::Float2* out)
 {
@@ -955,3 +1398,48 @@ template void pure3d::ChannelKeys<math::Vector>::GetKeyAt(unsigned int index, fl
 
 // FUNCTION: ENGINE 0x106E5AD0
 template void pure3d::ChannelKeys<math::Quaternion>::GetKeyAt(unsigned int index, float* frame, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E5B10
+template void pure3d::ChannelKeys<math::Quaternion>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E5F70
+template void pure3d::ChannelKeys<math::CompressedQuaternion8>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6320
+template void pure3d::ChannelKeys<math::CompressedQuaternion6>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6650
+template void pure3d::ChannelKeys<math::CompressedQuaternion4>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6980
+template void pure3d::ChannelKeys<math::CompressedQuaternion3>::GetKeyAt(unsigned int index, float* frame, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6BA0
+template void pure3d::ChannelKeys<math::CompressedQuaternion8>::Evaluate(float time, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E6BD0
+template void pure3d::ChannelKeys<math::CompressedQuaternion6>::Evaluate(float time, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E6C00
+template void pure3d::ChannelKeys<math::CompressedQuaternion4>::Evaluate(float time, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E6C30
+template void pure3d::ChannelKeys<math::CompressedQuaternion3>::Evaluate(float time, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E6C60
+template void pure3d::ChannelKeys<math::Quaternion>::Evaluate(float time, math::Quaternion* out);
+
+// FUNCTION: ENGINE 0x106E6C90
+template void pure3d::ChannelKeys<math::Quaternion>::Evaluate(float time, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6E20
+template void pure3d::ChannelKeys<math::CompressedQuaternion8>::Evaluate(float time, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6E60
+template void pure3d::ChannelKeys<math::CompressedQuaternion6>::Evaluate(float time, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6EA0
+template void pure3d::ChannelKeys<math::CompressedQuaternion4>::Evaluate(float time, math::Matrix* out);
+
+// FUNCTION: ENGINE 0x106E6EE0
+template void pure3d::ChannelKeys<math::CompressedQuaternion3>::Evaluate(float time, math::Matrix* out);

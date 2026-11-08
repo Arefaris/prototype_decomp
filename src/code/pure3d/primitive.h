@@ -7,6 +7,7 @@
 #define PURE3D_PRIMITIVE_H
 
 #include "code/core/asynctask.h"
+#include "code/container/arraydynamic.h"
 #include "code/core/name.h"
 #include "code/math/pddicolour.h"
 #include "code/math/aabb.h"
@@ -1087,6 +1088,33 @@ namespace pure3d
 
 	class PrimitiveState;
 
+	// A named parameter of the particle module: the name it is found by, the number the particle systems use it with and
+	// a second number (names guessed)
+	struct ParticleParameter
+	{
+		core::Name<core::CaseInsensitiveKey32> name;
+		unsigned int unknown4;
+		unsigned int index;
+		unsigned int unknownC;
+	};
+
+	// An entry of the particle module: a kind of particle task, found by its name (names guessed)
+	struct ParticleEntry
+	{
+		unsigned char unknown0[0x18];
+		core::Name<core::CaseInsensitiveKey32> name;
+		unsigned int unknown1C;
+		int number;
+	};
+
+	// A state the particle module keeps and whether it has been released (8 bytes)
+	struct ParticleStateRecord
+	{
+		PrimitiveState* state;
+		bool released;
+		unsigned char unknown5[3];
+	};
+
 	// The particle module (0x106EDA80 returns the global at 0x1127EE4C; names guessed)
 	class ParticleManager
 	{
@@ -1101,8 +1129,11 @@ namespace pure3d
 		int GetEntryNumber(int index);
 		// 0x106EF970: registers a state with the module
 		void RegisterState(PrimitiveState* state);
-		// 0x106EE6E0: the index of a parameter
+		// 0x106EE6E0: the index of a parameter; 0x106EE730: its second number (-1 for none; name guess)
 		unsigned int FindParameter(const core::Name<core::CaseInsensitiveKey32>& name);
+		unsigned int FindParameterUnknownC(const core::Name<core::CaseInsensitiveKey32>& name);
+		// 0x106EE780: how many entries there are (name guess)
+		unsigned int GetEntryCount();
 		// 0x106EECB0: the most parts a particle drawable may have
 		unsigned int GetMaxParts();
 		// 0x106EDBC0: stores the float at +0x19C
@@ -1137,7 +1168,14 @@ namespace pure3d
 		float GetUnknown1B8();
 		void SetUnknown1B8(float value);
 
-		unsigned char unknown0[0x184];
+		ParticleParameter** parameters;
+		ParticleParameter** parametersEnd;
+		unsigned char unknown8[8];
+		ParticleEntry** entries;
+		ParticleEntry** entriesEnd;
+		unsigned char unknown18[0x48];
+		container::ArrayDynamicHeap<ParticleStateRecord> states;
+		unsigned char unknown70[0x114];
 		bool unknown184;
 		unsigned char unknown185[0x13];
 		bool unknown198;

@@ -203,4 +203,93 @@ namespace pure3d
 	{
 		unknown1B8 = value;
 	}
+
+	// FUNCTION: ENGINE 0x106EE6E0
+	// NONMATCHING: the engine keeps the index in esi and the count in edi (80 %)
+#ifdef NONMATCHING
+	unsigned int ParticleManager::FindParameter(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int i = 0;
+		ParticleParameter** items = parameters;
+		unsigned int count = parametersEnd - items;
+		ParticleParameter** item = items;
+		for (; i < count; i++, item++)
+		{
+			if ((*item)->name == name)
+			{
+				return items[i]->index;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE730
+	// NONMATCHING: the engine keeps the index in esi and the count in edi (80 %)
+#ifdef NONMATCHING
+	unsigned int ParticleManager::FindParameterUnknownC(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int i = 0;
+		ParticleParameter** items = parameters;
+		unsigned int count = parametersEnd - items;
+		ParticleParameter** item = items;
+		for (; i < count; i++, item++)
+		{
+			if ((*item)->name == name)
+			{
+				return items[i]->unknownC;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE780
+	unsigned int ParticleManager::GetEntryCount()
+	{
+		return entriesEnd - entries;
+	}
+
+	// FUNCTION: ENGINE 0x106EE790
+	// NONMATCHING: the engine reads the entry through a stepped pointer and reloads it for the name (37 %)
+#ifdef NONMATCHING
+	int ParticleManager::FindEntry(const core::Name<core::CaseInsensitiveKey32>& name)
+	{
+		unsigned int count = GetEntryCount();
+		ParticleEntry** list = entries;
+		for (unsigned int i = 0; i < count; i++)
+		{
+			if (list[i] && list[i]->name == name)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x106EE7E0
+	int ParticleManager::GetEntryNumber(int index)
+	{
+		return entries[index]->number;
+	}
+
+	// FUNCTION: ENGINE 0x106EE860
+	void ParticleManager::ReleaseState(PrimitiveState* state)
+	{
+		for (unsigned int i = 0; i < states.Size(); i++)
+		{
+			if (states[i].state == state)
+			{
+				states[i].released = true;
+				return;
+			}
+		}
+	}
+
+	// FUNCTION: ENGINE 0x106EECB0
+	unsigned int ParticleManager::GetMaxParts()
+	{
+		return states.Capacity() - states.Size();
+	}
 }
