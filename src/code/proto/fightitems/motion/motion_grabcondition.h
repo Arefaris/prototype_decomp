@@ -14,6 +14,10 @@ namespace proto
 	engine::GameObject* GetGrabbingObject(engine::GameObject* object);
 	// 0x103BE920: lets a grabbed object go (name guess)
 	void DetachGrabbedObject(engine::GameObject* object);
+	// 0x10127B90: the mass of an object, summed over its bodies (name guess)
+	float GetPhysicsMass(engine::GameObject* object);
+	// 0x1082B900: whether an object's object template has a name (an empty name matches an object that does not exist; name guess)
+	bool MatchesObjectTemplate(engine::GameObjectHandle object, const core::Name<core::CaseSensitiveKey>* templateName);
 	// 0x10078F70
 	bool IsPlayerObject(engine::GameObject* object);
 }

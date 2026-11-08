@@ -242,6 +242,19 @@ namespace proto
 
 		engine::GameObjectHandle detacher;  // +0xC
 	};
+
+	// RTTI: proto::SetJumpLandedMovementMessage: tells the object's movement that a jump has landed
+	struct SetJumpLandedMovementMessage : public MovementMessage
+	{
+		explicit SetJumpLandedMovementMessage(bool newLanded) : MovementMessage(0x55), landed(newLanded)
+		{
+		}
+		virtual ~SetJumpLandedMovementMessage()
+		{
+		}
+
+		bool landed;  // +0xC
+	};
 }
 
 #endif

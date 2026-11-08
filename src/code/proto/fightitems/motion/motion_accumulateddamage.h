@@ -6,6 +6,11 @@
 #include "code/proto/fightitems/motion/motiondata.h"
 #include "code/proto/fightitems/motion/motionaction.h"
 
+namespace ravenphysics
+{
+	class PhysicsObject;
+}
+
 namespace proto
 {
 	namespace fightitems
@@ -301,6 +306,9 @@ namespace proto
 				virtual bool Slot5(int arg, float value);
 				// vftable slot 6 (0x100D1A80)
 				virtual void Slot6();
+
+				// 0x100D1210: sets the filter bits of a physics object that stop it from hitting and being hit (name guess)
+				void SetIgnoreFilterBits(ravenphysics::PhysicsObject* object, bool ignore);
 
 				core::Link<IgnoreHitsTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28

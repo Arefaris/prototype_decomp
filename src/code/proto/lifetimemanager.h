@@ -36,6 +36,8 @@ namespace proto
 		virtual void Create();
 		virtual void Destroy();
 		virtual void Update();
+		// 0x104988C0: takes an object out of the world, optionally telling the scenario it died (name guess)
+		void Unknown104988C0(engine::GameObjectHandle* object, engine::GameObjectHandle* killer, bool unknown, bool sendMessage);
 
 		LifetimeList first[2];  // +0x4, +0x14
 		LifetimeList third;  // +0x24

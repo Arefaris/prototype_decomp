@@ -7,6 +7,7 @@
 #include "code/proto/messages/airequestmessages.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/gameobject/gameobjectparams.h"
+#include "code/engine/fightgetgameobjectparamsmessage.h"
 
 namespace fight
 {
@@ -28,22 +29,6 @@ namespace engine
 	extern core::Name<core::CaseSensitiveKey> gDriverAITakingOff;
 	// 0x11255360: the listeners of the scenario messages ("scenario"; aifightitemnames.cpp)
 	extern MessageListeners gScenario38;
-}
-
-namespace engine
-{
-	// RTTI: engine::FightGetGameObjectParamsMessage: the object answers the parameters its fight is created with (null when it has none)
-	struct FightGetGameObjectParamsMessage : public NonintrusiveMessage
-	{
-		FightGetGameObjectParamsMessage() : NonintrusiveMessage(0xb, 0x10), params(0)
-		{
-		}
-		virtual ~FightGetGameObjectParamsMessage()
-		{
-		}
-
-		GameObjectParams* params;  // +0xC
-	};
 }
 
 namespace proto

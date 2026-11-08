@@ -318,9 +318,13 @@ namespace proto
 	}
 }
 
+// Explicit instance of the track link's constructor (the engine keeps a copy):
+template core::Link<proto::fightitems::motion::HeliLocoTrack>::Link(proto::fightitems::motion::HeliLocoTrack*);
+
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
 // FUNCTION: ENGINE 0x100D2A20
 // FUNCTION: ENGINE 0x100D2A90
+// FUNCTION: ENGINE 0x100D2AC0
 // FUNCTION: ENGINE 0x100D2DE0
 // FUNCTION: ENGINE 0x10179F40
 // FUNCTION: ENGINE 0x10179F70

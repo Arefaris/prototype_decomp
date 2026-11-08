@@ -9,33 +9,12 @@
 #include "code/engine/message.h"
 #include "code/engine/physics/getintersectionpropertiesmessage.h"
 #include "code/engine/physics/getphysicsobjectmessage.h"
+#include "code/engine/physics/setintersectionpropertiesmessage.h"
 #include "code/math/vector.h"
 #include "code/ravenphysics/context.h"
 
 namespace engine
 {
-	// Sets what the object's collision tests include (id 10)
-	struct SetIntersectionPropertiesMessage : public IntrusiveMessage
-	{
-		SetIntersectionPropertiesMessage(unsigned int newMask, bool newEnable, int newValue, bool newFlag)
-			: IntrusiveMessage(3, 10)
-		{
-			mask = newMask;
-			enable = newEnable;
-			value = newValue;
-			flag = newFlag;
-		}
-		virtual ~SetIntersectionPropertiesMessage()
-		{
-		}
-
-		unsigned int mask;
-		bool enable;
-		int value;
-		bool flag;
-	};
-
-
 	// Switches the physics object between simulated and keyframed (id 0x1A)
 	struct SetPhysicsObjectKeyframedMessage : public IntrusiveMessage
 	{
