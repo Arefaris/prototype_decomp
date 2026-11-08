@@ -289,11 +289,73 @@ namespace audio
 		bool closing;  // 0x1D4
 	};
 
+	// The driver of an ASIO device (RTTI: audio::AsioRendererDriver); only the parts the slots below use are described
+	class AsioRendererDriver : public RendererDriver
+	{
+	public:
+		virtual const char* Slot1();
+		// Slot 5 (0x10AB9340): true on the thread the device calls back on
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed (the latency and the channels follow the buffers)
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
+		// 0x10AB9360: the device changed its sample rate (a callback of the device library)
+		static void __cdecl SampleRateDidChange(double newSampleRate);
+
+		// 0x11327690 (name guessed): the driver the device calls back
+		static AsioRendererDriver* current;
+		// 0x11327694 (name guessed)
+		static char unknownStatic;
+
+		char unknown7C[0x10];
+		void* device;  // 0x8C
+		int state;  // 0x90
+		float** buffers;  // 0x94
+		char unknown98[0x3C];
+		int bufferSize;  // 0xD4
+		char unknownD8[8];
+		int outputChannels;  // 0xE0
+		char unknownE4[4];
+		double deviceSampleRate;  // 0xE8
+		char unknownF0[8];
+		unsigned long threadId;  // 0xF8
+	};
+
+	// The driver of the kernel streaming devices (names of the accessors guessed)
 	class WdmKsRendererDriver : public RendererDriver
 	{
 	public:
+		// The thread that mixes into the device's events (its body is not recovered)
+		class Thread : public om::Thread
+		{
+		public:
+			virtual void Run();
+
+			WdmKsRendererDriver* driver;  // 0xCC
+		};
+
+		virtual const char* Slot1();
+		// Slot 2 (0x10ABB8E0): the description of the class
+		virtual om::MetaTypeBase* GetMetaType();
+		// Slot 5 (0x10ABA740): true on the driver's own thread
+		virtual bool Slot5();
+		// Slots 6, 8 and 10: the value is set with the device closed
+		virtual void SetSampleRate(unsigned int newSampleRate);
+		virtual void SetLatency(unsigned int newLatency);
+		virtual void SetNumberOfChannels(unsigned int newNumberOfChannels);
 		void SetWaveFormat(WAVEFORMAT newWaveFormat);
 		WAVEFORMAT GetWaveFormat() const;
+
+		// 0x113276B0 (name guessed)
+		static char unknownStatic;
+
+		void* unknown7C;
+		char unknown80[8];
+		Thread thread;  // 0x88
+		void* mixEvents;  // 0x158
+		unsigned int numberOfMixEvents;  // 0x15C
+		WAVEFORMAT waveFormat;  // 0x160
 	};
 
 	// The interface the DirectSound driver implements besides the driver base (at 0x7C of the object; RTTI:
