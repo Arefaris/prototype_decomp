@@ -548,6 +548,18 @@ namespace engine
 			return result;
 		}
 
+		// FUNCTION: ENGINE 0x10819CA0
+		unsigned int HashLookup::StartSlot(unsigned __int64 value) const
+		{
+			return (unsigned int)value & (table->slotCount - 1);
+		}
+
+		// FUNCTION: ENGINE 0x10819CB0
+		unsigned int HashLookup::StepOf(unsigned __int64 value) const
+		{
+			return ((unsigned int)(value >> 9) & 0xfe) | 1;
+		}
+
 		// FUNCTION: ENGINE 0x1081A890
 		void* HashLookup::Find(const unsigned int* newKey)
 		{
@@ -928,6 +940,36 @@ namespace engine
 			}
 		}
 
+		// FUNCTION: ENGINE 0x10819360
+		bool EffectInstance::IsStoreUser() const
+		{
+			return usesStore;
+		}
+
+		// FUNCTION: ENGINE 0x10819370
+		bool EffectInstance::IsFromStore() const
+		{
+			return fromStore;
+		}
+
+		// FUNCTION: ENGINE 0x10819380
+		void EffectInstance::SetFromStore(bool newValue)
+		{
+			fromStore = newValue;
+		}
+
+		// FUNCTION: ENGINE 0x10819ED0
+		unsigned int EffectInstance::GetLODRecordCount() const
+		{
+			return lodsEnd - lodsBegin;
+		}
+
+		// FUNCTION: ENGINE 0x10819EE0
+		EffectName EffectInstance::GetStoreName() const
+		{
+			return storeName;
+		}
+
 		// FUNCTION: ENGINE 0x1081EC00
 		void EffectInstance::SetStoreDrawable(const Drawable* store)
 		{
@@ -1261,6 +1303,80 @@ namespace engine
 			ReserveList(attachedKeys, 4);
 			ReserveList(attachedCounts, 4);
 		}
+
+		// FUNCTION: ENGINE 0x1081AAC0
+		// NONMATCHING: the engine reloads the list's first element from the object for the index (no register kept for it) and
+		// uses a single saved register; ours keeps the first element and the key in two (37.4 %)
+#ifdef NONMATCHING
+		void EffectManagerConfig::SetEffectLimit(unsigned int key, unsigned int limit)
+		{
+			unsigned int* found = effectKeys.begin;
+			while (found != effectKeys.end && *found != key)
+			{
+				found++;
+			}
+			if (found != effectKeys.end)
+			{
+				effectCounts.begin[found - effectKeys.begin] = limit;
+				return;
+			}
+			if (effectKeys.end < effectKeys.capacity)
+			{
+				unsigned int* slot = effectKeys.end;
+				effectKeys.end = slot + 1;
+				if (slot != 0)
+				{
+					*slot = key;
+				}
+			}
+			if (effectCounts.end < effectCounts.capacity)
+			{
+				unsigned int* slot = effectCounts.end;
+				effectCounts.end = slot + 1;
+				if (slot != 0)
+				{
+					*slot = limit;
+				}
+			}
+		}
+#endif
+
+		// FUNCTION: ENGINE 0x1081AB30
+		// NONMATCHING: the engine reloads the list's first element from the object for the index (no register kept for it) and
+		// uses a single saved register; ours keeps the first element and the key in two (37.4 %)
+#ifdef NONMATCHING
+		void EffectManagerConfig::SetAttachedLimit(unsigned int key, unsigned int limit)
+		{
+			unsigned int* found = attachedKeys.begin;
+			while (found != attachedKeys.end && *found != key)
+			{
+				found++;
+			}
+			if (found != attachedKeys.end)
+			{
+				attachedCounts.begin[found - attachedKeys.begin] = limit;
+				return;
+			}
+			if (attachedKeys.end < attachedKeys.capacity)
+			{
+				unsigned int* slot = attachedKeys.end;
+				attachedKeys.end = slot + 1;
+				if (slot != 0)
+				{
+					*slot = key;
+				}
+			}
+			if (attachedCounts.end < attachedCounts.capacity)
+			{
+				unsigned int* slot = attachedCounts.end;
+				attachedCounts.end = slot + 1;
+				if (slot != 0)
+				{
+					*slot = limit;
+				}
+			}
+		}
+#endif
 
 		// FUNCTION: ENGINE 0x1081C4C0
 		void* HashTable::Find(const unsigned int* key)
@@ -1961,3 +2077,8 @@ namespace engine
 
 	}
 }
+
+// Members of the manager's record types the engine keeps out of line
+// FUNCTION: ENGINE 0x10819710
+// FUNCTION: ENGINE 0x10819E20
+// FUNCTION: ENGINE 0x10819EA0

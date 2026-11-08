@@ -939,3 +939,6 @@ namespace engine
 // The release of a drawable the free of a drawable slot makes
 // FUNCTION: ENGINE 0x10817E70
 template void core::SafeRelease<pure3d::Drawable>(pure3d::Drawable*& object);
+
+// The drawable table's slot constructor
+// FUNCTION: ENGINE 0x108179A0
