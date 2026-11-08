@@ -1,6 +1,7 @@
 #include "code/proto/behaviours/targetablebehaviour.h"
 #include "code/engine/attributemessage.h"
 #include "code/engine/gameobject/gameobject.h"
+#include "code/proto/behaviours/targetlockmessages.h"
 #include "code/proto/fightitems/ai/aihelpers.h"
 #include "code/proto/fightitems/motion/motionmessages.h"
 #include "code/pure3d/pose.h"
@@ -13,33 +14,7 @@ namespace proto
 
 namespace proto
 {
-	// RTTI proto::AddTargetLockMessage and RemoveTargetLockMessage (type 0x3B, ids 7 and 8), proto::GetCanCauseStrikeTeamCallTargetMessage
-	// (id 6) and proto::TransferTargetLocksMessage (id 9): the targeters of an object are handed over, added, taken off
-	struct AddTargetLockMessage : public TargetableMessage
-	{
-		explicit AddTargetLockMessage(engine::GameObject** newLock) : TargetableMessage(7), lock(newLock), flag(false)
-		{
-		}
-		virtual ~AddTargetLockMessage()
-		{
-		}
-
-		engine::GameObject** lock;  // +0xC
-		bool flag;  // +0x10
-	};
-
-	struct RemoveTargetLockMessage : public TargetableMessage
-	{
-		explicit RemoveTargetLockMessage(engine::GameObject** newLock) : TargetableMessage(8), lock(newLock)
-		{
-		}
-		virtual ~RemoveTargetLockMessage()
-		{
-		}
-
-		engine::GameObject** lock;  // +0xC
-	};
-
+	// RTTI proto::GetCanCauseStrikeTeamCallTargetMessage (id 6) and proto::TransferTargetLocksMessage (id 9)
 	struct GetCanCauseStrikeTeamCallTargetMessage : public TargetableMessage
 	{
 		GetCanCauseStrikeTeamCallTargetMessage() : TargetableMessage(6), canCause(false)
@@ -640,3 +615,4 @@ namespace proto
 // FUNCTION: ENGINE 0x102B3B40
 // FUNCTION: ENGINE 0x102B3B80
 // FUNCTION: ENGINE 0x102B3C90
+// FUNCTION: ENGINE 0x102A9DD0

@@ -6,10 +6,14 @@
 #ifndef PROTO_BEHAVIOURS_LOCKONTARGETINGBEHAVIOUR_H
 #define PROTO_BEHAVIOURS_LOCKONTARGETINGBEHAVIOUR_H
 
+#include "code/container/arraycdynamic.h"
 #include "code/container/arraydynamicallocatornew.h"
 #include "code/content/metatype.h"
 #include "code/core/name.h"
+#include "code/engine/dbobserver.h"
+#include "code/math/vector.h"
 #include "code/proto/autotargetprioritylist.h"
+#include "code/proto/behaviours/targetablebehaviour.h"
 #include "code/proto/behaviours/targetingbehaviour.h"
 
 namespace proto
@@ -51,7 +55,7 @@ namespace proto
 		engine::GameObjectHandle lastTarget;  // +0x1C
 	};
 
-	class LockOnTargetingBehaviour : public AutoTargetingBehaviour
+	class LockOnTargetingBehaviour : public AutoTargetingBehaviour, public engine::DBObserver
 	{
 	public:
 		// The cone the lock-on takes its targets from (RTTI proto::LockOnTargetingBehaviour::TargetLockCone)
@@ -105,7 +109,114 @@ namespace proto
 			core::Name<core::CaseSensitiveKey> targetAbandoned;  // +0x38
 		};
 
+		typedef container::ArrayDynamic<TargetLockCone, container::AllocatorNew> TargetLockConeArray;
+		// Tell the meta types of the six lists apart (one instance each)
+		struct ConeArrayTag0 {};
+		struct ConeArrayTag1 {};
+		struct ConeArrayTag2 {};
+		struct ConeArrayTag3 {};
+		struct ConeArrayTag4 {};
+		struct ConeArrayTag5 {};
+		struct ConeArrayEntry
+		{
+			TargetLockConeArray cones;
+			int unknownWord;
+		};
+
+		// 0x102B0180 (the destructor is 0x102B0510, the deleting destructor 0x102B0820)
+		explicit LockOnTargetingBehaviour(engine::GameObject* newOwner);
+		virtual ~LockOnTargetingBehaviour();
 		static content::ClassInfo* GetClassInfo();
+		static content::MemberList* GetMembers();
+
+		// vftable slots 1, 2, 4, 6, 8 and 9 (0x102AA410, 0x102AA4C0, 0x102B0850, 0x102AC4A0, 0x102ABA40, 0x102AC550)
+		virtual void Slot1();
+		virtual bool Slot2();
+		virtual void Update(float dt, unsigned short mask);
+		virtual void OnMessage(engine::Message* message);
+		virtual void ClearTarget();
+		virtual void SetTarget(const engine::GameObjectHandle* newTarget);
+		// The DBObserver's first slot (0x102AA480): the profile's target toggle setting changed
+		virtual void OnDBSlot0(int a, int b);
+
+		// 0x102AA510: forgets the state of the lock
+		void ResetLockState();
+		// 0x102AA540 / 0x102AA560 / 0x102AA580 / 0x102AA5B0 / 0x102ABB40 (names guessed): the messages of type 0x20 with
+		// ids 8, 9, 0, 11 and 10
+		void OnSetFlag16A(engine::Message* message);
+		void OnGetPreferredCategory(engine::Message* message);
+		void OnGetUnknown15C(engine::Message* message);
+		void OnSetLockHandle(const engine::GameObjectHandle* handle);
+		void OnSetPriorityList(engine::Message* message);
+
+		unsigned int unknown24;  // +0x24
+		math::Vector unknown28;  // +0x28
+		math::Vector unknown34;  // +0x34
+		math::Vector unknown40;  // +0x40
+		float unknown4C;  // +0x4C
+		int unknown50;
+		int unknown54;
+		int unknown58;
+		int unknown5C;
+		int unknown60;
+		int unknown64;
+		float unknown68;
+		float unknown6C;
+		float unknown70;
+		bool unknown74;
+		bool unknown75;
+		bool unknown76;
+		int unknown78;
+		engine::GameObjectHandle unknown7C;  // +0x7C
+		unsigned char unknown80[8];
+		bool unknown88;  // +0x88
+		bool unknown89;
+		unsigned char unknown8A[10];
+		bool toggleEnabled;  // +0x94 (the profile's setting)
+		unsigned char unknown95[3];
+		bool unknown98;  // +0x98
+		bool unknown99;
+		bool unknown9A;
+		AutoTargetPriorityList* disguiseAutoTargetPriorityList;  // +0x9C
+		AutoTargetPriorityList* vehicleDisguiseAutoTargetPriorityList;  // +0xA0
+		bool unknownA4;
+		engine::GameObjectHandle unknownA6;  // +0xA6
+		TargetableBehaviour::Targeter targetLock;  // +0xAC (the targeted object and the next link)
+		bool toggleToTargetLock;  // +0xB4
+		float unknownB8;
+		bool unknownBC;
+		float unknownC0;
+		float targetLockMaxDistance;  // +0xC4
+		unsigned int targetLockPreferredTargetCategory;  // +0xC8
+		unsigned int targetSwitchTargetCategoryMax;  // +0xCC
+		float targetSwitchAxisThreshold;  // +0xD0
+		float targetSwitchTime;  // +0xD4
+		float targetSwitchHoldTime;  // +0xD8
+		float unknownDC;
+		bool unknownE0;
+		float timeBubbleSimulationRate;  // +0xE4
+		float timeBubbleFadeInTime;  // +0xE8
+		float timeBubbleDuration;  // +0xEC
+		float timeBubbleFadeOutTime;  // +0xF0
+		// The six lists of lock cones (targetLockCones, helicopterTargetLockCones, tankTargetLockCones, targetLockConesKB,
+		// helicopterTargetLockConesKB, tankTargetLockConesKB) with the word behind each array
+		ConeArrayEntry coneArrays[6];  // +0xF4
+		int unknown154;
+		bool unknown158;
+		float unknown15C;
+		float targetLockDisengageOnDeadTime;  // +0x160
+		float unknown164;
+		bool unknown168;
+		bool unknown169;
+		bool unknown16A;
+		bool unknown16B;
+		container::ArrayCDynamic<unsigned int, 4> unknownLists[3];  // +0x16C
+		engine::GameObjectHandle unknown1A8;  // +0x1A8
+		SoundParams soundParams;  // +0x1B0
+		SoundParams helicopterSoundParams;  // +0x1F0
+		SoundParams* currentSoundParams;  // +0x230
+		math::Vector kbOnFootReferencePoint;  // +0x234
+		bool unknown240;
 	};
 }
 
