@@ -315,9 +315,3 @@ using namespace mgraph;
 	template mgraph::CastBoolToTrigger::LastValue const& om::DynamicArray<mgraph::CastBoolToTrigger::LastValue,unsigned short>::operator[](unsigned short) const;
 	// FUNCTION: ENGINE 0x10B6C110
 	template mgraph::CastTriggerToBool::Level const& om::DynamicArray<mgraph::CastTriggerToBool::Level,unsigned short>::operator[](unsigned short) const;
-	// FUNCTION: ENGINE 0x10B6C650
-	// EQUIVALENT: shrink-wrap: the engine saves esi before testing the cached type, ours behind it (87.5 %)
-	template void mgraph::NodeType<mgraph::CastBoolToTrigger>::ReleaseMetaType();
-	// FUNCTION: ENGINE 0x10B6C810
-	// EQUIVALENT: shrink-wrap: the engine saves esi before testing the cached type, ours behind it (87.5 %)
-	template void mgraph::NodeType<mgraph::CastTriggerToBool>::ReleaseMetaType();

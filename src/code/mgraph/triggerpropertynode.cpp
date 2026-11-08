@@ -197,9 +197,6 @@ namespace mgraph
 	template MetaTypeBase* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::TriggerData> > >::FindMetaType();
 	// FUNCTION: ENGINE 0x10B6B5D0
 	template MetaTypeBase* mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::TriggerData> > >::GetMetaType();
-	// FUNCTION: ENGINE 0x10B6B5F0
-	// EQUIVALENT: shrink-wrap: the engine saves esi before testing the cached type, ours behind it (87.5 %)
-	template void mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::TriggerData> > >::ReleaseMetaType();
 	// FUNCTION: ENGINE 0x10B6B640
 	template mgraph::NodeType<mgraph::PropertyNode<mgraph::Packet<mgraph::TriggerData> > >::~NodeType();
 	// FUNCTION: ENGINE 0x10B6BA90
