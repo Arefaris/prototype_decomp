@@ -1,5 +1,32 @@
 #include "code/proto/worldtriggers.h"
+#include "code/math/aabb.h"
 #include "code/ravenphysics/collision/collisionobject.h"
+
+namespace math
+{
+	// FUNCTION: ENGINE 0x103B4130
+	// NONMATCHING: the engine loads the three extents before it multiplies them (27.3 %)
+#ifdef NONMATCHING
+	float AABB::GetVolume() const
+	{
+		return (max.x - min.x) * ((max.y - min.y) * (max.z - min.z));
+	}
+#endif
+}
+
+namespace proto
+{
+	// FUNCTION: ENGINE 0x103B42D0
+	void Unknown103B42D0(math::AABB* box)
+	{
+		box->min.x = -6000.0f;
+		box->min.y = -6000.0f;
+		box->min.z = -6000.0f;
+		box->max.x = 6000.0f;
+		box->max.y = 6000.0f;
+		box->max.z = 6000.0f;
+	}
+}
 
 namespace content
 {

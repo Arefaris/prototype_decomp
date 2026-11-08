@@ -1,4 +1,6 @@
 #include "code/proto/behaviours/camerafloorbehaviour.h"
+#include "code/proto/fightitems/motion/motion_boundary.h"
+#include "code/proto/camera/cameramanager.h"
 
 namespace proto
 {
@@ -25,6 +27,48 @@ namespace proto
 	// FUNCTION: ENGINE 0x103B4210
 	CameraFloorBehaviour::~CameraFloorBehaviour()
 	{
+	}
+
+	// FUNCTION: ENGINE 0x103B4150
+	bool WorldTriggerCollisionCallback::IsInCameraFloor() const
+	{
+		return cameraFloorCount > 0;
+	}
+
+	// FUNCTION: ENGINE 0x103B4160
+	void WorldTriggerCollisionCallback::EnterCameraFloor()
+	{
+		cameraFloorCount++;
+	}
+
+	// FUNCTION: ENGINE 0x103B4170
+	void WorldTriggerCollisionCallback::LeaveCameraFloor()
+	{
+		cameraFloorCount--;
+	}
+
+	// FUNCTION: ENGINE 0x103B4220
+	void CameraFloorBehaviour::OnMessage(engine::Message* message)
+	{
+		if (message->type == 0xd)
+		{
+			switch ((unsigned short)message->id)
+			{
+			case 4:
+				gWorldTriggerCollisionCallback->cameraFloorCount--;
+				if (gWorldTriggerCollisionCallback->cameraFloorCount <= 0)
+				{
+					gCameraManager->SetCameraMinHeight(restoreCameraMinHeight);
+					gCameraManager->SetCameraMaxHeight(1000000000000.0f);
+				}
+				break;
+			case 3:
+				gWorldTriggerCollisionCallback->cameraFloorCount++;
+				gCameraManager->SetCameraMinHeight(cameraMinHeight);
+				gCameraManager->SetCameraMaxHeight(cameraMaxHeight);
+				break;
+			}
+		}
 	}
 
 	// FUNCTION: ENGINE 0x103B4910

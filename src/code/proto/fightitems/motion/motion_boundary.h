@@ -17,7 +17,14 @@ namespace proto
 	class WorldTriggerCollisionCallback
 	{
 	public:
-		unsigned char unknown0[0x38];
+		// 0x103B4150 / 0x103B4160 / 0x103B4170 (name guesses): whether the camera is held by a camera floor, and the camera
+		// floors that take / give it back
+		bool IsInCameraFloor() const;
+		void EnterCameraFloor();
+		void LeaveCameraFloor();
+
+		unsigned char unknown0[0x34];
+		int cameraFloorCount;  // +0x34
 		bool ignoreWaterReaction;  // +0x38
 		unsigned char unknown39[3];
 	};
