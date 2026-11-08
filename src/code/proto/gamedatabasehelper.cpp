@@ -304,4 +304,36 @@ namespace proto
 		engine::gGameDatabase->SetString(gProtoVolatileStartType, 0, group, 0);
 		GetSaveManager()->Unknown1047FD10();
 	}
+
+	// FUNCTION: ENGINE 0x104DF950
+	bool HasDevSelectLevel(const char* name)
+	{
+		if (name != 0)
+		{
+			for (unsigned int i = 0; i < gDevSelectList.Size(); i++)
+			{
+				if (core::StrCmp(gDevSelectList.entries[i].name, name) == 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// FUNCTION: ENGINE 0x104DF9E0
+	// NONMATCHING: the engine keeps the zero it returns in ebx and leaves the loop through two returns, 74.6 %
+#ifdef NONMATCHING
+	const char* FindLevelName(const char* name)
+	{
+		for (unsigned int i = 0; i < gDevSelectList.Size(); i++)
+		{
+			if (core::StrCmp(gDevSelectList.entries[i].name, name) == 0)
+			{
+				return gDevSelectList.entries[i].location;
+			}
+		}
+		return 0;
+	}
+#endif
 }
