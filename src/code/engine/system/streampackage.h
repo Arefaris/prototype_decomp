@@ -13,6 +13,7 @@
 #include "code/content/metatype.h"
 #include "code/content/stringmetatype.h"
 #include "code/core/name.h"
+#include "code/engine/gameobject/gameobjecthandle.h"
 #include "code/engine/system/tagset.h"
 #include "code/math/vector.h"
 
@@ -226,6 +227,8 @@ namespace engine
 		static void Unregister(StreamPackage* package);
 		// 0x1082CF10: takes a client out of the manager's list (the client's flag at +0x18 says whether it is in)
 		static void UnregisterClient(StreamClient* client);
+		// 0x1082CED0: puts a client in the list its flag at +0x18 names (when there is room)
+		static void RegisterClient(StreamClient* client);
 		// 0x1082C420 / 0x1082C510 (names guessed): makes the package of a startup group (0 - 2) from its resources and
 		// prerequisites and loads it; stops the group's package and forgets its name
 		static void LoadStartupPackage(int group, const core::Name<core::CaseSensitiveKey>& newName,
@@ -247,7 +250,9 @@ namespace engine
 		StreamPackage* groupPackages[4];  // +0x98
 		// The names the startup groups' packages were loaded under
 		core::Name<core::CaseSensitiveKey> startupNames[3];  // +0xA8
-		unsigned char unknownC0[0xC8 - 0xC0];
+		// The stream drivers' handles, one for each player
+		GameObjectHandle* streamDrivers;  // +0xC0
+		int streamDriverCount;            // +0xC4
 		// The packages that are loading, by priority (AddActive puts one in, RemoveActive takes it out)
 		container::ArrayDynamicStatic<StreamPackage*, StreamAllocator> activePackages;  // +0xC8
 		unsigned char unknownD8[0xF0 - 0xD8];
@@ -262,6 +267,15 @@ namespace engine
 	};
 
 	extern StreamManager* gStreamManager;
+
+	// 0x1082C040 / 0x1082D480 / 0x1082C010 (the stream manager's unit): how many stream drivers there are, the object of
+	// one and the object the handle of one is taken from (names guessed)
+	int GetStreamDriverCount();
+	GameObject* GetStreamDriver(int index);
+	void SetStreamDriver(int index, GameObject* object);
+	// 0x1082DC00 / 0x1082D4C0: makes the handles of that many drivers (all empty) / lets the drivers go
+	void SetStreamDriverCount(int count);
+	void DestroyStreamDrivers();
 
 	// 0x1130D388: the slot group name loads without a group of their own are made with (name guess)
 	extern content::ObjectName gNoSlotGroup;

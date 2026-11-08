@@ -3,10 +3,12 @@
 
 #include "code/core/heap.h"
 #include "code/engine/fight/trackfactory.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/system/streampackage.h"
 #include "code/engine/system/streamtrigger.h"
 #include "code/engine/system/tagset.h"
 #include "code/math/vector.h"
+#include <new>
 
 namespace engine
 {
@@ -213,6 +215,70 @@ namespace engine
 		}
 		return waiting != 0;
 	}
+
+	// FUNCTION: ENGINE 0x1082C010
+	void SetStreamDriver(int index, GameObject* object)
+	{
+		gStreamManager->streamDrivers[index] = GetHandle(object);
+	}
+
+	// FUNCTION: ENGINE 0x1082C040
+	int GetStreamDriverCount()
+	{
+		return gStreamManager->streamDriverCount;
+	}
+
+	// FUNCTION: ENGINE 0x1082CED0
+	void StreamManager::RegisterClient(StreamClient* client)
+	{
+		StreamManager* manager = gStreamManager;
+		if (client->unknown18)
+		{
+			manager->flaggedClients.PushBack(client);
+		}
+		else
+		{
+			manager->clients.PushBack(client);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082D480
+	GameObject* GetStreamDriver(int index)
+	{
+		return gStreamManager->streamDrivers[index].Get();
+	}
+
+	// FUNCTION: ENGINE 0x1082D4C0
+	void DestroyStreamDrivers()
+	{
+		StreamManager* manager = gStreamManager;
+		if (manager->streamDrivers != 0)
+		{
+			for (int i = 0; i < manager->streamDriverCount; i++)
+			{
+				GameObjectHandle* handle = &manager->streamDrivers[i];
+				if (handle->IsValid())
+				{
+					DeferUpdate(*handle, false);
+				}
+			}
+			delete[] manager->streamDrivers;
+			manager->streamDrivers = 0;
+			manager->streamDriverCount = 0;
+		}
+	}
+
+	// FUNCTION: ENGINE 0x1082DC00
+	// NONMATCHING: 99.1 %, the vector constructor is given the engine's copy of the handle constructor at 0x1005F820
+	// (the one this name maps to is 0x102A8410)
+#ifdef NONMATCHING
+	void SetStreamDriverCount(int count)
+	{
+		DestroyStreamDrivers();
+		gStreamManager->streamDriverCount = count;
+		gStreamManager->streamDrivers = new GameObjectHandle[gStreamManager->streamDriverCount];
+	}
+#endif
 
 	// FUNCTION: ENGINE 0x1082CF10
 	void StreamManager::UnregisterClient(StreamClient* client)
