@@ -52,9 +52,8 @@ namespace engine
 	typedef container::ArrayDynamic<AdvertisementMapping, container::AllocatorNew> AdvertisementMappingArray;
 
 	// The interface a behaviour that puts advertisements on a model implements (RTTI name; one vftable slot)
-	class OnlineAdvertElementCallback
+	struct OnlineAdvertElementCallback
 	{
-	public:
 		// 0x10917A80 (a copy of the inline constructor)
 		OnlineAdvertElementCallback()
 		{
@@ -90,6 +89,18 @@ namespace engine
 		bool registered;  // +0x20
 		BaseAttribute* scale;  // +0x24
 	};
+}
+
+namespace content
+{
+	// The insertion and the removal of the helpers are left to the engine (it keeps the default element in a function of
+	// its own, and expands the removal in the helper)
+	template<> void ArrayDynamicHelper<engine::AdvertisementMappingArray>::Insert(void* array, int index, int unused);
+	template<> void ArrayDynamicHelper<engine::AdvertisementMappingArray>::Erase(void* array, int index, int unused);
+	template<> void ArrayCDynamicHelper<container::ArrayCDynamic<math::Vector, 4> >::Insert(void* array, int index,
+		int unused);
+	template<> void ArrayCDynamicHelper<container::ArrayCDynamic<math::Vector, 4> >::Erase(void* array, int index,
+		int unused);
 }
 
 #endif
