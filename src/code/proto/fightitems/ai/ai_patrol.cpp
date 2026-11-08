@@ -257,6 +257,22 @@ namespace proto
 			{
 			}
 
+			// FUNCTION: ENGINE 0x102053C0
+			bool PatrolAction::Slot7(int arg, float value)
+			{
+				engine::GameObject* object = target.Get();
+				if (object == 0)
+				{
+					return false;
+				}
+				math::Matrix& world = object->transform->value;
+				math::Vector position(world.m[3][0], world.m[3][1], world.m[3][2]);
+				following.Update(&position, value);
+				BroadcastPatrolPointAIMsg message(following.unknown2C);
+				object->SendMessage(&message);
+				return true;
+			}
+
 			// FUNCTION: ENGINE 0x10205890
 			fight::Action* PatrolTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)
 			{
@@ -301,6 +317,7 @@ namespace proto
 }
 
 // Kept copies (inline members, template instances and compiler-generated functions of this unit):
+// FUNCTION: ENGINE 0x102050C0
 // FUNCTION: ENGINE 0x10243970
 // FUNCTION: ENGINE 0x102439A0
 // FUNCTION: ENGINE 0x102439D0

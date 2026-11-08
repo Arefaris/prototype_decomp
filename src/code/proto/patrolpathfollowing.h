@@ -39,6 +39,8 @@ namespace proto
 		virtual ~PatrolPathFollowing();
 		// 0x103A7400 (another unit): takes a path and starts it over (name guess)
 		void SetPath(PatrolPath* newPath);
+		// 0x103A7850 (another unit): moves the follower along the path for a time from where the object is (name guess)
+		void Update(const math::Vector* position, float deltaTime);
 
 		int unknown4;  // +4
 		PatrolPath* path;  // +8

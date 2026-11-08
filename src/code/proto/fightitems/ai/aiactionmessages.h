@@ -184,6 +184,30 @@ namespace proto
 		PatrolPath* path;  // +0xC
 	};
 
+	// RTTI: proto::BroadcastPatrolPointAIMsg: the object tells which point of its patrol it goes to
+	struct BroadcastPatrolPointAIMsg : public LODAIMessage
+	{
+		explicit BroadcastPatrolPointAIMsg(int newPoint) : LODAIMessage(0xd), point(newPoint)
+		{
+		}
+		virtual ~BroadcastPatrolPointAIMsg()
+		{
+		}
+
+		int point;  // +0xC
+	};
+
+	// RTTI: proto::GetPatrolSpeedAIMsg
+	struct GetPatrolSpeedAIMsg : public LODAIMessage
+	{
+		GetPatrolSpeedAIMsg() : LODAIMessage(0x10)
+		{
+		}
+		virtual ~GetPatrolSpeedAIMsg()
+		{
+		}
+	};
+
 	// RTTI: proto::SetBrakingInMotionMovementMessage: the object does or does not brake while it moves
 	struct SetBrakingInMotionMovementMessage : public MovementMessage
 	{
