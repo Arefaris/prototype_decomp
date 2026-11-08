@@ -98,6 +98,8 @@ namespace proto
 		virtual void Slot1()
 		{
 		}
+		// vftable slot 6 (0x102C8840): the messages
+		virtual void OnMessage(engine::Message* message);
 		// 0x102C6910
 		static content::ClassInfo* GetClassInfo();
 		// 0x102C8730

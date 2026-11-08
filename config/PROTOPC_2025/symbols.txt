@@ -104537,3 +104537,4 @@ _sAllowedTransitionsGetters = 0x10D9C08C ; data size:0x10 | proto::fightitems::m
 ?FindSlot@GrabBehaviour@proto@@QAEHABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x102C7120 ; function size:0x49 | proto::GrabBehaviour::FindSlot (name guess)
 ?GetSlotHandle@GrabBehaviour@proto@@QAE?AVHandleBase@engine@@ABV?$Name@UCaseSensitiveKey@core@@@core@@@Z = 0x102C7180 ; function size:0x43 | proto::GrabBehaviour::GetSlotHandle (name guess)
 ?SendToHeld@GrabBehaviour@proto@@QAEXPAUMessage@engine@@@Z = 0x102C80D0 ; function size:0x4E | proto::GrabBehaviour::SendToHeld (name guess)
+?OnMessage@GrabBehaviour@proto@@UAEXPAUMessage@engine@@@Z = 0x102C8840 ; function size:0x30 | proto::GrabBehaviour::OnMessage vftable slot 6
