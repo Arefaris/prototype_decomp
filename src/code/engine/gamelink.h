@@ -57,7 +57,9 @@ namespace engine
 	// The net library's global state (0x113187D4; 0x108C4260 answers it)
 	struct NetSystem
 	{
-		unsigned char unknown0[0x20];
+		unsigned char unknown0[0x14];
+		unsigned int* localAddress;  // +0x14
+		unsigned char unknown18[8];
 		int unknown20;
 	};
 	// 0x108C4260
