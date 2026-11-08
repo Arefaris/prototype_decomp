@@ -76,6 +76,11 @@ namespace
 		proto::GetPublicLuaEnvironmentMessage message;
 	}
 
+	void EmitSetIsInConstructionSquadMsg()
+	{
+		proto::SetIsInConstructionSquadMsg message(false);
+	}
+
 	void EmitStateMachineHardStopMessage()
 	{
 		proto::StateMachineHardStopMessage message;
@@ -100,3 +105,4 @@ namespace
 // FUNCTION: ENGINE 0x10493890
 // FUNCTION: ENGINE 0x10487F80
 // FUNCTION: ENGINE 0x104952C0
+// FUNCTION: ENGINE 0x1048C810

@@ -12,6 +12,7 @@
 #include "code/engine/message.h"
 #include "code/engine/scenariomessage.h"
 #include "code/proto/messages/gamestatemessages.h"
+#include "code/proto/messages/statemessages.h"
 
 namespace engine
 {
@@ -49,6 +50,19 @@ namespace engine
 
 namespace proto
 {
+	// RTTI: proto::StateMachineGetStateMessage: the state machine answers the branch it is in
+	struct StateMachineGetStateMessage : public StateMachineMsg
+	{
+		StateMachineGetStateMessage() : StateMachineMsg(0), state(0)
+		{
+		}
+		virtual ~StateMachineGetStateMessage()
+		{
+		}
+
+		fight::Branch* state;  // +0xC
+	};
+
 	// RTTI: proto::StateMachineSetStateMessage: puts the state machine into a state (and a state to go to next)
 	struct StateMachineSetStateMessage : public StateMachineMsg
 	{
@@ -178,6 +192,19 @@ namespace proto
 		virtual ~StateMachineHardStopMessage()
 		{
 		}
+	};
+
+	// RTTI: proto::SetIsInConstructionSquadMsg: tells a squad that it is (or is no longer) being put together
+	struct SetIsInConstructionSquadMsg : public SquadMessage
+	{
+		explicit SetIsInConstructionSquadMsg(bool newInConstruction) : SquadMessage(0x14), inConstruction(newInConstruction)
+		{
+		}
+		virtual ~SetIsInConstructionSquadMsg()
+		{
+		}
+
+		bool inConstruction;  // +0xC
 	};
 }
 

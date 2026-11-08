@@ -1,4 +1,8 @@
 #include "code/proto/scenariomessages.h"
+#include "code/proto/messages/statemachinemessages.h"
+#include "code/engine/fight/branch.h"
+#include "code/proto/fightitems/ai/aihelpers.h"
+#include "code/engine/gameobject/gameobject.h"
 #include "code/proto/collectiblebehaviour.h"
 #include "code/engine/gameobject/gameobjectsystem.h"
 #include "code/engine/scenario/scenariolisters.h"
@@ -872,10 +876,40 @@ namespace proto
 		return new (memory) StateMachineStateChangedMessage(*this);
 	}
 
+	// FUNCTION: ENGINE 0x1048CEE0
+	void StateMachineStateChangedMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		if (newState != 0)
+		{
+			context->SetName("newState", ((fight::Branch*)newState)->name);
+		}
+		context->SetHandle("statemachine", engine::SerializeHandle(handles[0]));
+	}
+
+	// FUNCTION: ENGINE 0x104904E0
+	void DestinationReachedMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		if (!handles[0].IsValid() && gAISystem != 0)
+		{
+			handles[0] = gAISystem->unknown1054;
+		}
+		context->SetHandle("object", engine::SerializeHandle(handles[0]));
+		context->SetString("data", data);
+	}
+
 	// FUNCTION: ENGINE 0x10492EE0
 	engine::ScenarioMessage* SquadSpawnedScenarioMessage::Clone(void* memory, int unused)
 	{
 		return new (memory) SquadSpawnedScenarioMessage(*this);
+	}
+
+	// FUNCTION: ENGINE 0x104912A0
+	void SquadSpawnedScenarioMessage::WriteFields(engine::LuaScriptManager* context)
+	{
+		SetIsInConstructionSquadMsg squadMessage(false);
+		handles[1].Get()->SendMessage(&squadMessage);
+		context->SetHandle("spawner", engine::SerializeHandle(handles[0]));
+		context->SetHandle("squad", engine::SerializeHandle(handles[1]));
 	}
 
 

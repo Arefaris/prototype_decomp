@@ -636,3 +636,8 @@ namespace proto
 	// FUNCTION: ENGINE 0x10495440
 	template content::ClassMetaType* content::GetClassMetaType<engine::ScenarioTreeBehaviour>();
 }
+
+// Kept copies (inline members and template instances of this unit):
+// FUNCTION: ENGINE 0x10493B30
+// FUNCTION: ENGINE 0x10493BF0
+// FUNCTION: ENGINE 0x10495400
