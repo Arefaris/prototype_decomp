@@ -2,6 +2,8 @@
 #include "code/proto/fightitems/ai/ai_tankram.h"
 #include "code/proto/fightitems/ai/aimessages.h"
 #include "code/proto/fightitems/ai/aiactionmessages.h"
+#include "code/proto/fightitems/ai/aiactionhelpers.h"
+#include "code/math/worldbounds.h"
 
 namespace proto
 {
@@ -199,6 +201,102 @@ namespace proto
 					}
 				}
 			}
+
+			// FUNCTION: ENGINE 0x102085F0
+			// NONMATCHING: the engine shares the load of the two positions with the vector copies and keeps the other object in ecx, the negated direction is stored differently, about 33 %
+#ifdef NONMATCHING
+			bool TankRamAction::Slot7(int arg, float value)
+			{
+				if (link.Get() == 0)
+				{
+					return false;
+				}
+				engine::GameObject* object = target.Get();
+				engine::GameObject* other = unknown2C.Get();
+				if (other == 0)
+				{
+					return false;
+				}
+				math::Vector direction;
+				math::Vector reversed;
+				switch (unknown48)
+				{
+				case 2:
+					{
+						math::Vector from(object->transform->value.m[3][0], object->transform->value.m[3][1], object->transform->value.m[3][2]);
+						math::Vector to(other->transform->value.m[3][0], other->transform->value.m[3][1], other->transform->value.m[3][2]);
+						direction.x = to.x - from.x;
+						direction.y = 0.0f;
+						direction.z = to.z - from.z;
+					}
+					direction.Normalize();
+					direction.x = math::WORLD_MIN - direction.x;
+					direction.y = math::WORLD_MIN - direction.y;
+					direction.z = math::WORLD_MIN - direction.z;
+					Unknown103B8510(object, link.Get()->speed, &direction, false);
+					unknown38 = unknown38 + value;
+					{
+						TankRamTrack* track = link.Get();
+						if (track->timePreparingForward < unknown38)
+						{
+							SetVehicleAccelerationsMessage accelerations;
+							accelerations.unknownC = track->maxTurningSpeedFactor;
+							accelerations.unknown10 = track->rollingScaleFactorPush;
+							object->SendMessage(&accelerations);
+							SetReverseGearMovementMessage reverse(false);
+							object->SendMessage(&reverse);
+							unknown48 = 1;
+							return true;
+						}
+					}
+					break;
+				case 4:
+					{
+						math::Vector from(object->transform->value.m[3][0], object->transform->value.m[3][1], object->transform->value.m[3][2]);
+						math::Vector to(other->transform->value.m[3][0], other->transform->value.m[3][1], other->transform->value.m[3][2]);
+						direction.x = to.x - from.x;
+						direction.y = 0.0f;
+						direction.z = to.z - from.z;
+					}
+					direction.Normalize();
+					reversed.x = math::WORLD_MIN - direction.x;
+					reversed.y = math::WORLD_MIN - direction.y;
+					reversed.z = math::WORLD_MIN - direction.z;
+					Unknown103B8510(object, link.Get()->speed, &reversed, false);
+					unknown38 = unknown38 + value;
+					{
+						TankRamTrack* track = link.Get();
+						if (track->timePreparingBackward < unknown38)
+						{
+							SetVehicleAccelerationsMessage accelerations;
+							accelerations.unknownC = track->maxTurningSpeedFactor;
+							accelerations.unknown10 = track->rollingScaleBackwardsFactorPush;
+							object->SendMessage(&accelerations);
+							SetReverseGearMovementMessage reverse(true);
+							object->SendMessage(&reverse);
+							unknown48 = 3;
+							return true;
+						}
+					}
+					break;
+				case 1:
+				case 3:
+					{
+						math::Vector from(object->transform->value.m[3][0], object->transform->value.m[3][1], object->transform->value.m[3][2]);
+						math::Vector to(other->transform->value.m[3][0], other->transform->value.m[3][1], other->transform->value.m[3][2]);
+						direction.x = to.x - from.x;
+						direction.y = 0.0f;
+						direction.z = to.z - from.z;
+					}
+					direction.Normalize();
+					Unknown103B8510(object, link.Get()->speed, &direction, false);
+					break;
+				default:
+					return false;
+				}
+				return true;
+			}
+#endif
 
 			// FUNCTION: ENGINE 0x102089D0
 			fight::Action* TankRamTrack::CreateAction(fight::Track* listener, core::IRefCount* effect, core::IRefCount* owner)

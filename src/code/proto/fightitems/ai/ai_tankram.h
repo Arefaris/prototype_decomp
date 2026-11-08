@@ -83,7 +83,7 @@ namespace proto
 
 				core::Link<TankRamTrack> link;  // +0x1C
 				engine::GameObjectHandle target;  // +0x28
-				engine::HandleBase unknown2C;  // +0x2C
+				engine::GameObjectHandle unknown2C;  // +0x2C
 				float unknown30;  // +0x30
 				float unknown34;  // +0x34
 				float unknown38;  // +0x38

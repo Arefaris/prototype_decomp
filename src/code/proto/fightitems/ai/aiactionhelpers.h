@@ -22,6 +22,8 @@ namespace proto
 
 	// 0x103B8330: sends the object to a position (name guess)
 	void Unknown103B8330(engine::GameObject* object, const math::Vector* position, const MoveParams* params);
+	// 0x103B8510: drives the object with a speed along a direction (name guess)
+	void Unknown103B8510(engine::GameObject* object, float speed, const math::Vector* motion, bool flag);
 }
 
 #endif
