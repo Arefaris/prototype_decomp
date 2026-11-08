@@ -57,6 +57,8 @@ namespace mgraph
 	class ConnectionData
 	{
 	public:
+		// 0x10AC61D0
+		ConnectionData();
 		// 0x10AD3B30
 		ConnectionData(const ConnectionData& other);
 		__forceinline ~ConnectionData()

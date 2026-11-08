@@ -479,4 +479,14 @@ namespace om
 {
 	// FUNCTION: ENGINE 0x10AC7480
 	template void DynamicArray<mgraph::ConnectionData,unsigned short>::Clear();
+	// FUNCTION: ENGINE 0x10AC5FE0
+	template mgraph::ConnectionData& DynamicArray<mgraph::ConnectionData,unsigned short>::operator[](unsigned short);
+	// FUNCTION: ENGINE 0x10AC6090
+	template void DynamicArray<mgraph::ConnectionData,unsigned short>::ReleaseElements(mgraph::ConnectionData*, unsigned short);
+	// FUNCTION: ENGINE 0x10AC61C0
+	template char const* DynamicArray<mgraph::ConnectionData,unsigned short>::AllocationTag();
+	// FUNCTION: ENGINE 0x10AC6630
+	template mgraph::ConnectionData const& DynamicArray<mgraph::ConnectionData,unsigned short>::operator[](unsigned short) const;
+	// FUNCTION: ENGINE 0x10AC68C0
+	template mgraph::ConnectionData* DynamicArray<mgraph::ConnectionData,unsigned short>::Allocate(unsigned short);
 }

@@ -9,6 +9,11 @@
 
 namespace mgraph
 {
+	// FUNCTION: ENGINE 0x10AC61D0
+	ConnectionData::ConnectionData()
+	{
+	}
+
 	// FUNCTION: ENGINE 0x10AD3AE0
 	MemoryBufferCopy& MemoryBufferCopy::operator=(const MemoryBufferCopy& other)
 	{
