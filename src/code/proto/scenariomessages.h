@@ -875,6 +875,11 @@ namespace proto
 		UnlockableAcquiredScenarioMessage() : engine::ScenarioMessage(0x54)
 		{
 		}
+		// 0x10578EA0
+		explicit UnlockableAcquiredScenarioMessage(int newUnlockable) : engine::ScenarioMessage(0x54),
+			unlockable(newUnlockable)
+		{
+		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);
 		virtual void WriteFields(engine::LuaScriptManager* context);
 
@@ -890,6 +895,11 @@ namespace proto
 	struct UnlockableIncrementedPurchaseTypeScenarioMessage : public engine::ScenarioMessage
 	{
 		UnlockableIncrementedPurchaseTypeScenarioMessage() : engine::ScenarioMessage(0x55)
+		{
+		}
+		// 0x10578ED0
+		explicit UnlockableIncrementedPurchaseTypeScenarioMessage(int newPurchaseType) : engine::ScenarioMessage(0x55),
+			purchaseType(newPurchaseType)
 		{
 		}
 		virtual engine::ScenarioMessage* Clone(void* memory, int unused);

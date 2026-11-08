@@ -1,4 +1,9 @@
 #include "code/proto/unlockables.h"
+#include "code/engine/database/gamedatabase.h"
+#include "code/engine/luascriptmanager.h"
+#include "code/engine/function.h"
+#include "code/engine/gameobject/gameobjectsystem.h"
+#include "code/proto/scenariomessages.h"
 
 namespace content
 {
@@ -607,6 +612,310 @@ namespace proto
 	}
 }
 
+namespace engine
+{
+	// 0x11274808: the name "Unlockables" of the database subject
+	extern core::Name<core::CaseSensitiveKey> gUnlockables;
+	// 0x11274818: the name "UnlockablesPurchaseTypeCount"
+	extern core::Name<core::CaseSensitiveKey> gUnlockablesPurchaseTypeCount;
+	// 0x112738D0: the scenario's listeners
+	extern MessageListeners gScenario10;
+}
+
+namespace proto
+{
+	// 0x10579210: changes one flag of an unlockable in the database (the engine's)
+	void ChangeUnlockableFlag(int unlockable, int bit, bool on);
+
+	// FUNCTION: ENGINE 0x10579140
+	// NONMATCHING: the engine passes the word on the stack and the index and bit in registers, ours the word in edx too
+#ifdef NONMATCHING
+	// Sets or clears one flag of a word of the table (the flag counts from the byte of the unlockable)
+	static __declspec(noinline) unsigned int ChangeFlag(int index, int bit, unsigned int word, bool on)
+	{
+		unsigned int mask = (1 << bit) << ((index % 4) * 8);
+		if (on)
+		{
+			return word | mask;
+		}
+		return word & ~mask;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579210
+	// NONMATCHING: calls the word helper, whose register convention differs (30 %)
+#ifdef NONMATCHING
+	// Changes one flag of an unlockable in the database
+	void ChangeUnlockableFlag(int unlockable, int bit, bool on)
+	{
+		engine::GameDatabase* database = engine::gGameDatabase;
+		unsigned int word = unlockable / 4;
+		int old = database->GetInt(engine::gUnlockables, 0, word);
+		int changed = ChangeFlag(unlockable, bit, old, on);
+		if (old != changed)
+		{
+			database->SetInt(engine::gUnlockables, 0, changed, word);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579310
+	bool UnlockTable::IsAvailable(int player, int unlockable)
+	{
+		int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+		return ((1 << ((unlockable % 4) * 8)) & word) ? true : false;
+	}
+
+	// FUNCTION: ENGINE 0x10579370
+	void UnlockTable::SetAvailable(int player, int unlockable, bool on)
+	{
+		ChangeUnlockableFlag(unlockable, 0, on);
+	}
+
+	// FUNCTION: ENGINE 0x10579390
+	bool UnlockTable::IsUnlocked(int player, int unlockable)
+	{
+		int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+		return ((2 << ((unlockable % 4) * 8)) & word) ? true : false;
+	}
+
+	// FUNCTION: ENGINE 0x10579450
+	void UnlockTable::SetActivated(int player, int unlockable, bool on)
+	{
+		ChangeUnlockableFlag(unlockable, 2, on);
+	}
+
+	// FUNCTION: ENGINE 0x10579470
+	bool UnlockTable::HasDisplayedInFE(int player, int unlockable)
+	{
+		int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+		return ((8 << ((unlockable % 4) * 8)) & word) ? true : false;
+	}
+
+	// FUNCTION: ENGINE 0x105794D0
+	void UnlockTable::SetDisplayedInFE(int player, int unlockable, bool on)
+	{
+		ChangeUnlockableFlag(unlockable, 3, on);
+	}
+
+	// FUNCTION: ENGINE 0x10579BF0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetUnlockableEnum(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0)
+		{
+			return 0;
+		}
+		if (index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].unlockable;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579C40
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetNecessityType(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].necessityType;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A0E0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetPurchaseType(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].purchaseType;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A130
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int UnlockTable::GetPurchaseCost(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return lists[list]->begin[index].purchaseCost;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A180
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	int* UnlockTable::GetFEIdentifier(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return 0;
+		}
+		return &lists[list]->begin[index].feIdentifier;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A1D0
+	int UnlockTable::GetUnlockablesListCount(unsigned int list)
+	{
+		if (list > 6 || lists[list] == 0)
+		{
+			return 0;
+		}
+		return lists[list]->GetCount();
+	}
+
+	// FUNCTION: ENGINE 0x10579C90
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetAvailable(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		return IsAvailable(0, lists[list]->begin[index].unlockable);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579D80
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetAcquired(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		return IsUnlocked(0, lists[list]->begin[index].unlockable);
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579DE0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetDisplayedInFE(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		int unlockable = lists[list]->begin[index].unlockable;
+		int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+		return ((8 << ((unlockable % 4) * 8)) & word) != 0;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x10579CF0
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	bool UnlockTable::GetPrerequisiteSatisfied(unsigned int list, int index)
+	{
+		if (list > 6 || lists[list] == 0 || index < 0 || index >= (int)lists[list]->GetCount())
+		{
+			return false;
+		}
+		UnlockableInfo* entry = &lists[list]->begin[index];
+		IsAvailable(0, entry->unlockable);
+		if (entry->prerequisite != 0 && !IsUnlocked(0, entry->prerequisite))
+		{
+			return false;
+		}
+		return true;
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x1057A200
+	// NONMATCHING: the engine puts the not found result before the found one and compares in another operand order (best 98 %, usually 60 %)
+#ifdef NONMATCHING
+	void UnlockTable::SetDisplayedInFE(unsigned int list, int index, bool displayed)
+	{
+		if (list <= 6 && lists[list] != 0 && index >= 0 && index < (int)lists[list]->GetCount())
+		{
+			ChangeUnlockableFlag(*(int*)((index << 5) + (int)lists[list]->begin), 3, displayed);
+		}
+	}
+#endif
+
+	// FUNCTION: ENGINE 0x105795A0
+	void UnlockTable::SetUnlockableOfInterest(int unlockable)
+	{
+		unlockableOfInterest = unlockable;
+	}
+
+	// FUNCTION: ENGINE 0x105795B0
+	int UnlockTable::GetUnlockableOfInterest()
+	{
+		return unlockableOfInterest;
+	}
+
+	// FUNCTION: ENGINE 0x10579280
+	void Unknown10579280()
+	{
+		if (gUnlockTable != 0)
+		{
+			delete gUnlockTable;
+		}
+		gUnlockTable = 0;
+	}
+
+	// FUNCTION: ENGINE 0x105795D0
+	void UnlockTable::ClearPurchaseTypeCount(int purchaseType)
+	{
+		engine::gGameDatabase->SetInt(engine::gUnlockablesPurchaseTypeCount, 0, 0, purchaseType);
+	}
+
+	// FUNCTION: ENGINE 0x105795C0
+	int UnlockTable::GetCategoryPurchaseType()
+	{
+		return 20;
+	}
+
+	// FUNCTION: ENGINE 0x10579560
+	void UnlockTable::SetAllActivated(int player, bool on)
+	{
+		for (int i = 0; i < 484; i++)
+		{
+			SetActivated(player, i, on);
+		}
+	}
+
+	// FUNCTION: ENGINE 0x105792D0
+	void UnlockTable::SendAcquired(int unlockable)
+	{
+		UnlockableAcquiredScenarioMessage message(unlockable);
+		engine::SendMessage(&message, &engine::gScenario10);
+	}
+}
+
+namespace proto
+{
+	namespace fightitems
+	{
+		namespace motion
+		{
+			// FUNCTION: ENGINE 0x105793F0
+			bool __stdcall IsUnlockableAvailable(int player, int unlockable)
+			{
+				int word = engine::gGameDatabase->GetInt(engine::gUnlockables, 0, unlockable / 4);
+				return ((4 << ((unlockable % 4) * 8)) & word) ? true : false;
+			}
+		}
+	}
+}
+
 // The meta types of the enumerations (explicit instances)
 template content::EnumMetaType* content::GetEnumMetaType<proto::Unlockable>();
 template content::EnumMetaType* content::GetEnumMetaType<proto::UnlockableType>();
@@ -618,3 +927,4 @@ template content::EnumMetaType* content::GetEnumMetaType<proto::UnlockableMultip
 // FUNCTION: ENGINE 0x105796E0
 // FUNCTION: ENGINE 0x10579760
 // FUNCTION: ENGINE 0x105797E0
+// FUNCTION: ENGINE 0x10578EA0

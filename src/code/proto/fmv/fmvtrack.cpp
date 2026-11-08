@@ -13,6 +13,72 @@ namespace proto
 {
 	fight::Property** gFMVTrackProperties;  // 0x112738B0
 
+	// FUNCTION: ENGINE 0x10577600
+	const char* FMVTrack::GetFilename() const
+	{
+		return filename;
+	}
+
+	// FUNCTION: ENGINE 0x10577610
+	bool FMVTrack::GetUseFMVState() const
+	{
+		return useFMVState;
+	}
+
+	// FUNCTION: ENGINE 0x10577620
+	bool FMVTrack::GetClearSubtitles() const
+	{
+		return clearSubtitles;
+	}
+
+	// FUNCTION: ENGINE 0x10577630
+	bool FMVTrack::GetUseBlackFades() const
+	{
+		return useBlackFades;
+	}
+
+	// FUNCTION: ENGINE 0x10577640
+	bool FMVTrack::GetFadeInOnEnter() const
+	{
+		return fadeInOnEnter;
+	}
+
+	// FUNCTION: ENGINE 0x10577650
+	bool FMVTrack::GetStayFadedOnExit() const
+	{
+		return stayFadedOnExit;
+	}
+
+	// FUNCTION: ENGINE 0x10577660
+	bool FMVTrack::GetFadeUpOnExit() const
+	{
+		return fadeUpOnExit;
+	}
+
+	// FUNCTION: ENGINE 0x10577670
+	bool FMVTrack::GetDelayUninstall() const
+	{
+		return delayUninstall;
+	}
+
+	// FUNCTION: ENGINE 0x10577680
+	float FMVTrack::GetUninstallDelayTime() const
+	{
+		return uninstallDelayTime;
+	}
+
+	// FUNCTION: ENGINE 0x10577690
+	float FMVTrack::GetWhiteFadeTime() const
+	{
+		return whiteFadeTime;
+	}
+
+	// FUNCTION: ENGINE 0x105776A0
+	float FMVTrack::GetTimer() const
+	{
+		return timer;
+	}
+
 	// FUNCTION: ENGINE 0x105785F0
 	bool FMVTrack::SetTimeBegin(float value)
 	{

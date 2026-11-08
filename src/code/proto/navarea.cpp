@@ -90,6 +90,18 @@ namespace proto
 		return forwardClaims * scale;
 	}
 
+	// FUNCTION: ENGINE 0x105680A0
+	void NavArea::AddVehicle(VehicleBehaviour* vehicle)
+	{
+		vehicles.PushFront(reinterpret_cast<container::DoubleListBase::Node*>(static_cast<container::ListBase::Node*>(vehicle)));
+	}
+
+	// FUNCTION: ENGINE 0x105680D0
+	void NavArea::RemoveVehicle(VehicleBehaviour* vehicle)
+	{
+		vehicles.Remove(reinterpret_cast<container::DoubleListBase::Node*>(static_cast<container::ListBase::Node*>(vehicle)));
+	}
+
 	// FUNCTION: ENGINE 0x10568060
 	bool NavArea::ContainsVehicle(VehicleBehaviour* vehicle)
 	{

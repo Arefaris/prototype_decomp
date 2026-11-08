@@ -29,6 +29,9 @@ namespace proto
 		// The member the property writes
 		bool SetIsWOITarget(bool value);
 
+		// Getters (names guessed from the setters)
+		bool GetIsWOITarget() const;
+
 		// The property list, built once and freed again
 		static void RegisterProperties();
 		static void ClearProperties();
@@ -62,6 +65,10 @@ namespace proto
 		bool SetTimeEnd(float value);
 		bool SetEndInBlack(bool value);
 		bool SetFadeUpToBlack(bool value);
+
+		// Getters (names guessed from the setters)
+		bool GetEndInBlack() const;
+		bool GetFadeUpToBlack() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -117,6 +124,9 @@ namespace proto
 		bool SetTimeBegin(float value);
 		bool SetToScenario(bool value);
 		bool SetToFrontend(bool value);
+
+		// Getters (names guessed from the setters)
+		bool GetToScenario() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();
@@ -219,6 +229,10 @@ namespace proto
 		bool SetTargetGrabSlot(const fight::Name& value);
 		fight::BranchHolder* GetWOIBranch();
 		bool SetPriority(int value);
+
+		// Getters (names guessed from the setters)
+		const fight::Name& GetTargetGrabSlot() const;
+		int GetPriority() const;
 
 		// The property list, built once and freed again
 		static void RegisterProperties();

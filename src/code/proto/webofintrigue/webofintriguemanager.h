@@ -20,9 +20,22 @@ namespace proto
 	public:
 		// 0x10563080
 		static content::ClassInfo* GetClassInfo();
+		// 0x10563140
+		static content::MemberList* GetMembers();
+
+		// 0x105631E0
+		WOIEpisode();
+		// 0x10563200 (the deleting destructor is 0x10563210)
+		virtual ~WOIEpisode()
+		{
+		}
+
+		// vftable slots 3 (0x105630C0): the manager learns the episode when it has loaded; 4 (0x105630E0)
+		virtual void Slot3(int unused);
+		virtual bool IsReady();
 
 		int done;  // +8
-		int total;  // +0xC
+		int total;  // +0xC (the reflected "numberOfNodes", an unsigned number)
 
 		// 0x1055B520 / 0x1055B530 / 0x1055B540 (names guessed)
 		int GetDone();
